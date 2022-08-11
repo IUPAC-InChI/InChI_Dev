@@ -1,0 +1,1 @@
+* Input_File: "C:\_ipl\INCHI\devel\INCHI-DEV\_pre-release-package\INCHI-1-BIN\windows\draw-molinchi1.mol"

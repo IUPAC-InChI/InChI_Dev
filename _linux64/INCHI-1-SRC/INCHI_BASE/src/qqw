@@ -1,0 +1,4339 @@
+2 /*
+44  * International Chemical Identifier (InChI)
+12  * Version 1
+38  * Software version 1.05 (pre-release)
+15  * May 30, 2016
+2  *
+71  * The InChI library and programs are free software developed under the
+77  * auspices of the International Union of Pure and Applied Chemistry (IUPAC).
+33  * Originally developed at NIST. 
+60  * Modifications and additions by IUPAC and the InChI Trust.
+72  * Some portions of code were developed/changed by external contributors
+65  * (either contractor or volunteer) which are listed in the file 
+57  * 'External-contributors' included in this distribution.
+2  *
+44  * IUPAC/InChI-Trust Licence No.1.0 for the 
+45  * International Chemical Identifier (InChI) 
+46  * Copyright (C) IUPAC and InChI Trust Limited
+3  * 
+75  * This library is free software; you can redistribute it and/or modify it 
+66  * under the terms of the IUPAC/InChI Trust InChI Licence No.1.0, 
+24  * or any later version.
+3  * 
+71  * Please note that this library is distributed WITHOUT ANY WARRANTIES 
+46  * whatsoever, whether expressed or implied.  
+67  * See the IUPAC/InChI-Trust InChI Licence No.1.0 for more details.
+3  * 
+66  * You should have received a copy of the IUPAC/InChI Trust InChI 
+62  * Licence No. 1.0 with this library; if not, please write to:
+3  * 
+18  * The InChI Trust
+21  * 8 Cavendish Avenue
+20  * Cambridge CB1 7US
+5  * UK
+2  *
+36  * or e-mail to alan@inchi-trust.org
+3  * 
+3  */
+0 
+0 
+19 #include <stdlib.h>
+19 #include <string.h>
+18 #include <ctype.h>
+17 #include <math.h>
+0 
+17 #include "mode.h"
+0 
+21 #include "ichister.h"
+21 #include "ichimain.h"
+21 #include "ichimake.h"
+20 #include "ichi_io.h"
+0 
+0 
+3 /*	
+20     Local functions 
+2 */
+0 
+65 static int str_LineStart( const char *tag, char *tag2, int val2, 
+57 			             INCHI_IOSTREAM_STRING *strbuf, int ind );
+57 static int str_LineEnd( const char *tag, int *bOverflow, 
+34 						INCHI_IOSTREAM_STRING *buf, 
+36 						int ind, int bPlainTextTags );
+58 static int CleanOrigCoord( MOL_COORD szCoord, int delim );
+77 static int WriteOrigCoord( int num_inp_atoms, MOL_COORD *szMolCoord, int *i, 
+33 							char *szBuf, int buf_len);
+88 static int WriteOrigAtoms( CANON_GLOBALS *pCG, int num_inp_atoms, inp_ATOM *at, int *i, 
+50 							char *szBuf, int buf_len, STRUCT_DATA *sd);
+88 static int WriteOrigBonds( CANON_GLOBALS *pCG, int num_inp_atoms, inp_ATOM *at, int *i, 
+33 							char *szBuf, int buf_len, 
+24 							STRUCT_DATA *sd);
+83 static void GetSaveOptLetters(unsigned char save_opt_bits, char* let1, char* let2);
+0 
+78 static int Output_record_info(	INCHI_IOSTREAM *out_file, int num_input_struct,
+52                                 int bNoStructLabels,
+92                                 const char *szSdfLabel, const char *szSdfValue, long lSdfId,
+56                                 char *pLF, char *pTAB );
+68 static int Output_INCHI_version_and_kind(	INCHI_IOSTREAM *out_file, 
+74                                             INCHI_IOSTREAM_STRING *strbuf,
+68                                             int bINChIOutputOptions,
+62                                             int nAtomsAllComp,
+68                                             char *pLF, char *pTAB );
+64 static int Output_INCHI_main_layer_formula(	CANON_GLOBALS *pCG, 
+37 											INCHI_IOSTREAM *out_file, 
+41 											INCHI_IOSTREAM_STRING *strbuf,
+34 											int num_components2[], 
+49 											int *INCHI_basic_or_INCHI_reconnected,
+33 											print_INCHI_local *pr,
+35 											char *pLF, char *pTAB );
+67 static int Output_INCHI_main_layer_connections(CANON_GLOBALS *pCG, 
+37 											INCHI_IOSTREAM *out_file, 
+41 											INCHI_IOSTREAM_STRING *strbuf,
+34 											int num_components2[], 
+49 											int *INCHI_basic_or_INCHI_reconnected,
+33 											print_INCHI_local *pr,
+35 											char *pLF, char *pTAB );
+66 static int Output_INCHI_main_layer_hydrogens(	CANON_GLOBALS *pCG, 
+38 												INCHI_IOSTREAM *out_file, 
+42 												INCHI_IOSTREAM_STRING *strbuf,
+35 												int num_components2[], 
+50 												int *INCHI_basic_or_INCHI_reconnected,
+34 												print_INCHI_local *pr,
+36 												char *pLF, char *pTAB );
+85 static int Output_INCHI_charge_and_removed_added_protons_layers( CANON_GLOBALS *pCG, 
+71                                              INCHI_IOSTREAM *out_file, 
+75                                              INCHI_IOSTREAM_STRING *strbuf,
+92                                              print_INCHI_local *pr, char *pLF, char *pTAB );
+58 static int Output_INCHI_stereo_layer( CANON_GLOBALS *pCG, 
+64                                       INCHI_IOSTREAM *out_file, 
+68                                       INCHI_IOSTREAM_STRING *strbuf,
+60                                       print_INCHI_local *pr,
+62                                       char *pLF, char *pTAB );
+61 static int Output_INCHI_isotopic_layer(  CANON_GLOBALS *pCG, 
+97                                          INCHI_IOSTREAM *out_file, INCHI_IOSTREAM_STRING *strbuf,
+79                                          int *INCHI_basic_or_INCHI_reconnected,
+63                                          print_INCHI_local *pr,
+65                                          char *pLF, char *pTAB );
+72 static int Output_INCHI_FixedH_layer_and_sublayers( CANON_GLOBALS *pCG, 
+78                                                     INCHI_IOSTREAM *out_file, 
+82                                                     INCHI_IOSTREAM_STRING *strbuf,
+90                                                     int *INCHI_basic_or_INCHI_reconnected,
+74                                                     print_INCHI_local *pr,
+74                                                     char *pLF, char *pTAB,
+76                                                     int *then_goto_repeat );
+59 static int Output_INCHI_polymer_layer( CANON_GLOBALS *pCG, 
+65                                        INCHI_IOSTREAM *out_file, 
+69                                        INCHI_IOSTREAM_STRING *strbuf,
+50 									   int *INCHI_basic_or_INCHI_reconnected,
+37 									   ORIG_STRUCT *pOrigStruct,
+34 									   print_INCHI_local *pr,
+63                                        char *pLF, char *pTAB );
+77 static int Output_AUXINFO_header_and_normalization_type( CANON_GLOBALS *pCG, 
+78                                                     INCHI_IOSTREAM *out_file, 
+82                                                     INCHI_IOSTREAM_STRING *strbuf,
+77                                                     int bINChIOutputOptions, 
+90                                                     int *INCHI_basic_or_INCHI_reconnected,
+75                                                     int num_components2[], 
+75                                                     print_INCHI_local *pr, 
+63                                                     char *pLF, 
+65                                                     char *pTAB );
+88 static int Output_AUXINFO_original_numbers_and_equivalence_classes( CANON_GLOBALS *pCG, 
+78                                                     INCHI_IOSTREAM *out_file, 
+82                                                     INCHI_IOSTREAM_STRING *strbuf,
+75                                                     int num_components2[], 
+75                                                     print_INCHI_local *pr, 
+76                                                     char *pLF, char *pTAB );
+77 static int Output_AUXINFO_tautomeric_groups_equivalence( CANON_GLOBALS *pCG, 
+83                                                          INCHI_IOSTREAM *out_file, 
+87                                                          INCHI_IOSTREAM_STRING *strbuf,
+80                                                          print_INCHI_local *pr, 
+81                                                          char *pLF, char *pTAB );
+54 static int Output_AUXINFO_stereo( CANON_GLOBALS *pCG, 
+60                                   INCHI_IOSTREAM *out_file, 
+64                                   INCHI_IOSTREAM_STRING *strbuf,
+57                                   print_INCHI_local *pr, 
+58                                   char *pLF, char *pTAB );
+61 static int Output_AUXINFO_isotopic_info( CANON_GLOBALS *pCG, 
+67                                          INCHI_IOSTREAM *out_file, 
+71                                          INCHI_IOSTREAM_STRING *strbuf,
+79                                          int *INCHI_basic_or_INCHI_reconnected,
+64                                          print_INCHI_local *pr, 
+65                                          char *pLF, char *pTAB );
+61 static int Output_AUXINFO_transposition( CANON_GLOBALS *pCG, 
+67                                          INCHI_IOSTREAM *out_file, 
+71                                          INCHI_IOSTREAM_STRING *strbuf,
+79                                          int *INCHI_basic_or_INCHI_reconnected,
+64                                          print_INCHI_local *pr, 
+65                                          char *pLF, char *pTAB );
+81 static int Output_AUXINFO_charges_radicals_unusual_valences( CANON_GLOBALS *pCG, 
+88                                                               INCHI_IOSTREAM *out_file, 
+92                                                               INCHI_IOSTREAM_STRING *strbuf,
+85                                                               print_INCHI_local *pr, 
+86                                                               char *pLF, char *pTAB );
+65 static int Output_AUXINFO_reversibility_info( CANON_GLOBALS *pCG,
+72                                               INCHI_IOSTREAM *out_file, 
+76                                               INCHI_IOSTREAM_STRING *strbuf,
+71                                               ORIG_STRUCT *pOrigStruct,
+69                                               print_INCHI_local *pr, 
+70                                               char *pLF, char *pTAB );
+0 
+52 static int iicomp(PolymerUnit* u1, PolymerUnit* u2);
+101 static int Output_INCHI_AUXINFO_get_cano_nums_and_compnt_nums_in_orig_nums_order(CANON_GLOBALS *pCG, 
+49 																		 INCHI_IOSTREAM_STRING *strbuf,
+41 																		 print_INCHI_local *pr,
+34 																		 int *cano_nums,
+38 																		 int *compnt_nums );
+74 static int *is_in_the_ilist( int *pathAtom, int nNextAtom, int nPathLen );
+0 
+3 /* 
+20     Local constants 
+2 */
+62 const char sCompDelim[]       = ";"; /* component delimiter */
+62 const char sIdenticalValues[] = "*"; /* identical component */
+53 const char x_space[]          = "                  ";
+0 
+0 
+3 /* 
+36     Output: words & additional tags 
+2 */
+43 const char x_inchi[]          = INCHI_NAME;
+65 const char x_inchi_ver[]      = "version"; /* "InChI.version"; */
+46 const char x_curr_ver[]       = INCHI_VERSION;
+44 const char x_structure[]      = "structure";
+41 const char x_number[]         = "number";
+42 const char x_header[]         = "id.name";
+43 const char x_value[]          = "id.value";
+35 const char x_empty[]          = "";
+39 const char x_type[]           = "type";
+42 const char x_message[]        = "message";
+40 const char x_text[]           = "value";
+50 const char x_ferr[]           = "fatal (aborted)";
+51 const char x_err[]            = "error (no InChI)";
+42 const char x_warn[]           = "warning";
+45 const char x_basic[]          = "identifier";
+43 const char x_tautomeric[]     = "mobile-H";
+46 const char x_reconnected[]    = "reconnected";
+42 const char x_ver[]            = "version";
+40 const char x_type_alpha[]     = "alpha";
+42 const char x_type_numer[]     = "numeric";
+38 const char x_type_predec[]    = "sct";
+41 const char x_type_normal[]    = "normal";
+45 const char x_type_short[]     = "compressed";
+40 const char x_basic_layer[]    = "basic";
+60 const char x_aux_basic[]      = "identifier.auxiliary-info";
+104 const char x_aux_comm[]       = "!-- This section is NOT a part of the identifier, it is not unique --";
+51 const char x_ign_uu_sp2[]     = "omit_undef_dbond";
+49 const char x_ign_uu_sp3[]     = "omit_undef_sp3";
+36 const char x_line_opening[]   = "<";
+37 const char x_line_closing[]   = "</";
+36 const char x_close_line[]     = ">";
+36 const char x_abs[]            = "1";
+36 const char x_rel[]            = "2";
+36 const char x_rac[]            = "3";
+0 
+27 typedef struct tagInchiTag 
+1 {
+29     const char *szPlainLabel;
+31     const char *szPlainComment;
+27     const char *szXmlLabel;
+23     int  bAlwaysOutput;
+12 } INCHI_TAG;
+0 
+0 
+3 /*	
+15     Identifier 
+2 */
+29 const INCHI_TAG IdentLbl[] = 
+1 {
+111                                                                   /* prefixes: may be combined in this order */
+85 /* IL_FIXH_ORD, */    { "/",   "fixed_H",        "fixed-H",        0 }, /* fixed H */
+86 /* IL_ISOT_ORD, */    { "/",   "isotopic",       "isotopic",       0 }, /* isotopic */
+84 /* IL_STER_ORD, */    { "/",   "stereo",         "stereo",         0 }, /* stereo */
+78                                                                    /* items */
+71 /* IL_VERS_ORD, */    { "" ,   "version",        "version",        1 },
+96 /* IL_FML__ORD, */    { "/",   "formula",        "formula",        1 }, /* basic part formula */
+71 /* IL_CONN_ORD, */    { "/c",  "connections",    "connections",    1 },
+71 /* IL_ALLH_ORD, */    { "/h",  "H_atoms",        "H",              1 },
+71 /* IL_CHRG_ORD, */    { "/q",  "charge",         "charge",         1 },
+71 /* IL_PROT_ORD, */    { "/p",  "protons",        "protons",        0 },
+80                                                                     /* stereo */
+71 /* IL_DBND_ORD, */    { "/b",  "dbond",          "dbond",          0 },
+71 /* IL_SP3S_ORD, */    { "/t",  "sp3",            "sp3",            0 },
+86 /* IL_INVS_ORD, */    { "/m",  "sp3:inverted",   "abs.inverted",   0 }, /* mirrored */
+101 /* IL_TYPS_ORD, */    { "/s",  "type (1=abs, 2=rel, 3=rac)", "type",           0 }, /* stereo type */
+82                                                                     /* isotopic */
+71 /* IL_ATMS_ORD, */    { "/i",  "atoms",          "atoms",          1 },
+96                                                                     /* isotopic mobile H only */
+71 /* IL_XCGA_ORD, */    { "/h",  "exchangeable_H", "H-isotopic",     1 },
+86                                                                     /* fixed H only */
+93 /* IL_FMLF_ORD, */    { "/f",  "formula",        "formula",        1 }, /* fixed H formula */
+85 /* IL_HFIX_ORD, */    { "/h",  "H_fixed" ,       "H-fixed" ,       1 }, /* fixed-H */
+83 /* IL_TRNS_ORD, */    { "/o",  "transposition",  "transposition",  0 }, /* order */
+90 /* IL_REC__ORD, */    { "/r",  "reconnected bond(s) to metal(s) formula",  "formula",  0 }
+2 };
+0 
+2 /*
+0 
+54   Parsing plain text InChI (FML is a chemical formula)
+26   ========================
+2   
+89   1.12Beta/FML       /i      /f[FML]  /i   [/o] /rFML      /i      /f[FML]  /i   [/o] end
+89           |          |       |        |         |          |       |        |         |  
+89 Labels    | chqpbtms | hbtms | hqbtms | btms    | chqpbtms | hbtms | hqbtms | btms    |  
+89 inside:   |          |       |        |         |          |       |        |         |  
+89           | non-iso- | iso-  | fix-   | iso-    | non-iso- | iso-  | fix-   | iso-    |  
+89 meaning:  | topic    | topic | ed H   | topic   | topic    | topic | ed H   | topic   |  
+89           |----------+-------+--------+---------|----------+-------+--------+---------|  
+89           |        mobile-H  |   fixed-H        |        mobile-H  |   fixed-H        |  
+89           |----------+-------+--------+---------|----------+-------+--------+---------|  
+89           |                                     |                                     |  
+87           |     normal  or disconected metal    |      reconnected bonds to metal     |
+87           |_____________________________________|_____________________________________|
+0 
+16   meanings of h:
+0 
+45        /h   -  immobile H & mobile H group(s)
+47      /i/h   -  exchangeable isotopic H (common)
+22      /f/h   -  fixed-H
+28      /f/i/h -  never happens
+0 
+2 */
+28 typedef enum tagIdentLblOrd 
+1 {
+16     IL_FIXH_ORD,
+16     IL_ISOT_ORD,
+16     IL_STER_ORD,
+12             
+16     IL_VERS_ORD,
+16     IL_FML__ORD,
+16     IL_CONN_ORD,
+16     IL_ALLH_ORD,
+16     IL_CHRG_ORD,
+16     IL_PROT_ORD,
+12             
+16     IL_DBND_ORD,
+16     IL_SP3S_ORD,
+16     IL_INVS_ORD,
+16     IL_TYPS_ORD,
+12             
+16     IL_ATMS_ORD,
+12             
+16     IL_XCGA_ORD,
+12             
+16     IL_FMLF_ORD,
+16     IL_HFIX_ORD,
+16     IL_TRNS_ORD,
+16     IL_REC__ORD,
+0 
+39     IL_MAX_ORD /* max number of tags */
+16 } IDENT_LBL_ORD;
+0 
+0 
+28 typedef enum tagIdentLblBit 
+1 {
+31     IL_FIXH = 1 << IL_FIXH_ORD,
+31     IL_ISOT = 1 << IL_ISOT_ORD,
+31     IL_STER = 1 << IL_STER_ORD,
+27                            
+31     IL_VERS = 1 << IL_VERS_ORD,
+31     IL_FML_ = 1 << IL_FML__ORD,
+31     IL_CONN = 1 << IL_CONN_ORD,
+31     IL_ALLH = 1 << IL_ALLH_ORD,
+31     IL_CHRG = 1 << IL_CHRG_ORD,
+31     IL_PROT = 1 << IL_PROT_ORD,
+27                            
+31     IL_DBND = 1 << IL_DBND_ORD,
+31     IL_SP3S = 1 << IL_SP3S_ORD,
+31     IL_INVS = 1 << IL_INVS_ORD,
+31     IL_TYPS = 1 << IL_TYPS_ORD,
+27                            
+31     IL_ATMS = 1 << IL_ATMS_ORD,
+27                            
+31     IL_XCGA = 1 << IL_XCGA_ORD,
+27                            
+31     IL_FMLF = 1 << IL_FMLF_ORD,
+31     IL_HFIX = 1 << IL_HFIX_ORD,
+31     IL_TRNS = 1 << IL_TRNS_ORD,
+30     IL_REC_ = 1 << IL_REC__ORD
+0 
+16 } IDENT_LBL_BIT;
+0 
+0 
+0 
+3 /*	
+22     Aux Info constants
+2 */
+27 const INCHI_TAG AuxLbl[] = 
+18 {                 
+112                                                                     /* prefixes may be combined in this order */
+100 /* AL_FIXH_ORD, */    { "/",     "fixed_H",                "fixed-H",             0 }, /* fixed-H */
+101 /* AL_ISOT_ORD, */    { "/",     "isotopic",               "isotopic",            0 }, /* isotopic */
+111 /* AL_STER_ORD, */    { "/",     "abs_stereo_inverted",    "stereo.abs.inverted", 0 }, /* inv abs sp3 stereo */
+106 /* AL_REVR_ORD, */    { "/",     "reversibility",          "reversibility",       0 }, /* reversibility */
+82                                                                        /* items */
+86 /* AL_VERS_ORD, */    { "",      "version",                "version",             1 },
+86 /* AL_NORM_ORD, */    { "/",     "normalization_type",     "norm-type",           1 },
+86 /* AL_ANBR_ORD, */    { "/N:",   "original_atom_numbers",  "atom.orig-nbr",       1 },
+86 /* AL_AEQU_ORD, */    { "/E:",   "atom_equivalence",       "atom.equivalence",    0 },
+86 /* AL_GEQU_ORD, */    { "/gE:",  "group_equivalence",      "group.equivalence",   0 },
+95                                                                        /* inv abs sp3 stereo */
+86 /* AL_SP3I_ORD, */    { "/it:",  "sp3",                    "sp3",                 0 },
+86 /* AL_SP3N_ORD, */    { "/iN:",  "original_atom_numbers",  "atom.orig-nbr",       0 },
+40                                         
+86 /* AL_CRV__ORD, */    { "/CRV:", "charge_radical_valence", "charges-rad-val",     0 },
+90                                                                        /* reversibility */
+86 /* AL_ATMR_ORD, */    { "/rA:",  "atoms",                  "atoms",               0 },
+86 /* AL_BNDR_ORD, */    { "/rB:",  "bonds",                  "bonds",               0 },
+86 /* AL_XYZR_ORD, */    { "/rC:",  "xyz",                    "xyz",                 0 },
+89                                                                        /* fixed-H only */
+86 /* AL_FIXN_ORD, */    { "/F:",   "original_atom_numbers",  "atom.orig-nbr",       1 },
+90                                                                        /* isotopic only */
+86 /* AL_ISON_ORD, */    { "/I:",   "original_atom_numbers",  "atom.orig-nbr",       1 },
+0 
+85 /* AL_REC__ORD, */    { "/R:",  "reconnected bond(s) to metal(s) part",  "",      1 }
+0 
+2 };
+0 
+0 
+26 typedef enum tagAuxLblOrd 
+1 {
+16     AL_FIXH_ORD,
+16     AL_ISOT_ORD,
+16     AL_STER_ORD,
+16     AL_REVR_ORD,
+12             
+16     AL_VERS_ORD,
+16     AL_NORM_ORD,
+16     AL_ANBR_ORD,
+16     AL_AEQU_ORD,
+16     AL_GEQU_ORD,
+12             
+16     AL_SP3I_ORD,
+16     AL_SP3N_ORD,
+12             
+16     AL_CRV__ORD,
+12             
+16     AL_ATMR_ORD,
+16     AL_BNDR_ORD,
+16     AL_XYZR_ORD,
+12             
+16     AL_FIXN_ORD,
+12             
+16     AL_ISON_ORD,
+0 
+16     AL_REC__ORD,
+0 
+41     AL_MAX_ORD   /* max number of tags */
+0 
+14 } AUX_LBL_ORD;
+0 
+0 
+26 typedef enum tagAuxLblBit 
+1 {
+31     AL_FIXH = 1 << AL_FIXH_ORD,
+31     AL_ISOT = 1 << AL_ISOT_ORD,
+31     AL_STER = 1 << AL_STER_ORD,
+31     AL_REVR = 1 << AL_REVR_ORD,
+27                            
+31     AL_VERS = 1 << AL_VERS_ORD,
+31     AL_NORM = 1 << AL_NORM_ORD,
+31     AL_ANBR = 1 << AL_ANBR_ORD,
+31     AL_AEQU = 1 << AL_AEQU_ORD,
+31     AL_GEQU = 1 << AL_GEQU_ORD,
+27                            
+31     AL_SP3I = 1 << AL_SP3I_ORD,
+31     AL_SP3N = 1 << AL_SP3N_ORD,
+27                            
+31     AL_CRV_ = 1 << AL_CRV__ORD,
+27                            
+31     AL_ATMR = 1 << AL_ATMR_ORD,
+31     AL_BNDR = 1 << AL_BNDR_ORD,
+31     AL_XYZR = 1 << AL_XYZR_ORD,
+27                            
+31     AL_FIXN = 1 << AL_FIXN_ORD,
+27                            
+31     AL_ISON = 1 << AL_ISON_ORD,
+0 
+30     AL_REC_ = 1 << AL_REC__ORD
+0 
+14 } AUX_LBL_BIT;
+0 
+68 const int MAX_TAG_NUM = inchi_max((int)IL_MAX_ORD, (int)AL_MAX_ORD);
+0 
+84 char *szGetTag(const INCHI_TAG *Tag, int nTag, int bTag, char *szTag, int *bAlways);
+0 
+52 #define SP(N)        (x_space+sizeof(x_space)-1-(N))
+0 
+0 
+3 /*	
+37     Print error message (plain text) 
+2 */
+53 int OutputINChIPlainError( INCHI_IOSTREAM *out_file, 
+45                            char *pErrorText, 
+39                            int bError )
+1 {
+25     /* char szBuf[64]; */
+21     const char *pErr;
+35     char *szErrorText = pErrorText;
+25     int nEstLen, ret = 0;
+0 
+22     switch( bError ) {
+21     case _IS_WARNING:
+22         pErr = x_warn;
+14         break;
+19     case _IS_ERROR:
+21         pErr = x_err;
+14         break;
+29     default: /*  _IS_FATAL */
+22         pErr = x_ferr;
+14         break;
+5     }
+41                   /* <%s: >, x_message */
+52     nEstLen =     (int) (sizeof(x_message)-1 + 1 + 1
+49                   /* <%s=\"%s\">, x_type, pErr */
+63                   + sizeof(x_type)-1 + 1 + 1 + strlen(pErr) + 1
+59                   /* < %s=\"%s\"\n>, x_text, szErrorText */
+80                   + 1 + sizeof(x_text)-1 + 1 + 1 + strlen(szErrorText) + 1 + 1);
+0 
+31     inchi_ios_print( out_file, 
+48                      "%s: %s=\"%s\" %s=\"%s\"", 
+68                      x_message, x_type, pErr, x_text, szErrorText );
+12     ret = 1;
+4     
+15     return ret;
+1 }
+0 
+0 
+82 #ifndef OUT_TN    /* defined in mode.h; quoted here for reference purposes only */
+0 
+58 #define OUT_N1              0    /* non-tautomeric only */
+85 #define OUT_T1              1    /* tautomeric if present otherwise non-tautomeric */
+82 #define OUT_NT              2    /* only non-taut representations of tautomeric */
+83 #define OUT_TN              3    /* tautomeric if present otherwise non-tautomeric;
+106                                     sepatately output non-taut representations of tautomeric if present */
+30 /* OUT_TN = OUT_T1 + OUT_NT */
+6 #endif
+0 
+0 
+3 /*	
+32     Calculate equivalence mark 	
+51     (used to check for repeating (sub)layer(s) )			
+2 */
+35 const char *EquString( int EquVal )
+1 {
+69     int bFrom = EquVal & (iiSTEREO | iiSTEREO_INV | iiNUMB | iiEQU );
+50     int bType = EquVal & (iitISO   | iitNONTAUT );
+63     int bEq2  = EquVal & (iiEq2NONTAUT | iiEq2ISO | iiEq2INV );
+23     const char *r = "";
+0 
+32 #if ( FIX_EMPTY_LAYER_BUG == 1 )
+33     int bEmpty= EquVal & iiEmpty;
+19     if ( bEmpty ) {
+16         r = "e";
+17         return r;
+5     }
+6 #endif
+0 
+22     switch ( bFrom ) {
+0 
+65     case iiSTEREO:  /* ------------ Stereo --------------------*/
+26         switch ( bType ) {
+48         case iitISO:  /* iso main stereo =... */
+28             switch( bEq2 ) {
+19             case 0:
+71                 r = "m";            /* iso main stereo = main stereo */
+22                 break;
+20             default:
+59                 r = "??";           /* should not happen */
+22                 break;
+13             }
+18             break;
+51         case iitNONTAUT: /* non-taut stereo =... */
+28             switch( bEq2 ) {
+19             case 0:
+71                 r = "m";            /* non-taut stereo = main stereo */
+22                 break;
+20             default:
+59                 r = "??";           /* should not happen */
+22                 break;
+13             }
+18             break;
+67         case (iitNONTAUT | iitISO): /* iso non-taut stereo = ... */
+28             switch( bEq2 ) {
+19             case 0:
+75                 r = "m";            /* iso non-taut stereo = main stereo */
+22                 break;
+26             case iiEq2ISO:
+79                 r = "M";            /* iso non-taut stereo = main iso stereo */
+22                 break;
+30             case iiEq2NONTAUT:
+79                 r = "n";            /* iso non-taut stereo = non-taut stereo */
+22                 break;
+20             default:
+59                 r = "??";           /* should not happen */
+22                 break;
+13             }
+18             break;
+16         default:
+55             r = "??";           /* should not happen */
+18             break;
+9         }
+14         break;
+0 
+64     case iiSTEREO_INV: /*---------- Inverted Aux Stereo ------*/
+72         if ( bEq2 & iiEq2INV ) { /* stereo = Inverted(another stereo) */
+30             bEq2 &= ~iiEq2INV;
+29             switch( bType ) {
+35             case 0: /* main = ...*/
+32                 switch( bEq2 ) {
+23                 case 0:
+66                     r = "im";       /* main         = Inv(main) */
+26                     break;
+30                 case iiEq2ISO:
+70                     r = "iM";       /* main         = Inv(main iso) */
+26                     break;
+34                 case iiEq2NONTAUT:
+70                     r = "in";       /* maim         = Inv(non-taut) */
+26                     break;
+47                 case (iiEq2NONTAUT | iiEq2ISO):
+75                     r = "iN";       /* maim         = Inv(non-taut iso ) */
+26                     break;
+24                 default:
+63                     r = "??";           /* should not happen */
+26                     break;
+17                 }
+22                 break;
+44             case iitISO: /* main iso = ...*/
+32                 switch( bEq2 ) {
+23                 case 0:
+66                     r = "im";       /* main iso     = Inv(main) */
+26                     break;
+30                 case iiEq2ISO:
+70                     r = "iM";       /* main iso     = Inv(main iso) */
+26                     break;
+34                 case iiEq2NONTAUT:
+70                     r = "in";       /* maim iso     = Inv(non-taut) */
+26                     break;
+47                 case (iiEq2NONTAUT | iiEq2ISO):
+75                     r = "iN";       /* maim         = Inv(non-taut iso ) */
+26                     break;
+24                 default:
+63                     r = "??";           /* should not happen */
+26                     break;
+17                 }
+22                 break;
+49             case iitNONTAUT: /* non-taut = ... */
+32                 switch( bEq2 ) {
+23                 case 0:
+66                     r = "im";       /* non-taut     = Inv(main) */
+26                     break;
+30                 case iiEq2ISO:
+70                     r = "iM";       /* non-taut     = Inv(main iso) */
+26                     break;
+34                 case iiEq2NONTAUT:
+70                     r = "in";       /* non-taut     = Inv(non-taut) */
+26                     break;
+47                 case (iiEq2NONTAUT | iiEq2ISO):
+75                     r = "iN";       /* non-taut     = Inv(non-taut iso ) */
+26                     break;
+24                 default:
+63                     r = "??";           /* should not happen */
+26                     break;
+17                 }
+22                 break;
+39             case (iitNONTAUT | iitISO):
+32                 switch( bEq2 ) {
+23                 case 0:
+66                     r = "im";       /* non-taut iso = Inv(main) */
+26                     break;
+30                 case iiEq2ISO:
+70                     r = "iM";       /* non-taut iso = Inv(main iso) */
+26                     break;
+34                 case iiEq2NONTAUT:
+70                     r = "in";       /* non-taut iso = Inv(non-taut) */
+26                     break;
+47                 case (iiEq2NONTAUT | iiEq2ISO):
+75                     r = "iN";       /* non-taut iso = Inv(non-taut iso ) */
+26                     break;
+24                 default:
+63                     r = "??";           /* should not happen */
+17                 }
+22                 break;
+20             default:
+59                 r = "??";           /* should not happen */
+22                 break;
+13             }
+0 
+66         } else {  /* Inv stereo = another (non-inverted) stereo */
+0 
+29             switch( bType ) {
+44             case iitISO: /* main iso = ...*/
+32                 switch( bEq2 ) {
+23                 case 0:
+75                     r = "m";       /* main         = (inverted aux) main */
+26                     break;
+24                 default:
+63                     r = "??";           /* should not happen */
+26                     break;
+17                 }
+22                 break;
+49             case iitNONTAUT: /* non-taut = ... */
+32                 switch( bEq2 ) {
+23                 case 0:
+75                     r = "m";       /* non-taut     = (inverted aux) main */
+26                     break;
+24                 default:
+63                     r = "??";           /* should not happen */
+26                     break;
+17                 }
+22                 break;
+63             case (iitNONTAUT | iitISO): /* non-taut iso = ...*/
+32                 switch( bEq2 ) {
+23                 case 0:
+77                     r = "m";        /* non-taut iso  = (inverted aux) main */
+26                     break;
+30                 case iiEq2ISO:
+80                     r = "M";       /* non-taut iso  = (inverted aux) main iso */
+26                     break;
+34                 case iiEq2NONTAUT:
+80                     r = "n";       /* non-taut iso  = (inverted aux) non-taut */
+26                     break;
+24                 default:
+63                     r = "??";           /* should not happen */
+26                     break;
+17                 }
+22                 break;
+20             default:
+59                 r = "??";           /* should not happen */
+22                 break;
+13             }
+9         }
+14         break;
+0 
+86     case ( iiNUMB | iiSTEREO_INV): /*------------- Inv Stereo Numbering ------------*/
+25         switch( bType ) {
+47         case 0: /* inv stereo numb main = ...*/
+28             switch( bEq2 ) {
+19             case 0:
+73                 r = "m";       /* inv stereo numb main     = main numb */
+22                 break;
+20             default:
+54                 r = "??";      /* should not happen */
+22                 break;
+13             }
+18             break;
+56         case iitISO: /* inv stereo iso numb main = ...*/
+28             switch( bEq2 ) {
+19             case 0:
+74                 r = "m";       /* inv stereo iso numb main = main numb  */
+22                 break;
+26             case iiEq2INV:
+84                 r = "im";      /* inv stereo iso numb main = InvStereo(main) numb */
+22                 break;
+26             case iiEq2ISO:
+81                 r = "M";      /* inv stereo iso numb main = isotopic main numb */
+22                 break;
+20             default:
+54                 r = "??";      /* should not happen */
+22                 break;
+13             }
+18             break;
+61         case iitNONTAUT: /* inv stereo numb non-taut = ... */
+28             switch( bEq2 ) {
+19             case 0:
+73                 r = "m";       /* inv stereo numb non-taut = main numb */
+22                 break;
+30             case iiEq2NONTAUT:
+77                 r = "n";       /* inv stereo numb non-taut = non-taut numb */
+22                 break;
+26             case iiEq2INV:
+86                 r = "im";      /* inv stereo numb non-taut =  InvStereo(main) numb  */
+22                 break;
+20             default:
+54                 r = "??";      /* should not happen */
+22                 break;
+13             }
+18             break;
+76         case (iitNONTAUT | iitISO): /* inv stereo numb non-taut iso = ... */
+28             switch( bEq2 ) {
+19             case 0:
+77                 r = "m";       /* inv stereo numb non-taut iso = main numb */
+22                 break;
+26             case iiEq2ISO:
+81                 r = "M";       /* inv stereo numb non-taut iso = main numb iso */
+22                 break;
+39             case (iiEq2ISO | iiEq2INV):
+93                 r = "iM";       /* inv stereo numb non-taut iso = InvStereo(main iso) numb */
+22                 break;
+30             case iiEq2NONTAUT:
+81                 r = "n";       /* inv stereo numb non-taut iso = non-taut numb */
+22                 break;
+43             case (iiEq2NONTAUT | iiEq2ISO):
+85                 r = "N";       /* inv stereo numb non-taut iso = non-taut iso numb */
+22                 break;
+26             case iiEq2INV:
+88                 r = "im";      /* inv stereo numb non-taut iso = InvStereo(main) numb */
+22                 break;
+43             case (iiEq2NONTAUT | iiEq2INV):
+94                 r = "in";      /* inv stereo numb non-taut iso = InvStereo(non-taut) numb ) */
+22                 break;
+20             default:
+60                 r = "??";           /* should not happen  */
+22                 break;
+13             }
+18             break;
+16         default:
+55             r = "??";           /* should not happen */
+18             break;
+9         }
+14         break;
+4     
+77     case iiNUMB:           /*------------- Canonical Numbering ------------*/
+25         switch( bType ) {
+44         case 0:         /* numb main = ...*/
+50             r = "??";      /* should not happen */
+18             break;
+49         case iitISO:     /* iso numb main = ...*/
+28             switch( bEq2 ) {
+19             case 0:
+63                 r = "m";       /* iso numb main = main numb  */
+22                 break;
+20             default:
+54                 r = "??";      /* should not happen */
+13             }
+18             break;
+50         case iitNONTAUT: /* numb non-taut = ... */
+28             switch( bEq2 ) {
+19             case 0:
+62                 r = "m";       /* numb non-taut = main numb */
+22                 break;
+20             default:
+54                 r = "??";      /* should not happen */
+13             }
+18             break;
+65         case (iitNONTAUT | iitISO): /* numb non-taut iso = ... */
+28             switch( bEq2 ) {
+19             case 0:
+66                 r = "m";       /* numb non-taut iso = main numb */
+22                 break;
+26             case iiEq2ISO:
+70                 r = "M";       /* numb non-taut iso = main numb iso */
+22                 break;
+30             case iiEq2NONTAUT:
+70                 r = "n";       /* numb non-taut iso = non-taut numb */
+22                 break;
+20             default:
+59                 r = "??";           /* should not happen */
+22                 break;
+13             }
+18             break;
+16         default:
+55             r = "??";           /* should not happen */
+18             break;
+9         }
+14         break;
+0 
+71     case iiEQU:         /*------------- Atom Equivalence ------------*/
+25         switch( bType ) {
+51         case 0:         /* equivalence main = ...*/
+50             r = "??";      /* should not happen */
+18             break;
+56         case iitISO:     /* equivalence main iso = ...*/
+28             switch( bEq2 ) {
+19             case 0:
+65                 r = "m";       /* equivalence main = main equ  */
+22                 break;
+20             default:
+54                 r = "??";      /* should not happen */
+22                 break;
+13             }
+18             break;
+57         case iitNONTAUT: /* equivalence non-taut = ... */
+28             switch( bEq2 ) {
+19             case 0:
+68                 r = "m";       /* equivalence non-taut = main equ */
+22                 break;
+20             default:
+54                 r = "??";      /* should not happen */
+22                 break;
+13             }
+18             break;
+73         case (iitNONTAUT | iitISO): /*  equivalence non-taut iso = ... */
+28             switch( bEq2 ) {
+19             case 0:
+72                 r = "m";       /* equivalence non-taut iso = main equ */
+22                 break;
+26             case iiEq2ISO:
+76                 r = "M";       /* equivalence non-taut iso = main iso equ */
+22                 break;
+30             case iiEq2NONTAUT:
+76                 r = "n";       /* equivalence non-taut iso = non-taut equ */
+22                 break;
+20             default:
+54                 r = "??";      /* should not happen */
+22                 break;
+13             }
+18             break;
+16         default:
+54             r = "??";          /* should not happen */
+18             break;
+9         }
+14         break;
+12     default:
+46         r = "??";      /* should not happen */
+14         break;
+5     }
+13     return r;
+1 }
+0 
+0 
+62 #define OUT_NONTAUT  OUT_NN  /* was OUT_NT until 2004-04-07 */
+0 
+0 
+3 /*	
+23     OutputINChI2( ... )
+0 
+40     called from SortAndPrintINChI( ... )
+2 */
+38 int OutputINChI2( CANON_GLOBALS *pCG, 
+49                   INCHI_IOSTREAM_STRING *strbuf, 
+69                   INCHI_SORT *pINChISortTautAndNonTaut2[][TAUT_NUM], 
+55                   int INCHI_basic_or_INCHI_reconnected,
+43                   ORIG_STRUCT *pOrigStruct,
+42                   int bDisconnectedCoord, 
+35                   int bOutputType, 
+43                   int bINChIOutputOptions, 
+34                   int bAbcNumbers,
+39                   int bCtPredecessors, 
+39                   int bNoStructLabels, 
+41                   int num_components2[], 
+39                   int num_non_taut2[], 
+34                   int num_taut2[],
+47                   INCHI_IOSTREAM *output_file, 
+44                   INCHI_IOSTREAM *log_file, 
+39                   int num_input_struct,
+42                   const char *szSdfLabel, 
+42                   const char *szSdfValue, 
+31                   long lSdfId, 
+44                   int *pSortPrintINChIFlags,
+46                   unsigned char save_opt_bits)
+1 {
+109     int bINChIOutputOptions0 = bINChIOutputOptions & ~(INCHI_OUT_PLAIN_TEXT | INCHI_OUT_PLAIN_TEXT_COMMENTS);
+31     int bINChIOutputOptionsCur;
+27     int bCurOption, ret, i;
+0 
+12     ret = 0;
+0 
+31     for ( i = 0; i < 3; i ++ ) 
+5     {
+20         switch( i ) 
+9         {
+15         case 1:
+46             bCurOption = INCHI_OUT_PLAIN_TEXT;
+18             break;
+15         case 2:
+55             bCurOption = INCHI_OUT_PLAIN_TEXT_COMMENTS;
+18             break;
+16         default:
+21             continue;
+9         }
+48         if ( bINChIOutputOptions & bCurOption ) 
+9         {
+71             bINChIOutputOptionsCur = bINChIOutputOptions0 | bCurOption;
+26             if ( i != 1 ) 
+13             {
+68                 bINChIOutputOptionsCur  &= ~INCHI_OUT_TABBED_OUTPUT;
+13             }
+38             ret |= OutputINChI1( pCG, 
+17 								 strbuf, 
+36 								 pINChISortTautAndNonTaut2, 
+66                                  INCHI_basic_or_INCHI_reconnected,
+46                                  pOrigStruct, 
+90                                  bDisconnectedCoord, bOutputType, bINChIOutputOptionsCur, 
+80                                  bAbcNumbers, bCtPredecessors, bNoStructLabels, 
+75                                  num_components2, num_non_taut2, num_taut2,
+73                                  output_file, log_file, num_input_struct,
+65                                  szSdfLabel, szSdfValue, lSdfId, 
+70                                  pSortPrintINChIFlags, save_opt_bits);
+9         }
+5     }
+0 
+15     return ret;
+1 }
+0 
+0 
+3 /*	
+23     OutputINChI1( ... )
+4     
+56     Main actual worker which serializes InChI to string.
+0 
+51     Called from OutputINChI2( ... ) and from itself
+13              
+2 */
+38 int OutputINChI1( CANON_GLOBALS *pCG, 
+48                   INCHI_IOSTREAM_STRING *strbuf,
+69                   INCHI_SORT *pINChISortTautAndNonTaut2[][TAUT_NUM], 
+55                   int INCHI_basic_or_INCHI_reconnected,
+43                   ORIG_STRUCT *pOrigStruct,
+42                   int bDisconnectedCoord, 
+35                   int bOutputType, 
+43                   int bINChIOutputOptions, 
+34                   int bAbcNumbers,
+39                   int bCtPredecessors, 
+39                   int bNoStructLabels, 
+41                   int num_components2[], 
+39                   int num_non_taut2[], 
+34                   int num_taut2[],
+44                   INCHI_IOSTREAM *out_file, 
+44                   INCHI_IOSTREAM *log_file, 
+39                   int num_input_struct,
+42                   const char *szSdfLabel, 
+42                   const char *szSdfValue, 
+31                   long lSdfId, 
+44                   int *pSortPrintINChIFlags,
+46                   unsigned char save_opt_bits)
+1 {
+25     print_INCHI_local pr;
+0 
+6     /*
+4     
+29     bINChIOutputOptions bits:
+4     
+72         INCHI_OUT_NO_AUX_INFO           0x0001    do not output Aux Info
+82         INCHI_OUT_SHORT_AUX_INFO        0x0002    output short version of Aux Info
+70         INCHI_OUT_ONLY_AUX_INFO         0x0004    output only Aux Info
+97         INCHI_OUT_EMBED_REC             0x0008    embed reconnected INChI into disconnected INChI
+0 
+6     */
+0 
+0 
+7     /* 
+21         bOutputType =
+82          TAUT_YES  => tautomeric only (if no tautomeric components then no output;
+88          TAUT_NON  => only non-tautomeric output (if no non-taut present then no output;
+52          TAUT_BOTH => tautomeric and non-tautomeric 
+6     */
+61     int  i, j, ii, jj, /*ii2, jj2,*/ bEmbeddedOutputCalled=0;
+63     int  bTautIsoHNum, bTautIsoAt, bHasIsotopicAtoms[TAUT_NUM];
+52     int  bStereoSp2[TAUT_NUM], bStereoSp3[TAUT_NUM];
+68     int  bIsotopicStereoSp2[TAUT_NUM], bIsotopicStereoSp3[TAUT_NUM];
+76     int  bStereoAbsInverted[TAUT_NUM], bIsotopicStereoAbsInverted[TAUT_NUM];
+60     int  bStereoAbs[TAUT_NUM], bIsotopicStereoAbs[TAUT_NUM];
+44     int  bTautomericAcid, bHardAddRemProton;
+65     int  bRequestedRacemicStereo=0, bRequestedRelativeStereo = 0;
+18     int  ind, inc;
+4     
+27     INCHI_SORT   *is, *is2;
+40     INChI        *pINChI /*, *pINChI2*/;
+36     INChI_Aux    *pINChI_Aux = NULL;
+4     
+46     int  ret = 0; /*  0=>failed, 1=>success */
+29     int  intermediate_result;
+29     int then_goto_repeat = 0;
+22     int  max_num_comp;
+18     int  bHasIsoH;
+26     int  nNumMovedProtons;
+41     int  bTautAndNonTaut, bTautIsNonTaut;
+66     int nAtomsAllComp;	/* v. 1.05 Total atoms in all components */
+0 
+113     int  bPlainText        = 0 != (bINChIOutputOptions & (INCHI_OUT_PLAIN_TEXT | INCHI_OUT_PLAIN_TEXT_COMMENTS));
+88     int  bPlainTextCommnts = 0 != (bINChIOutputOptions & INCHI_OUT_PLAIN_TEXT_COMMENTS);
+0 
+4     
+21     char *pLF, *pTAB;
+0 
+32     int bFixTranspChargeBug = 0;
+58 #if ( FIX_TRANSPOSITION_CHARGE_BUG == 1 ) /* 2008-01-02 */
+71     if ( INCHI_OUT_FIX_TRANSPOSITION_CHARGE_BUG & bINChIOutputOptions )
+32         bFixTranspChargeBug = 1;
+6 #endif
+4     
+33     pr.bAbcNumbers = bAbcNumbers;
+4     
+58     pr.ATOM_MODE = ((pr.bAbcNumbers?CT_MODE_ABC_NUMBERS:0)
+41                     | CT_MODE_ATOM_COUNTS
+40                     | CT_MODE_NO_ORPHANS
+31 #if ( EQL_H_NUM_TOGETHER == 1 )
+44                     | CT_MODE_EQL_H_TOGETHER
+6 #endif
+32 #if ( ABC_CT_NUM_CLOSURES == 1 )
+85                     | (pr.bAbcNumbers && bCtPredecessors? CT_MODE_ABC_NUM_CLOSURES:0)
+6 #endif
+64                     | (bCtPredecessors?CT_MODE_PREDECESSORS:0));
+0 
+58     pr.TAUT_MODE = (pr.bAbcNumbers?CT_MODE_ABC_NUMBERS:0);
+0 
+51     pr.pSortPrintINChIFlags = pSortPrintINChIFlags;
+0 
+74     pr.num_components = num_components2[INCHI_basic_or_INCHI_reconnected];
+94     pr.pINChISortTautAndNonTaut = pINChISortTautAndNonTaut2[INCHI_basic_or_INCHI_reconnected];
+58     pr.pINChISort = pr.pINChISortTautAndNonTaut[TAUT_YES];
+58     pr.pINChISort2= pr.pINChISortTautAndNonTaut[TAUT_YES];
+0 
+29     pr.bAlways           = 0;
+29     pr.bUseMulipliers    = 1;
+29     pr.bOmitRepetitions  = 1;
+118     pr.bPlainTextTags    = 2;  /* 0 => no plain tags, 1=> plain text tags, 2=>plaintext tags without consecutive // */
+40     pr.bOutType = bOutputType; /* ??? */
+0 
+30     pr.bSecondNonTautPass = 0;
+41     pr.bNonTautIsoIdentifierNotEmpty = 0;
+44     pr.bNonTautNonIsoIdentifierNotEmpty = 0;
+37     pr.bNonTautIsIdenticalToTaut = 1;
+34     pr.bFhTag                 = 0;
+71     pr.nTag  = bPlainTextCommnts? 3 : bPlainText? 2 : 0; /* tag type */
+0 
+33     ind                    =  -1;
+33     inc                    =  -1;
+4     
+0 
+60     set_line_separators( bINChIOutputOptions, &pLF, &pTAB );
+0 
+64     memset( pr.sDifSegs, DIFV_BOTH_EMPTY, sizeof(pr.sDifSegs) );
+0 
+69     if ( !strbuf || !(strbuf->pStr) || strbuf->nAllocatedLength<=0 ) 
+5     {
+35         inchi_ios_eprint(log_file, 
+85             "Cannot allocate output buffer. No output for structure #%d.%s%s%s%s\n", 
+67             num_input_struct, SDF_LBL_VAL(szSdfLabel, szSdfValue));
+19         return ret;
+5     }
+0 
+47     /* -- commented out to allow empty InChI --
+38     if (!pr.num_components ) return 0;
+6     */
+0 
+38     for ( i = 0; i < TAUT_NUM; i ++ ) 
+5     {
+69         bHasIsotopicAtoms[i]      = pr.num_comp[i]                  =
+66         bStereoSp2[i]             = bStereoSp3[i]                =
+66         bIsotopicStereoSp2[i]     = bIsotopicStereoSp3[i]        =
+39         pr.bIsotopicOrigNumb[i]      = 
+67         bStereoAbs[i]             = bIsotopicStereoAbs[i]         =
+67         bStereoAbsInverted[i]     = bIsotopicStereoAbsInverted[i] =
+70         pr.bRacemicStereo[i]      = pr.bRelativeStereo[i]            =
+74         pr.bIsotopicRelativeStereo[i] = pr.bIsotopicRelativeStereo[i]    =
+70         pr.bAtomEqu[i]            = pr.bTautEqu[i]                   =
+73         pr.bIsotopicAtomEqu[i]       = pr.bIsotopicTautEqu[i]           =
+73         pr.bInvStereo[i]             = pr.bInvIsotopicStereo[i]         =
+73         pr.bInvStereoOrigNumb[i]     = pr.bInvIsotopicStereoOrigNumb[i] =
+73         pr.bIgn_UU_Sp3[i]            = pr.bIgn_UU_Sp2[i]                =
+73         pr.bIgn_UU_Sp3_Iso[i]        = pr.bIgn_UU_Sp2_Iso[i]            =
+76         pr.bChargesRadVal[i]         = pr.bOrigCoord[i]                 = 0;
+5     }
+0 
+32     /*	Find if it is isotopic */
+74     pr.bIsotopic	= pr.bTautomeric = pr.bNonTautomeric = bTautomericAcid = 
+72                       bHardAddRemProton = bTautIsoHNum = bTautIsoAt = 0;
+41     bTautAndNonTaut = bTautIsNonTaut = 0;
+4     
+6     /*
+65          x = bStereo, bStereoSp2, bStereoSp3, bStereoAbsInverted,
+97              bIsotopicStereo, bIsotopicStereoSp2, bIsotopicStereoSp3, bIsotopicStereoAbsInverted 
+0 
+58          OUT_N1: x[TAUT_NON] refers to non-tautomeric only
+84          OUT_T1: x[TAUT_YES] refers to tautomeric if exists otherwise non-tautomeric
+77          OUT_NT: x[TAUT_NON] refers to non-taut representations of tautomeric
+84          OUT_TN: x[TAUT_YES] refers to tautomeric if exists otherwise non-tautomeric
+84                  x[TAUT_NON] refers to non-taut representations of tautomeric       
+7      */
+0 
+52     memset( pr.num_iso_H, 0, sizeof(pr.num_iso_H) );
+30     pr.nNumRemovedProtons = 0;
+27     nNumMovedProtons   = 0;
+27     bHasIsoH           = 0;
+80     pr.bTautomericOutputAllowed = (pr.bOutType==OUT_T1 || pr.bOutType== OUT_TN);
+20     pr.pINChISort = 
+86         pr.pINChISortTautAndNonTaut[pr.bTautomericOutputAllowed? TAUT_YES : TAUT_NON];
+24     is  = pr.pINChISort;
+79     is2 = (pr.bOutType== OUT_TN)? pr.pINChISortTautAndNonTaut[TAUT_NON] : NULL;
+0 
+0 
+62     for ( i = 0, is2 = pr.pINChISortTautAndNonTaut[TAUT_NON]; 
+51                             i < pr.num_components; 
+71                                         i ++, is ++, is2? is2++:NULL ) 
+5     {
+4     
+69         CompINChILayers( is, is2, pr.sDifSegs, bFixTranspChargeBug );
+8         
+39         pr.bNonTautIsIdenticalToTaut = 
+80             pr.bNonTautIsIdenticalToTaut && !CompINChITautVsNonTaut(is, is2, 1);
+8         
+61         if ( is && (pINChI_Aux = is->pINChI_Aux[TAUT_YES]) ) 
+9         {
+52             for ( j = 0; j < NUM_H_ISOTOPES; j ++ ) 
+13             {
+73                 bHasIsoH     += abs(pINChI_Aux->nNumRemovedIsotopicH[j]);
+71                 pr.num_iso_H[j] += pINChI_Aux->nNumRemovedIsotopicH[j];
+13             }
+68             pr.nNumRemovedProtons += pINChI_Aux->nNumRemovedProtons;
+70             nNumMovedProtons   += abs(pINChI_Aux->nNumRemovedProtons);
+9         }
+8         
+43         if ( pr.bTautomericOutputAllowed ) 
+9         {
+46             /* check for removed isotopic H */
+53             for ( j = TAUT_YES; j < TAUT_NUM; j ++ ) 
+13             {
+40                 switch ( pr.bOutType ) {
+84                 case OUT_N1: /* x[TAUT_NON]: non-tautomeric only -- never happens */
+48                     jj = GET_II(pr.bOutType,is);
+34                     if ( jj != j )
+33                         continue;
+34                     ii = TAUT_NON;
+26                     break;
+94                 case OUT_T1: /* x[TAUT_YES]: tautomeric if present otherwise non-tautomeric */
+48                     jj = GET_II(pr.bOutType,is);
+34                     if ( jj != j )
+33                         continue;
+34                     ii = TAUT_YES;
+26                     break;
+108                 case OUT_NT: /* x[TAUT_NON]: only non-taut representations of tautomeric -- never happens */
+48                     jj = GET_II(pr.bOutType,is);
+34                     if ( jj != j )
+33                         continue;
+34                     ii = TAUT_NON;
+26                     break;
+47                 /* main path of control flow */
+92                 case OUT_TN: /* x[TAUT_YES]: tautomeric if present otherwise non-tautomeric;
+86                               * x[TAUT_NON]: non-taut only if tautomeric is present */
+106                     jj = ( j == TAUT_YES )? GET_II(OUT_T1,is) : ( j == TAUT_NON )? GET_II(OUT_NT,is) : -1;
+42                     if ( jj == TAUT_YES ) 
+24                     {   
+35                         /* Fix12 */
+63                         if ( is->pINChI[jj]->lenTautomer > 0 ) 
+25                         {
+88                             bTautAndNonTaut += (!is->pINChI[jj]->bDeleted && HAS_N(is));
+31                         } else 
+25                         {
+46                             bTautIsNonTaut ++;
+25                         }
+21                     }
+33                     if ( jj < 0 )
+33                         continue;
+27                     ii = j;
+26                     break;
+24                 default:
+29                     continue;
+17                 }
+30                 if ( jj != j )
+29                     continue;
+116                 if ( (pINChI = is->pINChI[jj]) && pINChI->nNumberOfAtoms > 0 && (pINChI_Aux = is->pINChI_Aux[jj]) ) 
+17                 {
+74                     bTautIsoHNum += (pINChI_Aux->nNumRemovedIsotopicH[0] +
+74                                      pINChI_Aux->nNumRemovedIsotopicH[1] +
+74                                      pINChI_Aux->nNumRemovedIsotopicH[2]);
+112                     bTautIsoAt   += (pINChI->nNumberOfIsotopicAtoms>0 || pINChI->nNumberOfIsotopicTGroups > 0 );
+17                 }
+13             }
+9         }
+5     }
+0 
+100     pr.sDifSegs[DIFL_M ][DIFS_p_PROTONS] = pr.nNumRemovedProtons? DIFV_NEQ2PRECED : DIFV_BOTH_EMPTY;
+97     pr.sDifSegs[DIFL_MI][DIFS_h_H_ATOMS] = bHasIsoH?           DIFV_NEQ2PRECED : DIFV_BOTH_EMPTY;
+4     
+44     MarkUnusedAndEmptyLayers( pr.sDifSegs );
+4     
+81     pr.bNonTautIsIdenticalToTaut = pr.bNonTautIsIdenticalToTaut && !bTautIsoHNum;
+0 
+4     
+22     nAtomsAllComp = 0;
+73     for ( i = 0, is = pr.pINChISort; i < pr.num_components; i ++, is ++ )
+5     {
+103         int bCurIso, bCurStereo, bCurIsoStereo, bCurHasIsoStereo /* Fix14 */, bCurTaut /*, bCurTaut2*/;
+53         int bCompExists, bCurIsoHPos, bCurIsoHStereo;
+98         int bCurStereoSp2, bCurIsoStereoSp2, bCurStereoSp3, bCurIsoStereoSp3, bCurIsoStereoSp3Inv;
+71         int bCurRacemic, bCurRelative, bCurIsoRacemic, bCurIsoRelative;
+24         bCompExists = 0;
+8         
+49         for ( j = TAUT_NON; j < TAUT_NUM; j ++ ) 
+9         {
+36             switch ( pr.bOutType ) {
+63             case OUT_N1: /* x[TAUT_NON]: non-tautomeric only */
+44                 jj = GET_II(pr.bOutType,is);
+30                 if ( jj != j )
+29                     continue;
+30                 ii = TAUT_NON;
+22                 break;
+90             case OUT_T1: /* x[TAUT_YES]: tautomeric if present otherwise non-tautomeric */
+44                 jj = GET_II(pr.bOutType,is);
+30                 if ( jj != j )
+29                     continue;
+30                 ii = TAUT_YES;
+22                 break;
+87             case OUT_NT: /* x[TAUT_NON]: only non-taut representations of tautomeric */
+44                 jj = GET_II(pr.bOutType,is);
+30                 if ( jj != j )
+29                     continue;
+30                 ii = TAUT_NON;
+22                 break;
+89             /* main control flow comes here: requested both mobile and fixed H results */
+88             case OUT_TN: /* x[TAUT_YES]: tautomeric if present otherwise non-tautomeric;
+82                           * x[TAUT_NON]: non-taut only if tautomeric is present */
+102                 jj = ( j == TAUT_YES )? GET_II(OUT_T1,is) : ( j == TAUT_NON )? GET_II(OUT_NT,is) : -1;
+31                 if ( jj < 0 )  
+17                 {
+31                     /* Fix12 */
+61                     if ( bTautAndNonTaut && bTautIsNonTaut &&
+74                          j == TAUT_NON && 0 <= (jj = GET_II(OUT_T1,is)) &&
+85                          !is->pINChI[jj]->bDeleted && !is->pINChI[jj]->lenTautomer ) 
+21                     {
+93                         ; /* the requested non-tautomeric component is in tautomeric position
+52                              (is->pINChI[TAUT_YES]);
+96                              process it also as non-tautomeric if Fixed-H layer was requested */
+22                     } 
+25                     else 
+21                     {
+33                         continue;
+21                     }
+17                 }
+119                 ii = j; /* ii is what we wanted; jj is what we found (0 = TAUT_NON: fixed_H, 1 = TAUT_YES: mobile_H) */
+45                 /* -- not used 2004-09-16 ---
+28                 if ( is2 ) {
+109                     jj2 = ( j == TAUT_YES )? GET_II(OUT_T1,is2) : ( j == TAUT_NON )? GET_II(OUT_NT,is2) : -1;
+37                     if ( jj2 >= 0 ) {
+32                         ii2 = j;
+28                     } else {
+33                         ii2 = -1;
+21                     }
+24                 } else {
+35                     jj2 = ii2 = -1;
+17                 }
+47                 -----------------------------*/
+22                 break;
+20             default:
+25                 continue;
+13             }
+75             if ( (pINChI = is->pINChI[jj]) && pINChI->nNumberOfAtoms > 0 ) 
+13             {
+52                 /*pINChI_Aux = is->pINChI_Aux[jj];*/
+30                 bCompExists++;
+55                 nAtomsAllComp+= pINChI->nNumberOfAtoms;
+64                 bCurTaut            = (pINChI->lenTautomer > 0);
+114                 bCurIso             = (pINChI->nNumberOfIsotopicAtoms>0 || pINChI->nNumberOfIsotopicTGroups > 0 );
+153                 bCurIsoHPos         = (pINChI->nPossibleLocationsOfIsotopicH && pINChI->nPossibleLocationsOfIsotopicH[0] > 1 || pINChI->lenTautomer > 1);
+89                 /* present isotopic H + their possible positions AND/OR isotopic atoms */
+93                 bCurIsoHStereo      = bCurIsoHPos && (bTautIsoHNum || bTautIsoAt) || bCurIso;
+51                 if ( jj == j && pINChI->bDeleted ) 
+17                 {
+38                     pr.num_comp[j] --;
+36                     if ( bCurTaut ) 
+21                     {
+94                         pr.bTautomeric        |= 1; /* tautomeric representation is present */
+59                         pr.bNonTautomeric     |= HAS_N(is);
+21                     }
+44                     pr.bIsotopic	|= bCurIso;
+77                     continue; /* deleted H(+) in tautomeric representation */
+17                 }
+99                 bCurStereoSp2       = pINChI->Stereo && (pINChI->Stereo->nNumberOfStereoBonds > 0);
+37                 bCurHasIsoStereo    =
+102                 bCurStereoSp3       = pINChI->Stereo && (pINChI->Stereo->nNumberOfStereoCenters > 0 );
+133                 bCurIsoStereoSp2    = bCurIsoHStereo && pINChI->StereoIsotopic && (pINChI->StereoIsotopic->nNumberOfStereoBonds > 0);
+135                 bCurIsoStereoSp3    = bCurIsoHStereo && pINChI->StereoIsotopic && (pINChI->StereoIsotopic->nNumberOfStereoCenters > 0);
+130                 bCurIsoStereoSp3Inv = bCurIsoStereoSp3 && pINChI->StereoIsotopic->nCompInv2Abs; /* inversion changes sp3 stereo */
+97                 bRequestedRacemicStereo         |= (0!=(pINChI->nFlags & INCHI_FLAG_RAC_STEREO));
+0 
+97                 bRequestedRelativeStereo        |= (0!=(pINChI->nFlags & INCHI_FLAG_REL_STEREO));
+119                 /* check whether isotopic stereo is same as non-isotopic; if same than do not output isotopic stereo */
+57                 if ( bCurStereoSp2 && bCurIsoStereoSp2 ) 
+17                 {
+120                     bCurIsoStereoSp2 = !Eql_INChI_Stereo( pINChI->Stereo, EQL_SP2, pINChI->StereoIsotopic, EQL_SP2, 0 );
+17                 }
+57                 if ( bCurStereoSp3 && bCurIsoStereoSp3 ) 
+17                 {
+136                     /* bCurIsoStereoSp3=0 means (iso stereo sp3) = (non-iso stereo sp3) or (iso stereo sp3) = Inv(non-iso stereo sp3) */
+115                     bCurIsoStereoSp3 = !Eql_INChI_Stereo( pINChI->Stereo, EQL_SP3, pINChI->StereoIsotopic, EQL_SP3,
+117                               (pINChI->nFlags & INCHI_FLAG_RAC_STEREO) || (pINChI->nFlags & INCHI_FLAG_REL_STEREO) );
+46                     if ( !bCurIsoStereoSp3 ) {
+90                         /* inversion changes iso sp3 differently from non-iso sp3 Fix11 */
+118                         bCurIsoStereoSp3Inv &= (pINChI->StereoIsotopic->nCompInv2Abs != pINChI->Stereo->nCompInv2Abs);
+21                     }
+17                 }
+0 
+81                 bCurRelative        =  bRequestedRelativeStereo && bCurStereoSp3;
+36 #if ( REL_RAC_STEREO_IGN_1_SC == 1 )
+54                 bCurRelative        =  bCurRelative &&
+86                                       (pINChI->Stereo->nNumberOfStereoCenters > 1 ) &&
+76                                       (pINChI->Stereo->nCompInv2Abs != 0) &&
+6 #endif
+38                                       
+0 
+0 
+108                 bCurIsoRelative     = bRequestedRelativeStereo && (bCurIsoStereoSp3 || bCurIsoStereoSp3Inv);
+36 #if ( REL_RAC_STEREO_IGN_1_SC == 1 )
+56                 bCurIsoRelative     = bCurIsoRelative &&
+94                                       (pINChI->StereoIsotopic->nNumberOfStereoCenters > 1 ) &&
+84                                       (pINChI->StereoIsotopic->nCompInv2Abs != 0) &&
+6 #endif
+38                                       
+0 
+79                 bCurRacemic         = bRequestedRacemicStereo && bCurStereoSp3;
+36 #if ( REL_RAC_STEREO_IGN_1_SC == 1 )
+52                 bCurRacemic         = bCurRacemic &&
+76                                       (pINChI->Stereo->nCompInv2Abs != 0) &&
+85                                       (pINChI->Stereo->nNumberOfStereoCenters > 0 ) ?
+81                                       pINChI->Stereo->nNumberOfStereoCenters : 0;
+6 #endif
+0 
+107                 bCurIsoRacemic      = bRequestedRacemicStereo && (bCurIsoStereoSp3 || bCurIsoStereoSp3Inv);
+36 #if ( REL_RAC_STEREO_IGN_1_SC == 1 )
+54                 bCurIsoRacemic      = bCurIsoRacemic &
+84                                       (pINChI->StereoIsotopic->nCompInv2Abs != 0) &&
+93                                       (pINChI->StereoIsotopic->nNumberOfStereoCenters > 0 ) ?
+90                                        pINChI->StereoIsotopic->nNumberOfStereoCenters : 0;
+6 #endif
+48                 if ( bRequestedRelativeStereo ) 
+17                 {
+131                     bCurStereoSp3     = bCurRelative || bCurStereoSp3 && (pINChI->Stereo->nNumberOfStereoCenters > 1 ); /* Fix11 */
+81                     bCurIsoStereoSp3  = bCurIsoRelative   ? bCurIsoStereoSp3 : 0;
+18                 } 
+20                 else
+17                 {
+51                     if ( bRequestedRacemicStereo ) 
+21                     {
+141                         bCurStereoSp3     = bCurRacemic    > 1 || bCurStereoSp3 && (pINChI->Stereo->nNumberOfStereoCenters > 1 ); /* Fix11 */
+85                         bCurIsoStereoSp3  = bCurIsoRacemic > 1? bCurIsoStereoSp3 : 0;
+21                     }
+17                 }
+72                 bCurStereo          = bCurStereoSp2    || bCurStereoSp3;
+75                 bCurIsoStereo       = bCurIsoStereoSp2 || bCurIsoStereoSp3;
+0 
+44                 pr.bIsotopic		   |= bCurIso;
+50                 bHasIsotopicAtoms[ii]  |= bCurIso;
+56                 bStereoSp2[ii]         |= bCurStereoSp2;
+56                 bStereoSp3[ii]         |= bCurStereoSp3;
+107                 pr.bIgn_UU_Sp3[ii]        |= !bCurStereoSp3 && (pINChI->nFlags & INCHI_FLAG_SC_IGN_ALL_UU);
+107                 pr.bIgn_UU_Sp2[ii]        |= !bCurStereoSp2 && (pINChI->nFlags & INCHI_FLAG_SB_IGN_ALL_UU);
+59                 bIsotopicStereoSp2[ii] |= bCurIsoStereoSp2;
+59                 bIsotopicStereoSp3[ii] |= bCurIsoStereoSp3;
+114                 pr.bIgn_UU_Sp3_Iso[ii]    |= !bCurIsoStereoSp3 && (pINChI->nFlags & INCHI_FLAG_SC_IGN_ALL_ISO_UU);
+114                 pr.bIgn_UU_Sp2_Iso[ii]    |= !bCurIsoStereoSp2 && (pINChI->nFlags & INCHI_FLAG_SB_IGN_ALL_ISO_UU);
+104                 bStereoAbs[ii]                  |= bCurStereoSp3 && (pINChI->Stereo->nCompInv2Abs != 0);
+103                 bStereoAbsInverted[ii]          |= bCurStereoSp3 && (pINChI->Stereo->nCompInv2Abs < 0);
+95                 /* Fix08: missing isotopic inverted flag if isotopic = inverted non-isotopic */
+116                 bIsotopicStereoAbsInverted[ii]  |= bCurIsoStereoSp3 && (pINChI->StereoIsotopic->nCompInv2Abs < 0) ||
+117                                                    !bCurIsoStereoSp3  && pINChI->StereoIsotopic  && pINChI->Stereo &&
+90                                                    pINChI->StereoIsotopic->nCompInv2Abs &&
+120                                                    pINChI->StereoIsotopic->nCompInv2Abs != pINChI->Stereo->nCompInv2Abs;
+77                 /* Fix 11: missing /s1 if only isotopic stereo is inverted */
+117                 bIsotopicStereoAbs[ii]          |= bCurIsoStereoSp3 && (pINChI->StereoIsotopic->nCompInv2Abs != 0) ||
+117                                                    !bCurIsoStereoSp3  && pINChI->StereoIsotopic  && pINChI->Stereo &&
+90                                                    pINChI->StereoIsotopic->nCompInv2Abs &&
+120                                                    pINChI->StereoIsotopic->nCompInv2Abs != pINChI->Stereo->nCompInv2Abs;
+0 
+67                 pr.bRelativeStereo[ii]             |= bCurRelative;
+70                 pr.bIsotopicRelativeStereo[ii]     |= bCurIsoRelative;
+66                 pr.bRacemicStereo[ii]              |= bCurRacemic;
+70                 pr.bIsotopicRelativeStereo[ii]      |= bCurIsoRacemic;
+0 
+96                 bTautomericAcid                 |= (0!=(pINChI->nFlags & INCHI_FLAG_ACID_TAUT));
+106                 bHardAddRemProton               |= (0!=(pINChI->nFlags & INCHI_FLAG_HARD_ADD_REM_PROTON));
+32                 if ( bCurTaut ) 
+17                 {
+90                     pr.bTautomeric        |= 1; /* tautomeric representation is present */
+93                     /* does tautomeric structure have also a non-tautomeric repesentation? */
+55                     pr.bNonTautomeric     |= HAS_N(is);
+17                 }
+16                 
+36                 /* auxiliary info */
+107                 if ( !(bINChIOutputOptions & INCHI_OUT_NO_AUX_INFO) && (pINChI_Aux = is->pINChI_Aux[jj]) ) 
+17                 {
+76                     /* detect presence of constitutional equivalence onfo */
+100                     int bCurEqu, bCurTautEqu=0, bCurIsoEqu=0, bCurIsoTautEqu=0; /* Fix15-disabled */
+96                     pr.bAtomEqu[ii] |= (bCurEqu = bHasEquString( pINChI_Aux->nConstitEquNumbers,
+80                                                    pINChI_Aux->nNumberOfAtoms));
+36                     if ( bCurTaut ) 
+21                     {
+110                         pr.bTautEqu[ii] |= (bCurTautEqu = bHasEquString( pINChI_Aux->nConstitEquTGroupNumbers,
+86                                                        pINChI_Aux->nNumberOfTGroups));
+21                     }
+35                     if ( bCurIso ) 
+21                     {
+119                         pr.bIsotopicAtomEqu[ii] |= (bCurIsoEqu = bHasEquString( pINChI_Aux->nConstitEquIsotopicNumbers,
+107                                                                pINChI_Aux->nNumberOfAtoms)) /*|| bCurEqu*/;
+40                         if ( bCurTaut ) 
+25                         {
+133                             pr.bIsotopicTautEqu[ii] |= (bCurIsoTautEqu = bHasEquString( pINChI_Aux->nConstitEquIsotopicTGroupNumbers,
+117                                                                    pINChI_Aux->nNumberOfTGroups)) /*|| bCurTautEqu*/;
+25                         }
+102                         /* non-zero if isotopic numbering for inverted isotopic stereo is different */
+83                         pr.bIsotopicOrigNumb[ii] |= bCurHasIsoStereo && /* Fix14 */
+87                                                  pINChI_Aux->nOrigAtNosInCanonOrdInv &&
+92                                                  pINChI_Aux->nIsotopicOrigAtNosInCanonOrd &&
+78                             (0 != memcmp( pINChI_Aux->nOrigAtNosInCanonOrdInv,
+83                                           pINChI_Aux->nIsotopicOrigAtNosInCanonOrd,
+88                                           sizeof(pINChI_Aux->nOrigAtNosInCanonOrdInv[0])
+73                                           * pINChI_Aux->nNumberOfAtoms));
+0 
+21                     }
+41                     /* inverted stereo */
+73                     if ( bCurStereoSp3 && pINChI->Stereo->nCompInv2Abs ) 
+21                     {
+55                         pr.bInvStereo[ii]         |= 1;
+88                         pr.bInvStereoOrigNumb[ii] |= pINChI_Aux->nOrigAtNosInCanonOrd &&
+88                                                   pINChI_Aux->nOrigAtNosInCanonOrdInv &&
+75                             (0 != memcmp( pINChI_Aux->nOrigAtNosInCanonOrd,
+78                                           pINChI_Aux->nOrigAtNosInCanonOrdInv,
+85                                           sizeof(pINChI_Aux->nOrigAtNosInCanonOrd[0])
+73                                           * pINChI_Aux->nNumberOfAtoms));
+21                     }
+50                     /* inverted isotopic stereo */
+84                     if ( bCurIsoStereoSp3 && pINChI->StereoIsotopic->nCompInv2Abs ) 
+21                     {
+63                         pr.bInvIsotopicStereo[ii]         |= 1;
+104                         pr.bInvIsotopicStereoOrigNumb[ii] |= pINChI_Aux->nIsotopicOrigAtNosInCanonOrd &&
+104                                                           pINChI_Aux->nIsotopicOrigAtNosInCanonOrdInv &&
+83                             (0 != memcmp( pINChI_Aux->nIsotopicOrigAtNosInCanonOrd,
+86                                           pINChI_Aux->nIsotopicOrigAtNosInCanonOrdInv,
+93                                           sizeof(pINChI_Aux->nIsotopicOrigAtNosInCanonOrd[0])
+73                                           * pINChI_Aux->nNumberOfAtoms));
+21                     }
+114                     if ( pINChI_Aux->OrigInfo && bHasOrigInfo(pINChI_Aux->OrigInfo, pINChI_Aux->nNumberOfAtoms) ) 
+21                     {
+51                         pr.bChargesRadVal[ii] |= 1;
+21                     }
+17                 }
+13             }
+9         }
+27         if ( bCompExists ) 
+9         {
+53             for ( j = TAUT_NON; j < TAUT_NUM; j ++ ) 
+13             {
+34                 pr.num_comp[j] ++;
+13             }
+9         }
+5     }
+100     if ( pr.bTautomeric /*&& bTautomericAcid*/ ) /* "&& bTautomericAcid" commented out 2004-06-02 */
+8     {   
+71         pr.bTautomeric += bTautomericAcid; /* long-range tautomerism */
+53         pr.bTautomeric += (bHardAddRemProton? 4 : 0);
+5     }
+63     if ( bRequestedRacemicStereo || bRequestedRelativeStereo ) 
+5     {
+48         /* do not output inverted stereo info */
+42         for ( i = 0; i < TAUT_NUM; i ++ ) 
+9         {
+23             /* Fix11 */
+36             bStereoAbsInverted[i] = 
+35             bStereoAbs[i]         =
+39             pr.bInvStereo[i]         = 
+42             pr.bInvStereoOrigNumb[i] =  0;
+114             /* pr.bIsotopicRelativeStereo[i]=0 may happen because iso stereo is same or inverted non-iso stereo */
+43             bIsotopicStereoAbsInverted[i] =
+43             bIsotopicStereoAbs[i]         =
+46             pr.bInvIsotopicStereo[i]         =
+49             pr.bInvIsotopicStereoOrigNumb[i] = 0;
+9         }
+5     }
+0 
+0 
+75     pr.iCurTautMode = pr.bOutType == OUT_N1? TAUT_NON:  /* only non-taut */
+106                    pr.bOutType == OUT_T1? TAUT_YES:  /* tautomeric if present, otherwise non-tautomeric */
+102                    pr.bOutType == OUT_NT? TAUT_NON:  /* only non-taut representations of tautomeric */
+106                    pr.bOutType == OUT_TN? TAUT_YES:  /* tautomeric if present otherwise non-tautomeric; */
+124                                              -1;   /* separately output non-taut representations of tautomeric if present */
+45                                              
+31     if ( pr.iCurTautMode < 0 ) 
+5     {
+30         return 0;  /* error */
+5     }
+0 
+0 
+6     /*
+22         Now print out 
+6     */
+4     
+21     pr.bOverflow = 0;
+53     pr.num_components = pr.num_comp[pr.iCurTautMode];
+77     max_num_comp   = inchi_max(pr.num_comp[TAUT_NON], pr.num_comp[TAUT_YES]);
+0 
+57     if ( bINChIOutputOptions & INCHI_OUT_ONLY_AUX_INFO ) 
+5     {
+29         goto output_aux_info;
+5     }
+0 
+33     pr.nCurINChISegment = DIFL_M;
+0 
+0 
+37     /* Structure (Compound) Header */
+57     if ( INCHI_basic_or_INCHI_reconnected == INCHI_BAS ) 
+117         Output_record_info( out_file, num_input_struct, bNoStructLabels, szSdfLabel, szSdfValue, lSdfId, pLF, pTAB );
+0 
+0 
+40     /* InChI output: version and kind */
+104     if ( INCHI_basic_or_INCHI_reconnected == INCHI_BAS || !(bINChIOutputOptions & INCHI_OUT_EMBED_REC)) 
+105         Output_INCHI_version_and_kind( out_file, strbuf, bINChIOutputOptions, nAtomsAllComp, pLF, pTAB );
+0 
+0 
+0 
+571     /* InChI output: atoms */																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																														
+82     intermediate_result = Output_INCHI_main_layer_formula( pCG, out_file, strbuf, 
+75                                                            num_components2,
+93                                                            &INCHI_basic_or_INCHI_reconnected,
+76                                                            &pr, pLF, pTAB );
+35     if ( intermediate_result != 0 )
+27         goto exit_function;
+0 
+37 	/* InChI output: connection table */
+83 	intermediate_result = Output_INCHI_main_layer_connections( pCG, out_file, strbuf, 
+79                                                                num_components2,
+97                                                                &INCHI_basic_or_INCHI_reconnected,
+80                                                                &pr, pLF, pTAB );
+35     if ( intermediate_result != 0 )
+27         goto exit_function;
+0 
+53 	/* InChI output: hydrogens (with tautomeric info) */
+81 	intermediate_result = Output_INCHI_main_layer_hydrogens( pCG, out_file, strbuf, 
+77                                                              num_components2,
+95                                                              &INCHI_basic_or_INCHI_reconnected,
+78                                                              &pr, pLF, pTAB );
+35     if ( intermediate_result != 0 )
+27         goto exit_function;
+0 
+0 
+18     pr.bFhTag = 0;
+0 
+0 
+20 repeat_INChI_output:
+0 
+51     /* InChI output: charge and  removed protons */
+85     intermediate_result = Output_INCHI_charge_and_removed_added_protons_layers( pCG, 
+38 																				out_file, strbuf, 
+36 																				&pr, pLF, pTAB);
+35     if ( intermediate_result != 0 )
+27         goto exit_function;
+0 
+0 
+45     /* InChI output: stereo (non-isotopic) */
+92     intermediate_result = Output_INCHI_stereo_layer( pCG,out_file, strbuf, &pr, pLF, pTAB );
+35     if ( intermediate_result != 0 )
+27         goto exit_function;
+0 
+0 
+45     /* Switch from M to MI or from F to FI */
+28     pr.nCurINChISegment ++; 
+0 
+0 
+0 
+32     /* InChI output: isotopic */
+77     intermediate_result = Output_INCHI_isotopic_layer( pCG, out_file, strbuf,
+67                                  &INCHI_basic_or_INCHI_reconnected,
+49                                  &pr,pLF, pTAB );
+0 
+35     if ( intermediate_result != 0 )
+27         goto exit_function;
+0 
+6     /*
+6       
+63       At this point the INChI part of the output has been done.
+67       If this INChI is tautomeric and non-tautomeric results exist,
+49       then we need to output non-tautomeric data:
+17          fixed H,
+16          stereo,
+17          isotopic
+24          isotopic stereo
+4     
+6     */
+4     
+0 
+0 
+44     /* InChI output: FixedH and sublayers */
+89     intermediate_result = Output_INCHI_FixedH_layer_and_sublayers( pCG, out_file, strbuf,
+103                                                                     &INCHI_basic_or_INCHI_reconnected, 
+104                                                                     &pr, pLF, pTAB, &then_goto_repeat );
+35     if ( intermediate_result != 0 )
+27         goto exit_function;
+27     if ( then_goto_repeat )
+33         goto repeat_INChI_output;
+0 
+0 
+37     /* InChI output: polymer layer */
+77     intermediate_result = Output_INCHI_polymer_layer( pCG, out_file, strbuf, 
+49 													  &INCHI_basic_or_INCHI_reconnected,
+27 													  pOrigStruct,
+32 													  &pr, pLF, pTAB );
+35     if ( intermediate_result != 0 )
+27         goto exit_function;
+0 
+0 
+7     /* 
+45         InChI output:  reconnected structure	
+6     */
+0 
+30     bEmbeddedOutputCalled = 0;
+79     if ( bDisconnectedCoord && INCHI_basic_or_INCHI_reconnected == INCHI_BAS &&
+85          (bINChIOutputOptions & INCHI_OUT_EMBED_REC) && num_components2[INCHI_REC] ) 
+5     {
+17         int nRet;
+34         bEmbeddedOutputCalled = 1;
+8         
+73         /* output blank line before /R: in case of bPlainTextCommnts=1 */
+47         inchi_ios_print( out_file, "%s", pLF );
+46         /* end of disconnected INChI output */
+0 
+34         nRet = OutputINChI1( pCG, 
+16 							 strbuf, 
+35 							 pINChISortTautAndNonTaut2, 
+40                              INCHI_REC, 
+21 							 pOrigStruct, 
+34 							 0 /*bDisconnectedCoord*/, 
+86                              bOutputType, bINChIOutputOptions | INCHI_OUT_NO_AUX_INFO,
+76                              bAbcNumbers, bCtPredecessors, bNoStructLabels, 
+71                              num_components2, num_non_taut2, num_taut2,
+66                              out_file, log_file, num_input_struct,
+61                              szSdfLabel, szSdfValue, lSdfId, 
+66                              pSortPrintINChIFlags, save_opt_bits);
+0 
+21         if ( !nRet ) 
+43             goto exit_function; /* error */
+5     }
+0 
+64     /* InChI output: save InChI creation options if requested */
+41     if ( !bEmbeddedOutputCalled							&& 
+809         ( bINChIOutputOptions & INCHI_OUT_SAVEOPT )		&&																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																		
+84         ( 0==(bINChIOutputOptions & INCHI_OUT_STDINCHI) )	/* not std-InChI output */
+9         )
+5     {
+24         char let1, let2;
+55         GetSaveOptLetters(save_opt_bits, &let1, &let2);
+58         inchi_ios_print( out_file, "\\%c%c", let1, let2 );
+5     }
+56     if ( !bEmbeddedOutputCalled && !bPlainTextCommnts ) 
+52     { /* plain text comment earlier ended with LF */
+43         inchi_ios_print( out_file, "%s%s", 
+103                             (!num_components2[0] && !num_components2[1])? "//":"", /* empty InChI=// */
+89                             (bINChIOutputOptions & INCHI_OUT_NO_AUX_INFO)? "\n" : pTAB );
+30     /* end of INChI= output */
+5     }
+4     
+4     
+33     inchi_strbuf_reset( strbuf );
+0 
+0 
+0 
+0 
+20 output_aux_info:    
+7     /* 
+24         Output Aux Info 
+6     */
+0 
+18     pr.bFhTag = 0;
+0 
+62     if( (bINChIOutputOptions & INCHI_OUT_NO_AUX_INFO) == 0 )  
+6     { 
+0 
+57         pr.num_components = pr.num_comp[pr.iCurTautMode];
+0 
+53         /* AuxInfo: header and normalization type */	
+98         intermediate_result = Output_AUXINFO_header_and_normalization_type( pCG, out_file, strbuf,
+97                                                                             bINChIOutputOptions, 
+111                                                                              &INCHI_basic_or_INCHI_reconnected,
+94                                                                              num_components2, 
+94                                                                              &pr, pLF, pTAB );
+40         if ( intermediate_result != 0 ) 
+31             goto exit_function;
+12             
+0 
+24 repeat_INChI_Aux_output:
+93         /* AuxInfo: original atom numbers and symmetry numbers (constit. equivalence /E: )	*/
+92         intermediate_result = Output_AUXINFO_original_numbers_and_equivalence_classes( pCG, 
+98                                                                                 out_file, strbuf, 
+97                                                                                 num_components2, 
+97                                                                                 &pr, pLF, pTAB );
+40         if ( intermediate_result != 0 ) 
+31             goto exit_function;
+8         
+52         /* AuxInfo: tautomeric groups equivalence */
+81         intermediate_result = Output_AUXINFO_tautomeric_groups_equivalence( pCG, 
+94                                                                             out_file, strbuf, 
+93                                                                             &pr, pLF, pTAB );
+40         if ( intermediate_result != 0 ) 
+31             goto exit_function;
+0 
+34         /* AuxInfo: stereo data */
+93         intermediate_result = Output_AUXINFO_stereo( pCG, out_file, strbuf, &pr, pLF, pTAB );
+40         if ( intermediate_result != 0 ) 
+31             goto exit_function;
+15                
+28 repeat_INChI_Aux_Iso_output:
+36         /* AuxInfo: isotopic info */
+83         intermediate_result = Output_AUXINFO_isotopic_info( pCG, out_file, strbuf, 
+94                                                             &INCHI_basic_or_INCHI_reconnected,
+77                                                             &pr, pLF, pTAB );
+40         if ( intermediate_result != 0 ) 
+31             goto exit_function;
+8         
+5 #if 0
+29 #if ( CANON_FIXH_TRANS != 1 )
+37         if ( pr.bSecondNonTautPass ) 
+9         {
+88             /* find and print non-tautomeric components transposition, if non-trivial */
+41             AT_NUMB *nTrans_n, *nTrans_s;
+128             if ( 0 < bin_AuxTautTrans( pr.pINChISort, pr.pINChISort2, &nTrans_n, &nTrans_s, pr.bOutType,  pr.num_components) ) {
+78                 /* a non-trivial transposition does exist; output start tag */
+61                 inchi_strbuf_reset( strbuf ); pr.tot_len = 0;
+64                 /* print the transposition, cycle after cycle */
+92                 pr.tot_len = str_AuxTautTrans(nTrans_n, nTrans_s, pStr, nStrLen, pr.tot_len,
+91                                            &pr.bOverflow, pr.TAUT_MODE, pr.num_components);
+101                 if ( str_LineEnd( :p_aux_at_inv_nbr, &pr.bOverflow, strbuf, -1, pr.bPlainTextTags ) )
+39                     goto exit_function;
+64                 inchi_ios_print( out_file, "%s", strbuf->pStr );
+44                 /* detected transposition */
+94                 *pSortPrintINChIFlags |= (INCHI_BAS == iINChI)? FLAG_SORT_PRINT_TRANSPOS_BAS :
+93                                                                 FLAG_SORT_PRINT_TRANSPOS_REC;
+15             }  
+47             else if ( pr.bPlainTextTags == 1 ) 
+49                 inchi_ios_print( out_file, "/" );
+9         }
+6 #endif
+6 #endif
+0 
+10         /*
+76           At this point the INChI_Aux part of the output has been completed.
+71           If this INChI is tautomeric and non-tautomeric results exist,
+62           then we need to output non-tautomeric auxilialy data
+59           (same as above excluding tautomeric information).
+56           Currently, this is enabled for xml output only
+10         */
+8         
+76         if ( pr.bOutType == OUT_TN && pr.bTautomeric && pr.bNonTautomeric &&
+58             /* Check whether the Fixed-H layer is empty */
+116             (*pSortPrintINChIFlags & ((INCHI_basic_or_INCHI_reconnected==INCHI_BAS)? FLAG_SORT_PRINT_NO_NFIX_H_BAS :
+96                                                              FLAG_SORT_PRINT_NO_NFIX_H_REC )) &&
+116             (*pSortPrintINChIFlags & ((INCHI_basic_or_INCHI_reconnected==INCHI_BAS)? FLAG_SORT_PRINT_NO_IFIX_H_BAS :
+93                                                              FLAG_SORT_PRINT_NO_IFIX_H_REC ))
+16               ) 
+9         {
+102             pr.bNonTautomeric = 0; /* bNonTautIdentifierNotEmpty == 0 => no fixed H info 02-10-2995 */
+9         }
+8         
+76         if ( pr.bOutType == OUT_TN && pr.bTautomeric && pr.bNonTautomeric ) 
+9         {
+56             /* add the second (non-tautomeric) output */
+42             pr.bOutType     = OUT_NONTAUT;
+39             pr.iCurTautMode = TAUT_NON;
+69             pr.pINChISort    = pr.pINChISortTautAndNonTaut[TAUT_NON];
+38             pr.bSecondNonTautPass = 1;
+61             pr.num_components = pr.num_comp[pr.iCurTautMode];
+32             pr.bFhTag = AL_FIXH;
+72             inchi_strbuf_reset( strbuf ); /*pStr[pr.tot_len=0] = '\0';*/
+12             
+93             /* if InChI Fixed-H isotopic is empty then do not output corresponding AuxInfo */
+43             if ( !(*pSortPrintINChIFlags & 
+99                     ((INCHI_basic_or_INCHI_reconnected==INCHI_BAS)? FLAG_SORT_PRINT_NO_NFIX_H_BAS :
+76                                             FLAG_SORT_PRINT_NO_NFIX_H_REC ))
+17                ) 
+13             {
+45                 goto repeat_INChI_Aux_output;
+14             } 
+17             else 
+13             {
+49                 goto repeat_INChI_Aux_Iso_output;
+13             }
+10         } 
+12         else
+9         {
+110             if ( pr.bOutType == OUT_NONTAUT && bOutputType == OUT_TN && pr.bTautomeric && pr.bNonTautomeric ) 
+13             {
+83                 /* the second (non-taut) output has been done; restore variables */
+47                 pr.bOutType           = OUT_TN;
+49                 pr.iCurTautMode       = TAUT_YES;
+78                 pr.pINChISort         = pr.pINChISortTautAndNonTaut[TAUT_YES];
+42                 pr.bSecondNonTautPass = 0;
+86                 /* set correct num components for the reversibility info 02-10-2005 */
+69                 pr.num_components     = pr.num_comp[pr.iCurTautMode];
+43                 /*  close non-tautomeric */
+91                 szGetTag( AuxLbl, pr.nTag,  pr.bTag1 = pr.bFhTag, pr.szTag1, &pr.bAlways );
+27                 ind -= inc;
+94                 if ( str_LineEnd( pr.szTag1, &pr.bOverflow, strbuf, ind, pr.bPlainTextTags ) )
+39                     goto exit_function;
+64                 inchi_ios_print( out_file, "%s", strbuf->pStr );
+30                 pr.bFhTag = 0;
+13             }
+9         }
+0 
+49         /*	Charges, radicals, unusual valences */
+85         intermediate_result = Output_AUXINFO_charges_radicals_unusual_valences( pCG, 
+98                                                                                 out_file, strbuf, 
+97                                                                                 &pr, pLF, pTAB );
+40         if ( intermediate_result != 0 ) 
+31             goto exit_function;
+0 
+0 
+62         /* Output the original input structure -- quick fix */
+88         intermediate_result = Output_AUXINFO_reversibility_info( pCG, out_file, strbuf, 
+95                                                                  pOrigStruct, &pr, pLF, pTAB );
+40         if ( intermediate_result != 0 ) 
+31             goto exit_function;
+0 
+0 
+10         /*
+58             Output INChI_Aux of the reconnected structure 
+10         */
+8         
+34         bEmbeddedOutputCalled = 0;
+130         if ( bDisconnectedCoord && INCHI_basic_or_INCHI_reconnected == INCHI_BAS && (bINChIOutputOptions & INCHI_OUT_EMBED_REC) &&
+92              num_components2[INCHI_REC] && !(bINChIOutputOptions & INCHI_OUT_NO_AUX_INFO) ) 
+9         {
+21             int nRet;
+38             bEmbeddedOutputCalled = 1;
+51             inchi_ios_print( out_file, "%s", pLF );
+12             
+73             nRet = OutputINChI1( pCG, strbuf, pINChISortTautAndNonTaut2, 
+76                                  INCHI_REC, NULL, 0 /*bDisconnectedCoord*/, 
+92                                  bOutputType, INCHI_OUT_ONLY_AUX_INFO | bINChIOutputOptions,
+80                                  bAbcNumbers, bCtPredecessors, bNoStructLabels, 
+75                                  num_components2, num_non_taut2, num_taut2,
+70                                  out_file, log_file, num_input_struct,
+65                                  szSdfLabel, szSdfValue, lSdfId, 
+69                                  pSortPrintINChIFlags,save_opt_bits);
+0 
+24             if ( !nRet )
+47                 goto exit_function; /* error */
+9         }
+8         
+29         /* Close INChI_Aux */
+60         if ( !bEmbeddedOutputCalled && !bPlainTextCommnts ) 
+9         {
+103             inchi_ios_print( out_file, "%s\n", (!num_components2[0] && !num_components2[1])? "//":"" );
+58             /* plain text comment earlier ended with LF */
+9         }
+0 
+80         /* in wINChI window, separate AuxInfo: from InChIKey: with blank line */
+41         inchi_ios_print( out_file, "%s", 
+83                         (bINChIOutputOptions & INCHI_OUT_WINCHI_WINDOW) ? "\n":"");
+0 
+0 
+33     } /* end of output AuxInfo */
+0 
+12     ret = 1;
+0 
+0 
+14 exit_function:
+0 
+24     if ( pr.bOverflow ) 
+78         inchi_ios_print( out_file, "\nFATAL ERROR: Output buffer overflow\n");
+0 
+15     return ret;
+0 
+5      
+20 } /* OutputINChI1 */
+0 
+0 
+0 
+0 
+3 /*	
+20     szGetTag( ... ) 
+2 */
+85 char *szGetTag( const INCHI_TAG *Tag, int nTag, int bTag, char *szTag, int *bAlways )
+1 {
+28     int i, j, bit, num, len;
+33     if ( 0 < nTag && nTag < 3 ) {
+58         /* no plain text comments: pick up the last tag */
+74         for ( i = 0, j = -1, bit = 1; i < MAX_TAG_NUM; i ++, bit <<= 1 ) {
+31             if ( bTag & bit ) {
+22                 j = i;
+13             }
+9         }
+23         if ( j >= 0 ) {
+99             strcpy( szTag, nTag == 1? Tag[j].szXmlLabel : nTag == 2? Tag[j].szPlainLabel : "???" );
+30             if ( nTag != 2 ) {
+48                 *bAlways = Tag[j].bAlwaysOutput;
+13             }
+25             return szTag;
+9         }
+10     } else
+22     if ( nTag == 3 ) {
+38         /* plain text with comments */
+23         szTag[0] = '{';
+24         szTag[1] = '\0';
+81         for ( i = 0, j = -1, bit = 1, num=0; i < MAX_TAG_NUM; i ++, bit <<= 1 ) {
+31             if ( bTag & bit ) {
+22                 j = i;
+31                 if ( num ++ ) {
+41                     strcat( szTag, ":" );
+17                 }
+55                 strcat( szTag, Tag[i].szPlainComment );
+13             }
+9         }
+20         if ( num ) {
+33             strcat( szTag, "}" );
+54             num = (int) strlen( Tag[j].szPlainLabel );
+40             len = (int) strlen( szTag );
+24             if ( len ) {
+53                 memmove( szTag + num, szTag, len+1 );
+58                 memcpy( szTag, Tag[j].szPlainLabel, num );
+20             } else {
+54                 strcpy ( szTag, Tag[j].szPlainLabel );
+13             }
+44             *bAlways = Tag[j].bAlwaysOutput;
+16         } else {
+35             strcpy( szTag, "???" );
+9         }
+21         return szTag;
+5     }
+27     strcpy( szTag, "???" );
+17     return szTag;
+1 }
+0 
+0 
+2 /*
+24     str_LineStart( ... )
+0 
+48     if ind < 0 (common usage, plain text output)
+63         just resets buffer pStr (by placing '\0' into pStr[0] )
+68     *obsolete* if ind >=0 XML output	embeds val in between XML tags 
+0 
+2 */
+57 int str_LineStart( const char *tag,char *tag2, int val2, 
+56                    INCHI_IOSTREAM_STRING *buf, int ind )
+1 {
+19     if ( ind < 0 ) 
+5     {
+31         /* plain text output */
+34         inchi_strbuf_reset( buf );
+5     }
+64     /* else *obsolete* XML output, obsolete: NOT USED ANYMORE */
+4     
+13     return 0;
+1 }
+0 
+0 
+2 /*
+22     str_LineEnd( ... )
+0 
+43     First, checks if buffer overflow; then:
+48     if ind < 0 (common usage, plain text output)
+38         sets terminating '\0' in pStr,
+56         optionally adds leading tag (e.g., '/' or "/c" )
+36     *obsolete* if ind >=0 XML output
+0 
+2 */
+50 int str_LineEnd( const char *tag, int *bOverflow, 
+45                  INCHI_IOSTREAM_STRING *buf, 
+46                  int ind, int bPlainTextTags )
+1 {
+86     static const int  add_tag_len = sizeof(x_line_closing)-1 + sizeof(x_close_line)-1;
+16     int tag_len;
+4     
+31     /* check buffer overflow */
+21     if ( *bOverflow )
+17         return 1;
+0 
+19     if ( ind < 0 ) 
+6     { 
+24         /* Plain text */
+36         /* insert plain text tag if:
+43            (a) pStr has non-zero length, or
+23            (b) ind < -1
+10         */
+40         if ( buf->pStr[0] || ind < -1 ) 
+9         {
+66             tag_len = bPlainTextTags ? (int) strlen( tag ) : 0;			
+31             if ( tag_len > 0 ) 
+13             {
+46                 int n_added = tag_len + 2 + 2;
+52                 inchi_strbuf_update( buf, n_added );
+78                 memmove( buf->pStr+tag_len, buf->pStr, buf->nUsedLength + 1 );
+73                                     /* NB: trailing 0 is also memmoved */
+50                 memcpy( buf->pStr, tag, tag_len );
+36                 /* to be sure...  */
+55                 buf->nUsedLength = strlen( buf->pStr );
+13             }
+9         }
+5     }
+0 
+13     return 0;
+1 }
+0 
+4     
+2 /*
+18     CleanOrigCoord
+2 */
+50 int CleanOrigCoord( MOL_COORD szCoord, int delim )
+1 {
+34 #define MIN_BOND_LENGTH   (1.0e-6)
+28     char szVal[LEN_COORD+1];
+20     MOL_COORD szBuf;
+12     char *q;
+59     int len, last, fst, dec_pnt, num_zer=0, len_buf = 0, e;
+13     int k, i;
+17     double coord;
+0 
+59     for ( k = 0; k < NUM_COORD*LEN_COORD; k += LEN_COORD ) 
+5     {
+46         memcpy( szVal, szCoord+k, LEN_COORD );
+32         szVal[LEN_COORD] = '\0';
+28         lrtrim(szVal, &len);
+34         coord = strtod(szVal, &q);
+46         if ( MIN_BOND_LENGTH > fabs(coord)  ) 
+9         {
+33             strcpy( szVal, "0" );
+20             len = 1;
+23             num_zer ++;
+10         } 
+13         else 
+9         {
+36             len = (int) (q - szVal);
+60             /* last = (last mantissa digit position + 1)  */
+72             if ( (q = strchr(szVal, 'e')) || (q = strchr(szVal, 'E')) ||
+73                  (q = strchr(szVal, 'd')) || (q = strchr(szVal, 'D')) ) {
+36                 /* floating point */
+33                 last = q - szVal;
+69                 /* remove (+) and leading zeroes from the exponent */
+71                 e = (int)strtol( szVal+last+1, &q, 10 ); /* exponent */
+26                 if ( e ) {
+52                     /* new exp; update the length */
+113                     len = last+1+sprintf( szVal+last+1, "%d", e ); /* print exp without leading zeroes and '+' */
+24                 } else {
+42                     /* exponent is zero */
+31                     len = last;
+17                 }
+20             } else {
+27                 last = len;
+13             }
+89             /* fst = (first mantissa digit); fst=1 if the sign is present, otherwise 0 */
+64             fst = (szVal[0]!='.' && !isdigit( UCINT szVal[0] ));
+60             /* dec_pnt = (decimal point position) or last */
+43             if ( q = strchr(szVal, '.') ) {
+44                 dec_pnt = (int) (q - szVal);
+20             } else {
+31                 dec_pnt = last;
+13             }
+57             last -= 1; /* last mantissa digit position */
+71             /* remove trailing zeroes in the range dec_pnt+1..last-1 */
+67             for ( i = last; dec_pnt < i &&  '0' == szVal[i]; i -- )
+17                 ;
+33             if ( i == dec_pnt ) {
+53                 i --; /* remove decimal point, too */
+13             }
+29             if ( i < last ) {
+61                 memmove( szVal+i+1, szVal+last+1, len-last );
+30                 len -= last-i;
+13             }
+39             /* remove leading zeroes */
+61             for ( i = fst; i < len && '0' == szVal[i]; i ++ )
+17                 ;
+28             if ( i > fst ) {
+57                 memmove( szVal + fst, szVal+i, len-fst );
+29                 len -= i-fst;
+13             }
+9         }
+22         if ( len_buf )
+37             szBuf[len_buf++] = delim;
+82         memcpy( szBuf + len_buf, szVal, len ); /* does not copy zero termination*/
+23         len_buf += len;
+5     }
+26     /* zero termination */
+45     if ( len_buf < (int)sizeof(MOL_COORD) ) {
+63         memset( szBuf+len_buf, 0, sizeof(MOL_COORD) - len_buf);
+5     }
+48     memcpy( szCoord, szBuf, sizeof(MOL_COORD) );
+19     return num_zer;
+22 #undef MIN_BOND_LENGTH
+1 }
+0 
+0 
+2 /*
+18     WriteOrigCoord
+2 */
+96 int WriteOrigCoord( int num_inp_atoms, MOL_COORD *szMolCoord, int *i, char *szBuf, int buf_len )
+1 {
+0 
+33     int j, num_zer, len, cur_len;
+12     char *p;
+25     MOL_COORD szCurCoord;
+16     cur_len = 0;
+40     for ( j = *i; j < num_inp_atoms; ) {
+63         memcpy( szCurCoord, szMolCoord[j], sizeof(szCurCoord));
+52         num_zer = CleanOrigCoord( szCurCoord, ',' );
+37         if ( NUM_COORD == num_zer ) {
+20             len = 0;
+16         } else {
+78             if ( p = (char *)memchr( szCurCoord, '\0', sizeof(szCurCoord)) ) {
+45                 len = (int) (p - szCurCoord);
+20             } else {
+41                 len = sizeof(szCurCoord);
+13             }
+9         }
+44         if ( len + cur_len + 1 < buf_len ) {
+24             if ( len ) {
+78                 memcpy( szBuf + cur_len, szCurCoord, len * sizeof(szBuf[0]) );
+13             }
+40             szBuf[cur_len += len] = ';';
+23             cur_len ++;
+17             j ++;
+16         } else {
+18             break;
+9         }
+5     }
+26     szBuf[cur_len] = '\0';
+27     *i = j; /* next item */
+19     return cur_len;
+1 }
+0 
+0 
+2 /*
+18     WriteOrigAtoms
+0 
+17   number of atoms
+37   [c|n]              chiral/nonchiral
+0 
+9   Element
+10   #valence
+15   +/-[charge>1]
+49   .#rad  (#rad=1, 2, 3: singlet, doulet, triplet)
+15   [.]i#iso_mass
+38   [.]{o|e|u|?} atom parity = {1:2:3:4}
+16   [.]h[#of 1H>1]
+16   [.]d[#of 2H>1]
+16   [.]t[#of 3H>1]
+0 
+69   Note: . occurs only once and only if radical or 1-character element
+2 */
+40 int WriteOrigAtoms( CANON_GLOBALS *pCG, 
+61                     int num_inp_atoms, inp_ATOM *at, int *i, 
+62                     char *szBuf, int buf_len, STRUCT_DATA *sd)
+1 {
+90     int j, k, n, len, len0, cur_len, val, bonds_val, mw, parity, num_trans, is_ok, b_self;
+39     static const char szIsoH[] = "hdt";
+23     char szCurAtom[32];
+39     AT_NUMB nNeighOrder[MAXVAL], neigh;
+0 
+16     cur_len = 0;
+20     if ( 0 == *i ) {
+56         cur_len = sprintf( szBuf, "%d%s", num_inp_atoms,
+82                                   (sd->bChiralFlag & FLAG_INP_AT_CHIRAL)?    "c" :
+88                                   (sd->bChiralFlag & FLAG_INP_AT_NONCHIRAL)? "n" : "" );
+5     }
+40     for ( j = *i; j < num_inp_atoms; ) {
+42         /* tetrahedral parity treatment */
+22         parity    = 0;
+22         num_trans = 0;
+31         if ( at[j].p_parity ) {
+34             /* verify neighbors */
+23             is_ok  = 1;
+23             b_self = 0;
+71             for ( n = 0, k = 0; n < MAX_NUM_STEREO_ATOM_NEIGH; n ++ ) {
+49                 neigh = at[j].p_orig_at_num[n]-1;
+78                 if ( is_in_the_list( at[j].neighbor, neigh, at[j].valence ) &&
+77                      at[neigh].orig_at_number  ==  at[j].p_orig_at_num[n] ) {
+39                     /* real neighbor */
+63                     nNeighOrder[k ++] = at[j].p_orig_at_num[n];
+22                 } else
+96                 if ( (int)neigh == j && at[neigh].orig_at_number  ==  at[j].p_orig_at_num[n] ) {
+52                     /* central atom is a neighbor */
+92                     num_trans = n; /* move this neighbor to 0 position permutation parity */
+30                     b_self ++;
+24                 } else {
+30                     is_ok = 0;
+26                     break;
+17                 }
+13             }
+84             if ( is_ok && b_self <= 1 && b_self + k == MAX_NUM_STEREO_ATOM_NEIGH ) {
+106                 num_trans += insertions_sort( pCG, nNeighOrder, k, sizeof(nNeighOrder[0]), comp_AT_RANK );
+63                 if ( ATOM_PARITY_WELL_DEF( at[j].p_parity ) ) {
+66                     parity = 2 - (num_trans + at[j].p_parity) % 2;
+22                 } else
+62                 if ( ATOM_PARITY_ILL_DEF( at[j].p_parity ) ) {
+44                     parity = at[j].p_parity;
+24                 } else {
+47                     ; /* invalid atom parity */
+17                 }
+20             } else {
+45                 ;/* add error message here */
+13             }
+9         }
+0 
+50         len = len0 = (int) strlen( at[j].elname );
+47         memcpy( szCurAtom, at[j].elname, len );
+59         bonds_val = nBondsValenceInpAt( at+j, NULL, NULL );
+0 
+90         if ( (val=needed_unusual_el_valence( at[j].el_number, at[j].charge, at[j].radical,
+102                                  at[j].chem_bonds_valence, bonds_val, at[j].num_H, at[j].valence )) ||
+97              at[j].charge || at[j].radical || at[j].iso_atw_diff || NUM_ISO_H(at,j) || parity ) {
+25             /* valence */
+24             if ( val ) {
+74                 len += sprintf( szCurAtom + len, "%d", val > 0? val : 0 );
+13             }
+24             /* charge */
+39             if ( val = at[j].charge ) {
+52                 szCurAtom[len++] = val>0? '+' : '-';
+45                 if ( (val = abs(val)) > 1 ) {
+65                     len += sprintf( szCurAtom + len, "%d", val );
+17                 }
+13             }
+25             /* radical */
+40             if ( val = at[j].radical ) {
+60                 len += sprintf(szCurAtom + len, ".%d", val);
+13             }
+32             /* isotopic shift */
+45             if ( val = at[j].iso_atw_diff ) {
+67                 mw = get_atomic_mass_from_elnum( at[j].el_number );
+31                 if ( val == 1 )
+29                     val = mw;
+20                 else
+30                 if ( val > 0 )
+38                     val = mw + val -1;
+20                 else
+35                     val = mw + val;
+85                 len += sprintf( szCurAtom + len, "%si%d", len == len0? ".":"", val );
+13             }
+24             /* parity */
+27             if ( parity ) {
+77                 len += sprintf( szCurAtom + len, "%s%s", len == len0? ".":"",
+64                                 parity == AB_PARITY_ODD?   "o" :
+64                                 parity == AB_PARITY_EVEN?  "e" :
+64                                 parity == AB_PARITY_UNKN?  "u" :
+70                                 parity == AB_PARITY_UNDF?  "?" : "" );
+13             }
+37             /* implicit isotopic H */
+36             if ( NUM_ISO_H(at,j) ) {
+57                 for ( k = 0; k < NUM_H_ISOTOPES; k ++ ) {
+53                     if ( val = at[j].num_iso_H[k] ) {
+98                         len += sprintf( szCurAtom + len, "%s%c", len == len0? ".":"", szIsoH[k] );
+40                         if ( val > 1 ) {
+71                             len += sprintf(szCurAtom + len, "%d", val);
+25                         }
+21                     }
+17                 }
+13             }
+9         }
+40         if ( len + cur_len < buf_len ) {
+54             memcpy( szBuf + cur_len, szCurAtom, len );
+27             cur_len += len;
+17             j ++;
+16         } else {
+18             break;
+9         }
+30         szBuf[cur_len] = '\0';
+15         *i = j;
+13              
+5     }
+19     return cur_len;
+1 }
+0 
+0 
+3 /*	
+25     WriteOrigBonds( ... )
+0 
+77     Output bonds in ascending order of the neighboring atom original numbers 
+0 
+30 <bonds> bpA;bpAbpA... </bonds>
+0 
+14 b = bond type:
+13 =============
+28 w = undefined stereo, double
+10 s = single
+10 d = double
+10 t = triple
+12 a = aromatic
+44 p = up from the current atom to the neighbor
+44 P = uP from the neighbor to the current atom
+73 v = undefined stereo Either, single from the current atom to the neighbor
+73 V = undefined stereo Either, single from the neighbor to the current atom
+46 n = down from the current atom to the neighbor
+46 N = dowN from the neighbor to the current atom
+0 
+16 p = bond parity:
+16 ================
+7 - = odd
+8 + = even
+11 u = unknown
+13 ? = undefined
+21   = no parity (empty)
+0 
+0 
+30 A = neighbor orig. atom number
+15 ===============
+55 neighbor orig. atom number < number of the current atom
+68 Number of the current atom: 2 until first ";", 3 until 2nd ";", etc.
+0 
+2 */
+40 int WriteOrigBonds( CANON_GLOBALS *pCG, 
+61                     int num_inp_atoms, inp_ATOM *at, int *i, 
+62                     char *szBuf, int buf_len, STRUCT_DATA *sd)
+1 {
+104     int j, k, k2, kk, len, cur_len, j2=0, bond_stereo, bond_char, bond_parity, bond_parityNM, num_trans;
+149     char szCurBonds[7*MAXVAL+2]; /* num_neigh*(1 byte bond type + 2 bytes for bond parity up to 4 digits per neighbor number) + at the end one ';' */
+32     AT_RANK nNeighOrder[MAXVAL];
+62     int  chain_len, pnxt_atom, pinxt2cur, pinxt_sb_parity_ord;
+74     int  chain_len2, pnxt_atom2, pinxt2cur2, pinxt_sb_parity_ord2, m1, m2;
+51     int  pcur_atom, picur2nxt, picur_sb_parity_ord;
+3    
+16     cur_len = 0;
+40     for ( j = *i; j < num_inp_atoms; ) {
+16         len = 0;
+34         if ( at[j].valence > 1 ) {
+52             for ( k = 0; k < at[j].valence; k ++ ) {
+35                 nNeighOrder[k] = k;
+13             }
+51             pCG->m_pn_RankForSort = at[j].neighbor;
+109             num_trans = insertions_sort( pCG, nNeighOrder, at[j].valence, sizeof(nNeighOrder[0]), CompRank );
+16         } else {
+26             num_trans = 0;
+31             nNeighOrder[0] = 0;
+9         }
+51         for ( kk = 0; kk < at[j].valence; kk ++ ) {
+32             k = nNeighOrder[kk];
+35             j2 = at[j].neighbor[k];
+28             bond_parity = 0;
+30             bond_parityNM = 0;
+27             if ( j2 < j ) {
+51                 bond_stereo = at[j].bond_stereo[k];
+46                 switch( at[j].bond_type[k] ) {
+38                 case BOND_TYPE_SINGLE:
+43                     switch( bond_stereo ) {
+41                     case  STEREO_SNGL_UP:
+40                         bond_char = 'p';
+30                         break;
+41                     case -STEREO_SNGL_UP:
+40                         bond_char = 'P';
+30                         break;
+43                     case  STEREO_SNGL_DOWN:
+40                         bond_char = 'n';
+30                         break;
+43                     case -STEREO_SNGL_DOWN:
+40                         bond_char = 'N';
+30                         break;
+42 #if ( FIX_EITHER_STEREO_IN_AUX_INFO == 1 )
+45                     case  STEREO_SNGL_EITHER:
+40                         bond_char = 'v';
+30                         break;
+45                     case -STEREO_SNGL_EITHER:
+40                         bond_char = 'V';
+30                         break;
+5 #else
+45                     case  STEREO_SNGL_EITHER:
+45                     case -STEREO_SNGL_EITHER:
+40                         bond_char = 'v';
+30                         break;
+6 #endif
+28                     default:
+40                         bond_char = 's';
+30                         break;
+21                     }
+26                     break;
+38                 case BOND_TYPE_DOUBLE:
+43                     switch( bond_stereo ) {
+45                     case  STEREO_DBLE_EITHER:
+45                     case -STEREO_DBLE_EITHER:
+40                         bond_char = 'w';
+30                         break;
+28                     default:
+40                         bond_char = 'd';
+30                         break;
+21                     }
+26                     break;
+38                 case BOND_TYPE_TRIPLE:
+36                     bond_char = 't';
+26                     break;
+38                 case BOND_TYPE_ALTERN:
+36                     bond_char = 'a';
+26                     break;
+24                 default:
+36                     bond_char = 's';
+26                     break;
+17                 }
+47                 /* check for allene/cumulene */
+109                 k2 = (int) (is_in_the_list( at[j2].neighbor, (AT_NUMB)j, at[j2].valence ) - at[j2].neighbor);
+43                 chain_len = chain_len2 = 0;
+43                 if ( at[j].sb_parity[0] ) {
+93                     for ( m1 = 0; m1 < MAX_NUM_STEREO_BONDS && at[j].sb_parity[m1]; m1 ++ ) {
+54                         if ( k == at[j].sb_ord[m1] ) {
+71                             chain_len = get_opposite_sb_atom( at, j, k,
+89                                           &pnxt_atom, &pinxt2cur, &pinxt_sb_parity_ord );
+34                             break;
+25                         }
+21                     }
+17                 }
+44                 if ( at[j2].sb_parity[0] ) {
+94                     for ( m2 = 0; m2 < MAX_NUM_STEREO_BONDS && at[j2].sb_parity[m2]; m2 ++ ) {
+56                         if ( k2 == at[j2].sb_ord[m2] ) {
+74                             chain_len2 = get_opposite_sb_atom( at, j2, k2,
+93                                            &pnxt_atom2, &pinxt2cur2, &pinxt_sb_parity_ord2 );
+34                             break;
+25                         }
+21                     }
+17                 }
+83                 if ( chain_len == 1 && chain_len2 == 1 ||  /* regular stereobond */
+90                      chain_len  > 1 && j  > pnxt_atom ) {  /* j  is a cumulene endpoint */
+26                     int m;
+63                     pcur_atom = j;  /* pcur_atom > pnxt_atom */
+34                     picur2nxt = k;
+45                     picur_sb_parity_ord = -1;
+97                     for ( m = 0; m < MAX_NUM_STEREO_BONDS && at[pcur_atom].sb_parity[m]; m ++ ) {
+61                         if ( at[pcur_atom].sb_ord[m] == k ) {
+52                             picur_sb_parity_ord = m;
+34                             break;
+25                         }
+21                     }
+35                     chain_len2 = 0;
+22                 } else
+91                 if ( chain_len2 > 1 && j2 > pnxt_atom2  ) { /* j2 is a cumulene endpoint */
+26                     int m;
+35                     pcur_atom = j2;
+35                     picur2nxt = k2;
+43                     pnxt_atom = pnxt_atom2;
+43                     pinxt2cur = pinxt2cur2;
+63                     pinxt_sb_parity_ord = pinxt_sb_parity_ord2;
+45                     picur_sb_parity_ord = -1;
+97                     for ( m = 0; m < MAX_NUM_STEREO_BONDS && at[pcur_atom].sb_parity[m]; m ++ ) {
+60                         if ( at[pcur_atom].sb_ord[m] == k2 )
+52                             picur_sb_parity_ord = m;
+21                     }
+44                     chain_len  = chain_len2;
+35                     chain_len2 = 0;
+24                 } else {
+47                     chain_len = chain_len2 = 0;
+17                 }
+0 
+80                 /*len += sprintf( szCurBonds + len, "%c%d", bond_char, val+1);*/
+34                 if ( chain_len ) {
+60                     /* both atoms belong to a stereo bond */
+27                     int kc;
+87                     int p1, p2, p1NM, p2NM, neigh, neigh1, neigh2, bHasMetal, bWellDef;
+61                     int     bNeighSwitched1, bNeighSwitched2;
+0 
+85                     p1   = SB_PARITY_1(at[pcur_atom].sb_parity[picur_sb_parity_ord]);
+85                     p1NM = SB_PARITY_2(at[pcur_atom].sb_parity[picur_sb_parity_ord]);
+85                     p2   = SB_PARITY_1(at[pnxt_atom].sb_parity[pinxt_sb_parity_ord]);
+85                     p2NM = SB_PARITY_2(at[pnxt_atom].sb_parity[pinxt_sb_parity_ord]);
+0 
+87                     bWellDef  = ATOM_PARITY_WELL_DEF(p1)   && ATOM_PARITY_WELL_DEF(p2);
+89                     bHasMetal = ATOM_PARITY_WELL_DEF(p1NM) && ATOM_PARITY_WELL_DEF(p2NM);
+0 
+58                     bNeighSwitched1 = bNeighSwitched2 = 0;
+0 
+50                     if ( bWellDef || bHasMetal ) {
+0 
+48                         neigh1  = num_inp_atoms;
+75                         for ( kc = 0; kc < at[pcur_atom].valence; kc ++ ) {
+50                             if ( kc == picur2nxt )
+41                                 continue;
+63                             neigh = at[pcur_atom].neighbor[kc];
+84                             if ( bHasMetal && is_el_a_metal( at[neigh].el_number ) )
+41                                 continue;
+49                             if ( neigh < neigh1 )
+47                                 neigh1 = neigh;
+25                         }
+55                         if ( neigh1 < num_inp_atoms ) {
+130                              bNeighSwitched1 = (neigh1 != at[pcur_atom].neighbor[(int)at[pcur_atom].sn_ord[picur_sb_parity_ord]]);
+32                         } else {
+101                             AddErrorMessage(sd->pStrErrStruct, "Cannot find 0D stereobond neighbor");
+30                             /*
+55                             sd->nStructReadError =  99;
+55                             sd->nErrorType = _IS_ERROR;
+30                             */
+0 
+25                         }
+0 
+48                         neigh2  = num_inp_atoms;
+75                         for ( kc = 0; kc < at[pnxt_atom].valence; kc ++ ) {
+50                             if ( kc == pinxt2cur )
+41                                 continue;
+63                             neigh = at[pnxt_atom].neighbor[kc];
+84                             if ( bHasMetal && is_el_a_metal( at[neigh].el_number ) )
+41                                 continue;
+49                             if ( neigh < neigh2 )
+47                                 neigh2 = neigh;
+25                         }
+55                         if ( neigh2 < num_inp_atoms ) {
+130                              bNeighSwitched2 = (neigh2 != at[pnxt_atom].neighbor[(int)at[pnxt_atom].sn_ord[pinxt_sb_parity_ord]]);
+32                         } else {
+101                             AddErrorMessage(sd->pStrErrStruct, "Cannot find 0D stereobond neighbor");
+30                             /*
+55                             sd->nStructReadError =  99;
+55                             sd->nErrorType = _IS_ERROR;
+30                             */
+0 
+25                         }
+24                         
+81                         if ( neigh1 < num_inp_atoms && neigh2 < num_inp_atoms ) {
+89                             if ( ATOM_PARITY_WELL_DEF(p1) && ATOM_PARITY_WELL_DEF(p2) ) {
+100                                 bond_parity = 2 - (p1 + p2 + bNeighSwitched1 + bNeighSwitched2) % 2;
+36                             } else {
+66                                 bond_parity = inchi_min( p1, p2 );
+29                             }
+0 
+46                             if ( bHasMetal ) {
+106                                 bond_parityNM = 2 - (p1NM + p2NM + bNeighSwitched1 + bNeighSwitched2) % 2;
+34                             } else
+49                             if ( p1NM && p2NM ) {
+72                                 bond_parityNM = inchi_min( p1NM, p2NM );
+29                             }
+25                         }
+28                     } else {
+41                         if ( p1 && p2 ) {
+62                             bond_parity = inchi_min( p1, p2 );
+25                         }
+45                         if ( p1NM && p2NM ) {
+68                             bond_parityNM = inchi_min( p1NM, p2NM );
+25                         }
+62                         if ( bond_parityNM && !bond_parity ) {
+57                             bond_parity = AB_PARITY_UNDF;
+25                         }
+21                     }
+17                 }
+61                 len += sprintf( szCurBonds + len, "%c%s%s%d",
+0 
+60                                                   bond_char,
+0 
+88                                                   (bond_parity == AB_PARITY_ODD)?  "-" :
+88                                                   (bond_parity == AB_PARITY_EVEN)? "+" :
+88                                                   (bond_parity == AB_PARITY_UNKN)? "u" :
+92                                                   (bond_parity == AB_PARITY_UNDF)? "?" : "",
+0 
+90                                                   (bond_parityNM == AB_PARITY_ODD)?  "-" :
+90                                                   (bond_parityNM == AB_PARITY_EVEN)? "+" :
+90                                                   (bond_parityNM == AB_PARITY_UNKN)? "u" :
+94                                                   (bond_parityNM == AB_PARITY_UNDF)? "?" : "",
+0 
+56                                                   j2+1);
+13             }
+9         }
+44         if ( len + cur_len + 2 < buf_len ) {
+55             memcpy( szBuf + cur_len, szCurBonds, len );
+27             cur_len += len;
+38             szBuf[ cur_len ++ ] = ';';
+17             j ++;
+16         } else {
+18             break;
+9         }
+5     }
+26     szBuf[cur_len] = '\0';
+32     *i = num_inp_atoms>0? j : 0;
+19     return cur_len;
+1 }
+0 
+0 
+62 #define ORIG_STR_BUFLEN (7*MAXVAL+2)  /* > 7*MAXVAL+2 = 142 */
+0 
+0 
+2 /*
+37     Fill out original input structure
+2 */
+43 int FillOutOrigStruct( CANON_GLOBALS *pCG, 
+54                        ORIG_ATOM_DATA *orig_inp_data, 
+49                        ORIG_STRUCT *pOrigStruct, 
+40                        STRUCT_DATA *sd )
+1 {
+32     char szBuf[ORIG_STR_BUFLEN];
+49     int  i, len, len_coord, len_atoms, len_bonds;
+0 
+29 	pOrigStruct->polymer = NULL;
+27 	pOrigStruct->v3000 = NULL;
+0 
+21     /* Coordinates */
+22     len_coord = i = 0;
+0 
+33     if (orig_inp_data->szCoord) {
+0 
+67         while ( len = WriteOrigCoord( orig_inp_data->num_inp_atoms,
+91                                       orig_inp_data->szCoord, &i, szBuf, sizeof(szBuf) )) {
+29             len_coord += len;
+9         }
+103         pOrigStruct->szCoord = (char*) inchi_malloc( (len_coord + 1)*sizeof(pOrigStruct->szCoord[0]) );
+14         i = 0;
+36         if ( pOrigStruct->szCoord &&
+71              len_coord == WriteOrigCoord( orig_inp_data->num_inp_atoms,
+104                                       orig_inp_data->szCoord, &i, pOrigStruct->szCoord, len_coord+1 ) &&
+50              i == orig_inp_data->num_inp_atoms ) {
+25             /* success */
+43             if ( orig_inp_data->szCoord ) {
+53                 inchi_free( orig_inp_data->szCoord );
+46                 orig_inp_data->szCoord = NULL;
+13             }
+16         } else {
+22             return -1;
+9         }
+0 
+5     }
+0 
+31     /* Atoms */                
+22     len_atoms = i = 0;
+68     while ( len = WriteOrigAtoms( pCG, orig_inp_data->num_inp_atoms,
+84                                   orig_inp_data->at, &i, szBuf, sizeof(szBuf), sd)) 
+5     {
+25         len_atoms += len;
+44         if ( !orig_inp_data->num_inp_atoms )
+18             break;
+5     }
+99     pOrigStruct->szAtoms = (char*) inchi_malloc( (len_atoms + 1)*sizeof(pOrigStruct->szAtoms[0]) );
+10     i = 0;
+32     if ( pOrigStruct->szAtoms &&
+72          len_atoms == WriteOrigAtoms( pCG, orig_inp_data->num_inp_atoms,
+99                                   orig_inp_data->at, &i, pOrigStruct->szAtoms, len_atoms+1, sd ) &&
+46          i == orig_inp_data->num_inp_atoms ) {
+23         ; /* success */
+12     } else {
+18         return -1;
+5     }
+0 
+15     /* Bonds */
+18     len_bonds = 0;
+10     i = 1;
+68     while ( len = WriteOrigBonds( pCG, orig_inp_data->num_inp_atoms,
+86                                   orig_inp_data->at, &i, szBuf, sizeof(szBuf), NULL)) 
+5     {
+25         len_bonds += len;
+44         if ( !orig_inp_data->num_inp_atoms )
+18             break;
+5     }
+0 
+99     pOrigStruct->szBonds = (char*) inchi_malloc( (len_bonds + 2)*sizeof(pOrigStruct->szBonds[0]) );
+10     i = 1;
+0 
+32     if ( pOrigStruct->szBonds &&
+72          len_bonds == WriteOrigBonds( pCG, orig_inp_data->num_inp_atoms,
+99                                   orig_inp_data->at, &i, pOrigStruct->szBonds, len_bonds+2, sd ) &&
+45          i == orig_inp_data->num_inp_atoms ) 
+5     {
+23         ; /* success */
+6     } 
+9     else 
+5     {
+18         return -1;
+5     }
+58     pOrigStruct->num_atoms = orig_inp_data->num_inp_atoms;
+0 
+28 	/* Extensions of v. 1.05 */
+36 	if ( orig_inp_data->polymer !=NULL 
+37 		 && orig_inp_data->polymer->n > 0 )
+2 	{
+48 		pOrigStruct->polymer = orig_inp_data->polymer;
+50 								/* pointer copy, do not free after use! */
+2 	}
+34 	if ( orig_inp_data->v3000 !=NULL)
+2 	{
+44 		pOrigStruct->v3000 = orig_inp_data->v3000;
+50 								/* pointer copy, do not free after use! */
+2 	}
+4     
+13     return 0;
+1 }
+0 
+0 
+2 /*
+25     FreeOrigStruct( ... )
+2 */
+47 void FreeOrigStruct(  ORIG_STRUCT *pOrigStruct)
+1 {
+24     if ( pOrigStruct ) {
+35         if ( pOrigStruct->szAtoms )
+47             inchi_free( pOrigStruct->szAtoms );
+35         if ( pOrigStruct->szBonds )
+47             inchi_free( pOrigStruct->szBonds );
+35         if ( pOrigStruct->szCoord )
+47             inchi_free( pOrigStruct->szCoord );
+8 		/* For
+3 			
+31 			PolymerDescription *polymer;
+20 			V3000Data	*v3000;
+3 			
+93 			we used shallow (pointer) copy of analogs from orig_inp_data, so do not free these here */
+8         
+53 		/*memset( pOrigStruct, 0, sizeof(*pOrigStruct) );*/
+30 		pOrigStruct->szAtoms = NULL;
+30 		pOrigStruct->szBonds = NULL;
+30 		pOrigStruct->szCoord = NULL;
+5     }
+1 }
+0 
+0 
+2 /*
+21     GetSaveOptLetters
+0 
+70         Get the two letters encoding the saved InChI creation options.
+0 
+62         The first one encodes RecMet/FixedH/SUU/SLUUD options.
+87         Each of options is a binary switch {ON,OFF}, so it totals to 2*2*2*2=16 values 
+61         which are encoded by capital letters ‘A’ through ‘P’.
+0 
+91         The second character encodes experimental (InChI 1 extension) options KET and 15T. 
+90         Each of these options is a binary switch ON/OFF, so there are 2*2=4 combinations, 
+46         currently encoded by ‘A’ through ‘D’. 
+91         Note that anything but 'A' here would indicate "extended" InChI 1 Also, there is a 
+88         reservation for future needs: the 2nd memo char may accommodate two more ON/OFF 
+45         binary options (at 26-base encoding).
+2 */
+75 void GetSaveOptLetters(unsigned char save_opt_bits, char* let1, char* let2)
+1 {
+36 const char a2p[]="ABCDEFGHIJKLMNOP";
+77     /* SaveOptBits layout: {unused|unused|Ket|15T|RecMet|FixedH|SUU|SLUUD} */
+54     *let1 = a2p [ (size_t) ( save_opt_bits & 0x0f ) ];
+61     *let2 = a2p [ (size_t) ( (save_opt_bits & 0x30) >> 4 ) ];
+1 }
+0 
+0 
+3 /* 
+59     Set line separators dependent on requested output mode 
+2 */
+76 void set_line_separators( int bINChIOutputOptions, char **pLF, char **pTAB )
+1 {
+108     int  bPlainText			= 0 != (bINChIOutputOptions & (INCHI_OUT_PLAIN_TEXT | INCHI_OUT_PLAIN_TEXT_COMMENTS));
+88     int  bPlainTextCommnts	= 0 != (bINChIOutputOptions & INCHI_OUT_PLAIN_TEXT_COMMENTS);
+85     int  bPlainTabbedOutput	= 0 != (bINChIOutputOptions & INCHI_OUT_TABBED_OUTPUT) &&
+69                                     bPlainText && !bPlainTextCommnts;
+0 
+42     *pLF = bPlainTextCommnts? "\n" : "\0";
+0 
+71 #if ( !defined(TARGET_API_LIB) && !defined(TARGET_LIB_FOR_WINCHI) )    
+44     *pTAB = bPlainTabbedOutput? "\t" : "\n";
+5 #else
+17     *pTAB = "\n";
+6 #endif
+0 
+11     return;
+1 }
+0 
+0 
+3 /* 
+39     Output structure (compound) header 
+2 */
+71 int Output_record_info( INCHI_IOSTREAM *out_file, int num_input_struct,
+69                         int bNoStructLabels, const char *szSdfLabel, 
+60                         const char *szSdfValue, long lSdfId,
+47                         char *pLF, char *pTAB )
+1 {
+26     if ( bNoStructLabels )
+17         return 0;
+0 
+76     if ( !(szSdfLabel && szSdfLabel[0]) && !(szSdfValue && szSdfValue[0]) ) 
+5     {
+78         inchi_ios_print( out_file, "%sStructure: %d", pLF, num_input_struct );
+48         inchi_ios_print( out_file, "%s", pTAB );
+6     } 
+9     else 
+5     {
+85         inchi_ios_print( out_file, "%sStructure: %d.%s%s%s%s", pLF, num_input_struct,
+71                                  SDF_LBL_VAL(szSdfLabel, szSdfValue) );
+22         if ( lSdfId ) 
+9         {
+40             (out_file->s.nUsedLength)--;
+56             inchi_ios_print( out_file, ":%ld", lSdfId );
+9         }
+48         inchi_ios_print( out_file, "%s", pTAB );
+5     }
+0 
+13     return 0;
+1 }
+0 
+0 
+3 /* 
+41     Output InChI: InChI version and kind 
+2 */
+61 int Output_INCHI_version_and_kind(	INCHI_IOSTREAM *out_file, 
+66                                     INCHI_IOSTREAM_STRING *strbuf,
+60                                     int bINChIOutputOptions,
+54                                     int nAtomsAllComp,
+59                                     char *pLF, char *pTAB )
+1 {
+20     int is_beta = 0;
+0 
+65     inchi_ios_print( out_file, "%s%s=%s", pLF, INCHI_NAME, pLF );
+0 
+33     inchi_strbuf_reset( strbuf );
+51     inchi_strbuf_printf( strbuf, "%s", x_curr_ver);
+0 
+57     if ( nAtomsAllComp > NORMALLY_ALLOWED_INP_MAX_ATOMS )
+40         /* v. 1.05 for LargeMolecules */
+20         is_beta = 1;
+0 
+41     /* - add 'Beta' flag if applicable */
+18     if ( is_beta )
+42         inchi_strbuf_printf( strbuf, "B");
+45     /* - add 'Standard' flag if applicable */
+56     else if ( bINChIOutputOptions & INCHI_OUT_STDINCHI )
+42         inchi_strbuf_printf( strbuf, "S");
+0 
+59     inchi_ios_print( out_file, "%s%s", strbuf->pStr, pLF );
+0 
+13     return 0;
+1 }
+0 
+0 
+3 /* 
+102     Output InChI: main layer - formula, connections and hydrogens (incl. tautomeric info == mobile H) 
+2 */
+0 
+57 int Output_INCHI_main_layer_formula(	CANON_GLOBALS *pCG, 
+36 										INCHI_IOSTREAM *out_file, 
+70                                         INCHI_IOSTREAM_STRING *strbuf,
+63                                         int num_components2[], 
+78                                         int *INCHI_basic_or_INCHI_reconnected,
+62                                         print_INCHI_local *pr,
+63                                         char *pLF, char *pTAB )
+1 {
+4     
+68     /* constitution ( dot-disconnected Hill formulas: <formula> ) */
+0 
+52     if ( num_components2[0] || num_components2[1] ) 
+5     {
+143         szGetTag( IdentLbl, pr->nTag,  pr->bTag1 = *INCHI_basic_or_INCHI_reconnected==INCHI_REC? IL_REC_ : IL_FML_, pr->szTag1, &pr->bAlways );
+37         inchi_strbuf_reset( strbuf );
+93         pr->tot_len = str_HillFormula( pr->pINChISort, strbuf, &pr->bOverflow, pr->bOutType, 
+75                                    pr->num_components, pr->bUseMulipliers);
+4     
+71         if ( str_LineEnd( pr->szTag1, &pr->bOverflow, strbuf, -1, 1 ) )
+21             return 1;
+63         inchi_ios_print( out_file, "%s%s", strbuf->pStr, pLF );
+5     }
+13     return 0;
+1 }
+0 
+0 
+60 int Output_INCHI_main_layer_connections(CANON_GLOBALS *pCG, 
+36 										INCHI_IOSTREAM *out_file, 
+70                                         INCHI_IOSTREAM_STRING *strbuf,
+63                                         int num_components2[], 
+78                                         int *INCHI_basic_or_INCHI_reconnected,
+62                                         print_INCHI_local *pr,
+63                                         char *pLF, char *pTAB )
+1 {
+70     /* connections ( semicolon/dot-disconnected connection tables ) */
+0 
+80 	szGetTag( IdentLbl, pr->nTag,  pr->bTag1 = IL_CONN, pr->szTag1, &pr->bAlways );
+33     inchi_strbuf_reset( strbuf );
+21     pr->tot_len  = 0;
+95     pr->tot_len2 = str_Connections( pCG, pr->pINChISort, strbuf, &pr->bOverflow, pr->bOutType, 
+64 									pr->ATOM_MODE, pr->num_components, pr->bUseMulipliers);
+4     
+66 	/* current version does not output empty (";;;;") connectivity */
+0 
+91 	if ( pr->tot_len != pr->tot_len2 ) { /* 2004-06-30: never output empty connection table */
+35         pr->tot_len = pr->tot_len2;
+88         if ( str_LineEnd( pr->szTag1, &pr->bOverflow, strbuf, -2, pr->bPlainTextTags ) )
+40             return 1; /* pStr overfow */
+63         inchi_ios_print( out_file, "%s%s", strbuf->pStr, pLF );
+5     }
+0 
+13     return 0;
+1 }
+0 
+0 
+59 int Output_INCHI_main_layer_hydrogens(	CANON_GLOBALS *pCG, 
+36 										INCHI_IOSTREAM *out_file, 
+70                                         INCHI_IOSTREAM_STRING *strbuf,
+63                                         int num_components2[], 
+78                                         int *INCHI_basic_or_INCHI_reconnected,
+62                                         print_INCHI_local *pr,
+63                                         char *pLF, char *pTAB )
+1 {
+4     
+43 	/* hydrogen atoms (do not output empty) */
+0 
+101 	if ( INCHI_SEGM_FILL == INChI_SegmentAction( pr->sDifSegs[pr->nCurINChISegment][DIFS_h_H_ATOMS] ) ) 
+5     {
+87         szGetTag( IdentLbl, pr->nTag,  pr->bTag1 = IL_ALLH, pr->szTag1, &pr->bAlways );
+37         inchi_strbuf_reset( strbuf );
+25         pr->tot_len  = 0;
+89         pr->tot_len2 = str_H_atoms( pr->pINChISort, strbuf, &pr->bOverflow, pr->bOutType,
+61                                 pr->ATOM_MODE, pr->TAUT_MODE,
+72                                 pr->num_components, pr->bUseMulipliers);
+81         if ( pr->tot_len != pr->tot_len2 ) { /* 2004-06-21: never output empty */
+39             pr->tot_len = pr->tot_len2;
+75             if ( str_LineEnd( pr->szTag1, &pr->bOverflow, strbuf, -2, 1 ) )
+25                 return 1;
+67             inchi_ios_print( out_file, "%s%s", strbuf->pStr, pLF );
+9         }
+5     }
+0 
+13     return 0;
+1 }
+0 
+0 
+3 /* 
+53     Output InChI: charge and  removed protons layers 
+2 */
+78 int Output_INCHI_charge_and_removed_added_protons_layers( CANON_GLOBALS *pCG, 
+105                                                  INCHI_IOSTREAM *out_file, INCHI_IOSTREAM_STRING *strbuf,
+71                                                  print_INCHI_local *pr,
+72                                                  char *pLF, char *pTAB )
+1 {
+0 
+14 	/* charge  */
+0 
+95     pr->nSegmAction = INChI_SegmentAction( pr->sDifSegs[pr->nCurINChISegment][DIFS_q_CHARGE] );
+27     if ( pr->nSegmAction ) 
+5     {
+100         szGetTag( IdentLbl, pr->nTag,  pr->bTag1 = IL_CHRG | pr->bFhTag, pr->szTag1, &pr->bAlways );
+37         inchi_strbuf_reset( strbuf );
+24         pr->tot_len = 0;
+50         if ( INCHI_SEGM_FILL == pr->nSegmAction ) 
+9         {
+72             pr->tot_len = str_Charge2( pr->pINChISort, pr->pINChISort2, 
+92                                    strbuf, &pr->bOverflow, pr->bOutType, pr->num_components,
+101                                    pr->bSecondNonTautPass, pr->bOmitRepetitions, pr->bUseMulipliers);
+75             pr->bNonTautNonIsoIdentifierNotEmpty += pr->bSecondNonTautPass;
+9         }
+102         if ( str_LineEnd( pr->szTag1, &pr->bOverflow, strbuf, -pr->nSegmAction, pr->bPlainTextTags ) )
+21             return 1;
+63         inchi_ios_print( out_file, "%s%s", strbuf->pStr, pLF );
+6     } 
+0 
+25     /* removed protons */
+4     
+64 	if ( pr->iCurTautMode == TAUT_YES && !pr->bSecondNonTautPass ) 
+5     {
+4     
+100         pr->nSegmAction = INChI_SegmentAction( pr->sDifSegs[pr->nCurINChISegment][DIFS_p_PROTONS] );
+31         if ( pr->nSegmAction ) 
+9         {
+104             szGetTag( IdentLbl, pr->nTag,  pr->bTag1 = IL_PROT | pr->bFhTag, pr->szTag1, &pr->bAlways );
+41             inchi_strbuf_reset( strbuf );
+28             pr->tot_len = 0;
+73             inchi_strbuf_printf( strbuf, "%+d", pr->nNumRemovedProtons );
+106             if ( str_LineEnd( pr->szTag1, &pr->bOverflow, strbuf, -pr->nSegmAction, pr->bPlainTextTags ) )
+25                 return 1;
+67             inchi_ios_print( out_file, "%s%s", strbuf->pStr, pLF );
+10         } 
+12         else
+9         {
+76             if ( pr->bPlainTextTags == 1 ) inchi_ios_print( out_file, "/" );
+9         }
+4     
+5     }
+0 
+13     return 0;
+1 }
+0 
+0 
+3 /* 
+45     Output InChI: stereo layer with sublayers
+2 */
+51 int Output_INCHI_stereo_layer( CANON_GLOBALS *pCG, 
+85                              INCHI_IOSTREAM *out_file, INCHI_IOSTREAM_STRING *strbuf,
+51                              print_INCHI_local *pr,
+52                              char *pLF, char *pTAB )
+1 {
+0 
+5     {
+14         int i;
+85         i = INChI_SegmentAction( pr->sDifSegs[pr->nCurINChISegment][DIFS_t_SATOMS] );
+14         i = i;
+5     }
+0 
+84     if ( INChI_SegmentAction( pr->sDifSegs[pr->nCurINChISegment][DIFS_b_SBONDS] ) ||
+84          INChI_SegmentAction( pr->sDifSegs[pr->nCurINChISegment][DIFS_t_SATOMS] ) ||
+84          INChI_SegmentAction( pr->sDifSegs[pr->nCurINChISegment][DIFS_m_SP3INV] ) ||
+82          INChI_SegmentAction( pr->sDifSegs[pr->nCurINChISegment][DIFS_s_STYPE] ) )
+5     {
+7        
+15 		/*  stereo */
+0 
+94 		szGetTag( IdentLbl, pr->nTag,  pr->bTag1 = IL_STER | pr->bFhTag, pr->szTag1, &pr->bAlways );
+8         
+18         /*  sp2 */
+0 
+48         /*if ( bStereoSp2[pr->iCurTautMode]  )*/
+105         if ( pr->nSegmAction = INChI_SegmentAction( pr->sDifSegs[pr->nCurINChISegment][DIFS_b_SBONDS] ) )
+9         {
+103             szGetTag( IdentLbl, pr->nTag,  pr->bTag2 = pr->bTag1 | IL_DBND, pr->szTag2, &pr->bAlways );
+42             inchi_strbuf_reset( strbuf ); 
+28             pr->tot_len = 0;
+54             if ( INCHI_SEGM_FILL == pr->nSegmAction ) 
+13             {
+55                 pr->tot_len = str_Sp2( pr->pINChISort, 
+52                                    pr->pINChISort2, 
+43                                    strbuf, 
+51                                    &pr->bOverflow, 
+49                                    pr->bOutType, 
+50                                    pr->TAUT_MODE, 
+54                                    pr->num_components,
+59                                    pr->bSecondNonTautPass, 
+57                                    pr->bOmitRepetitions, 
+55                                    pr->bUseMulipliers);
+79                 pr->bNonTautNonIsoIdentifierNotEmpty += pr->bSecondNonTautPass;
+13             }
+106             if ( str_LineEnd( pr->szTag2, &pr->bOverflow, strbuf, -pr->nSegmAction, pr->bPlainTextTags ) )
+25                 return 1;
+67             inchi_ios_print( out_file, "%s%s", strbuf->pStr, pLF );
+10         } 
+12         else
+9         {
+86             if ( pr->bPlainTextTags == 1 ) inchi_ios_print( out_file, "/" ); /* sp2 */
+9         }
+0 
+18         /*  sp3 */
+0 
+48         /*if ( bStereoSp3[pr->iCurTautMode]  )*/
+105         if ( pr->nSegmAction = INChI_SegmentAction( pr->sDifSegs[pr->nCurINChISegment][DIFS_t_SATOMS] ) )
+9         {
+108             pr->bRelRac     = pr->bRelativeStereo[pr->iCurTautMode] || pr->bRacemicStereo[pr->iCurTautMode];
+103             szGetTag( IdentLbl, pr->nTag,  pr->bTag2 = pr->bTag1 | IL_SP3S, pr->szTag2, &pr->bAlways );
+42             inchi_strbuf_reset( strbuf ); 
+28             pr->tot_len = 0;
+54             if ( INCHI_SEGM_FILL == pr->nSegmAction ) 
+13             {
+72                 pr->tot_len = str_Sp3( pr->pINChISort, pr->pINChISort2, 
+73                                    strbuf, &pr->bOverflow, pr->bOutType, 
+82                                    pr->TAUT_MODE, pr->num_components, pr->bRelRac,
+101                                    pr->bSecondNonTautPass, pr->bOmitRepetitions, pr->bUseMulipliers);
+79                 pr->bNonTautNonIsoIdentifierNotEmpty += pr->bSecondNonTautPass;
+16             }			
+0 
+104             if (str_LineEnd( pr->szTag2, &pr->bOverflow, strbuf, -pr->nSegmAction, pr->bPlainTextTags ))
+25                 return 2;
+67             inchi_ios_print( out_file, "%s%s", strbuf->pStr, pLF );
+11         }  
+12         else
+9         {
+86             if ( pr->bPlainTextTags == 1 ) inchi_ios_print( out_file, "/" ); /* sp3 */
+9         }
+0 
+51         /* bStereoAbsInverted[pr->iCurTautMode]  */
+0 
+50         /* if ( bStereoAbs[pr->iCurTautMode]  ) */
+105         if ( pr->nSegmAction = INChI_SegmentAction( pr->sDifSegs[pr->nCurINChISegment][DIFS_m_SP3INV] ) )
+9         {
+103             szGetTag( IdentLbl, pr->nTag,  pr->bTag2 = pr->bTag1 | IL_INVS, pr->szTag2, &pr->bAlways );
+58             inchi_strbuf_reset( strbuf ); pr->tot_len = 0;
+55             if ( INCHI_SEGM_FILL == pr->nSegmAction ) {
+71                 pr->tot_len = str_StereoAbsInv( pr->pINChISort, strbuf,
+94                                             &pr->bOverflow, pr->bOutType, pr->num_components);
+79                 pr->bNonTautNonIsoIdentifierNotEmpty += pr->bSecondNonTautPass;
+13             }
+0 
+104             if (str_LineEnd( pr->szTag2, &pr->bOverflow, strbuf, -pr->nSegmAction, pr->bPlainTextTags ))
+25                 return 3;
+67             inchi_ios_print( out_file, "%s%s", strbuf->pStr, pLF );
+11         }  
+12         else
+9         {
+43             if ( pr->bPlainTextTags == 1 ) 
+70                 inchi_ios_print( out_file, "/" ); /* stereo-abs-inv */
+9         }
+0 
+25         /* stereo type */
+0 
+128         /*if ( pr->bRacemicStereo[pr->iCurTautMode] || pr->bRelativeStereo[pr->iCurTautMode] || bStereoAbs[pr->iCurTautMode] )*/
+104         if ( pr->nSegmAction = INChI_SegmentAction( pr->sDifSegs[pr->nCurINChISegment][DIFS_s_STYPE] ) )
+9         {
+81             const char *p_stereo = pr->bRelativeStereo[pr->iCurTautMode]? x_rel :
+88                                    pr->bRacemicStereo[pr->iCurTautMode] ? x_rac : x_abs;
+103             szGetTag( IdentLbl, pr->nTag,  pr->bTag2 = pr->bTag1 | IL_TYPS, pr->szTag2, &pr->bAlways );
+58             inchi_strbuf_reset( strbuf ); pr->tot_len = 0;
+55             if ( INCHI_SEGM_FILL == pr->nSegmAction ) {
+78                 (pr->tot_len) += MakeDelim( p_stereo, strbuf, &pr->bOverflow);
+79                 pr->bNonTautNonIsoIdentifierNotEmpty += pr->bSecondNonTautPass;
+25             }            
+104             if (str_LineEnd( pr->szTag2, &pr->bOverflow, strbuf, -pr->nSegmAction, pr->bPlainTextTags ))
+25                 return 1;
+67             inchi_ios_print( out_file, "%s%s", strbuf->pStr, pLF );
+9         }
+109         if ( pr->bPlainTextTags == 1 ) inchi_ios_print( out_file, "/" );  /* no abs, inv or racemic stereo */
+6     } 
+8     else
+5     {
+112         if ( pr->bPlainTextTags == 1 ) inchi_ios_print( out_file, "////" ); /* sp3, sp2, abs-inv, stereo.type */
+5     }
+0 
+13     return 0;
+1 }
+0 
+0 
+3 /* 
+47     Output InChI: isotopic layer and sublayers	
+2 */
+53 int Output_INCHI_isotopic_layer( CANON_GLOBALS *pCG, 
+59                                  INCHI_IOSTREAM *out_file, 
+39 								 INCHI_IOSTREAM_STRING *strbuf,
+71                                  int *INCHI_basic_or_INCHI_reconnected,
+56                                  print_INCHI_local *pr, 
+32 								 char *pLF, char *pTAB )
+1 {
+0 
+83     if ( INChI_SegmentAction( pr->sDifSegs[pr->nCurINChISegment][DIFS_i_IATOMS] ) )
+5     {
+82         /*  isotopic #1:  composition -- atoms -- do not output in xml if empty */
+100         szGetTag( IdentLbl, pr->nTag,  pr->bTag1 = IL_ISOT | pr->bFhTag, pr->szTag1, &pr->bAlways );
+43         /* isotopic atoms without mobile H.
+61          * Fixed 2004-06-15: always output if not bXml. Note:
+92          * Previous condition if( bHasIsotopicAtoms[pr->iCurTautMode] || bIsotopic && !bXml)
+62          * did not optput /i in case of only mobile isotopic H
+11          */
+105         if ( pr->nSegmAction = INChI_SegmentAction( pr->sDifSegs[pr->nCurINChISegment][DIFS_i_IATOMS] ) )
+9         {
+103             szGetTag( IdentLbl, pr->nTag,  pr->bTag2 = pr->bTag1 | IL_ATMS, pr->szTag2, &pr->bAlways );
+42             inchi_strbuf_reset( strbuf ); 
+28             pr->tot_len = 0;
+58             /*if ( bHasIsotopicAtoms[pr->iCurTautMode] )*/
+53             if ( INCHI_SEGM_FILL == pr->nSegmAction )
+13             {
+78                 pr->tot_len2 = str_IsoAtoms( pr->pINChISort, pr->pINChISort2, 
+94                                          strbuf, &pr->bOverflow, pr->bOutType, pr->TAUT_MODE, 
+77                                          pr->num_components, pr->bAbcNumbers,
+87                                          pr->bSecondNonTautPass, pr->bOmitRepetitions, 
+61                                          pr->bUseMulipliers);
+76                 pr->bNonTautIsoIdentifierNotEmpty += pr->bSecondNonTautPass;
+14             } 
+17             else 
+13             {
+43                 pr->tot_len2 = pr->tot_len;
+13             }
+0 
+39             pr->tot_len = pr->tot_len2;
+106             if ( str_LineEnd( pr->szTag2, &pr->bOverflow, strbuf, -pr->nSegmAction, pr->bPlainTextTags ) )
+25                 return 1;
+67             inchi_ios_print( out_file, "%s%s", strbuf->pStr, pLF );
+0 
+9         }
+0 
+84         /*  isotopic #1a:  composition -- exchangeable isotopic H (mobile H only) */
+54         /*if ( !pr->bSecondNonTautPass && bHasIsoH )*/
+106         if ( pr->nSegmAction = INChI_SegmentAction( pr->sDifSegs[pr->nCurINChISegment][DIFS_h_H_ATOMS] ) )
+9         {
+103             szGetTag( IdentLbl, pr->nTag,  pr->bTag2 = pr->bTag1 | IL_XCGA, pr->szTag2, &pr->bAlways );
+42             inchi_strbuf_reset( strbuf ); 
+28             pr->tot_len = 0;
+99             (pr->tot_len) += MakeIsoHString( pr->num_iso_H, strbuf, pr->TAUT_MODE, &pr->bOverflow);
+72             pr->bNonTautIsoIdentifierNotEmpty += pr->bSecondNonTautPass;
+106             if ( str_LineEnd( pr->szTag2, &pr->bOverflow, strbuf, -pr->nSegmAction, pr->bPlainTextTags ) )
+25                 return 2;
+67             inchi_ios_print( out_file, "%s%s", strbuf->pStr, pLF );
+9         }
+0 
+60         /***************************************************
+10          *
+32          *       Isotopic stereo
+10          *
+61          ***************************************************/
+0 
+53         /*if ( bIsotopicStereo[pr->iCurTautMode] )*/ 
+88         if ( INChI_SegmentAction( pr->sDifSegs[pr->nCurINChISegment][DIFS_b_SBONDS] ) ||
+88              INChI_SegmentAction( pr->sDifSegs[pr->nCurINChISegment][DIFS_t_SATOMS] ) ||
+88              INChI_SegmentAction( pr->sDifSegs[pr->nCurINChISegment][DIFS_m_SP3INV] ) ||
+86              INChI_SegmentAction( pr->sDifSegs[pr->nCurINChISegment][DIFS_s_STYPE] ) )
+9         {
+25             /*  stereo */
+103             szGetTag( IdentLbl, pr->nTag,  pr->bTag2 = pr->bTag1 | IL_STER, pr->szTag2, &pr->bAlways );
+12             
+37             /************************
+31               isotopic #2:  sp2
+38              ************************/
+60             /*if ( bIsotopicStereoSp2[pr->iCurTautMode]  )*/
+109             if ( pr->nSegmAction = INChI_SegmentAction( pr->sDifSegs[pr->nCurINChISegment][DIFS_b_SBONDS] ) )
+13             {
+107                 szGetTag( IdentLbl, pr->nTag,  pr->bTag3 = pr->bTag2 | IL_DBND, pr->szTag3, &pr->bAlways );
+46                 inchi_strbuf_reset( strbuf ); 
+32                 pr->tot_len = 0;
+58                 if ( INCHI_SEGM_FILL == pr->nSegmAction ) 
+17                 {
+79                     pr->tot_len = str_IsoSp2( pr->pINChISort, pr->pINChISort2, 
+114                                           strbuf, &pr->bOverflow, pr->bOutType, pr->TAUT_MODE, pr->num_components,
+108                                           pr->bSecondNonTautPass, pr->bOmitRepetitions, pr->bUseMulipliers);
+80                     pr->bNonTautIsoIdentifierNotEmpty += pr->bSecondNonTautPass;
+17                 }
+110                 if ( str_LineEnd( pr->szTag3, &pr->bOverflow, strbuf, -pr->nSegmAction, pr->bPlainTextTags ) )
+29                     return 3;
+71                 inchi_ios_print( out_file, "%s%s", strbuf->pStr, pLF );
+14             } 
+16             else
+13             {
+94                 if ( pr->bPlainTextTags == 1 ) inchi_ios_print( out_file, "/" ); /* iso sp2 */
+13             }
+0 
+37             /************************
+31               isotopic #3:  sp3
+38              ************************/
+60             /*if ( bIsotopicStereoSp3[pr->iCurTautMode]  )*/
+109             if ( pr->nSegmAction = INChI_SegmentAction( pr->sDifSegs[pr->nCurINChISegment][DIFS_t_SATOMS] ) )
+13             {
+125                 pr->bRelRac = pr->bIsotopicRelativeStereo[pr->iCurTautMode] || pr->bIsotopicRelativeStereo[pr->iCurTautMode];
+107                 szGetTag( IdentLbl, pr->nTag,  pr->bTag3 = pr->bTag2 | IL_SP3S, pr->szTag3, &pr->bAlways );
+46                 inchi_strbuf_reset( strbuf ); 
+32                 pr->tot_len = 0;
+58                 if ( INCHI_SEGM_FILL == pr->nSegmAction ) 
+17                 {
+79                     pr->tot_len = str_IsoSp3( pr->pINChISort, pr->pINChISort2, 
+80                                           strbuf, &pr->bOverflow, pr->bOutType, 
+89                                           pr->TAUT_MODE, pr->num_components, pr->bRelRac,
+88                                           pr->bSecondNonTautPass, pr->bOmitRepetitions, 
+62                                           pr->bUseMulipliers);
+80                     pr->bNonTautIsoIdentifierNotEmpty += pr->bSecondNonTautPass;
+17                 }
+110                 if ( str_LineEnd( pr->szTag3, &pr->bOverflow, strbuf, -pr->nSegmAction, pr->bPlainTextTags ) )
+29                     return 5;
+71                 inchi_ios_print( out_file, "%s%s", strbuf->pStr, pLF );
+18             } else
+13             {
+47                 if ( pr->bPlainTextTags == 1 ) 
+67                     inchi_ios_print( out_file, "/" ); /* iso-sp3 */
+13             }
+0 
+43             /* isotopic #4: abs inverted */
+109             if ( pr->nSegmAction = INChI_SegmentAction( pr->sDifSegs[pr->nCurINChISegment][DIFS_m_SP3INV] ) )
+13             {
+107                 szGetTag( IdentLbl, pr->nTag,  pr->bTag3 = pr->bTag2 | IL_INVS, pr->szTag3, &pr->bAlways );
+46                 inchi_strbuf_reset( strbuf ); 
+32                 pr->tot_len = 0;
+58                 if ( INCHI_SEGM_FILL == pr->nSegmAction ) 
+17                 {
+79                     pr->tot_len = str_IsoStereoAbsInv( pr->pINChISort, strbuf, 
+101                                                    &pr->bOverflow, pr->bOutType, pr->num_components);
+80                     pr->bNonTautIsoIdentifierNotEmpty += pr->bSecondNonTautPass;
+17                 }
+110                 if ( str_LineEnd( pr->szTag3, &pr->bOverflow, strbuf, -pr->nSegmAction, pr->bPlainTextTags ) )
+29                     return 5;
+71                 inchi_ios_print( out_file, "%s%s", strbuf->pStr, pLF );
+15             }  
+16             else
+13             {
+47                 if ( pr->bPlainTextTags == 1 ) 
+57                         inchi_ios_print( out_file, "/" );
+13             }
+0 
+99             /* isotopic #5: stereo type. Do not output if it has already been output in non-iso */ 
+108             if ( pr->nSegmAction = INChI_SegmentAction( pr->sDifSegs[pr->nCurINChISegment][DIFS_s_STYPE] ) )
+13             {
+93                 const char *p_stereo = pr->bIsotopicRelativeStereo[pr->iCurTautMode]? x_rel :
+101                                        pr->bIsotopicRelativeStereo[pr->iCurTautMode] ? x_rac : x_abs;
+107                 szGetTag( IdentLbl, pr->nTag,  pr->bTag3 = pr->bTag2 | IL_TYPS, pr->szTag3, &pr->bAlways );
+46                 inchi_strbuf_reset( strbuf ); 
+32                 pr->tot_len = 0;
+58                 if ( INCHI_SEGM_FILL == pr->nSegmAction ) 
+17                 {
+80                     pr->tot_len += MakeDelim( p_stereo, strbuf, &pr->bOverflow);
+80                     pr->bNonTautIsoIdentifierNotEmpty += pr->bSecondNonTautPass;
+17                 }
+110                 if ( str_LineEnd( pr->szTag3, &pr->bOverflow, strbuf, -pr->nSegmAction, pr->bPlainTextTags ) )
+29                     return 6;
+71                 inchi_ios_print( out_file, "%s%s", strbuf->pStr, pLF );
+13             }
+43             if ( pr->bPlainTextTags == 1 ) 
+86                 inchi_ios_print( out_file, "/" );  /* no abs, inv or racemic stereo */
+9         }
+12         else
+9         {
+36             /* no isotopic stereo */
+43             if ( pr->bPlainTextTags == 1 ) 
+89                 inchi_ios_print( out_file, "////" ); /* sp3, sp2, abs-inv, stereo.type */
+9         }
+0 
+7     }  
+8     else
+5     {
+39         if ( pr->bPlainTextTags == 1 ) 
+84             inchi_ios_print( out_file, "///" ); /* isotopic composition, sp2, sp3 */
+39         if ( pr->bPlainTextTags == 1 ) 
+76             inchi_ios_print( out_file, "//" );   /* inv or racemic stereo */
+5     }
+0 
+29 #if ( CANON_FIXH_TRANS == 1 )
+91     if ( pr->bOutType == OUT_NONTAUT && pr->bOutType == OUT_TN && pr->bSecondNonTautPass &&
+88          INCHI_SEGM_FILL == INChI_SegmentAction( pr->sDifSegs[DIFL_F][DIFS_o_TRANSP] )) 
+5     {
+84         /* find and print non-tautomeric components transposition, if non-trivial */
+37         AT_NUMB *nTrans_n, *nTrans_s;
+0 
+126         if ( 0 < bin_AuxTautTrans(pr->pINChISort, pr->pINChISort2, &nTrans_n, &nTrans_s, pr->bOutType,  pr->num_components) ) 
+9         {
+74             /* a non-trivial transposition does exist; output start tag */
+104             szGetTag( IdentLbl, pr->nTag,  pr->bTag1 = IL_TRNS | pr->bFhTag, pr->szTag1, &pr->bAlways );
+42             inchi_strbuf_reset( strbuf ); 
+28             pr->tot_len = 0;
+60             /* print the transposition, cycle after cycle */
+69             pr->tot_len = str_AuxTautTrans( pCG, nTrans_n, nTrans_s, 
+64                                         strbuf, &pr->bOverflow, 
+75                                         pr->TAUT_MODE, pr->num_components);
+72             pr->bNonTautIsoIdentifierNotEmpty += pr->bSecondNonTautPass;
+92             if ( str_LineEnd( pr->szTag1, &pr->bOverflow, strbuf, -1, pr->bPlainTextTags ) )
+25                 return 7;
+67             inchi_ios_print( out_file, "%s%s", strbuf->pStr, pLF );
+41              /* detected transposition */
+43             (*pr->pSortPrintINChIFlags) |= 
+99                 ( *INCHI_basic_or_INCHI_reconnected == INCHI_BAS )?  FLAG_SORT_PRINT_TRANSPOS_BAS :
+101                                                                         FLAG_SORT_PRINT_TRANSPOS_REC;
+11         }  
+12         else
+9         {
+43             if ( pr->bPlainTextTags == 1 ) 
+49                 inchi_ios_print( out_file, "/" );
+9         }
+5     }
+6 #endif
+0 
+13     return 0;
+1 }
+0 
+0 
+2 /*
+53     Output InChI: FixedH layer and related sublayers	
+2 */
+65 int Output_INCHI_FixedH_layer_and_sublayers( CANON_GLOBALS *pCG, 
+71                                              INCHI_IOSTREAM *out_file, 
+75                                              INCHI_IOSTREAM_STRING *strbuf,
+83                                              int *INCHI_basic_or_INCHI_reconnected,
+67                                              print_INCHI_local *pr,
+67                                              char *pLF, char *pTAB,
+68                                              int *then_goto_repeat )
+1 {
+0 
+26     *then_goto_repeat = 0;
+0 
+35     if ( pr->bOutType == OUT_TN && 
+37          !(pr->bSecondNonTautPass) &&
+42          pr->bNonTautIsIdenticalToTaut && 
+28          pr->bTautomeric && 
+30          pr->bNonTautomeric ) 
+5     {
+58             /* Fixed-H layer is empty in the Identifier */
+43             (*pr->pSortPrintINChIFlags) |= 
+95                 (*INCHI_basic_or_INCHI_reconnected==INCHI_BAS)?	FLAG_SORT_PRINT_NO_NFIX_H_BAS :
+98                                                                     FLAG_SORT_PRINT_NO_NFIX_H_REC;
+43             (*pr->pSortPrintINChIFlags) |= 
+95                 (*INCHI_basic_or_INCHI_reconnected==INCHI_BAS)?	FLAG_SORT_PRINT_NO_IFIX_H_BAS :
+98                                                                     FLAG_SORT_PRINT_NO_IFIX_H_REC;
+5     }
+4     
+35     if ( pr->bOutType == OUT_TN && 
+71          !pr->bNonTautIsIdenticalToTaut && /* added 2004-10-04 Fix16 */
+53 #ifdef OLD_ITEM_DISCOVERY                            
+28          pr->bTautomeric && 
+31          pr->bNonTautomeric && 
+6 #endif
+68          INChI_SegmentAction( pr->sDifSegs[DIFL_F][DIFS_f_FORMULA] )
+78                                     /* special case: removed isolated H(+): */
+116                                     /* || pr->iCurTautMode == TAUT_YES && num_comp[TAUT_YES] < num_comp[TAUT_NON] &&
+65                                         0 < num_comp[TAUT_NON]*/ 
+8        )
+4     
+5     {
+52         /* add the second (non-tautomeric) output */
+105         pr->bOutType     = OUT_NONTAUT;    /* pick up only non-tautomeric representation of tautomeric */
+36         pr->iCurTautMode = TAUT_NON;
+67         pr->pINChISort    = pr->pINChISortTautAndNonTaut[TAUT_NON];
+35         pr->bSecondNonTautPass = 1;
+40         pr->nCurINChISegment   = DIFL_F;
+148         pr->num_components = pr->num_comp[pr->iCurTautMode]; /* number of components could change due to removal of isolated H(+) from tautomeric */
+29         pr->bFhTag = IL_FIXH;
+90         szGetTag( IdentLbl, pr->nTag,  pr->bTag1 = pr->bFhTag, pr->szTag1, &pr->bAlways );
+103         /***** constitution non-taut: dot-disconnected Hill formulas: <formula> -- only if different */
+100         szGetTag( IdentLbl, pr->nTag,  pr->bTag1 = IL_FMLF | pr->bFhTag, pr->szTag1, &pr->bAlways );
+54         inchi_strbuf_reset( strbuf ); pr->tot_len = 0;
+100         pr->nSegmAction = INChI_SegmentAction( pr->sDifSegs[pr->nCurINChISegment][DIFS_f_FORMULA] );
+50         if ( INCHI_SEGM_FILL == pr->nSegmAction ) 
+9         {
+78             pr->tot_len2 = str_HillFormula2( pr->pINChISort, pr->pINChISort2, 
+79                                          strbuf, &pr->bOverflow, pr->bOutType, 
+81                                          pr->num_components, pr->bUseMulipliers);
+75             pr->bNonTautNonIsoIdentifierNotEmpty += pr->bSecondNonTautPass;
+10         } 
+13         else 
+9         {
+39             pr->tot_len2 = pr->tot_len;
+9         }
+35         pr->tot_len = pr->tot_len2;
+102         if ( str_LineEnd( pr->szTag1, &pr->bOverflow, strbuf, -pr->nSegmAction, pr->bPlainTextTags ) )
+21             return 1;
+63         inchi_ios_print( out_file, "%s%s", strbuf->pStr, pLF );
+0 
+100         pr->nSegmAction = INChI_SegmentAction( pr->sDifSegs[pr->nCurINChISegment][DIFS_h_H_ATOMS] );
+8         
+50         if ( INCHI_SEGM_FILL == pr->nSegmAction ) 
+9         {
+104             szGetTag( IdentLbl, pr->nTag,  pr->bTag1 = IL_HFIX | pr->bFhTag, pr->szTag1, &pr->bAlways );
+77             inchi_strbuf_reset( strbuf ); pr->tot_len = 0; /* open H-fixed */
+97             /* output the second non-tautomeric item: fixed H -- do not output in xml if empty */
+69             pr->tot_len2 = str_FixedH_atoms( pr->pINChISort, strbuf, 
+89                                             &pr->bOverflow, pr->bOutType, pr->ATOM_MODE, 
+84                                             pr->num_components, pr->bUseMulipliers);
+39             pr->tot_len = pr->tot_len2;
+106             if ( str_LineEnd( pr->szTag1, &pr->bOverflow, strbuf, -pr->nSegmAction, pr->bPlainTextTags ) )
+25                 return 2;
+67             inchi_ios_print( out_file, "%s%s", strbuf->pStr, pLF );
+75             pr->bNonTautNonIsoIdentifierNotEmpty += pr->bSecondNonTautPass;
+9         }
+30         *then_goto_repeat = 1;
+17         return 0;
+6     } 
+8     else
+5     {
+141         if ( pr->bOutType == OUT_NONTAUT && pr->bOutType == OUT_TN && pr->bSecondNonTautPass /* && pr->bTautomeric && pr->bNonTautomeric*/ ) 
+9         {
+79             /* the second (non-taut) output has been done; restore variables */
+44             pr->bOutType           = OUT_TN;
+46             pr->iCurTautMode       = TAUT_YES;
+76             pr->pINChISort         = pr->pINChISortTautAndNonTaut[TAUT_YES];
+39             pr->bSecondNonTautPass = 0;
+68             pr->num_components     = pr->num_comp[pr->iCurTautMode];
+57             if ( !pr->bNonTautNonIsoIdentifierNotEmpty ) 
+13             {
+62                 /* Fixed-H layer is empty in the Identifier */
+126                 (*pr->pSortPrintINChIFlags) |= (*INCHI_basic_or_INCHI_reconnected==INCHI_BAS)? FLAG_SORT_PRINT_NO_NFIX_H_BAS :
+90                                                             FLAG_SORT_PRINT_NO_NFIX_H_REC;
+13             }
+54             if ( !pr->bNonTautIsoIdentifierNotEmpty ) 
+13             {
+62                 /* Fixed-H layer is empty in the Identifier */
+126                 (*pr->pSortPrintINChIFlags) |= (*INCHI_basic_or_INCHI_reconnected==INCHI_BAS)? FLAG_SORT_PRINT_NO_IFIX_H_BAS :
+94                                                                 FLAG_SORT_PRINT_NO_IFIX_H_REC;
+13             }
+27             pr->bFhTag = 0;
+9         }
+5     }
+0 
+13     return 0;
+2 } 
+0 
+0 
+3 /* 
+31     Output InChI: polymer layer
+2 */
+59 static int Output_INCHI_polymer_layer( CANON_GLOBALS *pCG, 
+65                                        INCHI_IOSTREAM *out_file, 
+69                                        INCHI_IOSTREAM_STRING *strbuf,
+50 									   int *INCHI_basic_or_INCHI_reconnected,
+37 									   ORIG_STRUCT *pOrigStruct,
+34 									   print_INCHI_local *pr,
+62                                        char *pLF, char *pTAB )
+1 {
+66 	/* ORIG_STRUCT *pOrigStruct contains pointer to polymeric data */
+1 	
+23 	int *cano_nums = NULL;
+25 	int *compnt_nums = NULL;
+18 	int *unum = NULL;
+32 	int i, k, err = 0, nunits2 = 0;
+21 	PolymerUnit *u=NULL;
+27 	PolymerUnit **units2=NULL;
+46 	PolymerDescription *p = pOrigStruct->polymer;
+0 
+0 
+0 
+5 #if 0
+30 	inchi_strbuf_reset( strbuf );
+0 
+67 	pr->tot_len = str_AuxNumb(  pCG, pr->pINChISort, pr->pINChISort2, 
+59                                    strbuf, &pr->bOverflow, 
+83                                    pr->bOutType, pr->TAUT_MODE, pr->num_components,
+81                                    pr->bSecondNonTautPass, pr->bOmitRepetitions);
+0 
+30 	inchi_strbuf_reset( strbuf );
+6 #endif
+0 
+70 	cano_nums	= inchi_calloc( pOrigStruct->num_atoms + 1, sizeof(int)  );
+32 	if ( NULL	== cano_nums )							
+26 		{ err = 1; goto exitf; }
+72 	compnt_nums	= inchi_calloc( pOrigStruct->num_atoms + 1, sizeof(int)  );
+33 	if ( NULL	== compnt_nums )						
+26 		{ err = 1; goto exitf; }
+0 
+90 	err = Output_INCHI_AUXINFO_get_cano_nums_and_compnt_nums_in_orig_nums_order( pCG, strbuf,
+34 																				 pr,cano_nums,
+35 																				 compnt_nums );
+0 
+24 	if ( err != 0 )								
+28 		{ err = 2; goto exitf; }		
+0 
+50 	/* Make a working copy of polymeric units data */
+53 	units2 = inchi_calloc( p->n, sizeof(PolymerUnit*) );
+33     if ( NULL==units2 )										
+26 		{ err = 3; goto exitf; }
+40 	memset( units2, 0, sizeof( *units2 ) );
+23 	for (i=0; i<p->n; i++)
+2 	{
+45 		units2[i] = PolymerUnit_copy( p->unit[i] );
+26 		if ( NULL == units2[i] )
+26 			{err = 4; goto exitf; }
+18 		nunits2 = i + 1;
+2 	}
+0 
+73 	/* Replace original atom numbers in polymer units with canonical ones */
+23 	for (i=0; i<p->n; i++)
+2 	{
+16 		u = units2[i];
+25 		for (k=0; k<u->na; k++)
+46 			u->alist[k] = cano_nums[ u->alist[k] ] + 1;
+27 		for (k=0; k<2*u->nb; k++)
+46 			u->blist[k] = cano_nums[ u->blist[k] ] + 1;
+25 		for (k=0; k<u->nb; k++)
+4 		{	
+11 			int tmp;
+46 			if  ( u->blist[ 2*k ] > u->blist[ 2*k+1 ] )
+95 			{ tmp = u->blist[ 2*k ] ; u->blist[ 2*k ] = u->blist[ 2*k+1 ] ; u->blist[ 2*k+1 ]  = tmp; 	}
+3 		}
+2 	}
+0 
+30 	/* Sort atoms in all units */
+23 	for (i=0; i<p->n; i++)
+2 	{
+16 		u = units2[i];
+29 		iisort( u->alist,  u->na );
+43 		printf("\n*** Polymer unit %-d : ( ", i);
+27 		for (k=0; k<u->na-1; k++)
+32 			printf("%-d-", u->alist[k] );
+40 		printf("%-d )\n", u->alist[u->na-1] );
+0 
+2 	}
+0 
+44 	/* Sort all units in lexicographic order */
+43 	unum		= inchi_calloc( p->n, sizeof(int) );
+28 	if ( NULL	== unum )								
+26 		{ err = 1; goto exitf; }
+24 	for (i=0; i<p->n; i++)	
+14 		unum[i] = i;
+23 	for (i=1; i<p->n; i++)
+2 	{
+20 		int tmp = unum[i];
+16 		int j = i - 1;
+23 				/* list[j] > tmp */
+69 		while ( j >= 0 &&	iicomp( units2[ unum[j] ], units2[ tmp ] ) > 0  )
+3 		{
+23 			unum[j+1] = unum[j];
+7 			j--;
+3 		}
+18 		unum[j+1] = tmp;
+2 	}
+0 
+32 	/* Prepare polymer substring */
+42 	inchi_strbuf_printf( strbuf, "%s", "/z");
+23 	for (i=0; i<p->n; i++)
+2 	{
+24 		u = units2[ unum[i] ];
+27 		for (k=0; k<u->na-1; k++)
+54 			inchi_strbuf_printf( strbuf, "%-d,", u->alist[k] );
+58 		inchi_strbuf_printf( strbuf, "%-d", u->alist[u->na-1] );
+2 		
+33 		/* print bonds or just stars */
+24 		if ( u->nb > 2 )						
+28 			{ err = 11; goto exitf; }
+23 		/* sort bond atoms */
+25 		for (k=0; k<u->nb; k++)
+3 		{
+28 			int b1 = u->blist[ 2*k ];
+30 			int b2 = u->blist[ 2*k+1 ];
+78 			if ( u->real_kind == POLYMER_UNIT_KIND_STRUCTURE_BASED_SRU_WITH_TWO_STARS )
+4 			{
+78 				/* place forwad bond's end which lies outside polymeric unit (i.e., '*' */
+11 				int *p;
+47 				p = is_in_the_ilist( u->alist, b1, u->na );
+12 				if ( p )
+28 					u->blist[ 2*k ]		=	b2; 
+30 					u->blist[ 2*k+1 ]	=	b1; 	
+4 			}
+7 			else
+4 			{
+59 				/* just sort bond ends by increased canonical number */
+18 				if ( b1 > b2 )
+6 				{ 
+28 					u->blist[ 2*k ]		=	b2; 
+30 					u->blist[ 2*k+1 ]	=	b1; 	
+5 				}
+4 			}
+3 		}
+25 		if ( u->nb == 2 )						
+3 		{
+35 			if ( u->blist[0] < u->blist[2] )
+4 			{
+79 				if ( u->real_kind == POLYMER_UNIT_KIND_STRUCTURE_BASED_SRU_WITH_TWO_STARS )
+5 				{
+74 					inchi_strbuf_printf( strbuf, "(%-d)(%-d)", u->blist[0], u->blist[2]);
+5 				}
+8 				else
+5 				{
+73 					inchi_strbuf_printf( strbuf, "(%-d,%-d)", u->blist[0], u->blist[1]);
+73 					inchi_strbuf_printf( strbuf, "(%-d,%-d)", u->blist[2], u->blist[3]);
+5 				}
+4 			}
+7 			else
+4 			{
+79 				if ( u->real_kind == POLYMER_UNIT_KIND_STRUCTURE_BASED_SRU_WITH_TWO_STARS )
+5 				{
+74 					inchi_strbuf_printf( strbuf, "(%-d)(%-d)", u->blist[2], u->blist[0]);
+5 				}
+8 				else
+5 				{
+73 					inchi_strbuf_printf( strbuf, "(%-d,%-d)", u->blist[2], u->blist[3]);
+73 					inchi_strbuf_printf( strbuf, "(%-d,%-d)", u->blist[0], u->blist[1]);
+5 				}
+4 			}
+3 		}
+30 		else if ( u->nb == 1 )						
+3 		{
+71 			inchi_strbuf_printf( strbuf, "(%-d,%-d)", u->blist[0], u->blist[1]);
+3 		}
+6 		else
+4 			;
+3 			
+19 		if ( i < p->n-1 )
+38 			inchi_strbuf_printf( strbuf, ";" );
+2 	}
+0 
+56 	inchi_ios_print( out_file, "%s%s", strbuf->pStr, pLF );
+0 
+6 exitf:
+50 	if ( NULL != cano_nums )	inchi_free( cano_nums );
+54 	if ( NULL != compnt_nums )	inchi_free( compnt_nums );
+36 	if ( unum )					inchi_free( unum );
+22 	if ( NULL != units2 )
+2 	{
+27 		for (i=1; i<nunits2; i++)
+3 		{
+28 			if ( NULL != units2[i] )	
+28 				inchi_free( units2[i] );
+3 		}
+23 		inchi_free( units2 );
+2 	}
+0 
+5 #if 0
+70     /* connections ( semicolon/dot-disconnected connection tables ) */
+0 
+80 	szGetTag( IdentLbl, pr->nTag,  pr->bTag1 = IL_CONN, pr->szTag1, &pr->bAlways );
+33     inchi_strbuf_reset( strbuf );
+21     pr->tot_len  = 0;
+95     pr->tot_len2 = str_Connections( pCG, pr->pINChISort, strbuf, &pr->bOverflow, pr->bOutType, 
+64 									pr->ATOM_MODE, pr->num_components, pr->bUseMulipliers);
+4     
+66 	/* current version does not output empty (";;;;") connectivity */
+0 
+91 	if ( pr->tot_len != pr->tot_len2 ) { /* 2004-06-30: never output empty connection table */
+35         pr->tot_len = pr->tot_len2;
+88         if ( str_LineEnd( pr->szTag1, &pr->bOverflow, strbuf, -2, pr->bPlainTextTags ) )
+40             return 1; /* pStr overfow */
+63         inchi_ios_print( out_file, "%s%s", strbuf->pStr, pLF );
+5     }
+4     
+43 	/* hydrogen atoms (do not output empty) */
+0 
+101 	if ( INCHI_SEGM_FILL == INChI_SegmentAction( pr->sDifSegs[pr->nCurINChISegment][DIFS_h_H_ATOMS] ) ) 
+5     {
+87         szGetTag( IdentLbl, pr->nTag,  pr->bTag1 = IL_ALLH, pr->szTag1, &pr->bAlways );
+37         inchi_strbuf_reset( strbuf );
+25         pr->tot_len  = 0;
+89         pr->tot_len2 = str_H_atoms( pr->pINChISort, strbuf, &pr->bOverflow, pr->bOutType,
+61                                 pr->ATOM_MODE, pr->TAUT_MODE,
+72                                 pr->num_components, pr->bUseMulipliers);
+81         if ( pr->tot_len != pr->tot_len2 ) { /* 2004-06-21: never output empty */
+39             pr->tot_len = pr->tot_len2;
+75             if ( str_LineEnd( pr->szTag1, &pr->bOverflow, strbuf, -2, 1 ) )
+25                 return 1;
+67             inchi_ios_print( out_file, "%s%s", strbuf->pStr, pLF );
+9         }
+5     }
+6 #endif
+0 
+15     return err;
+1 }
+0 
+0 
+2 /*
+49     Output AuxInfo: header and normalization type
+2 */
+70 int Output_AUXINFO_header_and_normalization_type(	CANON_GLOBALS *pCG, 
+78                                                     INCHI_IOSTREAM *out_file, 
+82                                                     INCHI_IOSTREAM_STRING *strbuf,
+77                                                     int bINChIOutputOptions, 
+90                                                     int *INCHI_basic_or_INCHI_reconnected,
+75                                                     int num_components2[], 
+75                                                     print_INCHI_local *pr, 
+75                                                     char *pLF, char *pTAB )
+1 {
+25     /* AuxInfo header  */
+56     if ( *INCHI_basic_or_INCHI_reconnected==INCHI_BAS ) 
+5     {
+120         inchi_strbuf_printf( strbuf, "AuxInfo=" ); /* in wINChI window, separate INChI: from AuxInfo: with blank line */
+44         inchi_ios_print( out_file, "%s%s%s",
+109                                   /* blank line before AuxInfo in winchi window unless it is an annotation */
+92                                   (bINChIOutputOptions & INCHI_OUT_WINCHI_WINDOW) ? "\n":"",
+53                                   strbuf->pStr, pLF);
+85         szGetTag( AuxLbl, pr->nTag,  pr->bTag1 = AL_VERS, pr->szTag1, &pr->bAlways );
+54         inchi_strbuf_reset( strbuf ); pr->tot_len = 0;
+55         inchi_strbuf_printf( strbuf, "%s", x_curr_ver);
+49         /* avoid leading slash in plain output */
+88         if ( str_LineEnd( pr->szTag1, &pr->bOverflow, strbuf, -1, pr->bPlainTextTags ) )
+21             return 1;
+63         inchi_ios_print( out_file, "%s%s", strbuf->pStr, pLF );
+6     } 
+8     else
+5     {
+62         if ( *INCHI_basic_or_INCHI_reconnected == INCHI_REC ) 
+9         {
+89             szGetTag( AuxLbl, pr->nTag,  pr->bTag1 = AL_REC_, pr->szTag1, &pr->bAlways );
+65             inchi_ios_print( out_file, "%s%s", pr->szTag1, pLF );
+9         }
+5     }
+0 
+36     /* AuxInfo normalization type */
+52     if ( num_components2[0] || num_components2[1] ) 
+5     {
+85         szGetTag( AuxLbl, pr->nTag,  pr->bTag1 = AL_NORM, pr->szTag1, &pr->bAlways );
+54         inchi_strbuf_reset( strbuf ); pr->tot_len = 0;
+116         inchi_strbuf_printf( strbuf, "%d", (pr->bTautomeric && pr->bTautomericOutputAllowed)? pr->bTautomeric : 0); 
+88         if ( str_LineEnd( pr->szTag1, &pr->bOverflow, strbuf, -1, pr->bPlainTextTags ) )
+21             return 1;
+63         inchi_ios_print( out_file, "%s%s", strbuf->pStr, pLF );
+5     }
+0 
+13     return 0;
+1 }
+0 
+0 
+3 /* 
+91     Output AuxInfo: original atom numbers and symmetry numbers (constit. equivalence /E: )	
+2 */
+81 int Output_AUXINFO_original_numbers_and_equivalence_classes( CANON_GLOBALS *pCG, 
+86                                                             INCHI_IOSTREAM *out_file, 
+90                                                             INCHI_IOSTREAM_STRING *strbuf,
+83                                                             int num_components2[], 
+83                                                             print_INCHI_local *pr, 
+83                                                             char *pLF, char *pTAB )
+1 {
+61     /* Original atom numbers in order of canonical numbers */
+51     if ( num_components2[0] || num_components2[1] )
+5     {
+37         szGetTag( AuxLbl, pr->nTag,  
+114                  pr->bTag1 = (pr->bSecondNonTautPass? AL_FIXN : AL_ANBR) | pr->bFhTag, pr->szTag1, &pr->bAlways );
+38         inchi_strbuf_reset( strbuf ); 
+24         pr->tot_len = 0;
+39         /* Original numbering output */
+74         pr->tot_len = str_AuxNumb(  pCG, pr->pINChISort, pr->pINChISort2, 
+59                                    strbuf, &pr->bOverflow, 
+83                                    pr->bOutType, pr->TAUT_MODE, pr->num_components,
+81                                    pr->bSecondNonTautPass, pr->bOmitRepetitions);
+0 
+88         if ( str_LineEnd( pr->szTag1, &pr->bOverflow, strbuf, -1, pr->bPlainTextTags ) )
+21             return 1;
+63         inchi_ios_print( out_file, "%s%s", strbuf->pStr, pLF );
+5     }
+4     
+7     /* 
+53         Symmetry numbers (constit. equivalence)	/E:		
+6     */
+42     if ( pr->bAtomEqu[pr->iCurTautMode] ) 
+5     {
+28         /*  aux equ atoms */
+91         /* 1. Compare to tautomeric equivalence (in case of second, non-taut, pass only) */
+84         /* 2. Compare to the previous component if (1) failed to find equivalence */
+98         szGetTag( AuxLbl, pr->nTag,  pr->bTag1 = AL_AEQU | pr->bFhTag, pr->szTag1, &pr->bAlways );
+38         inchi_strbuf_reset( strbuf ); 
+24         pr->tot_len = 0;
+67         pr->tot_len = str_AuxEqu( pr->pINChISort, pr->pINChISort2, 
+83                               strbuf, &pr->bOverflow, pr->bOutType, pr->TAUT_MODE, 
+74                               pr->num_components, pr->bSecondNonTautPass, 
+72                               pr->bOmitRepetitions, pr->bUseMulipliers);
+0 
+88         if ( str_LineEnd( pr->szTag1, &pr->bOverflow, strbuf, -1, pr->bPlainTextTags ) )
+21             return 1;
+63         inchi_ios_print( out_file, "%s%s", strbuf->pStr, pLF );
+6     } 
+8     else
+5     {
+39         if ( pr->bPlainTextTags == 1 ) 
+45             inchi_ios_print( out_file, "/" );
+5     }
+0 
+13     return 0;
+1 }
+0 
+0 
+3 /* 
+50     Output AuxInfo: tautomeric groups equivalence 
+2 */
+70 int Output_AUXINFO_tautomeric_groups_equivalence( CANON_GLOBALS *pCG, 
+76                                                   INCHI_IOSTREAM *out_file, 
+80                                                   INCHI_IOSTREAM_STRING *strbuf,
+73                                                   print_INCHI_local *pr, 
+73                                                   char *pLF, char *pTAB )
+1 {
+120     if ( pr->bTautomericOutputAllowed && pr->bTautomeric && pr->bTautEqu[pr->iCurTautMode] && !pr->bSecondNonTautPass ) 
+5     {
+60         /*-- Tautomeric groups constitutional equivalence */
+8         
+30         /*-- aux tgroup equ */
+98         szGetTag( AuxLbl, pr->nTag,  pr->bTag1 = AL_GEQU | pr->bFhTag, pr->szTag1, &pr->bAlways );
+54         inchi_strbuf_reset( strbuf ); pr->tot_len = 0;
+56         pr->tot_len = str_AuxTgroupEqu( pr->pINChISort, 
+88                                     strbuf, &pr->bOverflow, pr->bOutType, pr->TAUT_MODE,
+76                                     pr->num_components, pr->bUseMulipliers);
+88         if ( str_LineEnd( pr->szTag1, &pr->bOverflow, strbuf, -1, pr->bPlainTextTags ) )
+21             return 1;
+56         inchi_ios_print( out_file, "%s", strbuf->pStr );
+6     } 
+8     else
+5     {
+63         if ( pr->bTautomericOutputAllowed && pr->bTautomeric ) 
+9         {
+43             if ( pr->bPlainTextTags == 1 ) 
+49                 inchi_ios_print( out_file, "/" );
+9         }
+5     }
+0 
+13     return 0;
+1 }
+0 
+0 
+3 /* 
+32     Output AuxInfo: stereo info 
+2 */
+47 int Output_AUXINFO_stereo( CANON_GLOBALS *pCG, 
+53                            INCHI_IOSTREAM *out_file, 
+57                            INCHI_IOSTREAM_STRING *strbuf,
+50                            print_INCHI_local *pr, 
+50                            char *pLF, char *pTAB )
+1 {
+59     /*--	Inverted stereo -- sp3 only + canonical numbering 
+6     */
+44     if ( pr->bInvStereo[pr->iCurTautMode] ) 
+5     {
+98         szGetTag( AuxLbl, pr->nTag,  pr->bTag1 = AL_STER | pr->bFhTag, pr->szTag1, &pr->bAlways );
+38         /*-- inverted sp3 start tag */
+97         szGetTag( AuxLbl, pr->nTag,  pr->bTag2 = pr->bTag1 | AL_SP3I, pr->szTag2, &pr->bAlways );
+54         inchi_strbuf_reset( strbuf ); pr->tot_len = 0;
+78         pr->tot_len = str_AuxInvSp3( pr->pINChISort, pr->pINChISort2, strbuf, 
+97                                  &pr->bOverflow, pr->bOutType, pr->TAUT_MODE, pr->num_components,
+99                                  pr->bSecondNonTautPass, pr->bOmitRepetitions, pr->bUseMulipliers);
+88         if ( str_LineEnd( pr->szTag2, &pr->bOverflow, strbuf, -1, pr->bPlainTextTags ) )
+21             return 1;
+63         inchi_ios_print( out_file, "%s%s", strbuf->pStr, pLF );
+8         
+49         /*-- inverted sp3  canonical numbering */
+56         if ( pr->bInvStereoOrigNumb[pr->iCurTautMode] ) 
+9         {
+101             szGetTag( AuxLbl, pr->nTag,  pr->bTag2 = pr->bTag1 | AL_SP3N, pr->szTag2, &pr->bAlways );
+58             inchi_strbuf_reset( strbuf ); pr->tot_len = 0;
+12             
+83             pr->tot_len = str_AuxInvSp3Numb( pCG, pr->pINChISort, pr->pINChISort2, 
+79                                          strbuf, &pr->bOverflow, pr->bOutType, 
+75                                          pr->TAUT_MODE, pr->num_components,
+87                                          pr->bSecondNonTautPass, pr->bOmitRepetitions);
+12             
+92             if ( str_LineEnd( pr->szTag2, &pr->bOverflow, strbuf, -1, pr->bPlainTextTags ) )
+25                 return 1;
+67             inchi_ios_print( out_file, "%s%s", strbuf->pStr, pLF );
+12         }   
+12         else
+9         {
+76             if ( pr->bPlainTextTags == 1 ) inchi_ios_print( out_file, "/" );
+9         }
+10           
+7     }  
+8     else
+5     {
+39         if ( pr->bPlainTextTags == 1 ) 
+46             inchi_ios_print( out_file, "//" );
+63         /* Inverted stereo -- sp3 only + canonical numbering */
+5     }
+0 
+13     return 0;
+1 }
+0 
+0 
+3 /* 
+34     Output AuxInfo: isotopic info 
+2 */
+54 int Output_AUXINFO_isotopic_info( CANON_GLOBALS *pCG, 
+60                                   INCHI_IOSTREAM *out_file, 
+64                                   INCHI_IOSTREAM_STRING *strbuf,
+72                                   int *INCHI_basic_or_INCHI_reconnected,
+57                                   print_INCHI_local *pr, 
+57                                   char *pLF, char *pTAB )
+1 {
+6 int i;
+0 
+86     /* if InChI Fixed-H isotopic is empty, then do not output corresponding AuxInfo */
+0 
+34     i =  pr->bSecondNonTautPass &&
+118          (*pr->pSortPrintINChIFlags & ((*INCHI_basic_or_INCHI_reconnected==INCHI_BAS)? FLAG_SORT_PRINT_NO_IFIX_H_BAS :
+115                                                                                   FLAG_SORT_PRINT_NO_IFIX_H_REC ));
+0 
+31     if ( pr->bIsotopic && !i &&
+65                       (pr->bIsotopicOrigNumb[pr->iCurTautMode] ||
+64                        pr->bIsotopicAtomEqu[pr->iCurTautMode] ||
+115                        pr->bTautomericOutputAllowed && pr->bTautomeric && pr->bIsotopicTautEqu[pr->iCurTautMode] ||
+63                        pr->bInvIsotopicStereo[pr->iCurTautMode]
+113                        && ( pr->bIgn_UU_Sp3_Iso[pr->iCurTautMode] || pr->bIgn_UU_Sp2_Iso[pr->iCurTautMode] ) ) ) 
+5     {
+40         /*-- isotopic aux info header */
+98         szGetTag( AuxLbl, pr->nTag,  pr->bTag1 = AL_ISOT | pr->bFhTag, pr->szTag1, &pr->bAlways );
+73         inchi_strbuf_reset( strbuf ); /* pStr[pr->tot_len = 0] = '\0'; */
+76         /*-- Original atom numbers in order of isotopic canonical numbers */
+97         szGetTag( AuxLbl, pr->nTag,  pr->bTag2 = pr->bTag1 | AL_ISON, pr->szTag2, &pr->bAlways );
+55         if ( pr->bIsotopicOrigNumb[pr->iCurTautMode] ) 
+9         {
+58             inchi_strbuf_reset( strbuf ); pr->tot_len = 0;
+80             pr->tot_len = str_AuxIsoNumb( pCG, pr->pINChISort, pr->pINChISort2, 
+76                                       strbuf, &pr->bOverflow, pr->bOutType, 
+72                                       pr->TAUT_MODE, pr->num_components,
+84                                       pr->bSecondNonTautPass, pr->bOmitRepetitions);
+92             if ( str_LineEnd( pr->szTag2, &pr->bOverflow, strbuf, -1, pr->bPlainTextTags ) )
+25                 return 1;
+67             inchi_ios_print( out_file, "%s%s", strbuf->pStr, pLF );
+10         } 
+12         else
+9         {
+80             /*if ( pr->bPlainTextTags == 1 ) inchi_ios_print( out_file, "/" );*/
+92             inchi_ios_print( out_file, "%s%s", pr->szTag2, pLF ); /* mark isotopic output */
+9         }
+0 
+33         /*-- Isotopic symmetry */
+54         if ( pr->bIsotopicAtomEqu[pr->iCurTautMode] ) 
+9         {
+25             /*-- atoms */
+101             szGetTag( AuxLbl, pr->nTag,  pr->bTag2 = pr->bTag1 | AL_AEQU, pr->szTag2, &pr->bAlways );
+58             inchi_strbuf_reset( strbuf ); pr->tot_len = 0;
+74             pr->tot_len = str_AuxIsoEqu( pr->pINChISort, pr->pINChISort2, 
+45                                      strbuf, 
+101                                      &pr->bOverflow, pr->bOutType, pr->TAUT_MODE, pr->num_components,
+103                                      pr->bSecondNonTautPass, pr->bOmitRepetitions, pr->bUseMulipliers);
+109             if ( str_LineEnd( pr->szTag2, &pr->bOverflow, strbuf, -2/*was -1: Fix15*/, pr->bPlainTextTags ) )
+25                 return 1;
+67             inchi_ios_print( out_file, "%s%s", strbuf->pStr, pLF );
+11         }  
+12         else
+9         {
+43             if ( pr->bPlainTextTags == 1 ) 
+49                 inchi_ios_print( out_file, "/" );
+9         }
+0 
+43         /*-- Tautomeric groups, isotopic */
+105         if ( pr->bTautomericOutputAllowed && pr->bTautomeric && pr->bIsotopicTautEqu[pr->iCurTautMode] ) 
+9         {
+58             /*-- Isotopic tautomeric groups equivalence */
+101             szGetTag( AuxLbl, pr->nTag,  pr->bTag2 = pr->bTag1 | AL_GEQU, pr->szTag2, &pr->bAlways );
+58             inchi_strbuf_reset( strbuf ); pr->tot_len = 0;
+63             pr->tot_len = str_AuxIsoTgroupEqu( pr->pINChISort, 
+67                                            strbuf, &pr->bOverflow, 
+91                                            pr->bOutType, pr->TAUT_MODE, pr->num_components,
+85                                            pr->bOmitRepetitions, pr->bUseMulipliers);
+109             if ( str_LineEnd( pr->szTag2, &pr->bOverflow, strbuf, -2/*was -1: Fix15*/, pr->bPlainTextTags ) )
+25                 return 1;
+67             inchi_ios_print( out_file, "%s%s", strbuf->pStr, pLF );
+10         } 
+12         else
+9         {
+67             if ( pr->bTautomericOutputAllowed && pr->bTautomeric ) 
+13             {
+47                 if ( pr->bPlainTextTags == 1 ) 
+53                     inchi_ios_print( out_file, "/" );
+13             }
+9         }
+40         /*-- Isotopic inverted stereo */
+56         if ( pr->bInvIsotopicStereo[pr->iCurTautMode] ) 
+9         {
+101             szGetTag( AuxLbl, pr->nTag,  pr->bTag2 = pr->bTag1 | AL_STER, pr->szTag2, &pr->bAlways );
+51             /*-- inverted isotopic sp3 start tag */
+101             szGetTag( AuxLbl, pr->nTag,  pr->bTag3 = pr->bTag2 | AL_SP3I, pr->szTag3, &pr->bAlways );
+58             inchi_strbuf_reset( strbuf ); pr->tot_len = 0;
+77             pr->tot_len = str_AuxInvIsoSp3( pr->pINChISort, pr->pINChISort2, 
+64                                         strbuf, &pr->bOverflow, 
+88                                         pr->bOutType, pr->TAUT_MODE, pr->num_components,
+106                                         pr->bSecondNonTautPass, pr->bOmitRepetitions, pr->bUseMulipliers);
+92             if ( str_LineEnd( pr->szTag3, &pr->bOverflow, strbuf, -1, pr->bPlainTextTags ) )
+25                 return 1;
+60             inchi_ios_print( out_file, "%s", strbuf->pStr );
+62             /*-- inverted isotopic sp3  canonical numbering */
+68             if ( pr->bInvIsotopicStereoOrigNumb[pr->iCurTautMode] ) 
+13             {
+105                 szGetTag( AuxLbl, pr->nTag,  pr->bTag3 = pr->bTag2 | AL_SP3N, pr->szTag3, &pr->bAlways );
+62                 inchi_strbuf_reset( strbuf ); pr->tot_len = 0;
+90                 pr->tot_len = str_AuxInvIsoSp3Numb( pCG, pr->pINChISort, pr->pINChISort2, 
+72                                                 strbuf, &pr->bOverflow, 
+77                                                 pr->bOutType, pr->TAUT_MODE, 
+67                                                 pr->num_components,
+72                                                 pr->bSecondNonTautPass, 
+70                                                 pr->bOmitRepetitions);
+0 
+96                 if ( str_LineEnd( pr->szTag3, &pr->bOverflow, strbuf, -1, pr->bPlainTextTags ) )
+29                     return 1;
+71                 inchi_ios_print( out_file, "%s%s", strbuf->pStr, pLF );
+16             }   
+16             else
+13             {
+47                 if ( pr->bPlainTextTags == 1 ) 
+53                     inchi_ios_print( out_file, "/" );
+13             }
+10         } 
+12         else
+9         {
+43             if ( pr->bPlainTextTags == 1 ) 
+50                 inchi_ios_print( out_file, "//" );
+9         }
+65         /*-- totally omitted undefined/unknown isotopic stereo */
+29     } /* Aux info isotopic */
+0 
+9 return 0;
+1 }
+0 
+0 
+3 /* 
+20     Output AuxInfo: 
+44         charges, radicals, unusual valences 
+2 */
+74 int Output_AUXINFO_charges_radicals_unusual_valences( CANON_GLOBALS *pCG, 
+80                                                       INCHI_IOSTREAM *out_file, 
+84                                                       INCHI_IOSTREAM_STRING *strbuf,
+77                                                       print_INCHI_local *pr, 
+77                                                       char *pLF, char *pTAB )
+1 {
+75     if ( !pr->bSecondNonTautPass && pr->bChargesRadVal[pr->iCurTautMode] ) 
+5     {
+28         /*  aux equ atoms */
+91         /* 1. Compare to tautomeric equivalence (in case of second, non-taut, pass only) */
+84         /* 2. Compare to the previous component if (1) failed to find equivalence */
+98         szGetTag( AuxLbl, pr->nTag,  pr->bTag1 = AL_CRV_ | pr->bFhTag, pr->szTag1, &pr->bAlways );
+0 
+54         inchi_strbuf_reset( strbuf ); pr->tot_len = 0;
+2   
+67         pr->tot_len = str_AuxChargeRadVal( pr->pINChISort, strbuf, 
+87                                            &pr->bOverflow, pr->bOutType, pr->TAUT_MODE,
+83                                            pr->num_components, pr->bUseMulipliers);
+0 
+88         if ( str_LineEnd( pr->szTag1, &pr->bOverflow, strbuf, -1, pr->bPlainTextTags ) )
+21             return 1;
+0 
+63         inchi_ios_print( out_file, "%s%s", strbuf->pStr, pLF );
+5     }
+0 
+13     return 0;
+1 }
+0 
+0 
+3 /* 
+20     Output AuxInfo: 
+57         reversibility info (to restore orig. structure)  
+2 */
+58 int Output_AUXINFO_reversibility_info( CANON_GLOBALS *pCG,
+65                                        INCHI_IOSTREAM *out_file, 
+69                                        INCHI_IOSTREAM_STRING *strbuf,
+64                                        ORIG_STRUCT *pOrigStruct,
+62                                        print_INCHI_local *pr, 
+62                                        char *pLF, char *pTAB )
+1 {
+36     if ( !pr->bSecondNonTautPass && 
+49          pOrigStruct && pOrigStruct->num_atoms &&
+30          pOrigStruct->szAtoms 
+33          && pOrigStruct->szBonds 
+35          && pOrigStruct->szCoord ) 
+5     {
+61         int length, cur_pos, line_len, last_pos, nMaxLineLen;
+16         char *p;
+108         nMaxLineLen = inchi_min( 80, strbuf->nAllocatedLength ); /* restrict line length to 80 characters */
+8         
+98         szGetTag( AuxLbl, pr->nTag,  pr->bTag1 = AL_REVR | pr->bFhTag, pr->szTag1, &pr->bAlways );
+8         
+23         /* Atoms /A: */
+97         szGetTag( AuxLbl, pr->nTag,  pr->bTag2 = pr->bTag1 | AL_ATMR, pr->szTag2, &pr->bAlways );
+38         inchi_strbuf_reset( strbuf ); 
+70         inchi_ios_print( out_file, "%s%s", pr->szTag2, strbuf->pStr );
+33         p = pOrigStruct->szAtoms;
+35         length = (int) strlen( p );
+42         pr->tot_len = strbuf->nUsedLength;
+45         line_len = nMaxLineLen - pr->tot_len;
+66         for ( cur_pos = 0; cur_pos < length; cur_pos = last_pos ) 
+9         {
+48             if ( length - cur_pos >= line_len ) 
+13             {
+46                 last_pos = cur_pos + line_len;
+90                 /* search backward for the nearest first atom letter (always uppercase) */
+79                 while ( cur_pos < last_pos && !isupper( UCINT p[last_pos] ) ) {
+32                     last_pos --;
+17                 }
+14             } 
+17             else 
+13             {
+34                 last_pos = length;
+13             }
+38             if ( last_pos > cur_pos ) 
+13             {
+92                 memcpy( strbuf->pStr + strbuf->nUsedLength, p+cur_pos, last_pos - cur_pos );
+78                 strbuf->pStr[strbuf->nUsedLength + last_pos - cur_pos] = '\0';
+83                 /*strbuf->nUsedLength = strbuf->nUsedLength + last_pos - cur_pos;*/
+97                 inchi_ios_print( out_file, "%s%s", strbuf->pStr, pr->bPlainTextTags? "" : "\n" );
+14             } 
+17             else 
+13             {
+22                 break;
+13             }
+9         }
+22         if ( pLF[0] ) 
+51             inchi_ios_print( out_file, "%s", pLF );
+0 
+38         inchi_strbuf_reset( strbuf ); 
+0 
+23         /*	Bonds /B: */
+97         szGetTag( AuxLbl, pr->nTag,  pr->bTag2 = pr->bTag1 | AL_BNDR, pr->szTag2, &pr->bAlways );
+38         inchi_strbuf_reset( strbuf ); 
+70         inchi_ios_print( out_file, "%s%s", pr->szTag2, strbuf->pStr );
+8         
+33         p = pOrigStruct->szBonds;
+35         length = (int) strlen( p );
+45         line_len = nMaxLineLen - pr->tot_len;
+66         for ( cur_pos = 0; cur_pos < length; cur_pos = last_pos ) 
+9         {
+48             if ( length - cur_pos >= line_len ) 
+13             {
+50                 last_pos = cur_pos + line_len - 1;
+78                 /* search backward for the nearest first bond delimiter ";" */
+67                 while ( cur_pos < last_pos && p[last_pos] != ';' ) 
+17                 {
+32                     last_pos --;
+17                 }
+42                 if ( cur_pos < last_pos ) 
+17                 {
+73                     last_pos ++; /* include ';' at the end of the line */
+17                 }
+14             } 
+17             else 
+13             {
+34                 last_pos = length;
+13             }
+38             if ( last_pos > cur_pos ) 
+13             {
+70                 memcpy( strbuf->pStr, p+cur_pos, last_pos - cur_pos );
+56                 strbuf->pStr[last_pos - cur_pos] = '\0';
+57                 strbuf->nUsedLength = last_pos - cur_pos;
+97                 inchi_ios_print( out_file, "%s%s", strbuf->pStr, pr->bPlainTextTags? "" : "\n" );
+46                 inchi_strbuf_reset( strbuf ); 
+14             } 
+17             else 
+13             {
+22                 break;
+13             }
+9         }
+22         if ( pLF[0] ) 
+9         {
+51             inchi_ios_print( out_file, "%s", pLF );
+9         }
+0 
+29         /*	Coordinates /C:	*/
+97         szGetTag( AuxLbl, pr->nTag,  pr->bTag2 = pr->bTag1 | AL_XYZR, pr->szTag2, &pr->bAlways );
+38         inchi_strbuf_reset( strbuf ); 
+70         inchi_ios_print( out_file, "%s%s", pr->szTag2, strbuf->pStr );
+8         
+33         p = pOrigStruct->szCoord;
+35         length = (int) strlen( p );
+45         line_len = nMaxLineLen - pr->tot_len;
+66         for ( cur_pos = 0; cur_pos < length; cur_pos = last_pos ) 
+9         {
+48             if ( length - cur_pos >= line_len ) 
+13             {
+50                 last_pos = cur_pos + line_len - 1;
+80                 /* search backward for the nearest first coord. delimiter ";" */
+67                 while ( cur_pos < last_pos && p[last_pos] != ';' ) 
+17                 {
+32                     last_pos --;
+17                 }
+42                 if ( cur_pos < last_pos ) 
+17                 {
+73                     last_pos ++; /* include ';' at the end of the line */
+17                 }
+14             } 
+17             else 
+13             {
+34                 last_pos = length;
+13             }
+38             if ( last_pos > cur_pos ) 
+13             {
+70                 memcpy( strbuf->pStr, p+cur_pos, last_pos - cur_pos );
+56                 strbuf->pStr[last_pos - cur_pos] = '\0';
+57                 strbuf->nUsedLength = last_pos - cur_pos;
+97                 inchi_ios_print( out_file, "%s%s", strbuf->pStr, pr->bPlainTextTags? "" : "\n" );
+45                 inchi_strbuf_reset( strbuf );
+14             } 
+17             else 
+13             {
+22                 break;
+13             }
+9         }
+8         
+22         if ( pLF[0] ) 
+9         {
+51             inchi_ios_print( out_file, "%s", pLF );
+9         }
+5     }
+0 
+13     return 0;
+1 }
+0 
+0 
+2 /*
+47 	Compare two polymer units, lexicographic order
+2 */
+44 int iicomp(PolymerUnit* u1, PolymerUnit* u2)
+1 {
+6 int i;
+17 	int n1 = u1->na;
+17 	int n2 = u2->na;
+27 	int n = inchi_min(n1, n2);
+20 	for (i=0; i<n; i++)
+2 	{
+47 		if ( u1->alist[i] < u2->alist[i] )	return -1;
+46 		if ( u1->alist[i] > u2->alist[i] )	return 1;
+2 	}
+28 	if ( n1 < n2 )			return -1;
+27 	if ( n1 > n2 )			return 1;
+10 	return 0;
+1 }
+0 
+0 
+95 int Output_INCHI_AUXINFO_get_cano_nums_and_compnt_nums_in_orig_nums_order( CANON_GLOBALS *pCG, 
+46 															 INCHI_IOSTREAM_STRING *strbuf,
+38 															 print_INCHI_local *pr,
+31 															 int *cano_nums,
+34 															 int *compnt_nums )
+1 {
+48 int orig_num, cano_num, icompnt, k, ndigit, err;
+7 char c;
+13 char cnum[8];
+0 
+36 	if ( NULL == cano_nums )		return 1;
+38 	if ( NULL == compnt_nums )		return 1;
+39 	if ( NULL == strbuf->pStr )		return 1;
+0 
+49 	inchi_strbuf_reset( strbuf );	/* clear buffer */
+0 
+67 	pr->tot_len = str_AuxNumb(  pCG, pr->pINChISort, pr->pINChISort2, 
+56                                 strbuf, &pr->bOverflow, 
+80                                 pr->bOutType, pr->TAUT_MODE, pr->num_components,
+78                                 pr->bSecondNonTautPass, pr->bOmitRepetitions);
+0 
+19 	cano_nums[0] = -1;
+21 	compnt_nums[0] = -1;
+14 	cano_num = 0;
+14 	orig_num = 1;
+13 	icompnt = 0;
+12 	ndigit = 0;
+9 	err = 0;
+42 	for (k =0; k <= strbuf->nUsedLength; k++)
+2 	{
+22 		c = strbuf->pStr[k];
+37 		if ( c==','  || c==';' || c=='\0' )
+3 		{
+23 			cnum[ndigit] = '\0';
+25 			orig_num = atoi(cnum);
+34 			cano_nums[orig_num]	=	cano_num;
+35 			compnt_nums[orig_num]	= icompnt;
+18 			cnum[0] = '\0';
+14 			ndigit = 0;
+14 			cano_num++;
+27 			if ( c==';' )	icompnt++;
+24 			if ( c=='\0' )	break;
+12 			continue;
+3 		}
+24 		else if ( isdigit(c) )
+3 		{
+30 			cnum[ndigit] = c; ndigit++;
+3 		}
+6 		else
+3 		{
+23 			err = 2; goto exitf;
+3 		}
+2 	}
+0 
+6 exitf:
+49 	inchi_strbuf_reset( strbuf );	/* clear buffer */
+0 
+12 	return err;
+1 }
+0 
+0 
+2 /*
+0 
+2 */
+66 int *is_in_the_ilist( int *pathAtom, int nNextAtom, int nPathLen )
+1 {
+73     for ( ; nPathLen && *pathAtom != nNextAtom; nPathLen--,  pathAtom++ )
+9         ;
+37     return nPathLen? pathAtom : NULL;
+1 }
+0 

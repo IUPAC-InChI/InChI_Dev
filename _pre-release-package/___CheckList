@@ -1,0 +1,58 @@
+
+(ftp RSC)          All are in place:
+[X]                              INCHI-1-BIN.zip
+[X]                              INCHI-1-DOC.zip
+[X]                              INCHI-1-SRC.zip
+[X]                              INCHI-1-TEST.zip
+[X]                              External-contributors.pdf
+[X]                              LICENCE.pdf
+[X]                               readme.txt
+
+Lin     Win
+                              Pdf and txt of package are readable 
+[ ]      [X]                    External-contributors.pdf
+[ ]      [X]                    LICENCE.pdf
+[ ]      [X]                    readme.txt
+
+                              Archives unpacked OK
+[ ]      [X]                            
+
+                              All readme's in all sub-dirs are in place and readable
+[ ]      [X]                           
+
+
+                              All docs in INCHI-1-DOC are in place and readable
+[ ]      [X]                           
+
+                              All files in INCHI-1-TEST are in place
+[ ]      [X]                           
+
+                              Binaries launched OK
+[ ]      [X]               winchi-1
+[ ]      [X]               inchi-1 32 bit
+[ ]      [X]               inchi-1 64 bit
+
+
+                              Binaries run test InChI_TestSet.sdf OK
+[ ]      [X]               std-01           inchi-1 32 bit
+[ ]      [X]               non-std-16     inchi-1 32 bit
+[ ]      [X]               std-05           inchi-1 64 bit
+[ ]      [X]               non-std-28     inchi-164 bit
+
+
+*** removed extra winchi-1 from INCHI-1-BIN\windows\64bit
+*** replaced INCHI-1-BIN.zip on ftp RSC
+*** re-downloaded INCHI-1-BIN.zip
+
+                              Builds OK and launches
+[ ]      [X]               inchi-1 32 bit Debug
+[ ]      [X]               inchi_main/libinchi 32 bit Debug
+[ ]      [X]               mol2inchi/libinchi 64 bit Debug
+[ ]      [X]               test_ixa/libinchi 64 bit Debug
+
+                              Python sample - test OK with built libinchi
+[ ]      [X]               libinchi 64 bit
+
+                              Other tests
+[ ]      [X]               mol2inchi.exe pex.sdf /Polymers
+[ ]      [X]               test_ixa.exe pex.sdf pex-test_ixa.out /RTrip

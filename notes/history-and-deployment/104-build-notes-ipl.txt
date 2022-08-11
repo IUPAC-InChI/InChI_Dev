@@ -1,0 +1,45 @@
+_PACKAGE PRE_RELEASE
+
+announce.txt    !READY!
+
+INCHI-1-BIN     //!READY!
+
+INCHI-1-API 
+
+INCHI-1-DOC 
+
+INCHI-1-TEST    !READY! 
+
+
++ Compile winchi-1!
+
++ Check w. DependencyWalher BIN folder members AND YES, DLL'S WERE WITH MTD NOT MT! RE-BUILDIN...
+
++ Test Py w so under lin32!
+
+! Test inchi_main w so under lin32!
+
+- Check PCSubs and write smthd in RelnoteZ on Rg!
+
++Run some inci2i tests.
++   even in AMI mod.
+
++ Run some inchi2s tests.
+
++ DOCS on E 105-112 (TECHMan)
+
++ Docs on allenes
+
+==========================================================================
+
+* Python 2.7.2 64 bit (Win7) does not eat 32 bit libinchi.dll.
+Seem it is a hell from MS:
+http://stackoverflow.com/questions/2265023/load-32bit-dll-library-in-64bit-application
+
+So I forced to build 64 bit dll also...
+
+* 64 bit  compilE:
+ichilnct.obj : warning LNK4197: export 'Get_std_inchi_Input_FromAuxInfo' specified multiple times; using first specification
+and alike . TODO: fix this (they are firdt icluded from inchi_api.h.....)
+
+

@@ -1,0 +1,177 @@
+	/* check if MOLfile contains atoms */    
+    if ( !mol_data || !mol_data->ctab.MolAtom ||
+         0 < mol_data->ctab.nNumberOfBonds && !mol_data->ctab.MolBond ||
+         0 >= (*num_atoms = mol_data->ctab.nNumberOfAtoms) ) 
+    {
+        /* MOLFILE_ERR_SET (*err, 0, "Empty structure"); */
+        goto exit_function; /*  no structure */
+    }
+
+
+
+
+
+/* check if MOLfile contains atoms */
+
+	if ( !mol_data || !mol_data->ctab.MolAtom ||
+         0 < mol_data->ctab.nNumberOfBonds && !mol_data->ctab.MolBond ||
+         0 >= (num_atoms = mol_data->ctab.nNumberOfAtoms) ) 
+	{
+        goto exit_function; /*  no structure */
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+LINE70
+mode_h                
+#if defined(TARGET_EXE_STANDALONE)
+#define TARGET_ID_STRING ", Software version 1.05 Build of June 01, 2013"
+#elif defined(TARGET_API_LIB)
+#define TARGET_ID_STRING ", Software version 1.05 (API Library) Build of June 01, 2013"
+#elif defined(TARGET_EXE_USING_API)
+#ifndef TARGET_ID_STRING
+#define TARGET_ID_STRING ", Software version 1.05 (executable calling API Library) Build of June 01, 2013"
+#endif
+#elif defined(TARGET_LIB_FOR_WINCHI)
+#define TARGET_ID_STRING ", Software version 1.05 (wInChI GUI executable) Build of June 01, 2013"
+#else
+	#error  No build target #defined, pls check compiler options... (TARGET_EXE_STANDALONE|TARGET_API_LIB|TARGET_EXE_USING_API|TARGET_LIB_FOR_WINCHI)
+#endif
+
+e_mode.h
+/* Unconditionally ... */
+#ifndef TARGET_EXE_USING_API
+#define TARGET_EXE_USING_API = 1
+#endif
+
+
+LINE115, mode_h                
+#define BUILD_WITH_AMI 1
+LINE103, e_mode_h      
+/* #define BUILD_WITH_AMI 1 */
+
+
+LINE169, mode_h                
+/* #define COMPILE_ANSI_ONLY */
+LINE157, e_mode_h      
+define COMPILE_ANSI_ONLY
+
+
+LINE 188, e_mode.h - ABSENT in mode.h
+/* Comment out the  next line to use old (classic) library interface */
+/*#define CREATE_INCHI_STEP_BY_STEP 1*/
+#ifdef CREATE_INCHI_STEP_BY_STEP
+/* Uncomment next line to output intermediate (normalization) results */
+/*#define OUTPUT_NORMALIZATION_DATA 1*/
+#endif
+/* Uncomment next line to go with STDINCHI API calls */
+/* #define USE_STDINCHI_API 1*/
+
+#ifndef CREATE_INCHI_STEP_BY_STEP
+#define TARGET_ID_STRING ", Software version 1.05 (Library call example; classic interface) Build of June 01, 2013"
+#else
+#define TARGET_ID_STRING ", Software version 1.05 (Library call example; modularized interface) Build of June 01, 2013"
+#endif
+
+
+LINE 336, mode.h - ABSENT in e_mode.h
+#define FIX_AROM_RADICAL              1 /* (2011-05-09) 1=> Fix bug which leads for different InChI */
+                                        /* on atomic permitations for systems containing radical at */
+                                        /* atom in aromatic ring */
+                                        
+                                        
+!! THAT'S IT!!
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ * or email to: ulrich@inchi-trust.org.
+ * 
+ */
+
+
+
+#ifndef _ICHIPARM_H_
+#define _ICHIPARM_H_
+
+
+
+
+
+
+#endif    /* _ICHIPARM_H_ */
+
+
+
+
+
+
+#include <stdio.h>

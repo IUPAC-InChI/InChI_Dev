@@ -1,0 +1,35 @@
+graph LR
+
+    C(OutputINChI1) --> C1>Analyze layers, make adjustments and fixes, etc.]
+
+    C --> D>"make InChI string"]
+        D --> OutputINCHI_VersionAndKind
+        D --> OutputINCHI_MainLayerFormula
+        OutputINCHI_MainLayerFormula --> str_HillFormula
+        D --> OutputINCHI_MainLayerConnections
+        D --> OutputINCHI_MainLayerHydrogens
+        D --> OutputINCHI_ChargeAndRemovedAddedProtonsLayers
+        D --> id11(OutputINCHI_PolymerLayer)
+        D --> OutputINCHI_StereoLayer
+        D --> OutputINCHI_IsotopicLayer
+        D --> OutputINCHI_FixedHLayerWithSublayers
+        D --> C2("OutputINChI1 (InChI for reconnected structure)")
+        D --> GetSaveOptLetters
+
+
+    C --> E>make the AuxInfo string]
+        E --> OutputAUXINFO_HeaderAndNormalization_type
+        E --> OutputAUXINFO_OriginalNumbersAndEquivalenceClasses
+        E --> OutputAUXINFO_TautomericGroupsEquivalence
+        E --> OutputAUXINFO_Stereo
+        E --> OutputAUXINFO_IsotopicInfo
+        E --> OutputAUXINFO_ChargesRadicalsAndUnusualValences
+        E --> OutputAUXINFO_ReversibilityInfo
+        E --> OutputAUXINFO_PolymerInfo
+        E --> id1("OutputINChI1 (AuxInfo for reconnected structure)")
+
+
+
+    style C fill:#f9f,stroke:#333,stroke-width:4px
+    style C2 fill:#f9f,stroke:#333,stroke-width:4px
+    style id11 fill:#ECB11E,stroke:#333,stroke-width:4px

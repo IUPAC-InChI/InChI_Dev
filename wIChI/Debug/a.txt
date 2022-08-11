@@ -1,0 +1,21 @@
+<IChI version="0.94Beta">
+
+ <structure number="1" id.name="" id.value="">
+
+  <identifier version="0.94Beta" tautomeric="0">
+   <formula>C38H36Ni6</formula>
+   <connectivity>1-2-4-6-5-3(1)39(1,2,4,5,6)37(40-7-8(40)10(40)12(40)11(40)9(7)40,41-13-14(41)16(41)18(41)17(41)15(13)41)38(42-19-20(42)22(42)24(42)23(42)21(19)42,43-25-26(43)28(43)30(43)29(43)27(25)43)44-31-32(44)34(44)36(44)35(44)33(31)44</connectivity>
+   <H-atoms>1-36H</H-atoms>
+   <charge></charge>
+   <stereo>
+    <sp3>1-,2+,3-,4+,5-,6+,7-,8+,9-,10+,11-,12+,13-,14+,15-,16+,17-,18+,19-,20+,21-,22+,23-,24+,25-,26+,27-,28+,29-,30+,31-,32+,33-,34+,35-,36+</sp3>
+   </stereo>
+  </identifier>
+
+  <identifier.auxiliary-info version="0.94Beta" tautomeric="0">
+   <!-- Auxiliary info is not a part of the identifier, it is not unique -->
+   <atom.orig-nbr>44,43,41,42,40,39,37,36,34,35,33,32,30,29,27,28,26,25,20,17,19,16,18,15,13,10,12,9,11,8,6,3,5,2,4,1,23,22,38,31,24,21,14,7</atom.orig-nbr>
+   <atom.equivalence>(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36)(37,38)(39,40,41,42,43,44)</atom.equivalence>
+  </identifier.auxiliary-info>
+ </structure>
+</IChI>

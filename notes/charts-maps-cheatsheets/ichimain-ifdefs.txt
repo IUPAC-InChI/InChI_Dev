@@ -1,0 +1,32 @@
+#ifndef INCHI_ANSI_ONLY
+#ifndef BUILD_LIB_FOR_WINCHI
+#ifdef BUILD_EXE_STANDALONE
+#if ( ADD_CMLPP == 1 )
+#ifdef INCHI_ANSI_ONLY
+#ifdef BUILD_LIB_FOR_WINCHI
+#if ( defined(_WIN32) && !defined(BUILD_LIB_FOR_WINCHI) )
+#endif	/* #if ( defined(_WIN32) && !defined(BUILD_LIB_FOR_WINCHI) ) */
+#ifndef BUILD_LIB_FOR_WINCHI
+#ifndef BUILD_LIB_FOR_WINCHI /* covers the code from here to the end of file */
+#if ( defined( _WIN32 ) && defined( _CONSOLE ) )
+#ifndef INCHI_ANSI_ONLY
+#ifdef _DEBUG            
+#if ( ADD_AMI_MODE == 1 )
+#if ( ADD_AMI_MODE == 1 )
+#if ( defined( _WIN32 ) && defined( _CONSOLE ) && !defined( INCHI_ANSI_ONLY ) )
+#endif /* #if ( ADD_AMI_MODE == 1 ) */
+#ifdef BUILD_EXE_STANDALONE
+#ifndef TEST_FPTRS
+#if ( defined(REPEAT_ALL) && REPEAT_ALL > 0 )
+#if ( TRACE_MEMORY_LEAKS == 1 )
+#ifdef MY_REPORT_FILE 
+#if ( defined(REPEAT_ALL) && REPEAT_ALL > 0 )
+#if ( defined( _WIN32 ) && defined( _CONSOLE ) && !defined( INCHI_ANSI_ONLY ) )
+#if ( READ_INCHI_STRING == 1 )
+#ifdef BUILD_EXE_STANDALONE
+#ifdef BUILD_EXE_STANDALONE
+#ifdef BUILD_EXE_STANDALONE
+#if ( ADD_CMLPP == 1 )
+#if ( defined(REPEAT_ALL) && REPEAT_ALL > 0 )
+#if ( bRELEASE_VERSION != 1 && defined(_DEBUG) )
+#if ( ( ADD_AMI_MODE==1 ) && defined( _WIN32 ) && defined( _CONSOLE ) && !defined( INCHI_ANSI_ONLY ) )

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="windows-1251"?>
+<VisualStudioProject
+	ProjectType="Intel C++ Project"
+	Version="12.0"
+	Name="inchi-1"
+	ProjectGUID="{B0BC672E-8468-43B1-B24C-2E087030E090}"
+	VCNestedProjectGUID="{61B178D7-60C1-4DB9-8FF5-D9BCB0C6E66B}"
+	VCNestedProjectFileName="inchi-1.vcproj"
+	>
+	<Configurations>
+		<Configuration
+			Name="Release|x64"
+			>
+			<Tool
+				Name="CppCmplrTool"
+				Optimization="1000"
+			/>
+		</Configuration>
+	</Configurations>
+	<Files/>
+</VisualStudioProject>

@@ -1,0 +1,80 @@
+/*  TODO: rewrite/refactor IXA_MOL_SetExtMolDataByInChIExtInput
+     according to IXA_MOL_Create/IXA_MOL_Set ExtendedMoldata    */
+
+
+
+
+int treat_zz,  treat_polymers,
+
+                                  ReadTheStructure( ... INPUT_PARMS           *ip ...)
+	...
+	if (ip->bLargeMolecules)
+        InpAtomFlags |= FLAG_SET_INP_LARGE_MOLS;
+    if (ip->bPolymers)
+        InpAtomFlags |= FLAG_SET_INP_POLYMERS;
+    if (ip->bUseZz)
+        InpAtomFlags |= FLAG_SET_INP_ZZ;
+
+	int CreateOrigInpDataFromMolfile( ... INCHI_MODE *pInpAtomFlags ...)
+		ReadMolfileToInpAtoms( ... INCHI_MODE *pInpAtomFlags ...)
+			...
+			int treat_polymers = *pInpAtomFlags & FLAG_SET_INP_POLYMERS;
+	    	int treat_zz = *pInpAtomFlags & FLAG_SET_INP_ZZ;
+				ReadMolfile( ... int treat_polymers, int treat_zz, ...)
+
+
+
+    if (ip->bPolymers)
+    {
+        treat_polymers = 1;
+    }
+    if (ip->bUseZz)
+    {
+        treat_zz = 1;
+    }
+
+
+
+
+    if (ip->bPolymers)
+    {
+        treat_polymers = 1;
+    }
+    if (ip->bUseZz)
+    {
+        treat_zz = 1;
+    }
+
+
+
+/* Element symbol '*' ===> 'Zz'; returns total num of explicit and just-created Zz atoms */
+MolfileReplaceStarAtoms( MOL_FMT_CTAB* ctab )
+
+
+OrigAtData_WriteToSDfileAtomsBlock( )
+...
+if (!strcmp( elname, "Zz" ))
+        {
+            strcpy( elname, "*" );
+        }
+
+
+
+
+#if ( defined(BUILD_WITH_ENG_OPTIONS) || defined(TARGET_LIB_FOR_WINCHI) )
+
+
+#if (defined(BUILD_WITH_ENG_OPTIONS)
+
+
+
+developer_options
+
+
+
+#if ( USE_ZZ == ZZ_YES )
+  I:\Dropbox\work\INCHI\devel\INCHI-DEV\INCHI-1-SRC\INCHI_BASE\src\mode.h(1094):#define ZZ_NO 0
+  I:\Dropbox\work\INCHI\devel\INCHI-DEV\INCHI-1-SRC\INCHI_BASE\src\mode.h(1095):#define ZZ_YES 1
+  I:\Dropbox\work\INCHI\devel\INCHI-DEV\INCHI-1-SRC\INCHI_BASE\src\mode.h(1096):#define ZZ_105 -1
+
+IXA_INCHIBUILDER_SetOption_Timeout_Milliseconds

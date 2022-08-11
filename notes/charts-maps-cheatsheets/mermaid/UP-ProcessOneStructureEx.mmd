@@ -1,0 +1,46 @@
+graph LR
+	INCHI  --> inchi-1
+	INCHI  --> mol2inchi
+	INCHI  --> IXA_API
+
+	inchi-1 --> ProcessSingleInputFile
+	ProcessSingleInputFile --> ReadCommandLineParms
+	ProcessSingleInputFile --> ReadWriteInChI
+	ProcessSingleInputFile --> CalcAndPrintINCHIAndINCHIKEY
+	ProcessSingleInputFile --> GetTheNextRecordOfInputFile
+	CalcAndPrintINCHIAndINCHIKEY --> id1(ProcessOneStructureEx)
+	CalcAndPrintINCHIAndINCHIKEY --> extract_inchi_substring
+	CalcAndPrintINCHIAndINCHIKEY --> GetINCHIKeyFromINCHI
+
+    IXA_API --> IXA_INCHIBUILDER_GetInChI
+    IXA_INCHIBUILDER_GetInChI --> BUILDER_Unpack
+    IXA_INCHIBUILDER_GetInChI --> BUILDER_Update
+    IXA_INCHIBUILDER_GetInChIEx --> BUILDER_Unpack
+    IXA_INCHIBUILDER_GetInChIEx --> BUILDER_Update
+    IXA_INCHIBUILDER_GetAuxInfo --> BUILDER_Unpack
+    IXA_INCHIBUILDER_GetAuxInfo --> BUILDER_Update
+    IXA_INCHIBUILDER_GetLog --> BUILDER_Unpack
+    IXA_INCHIBUILDER_GetLog --> BUILDER_Update
+    BUILDER_Update --> AppendOption
+    BUILDER_Update --> GetINCHIEx
+    GetINCHIEx --> GetINCHI1
+    GetINCHI1  --> parse_options_string 
+    GetINCHI1  --> id99(ReadCommandLineParms)
+    GetINCHI1  --> ExtractOneStructure
+    GetINCHI1  --> id2(ProcessOneStructureEx)
+    GetINCHI1  --> FreeAllINChIArrays
+    GetINCHI1  --> FreeOrigAtData
+    GetINCHI1  --> produce_generation_output    
+    BUILDER_Update --> FreeINCHI
+
+
+    mol2inchi --> MakeINCHIFromMolfileText
+    MakeINCHIFromMolfileText --> PrepareToMakeINCHI
+    MakeINCHIFromMolfileText --> GetOneStructure
+    MakeINCHIFromMolfileText --> id3(ProcessOneStructureEx)
+    MakeINCHIFromMolfileText --> id4(produce_generation_output )
+    MakeINCHIFromMolfileText --> PostMakeINCHICleanup   
+
+    style id1 fill:#f9f,stroke:#333,stroke-width:4px
+    style id2 fill:#f9f,stroke:#333,stroke-width:4px
+    style id3 fill:#f9f,stroke:#333,stroke-width:4px

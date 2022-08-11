@@ -1,0 +1,22 @@
+compiler
+
+stdinchi-release
+
+
+uinchi-cmlpp
+
+
+
+stdinchi-1
+/Od /I "../common" /I "../main" /I "../cmlpp" /I "../ICHI_LIB" /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "ADD_CMLPP=1" /D "_VC6" /D "INCHI_ALL_CPP" /D "DO_NOT_TRACE_MEMORY_LEAKS" /D "_MBCS" /Gm /EHsc /RTC1 /MTd /GR- /Fo"Debug\\" /Fd"Debug\vc80.pdb" /FR"Debug\\" /W3 /nologo /c /ZI /TP /errorReport:prompt
+
+uinchi-1
+/Od /I "../common" /I "../main" /I "../cmlpp" /I "../ICHI_LIB" /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "ADD_CMLPP=1" /D "_VC6" /D "INCHI_ALL_CPP" /D "DO_NOT_TRACE_MEMORY_LEAKS" /D "_MBCS" /Gm /EHsc /RTC1 /MTd /GR- /Fo"Debug\\" /Fd"Debug\vc80.pdb" /FR"Debug\\" /W3 /nologo /c /ZI /TP /errorReport:prompt
+
+linker:
+
+stdinchi
+/OUT:"N:\INCHI.2009\src\102s\STDINCHI-1-API\STDINCHI\vc8_cml_project\Debug\stdinchi-1.exe" /INCREMENTAL /NOLOGO /MANIFEST /MANIFESTFILE:"Debug\stdinchi-1.exe.intermediate.manifest" /DEBUG /PDB:"n:\INCHI.2009\src\102s\STDINCHI-1-API\STDINCHI\vc8_cml_project\Debug\stdinchi-1.pdb" /SUBSYSTEM:CONSOLE /MACHINE:X86 /ERRORREPORT:PROMPT kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib ".\debug\cmlpp.lib"
+
+uinchi-1
+/OUT:"N:\INCHI.2009\src\102m\INCHI-1-API\INCHI\vc8_cml_project\Debug\uinchi-1.exe" /INCREMENTAL /NOLOGO /MANIFEST /MANIFESTFILE:"Debug\uinchi-1.exe.intermediate.manifest" /DEBUG /PDB:"n:\INCHI.2009\src\102m\INCHI-1-API\INCHI\vc8_cml_project\debug\uinchi-1.pdb" /SUBSYSTEM:CONSOLE /MACHINE:X86 /ERRORREPORT:PROMPT kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib ".\debug\cmlpp.lib"

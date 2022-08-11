@@ -1,0 +1,4 @@
+hg status "glob:**.obj"
+hg status -A "glob:**.*" |more
+
+WinRAR x -tsa -tsc *.rar

@@ -1,0 +1,1 @@
+diff -s C:\_ipl\_NIST\INCHI.2009\src\102s\STDINCHI-1-API\STDINCHI\common\ C:\_ipl\_NIST\INCHI.2009\src\ref_implementation.102s.release.01122009\sent2NIST.Jan2009\_rel4_to_send\STDINCHI-1-API\STDINCHI\common\ >diff2release.txt

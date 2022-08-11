@@ -1,0 +1,33 @@
+* Input_File: "N:\INCHI.103\src\wIChI\InChI_TestSet.sdf"
+message: type="warning" value="Charges were rearranged; Proton(s) added/removed"
+
+Structure: 258
+InChI=1S/C2H7O2P.C2H6OSeTe.C2H6S2Se/c1-5(2,3)4;2*1-4(2,3)5/h1-2H3,(H,3,4);2*1-2H3/p-1
+
+AuxInfo=1/1/N:14,15,12,13,11;4,5,3,1,2;9,10,8,6,7/E:(1,2)(3,4);2*(1,2)/CRV:;2*4.6/rA:15nSe+2Te-O-CCS+2Se-S-CCP+O-O-CC/rB:s1;s1;s1;s1;;s6;s6;s6;s6;;s11;s11;s11;s11;/rC:-1.8792,-.4667,0;-1.0542,-.4667,0;-2.7042,-.4667,0;-1.8833,.3583,0;-1.8833,-1.2917,0;1.7417,-.4042,0;2.5667,-.4042,0;.9167,-.4042,0;1.7375,.4208,0;1.7375,-1.2292,0;5.0792,-.4042,0;5.9042,-.4042,0;4.2542,-.4042,0;5.075,.4208,0;5.075,-1.2292,0;
+
+InChIKey=ZISRQYZYVVVXSC-UHFFFAOYSA-M
+XHash1=7e9acb63f8ee0d99401542c08922052f4f17c8e37c141ab7
+XHash2=80fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+
+==== InChI ANNOTATED CONTENTS ====
+
+Structure: 258
+
+InChI=
+{version}1S
+/{formula}C2H7O2P.C2H6OSeTe.C2H6S2Se
+/c{connections}1-5(2,3)4;2*1-4(2,3)5
+/h{H_atoms}1-2H3,(H,3,4);2*1-2H3
+/p{protons}-1
+
+AuxInfo=
+{version}1
+/{normalization_type}1
+/N:{original_atom_numbers}14,15,12,13,11;4,5,3,1,2;9,10,8,6,7
+/E:{atom_equivalence}(1,2)(3,4);2*(1,2)
+/CRV:{charge_radical_valence};2*4.6
+/rA:{reversibility:atoms}15nSe+2Te-O-CCS+2Se-S-CCP+O-O-CC
+/rB:{reversibility:bonds}s1;s1;s1;s1;;s6;s6;s6;s6;;s11;s11;s11;s11;
+/rC:{reversibility:xyz}-1.8792,-.4667,0;-1.0542,-.4667,0;-2.7042,-.4667,0;-1.8833,.3583,0;-1.8833,-1.2917,0;1.7417,-.4042,0;2.5667,-.4042,0;.9167,-.4042,0;1.7375,.4208,0;1.7375,-1.2292,0;5.0792,-.4042,0;5.9042,-.4042,0;4.2542,-.4042,0;5.075,.4208,0;5.075,-1.2292,0;
+

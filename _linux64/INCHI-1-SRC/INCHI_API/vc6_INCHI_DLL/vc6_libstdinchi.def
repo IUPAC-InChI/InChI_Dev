@@ -1,0 +1,34 @@
+LIBRARY  libstdinchi
+EXPORTS
+;    Exported name (cdecl)              Internal name                ordinal
+     FreeStdINCHI                     = cdecl_FreeStdINCHI                @1
+     Free_std_inchi_Input             = cdecl_Free_std_inchi_Input        @2        
+     GetStdINCHI                      = cdecl_GetStdINCHI                 @3
+     GetStringLength                  = cdecl_GetStringLength             @4       
+     Get_std_inchi_Input_FromAuxInfo  = cdecl_Get_std_inchi_Input_FromAuxInfo @5
+     GetStructFromStdINCHI            = cdecl_GetStructFromStdINCHI       @6
+     FreeStructFromStdINCHI           = cdecl_FreeStructFromStdINCHI      @7
+     GetStdINCHIKeyFromStdINCHI       = cdecl_GetStdINCHIKeyFromStdINCHI  @10
+     STDINCHIGEN_Create               = cdecl_STDINCHIGEN_Create          @11
+     STDINCHIGEN_Setup                = cdecl_STDINCHIGEN_Setup           @12
+     STDINCHIGEN_DoNormalization      = cdecl_STDINCHIGEN_DoNormalization @13
+     STDINCHIGEN_DoCanonicalization   = cdecl_STDINCHIGEN_DoCanonicalization @14
+     STDINCHIGEN_DoSerialization      = cdecl_STDINCHIGEN_DoSerialization @15
+     STDINCHIGEN_Reset                = cdecl_STDINCHIGEN_Reset           @16
+     STDINCHIGEN_Destroy              = cdecl_STDINCHIGEN_Destroy         @17
+;    dll_exported names(stdcall)
+;   _FreeStdINCHI@4                   = _FreeStdINCHI@4                   @8
+;   _FreeStructFromStdINCHI@4         = _FreeStructFromStdINCHI@4         @9
+;   _Free_std_inchi_Input@4           = _Free_std_inchi_Input@4           @18
+;   _GetStdINCHIKeyFromStdINCHI@8     = _GetStdINCHIKeyFromStdINCHI@8     @19
+;   _GetSTdINCHI@8                    = _GetStdINCHI@8                    @20
+;   _GetStringLength@4                = _GetStringLength@4                @21
+;   _GetStructFromStdINCHI@8          = _GetStructFromStdINCHI@8          @22
+;   _Get_std_inchi_Input_FromAuxInfo@12    = _Get_std_inchi_Input_FromAuxInfo@12   @23
+;   _STDINCHIGEN_Create@0             = _STDINCHIGEN_Create@0             @24
+;   _STDINCHIGEN_Destroy@4            = _STDINCHIGEN_Destroy@4            @25
+;   _STDINCHIGEN_DoCanonicalization@8 = _STDINCHIGEN_DoCanonicalization@8 @26
+;   _STDINCHIGEN_DoNormalization@8    = _STDINCHIGEN_DoNormalization@8    @27
+;   _STDINCHIGEN_DoSerialization@12   = _STDINCHIGEN_DoSerialization@12   @28
+;   _STDINCHIGEN_Reset@12             = _STDINCHIGEN_Reset@12             @29
+;   _STDINCHIGEN_Setup@12             = _STDINCHIGEN_Setup@12             @30

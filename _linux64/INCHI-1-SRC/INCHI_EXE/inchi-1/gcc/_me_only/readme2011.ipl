@@ -1,0 +1,33 @@
+Steps to force MinGW gcc. 4.5.2 to work under Windows 7 (I use 64 bit one):
+
+1) as per note at http://www.freedroid.org/pmwiki/pmwiki.php/Main/BuildingInWindows:
+
+if an error window opens complaining about libgmp-10.dll missing, 
+- YES, I GOT THIS -
+then you used a
+bugged version of the MinGW installer (some DLLs are not correctly installed). To fix the
+problem, just type the following commands:
+cp /mingw/bin/libgmp-10.dll /mingw/libexec/gcc/mingw32/4.5.2
+cp /mingw/bin/libmpc-2.dll /mingw/libexec/gcc/mingw32/4.5.2
+cp /mingw/bin/libmpfr-1.dll /mingw/libexec/gcc/mingw32/4.5.2
+cp /mingw/bin/libiconv-2.dll /mingw/mingw32/bin
+cp /mingw/bin/libintl-8.dll /mingw/mingw32/bin
+
+2) still did not work up to I
+	2a) set cc1 in C:\MinGW\libexec\gcc\mingw32\4.5.2\ as
+	'Run as admin'
+	2b) added C:\MinGW\libexec\gcc\mingw32\4.5.2\ to PATH envvar.
+
+Now then 'mingw32-make.exe' ran in gcc/inchi-1 works...
+Then I got an inchi-1 but..
+I get the error libgcc_s_dw2-1.dll missing, when i run the app. 
+
+3) as per http://www.sfml-dev.org/forum/viewtopic.php?p=18484&sid=05991854ad5c049d0fe2dcf122470920
+the hint is: 
+ use the -static-libgcc linker option
+
+Now it (hopefully) works..
+NOTE: DependencyWalker shows depend. on;
+kernel32.dll
+msvcrt.dll
+which seems Ok..

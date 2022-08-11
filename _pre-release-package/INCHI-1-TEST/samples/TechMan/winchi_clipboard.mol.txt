@@ -1,0 +1,32 @@
+* Input_File: "N:\INCHI.103\src\INCHI-1-TEST\samples\TechMan\winchi_clipboard.mol"
+Structure: 1
+InChI=1S/C3H10N2/c1-3(4)5-2/h3,5H,4H2,1-2H3/t3-/m0/s1
+
+AuxInfo=1/0/N:4,6,2,3,1/it:im/rA:6cNCNCHC/rB:s1;s2;P2;s1;s1;/rC:19.6404,-8.976,0;20.9704,-8.976,0;21.6354,-10.1278,0;21.6354,-7.8242,0;18.9754,-7.8242,0;18.9754,-10.1278,0;
+
+InChIKey=QDCRWFJHSOQHLQ-VKHMYHEASA-N
+XHash1=4c74322ceea1b37220b073777405fb3854bfbd397f2f9787
+XHash2=a091debd13e6a73008f9b26161b9da9a435d11cd82a81e4b38fb9dfb
+
+==== InChI ANNOTATED CONTENTS ====
+
+Structure: 1
+
+InChI=
+{version}1S
+/{formula}C3H10N2
+/c{connections}1-3(4)5-2
+/h{H_atoms}3,5H,4H2,1-2H3
+/t{stereo:sp3}3-
+/m{stereo:sp3:inverted}0
+/s{stereo:type (1=abs, 2=rel, 3=rac)}1
+
+AuxInfo=
+{version}1
+/{normalization_type}0
+/N:{original_atom_numbers}4,6,2,3,1
+/it:{abs_stereo_inverted:sp3}im
+/rA:{reversibility:atoms}6cNCNCHC
+/rB:{reversibility:bonds}s1;s2;P2;s1;s1;
+/rC:{reversibility:xyz}19.6404,-8.976,0;20.9704,-8.976,0;21.6354,-10.1278,0;21.6354,-7.8242,0;18.9754,-7.8242,0;18.9754,-10.1278,0;
+

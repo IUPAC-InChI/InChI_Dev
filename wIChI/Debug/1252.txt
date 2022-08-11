@@ -1,0 +1,17 @@
+<IChI version="0.94Beta">
+
+ <structure number="1" id.name="" id.value="">
+
+  <identifier version="0.94Beta" tautomeric="0">
+   <formula>C6H6BrN</formula>
+   <connectivity>1-5-2-3-6(7)8-4-5</connectivity>
+   <H-atoms>1H3,2-4H</H-atoms>
+   <charge></charge>
+  </identifier>
+
+  <identifier.auxiliary-info version="0.94Beta" tautomeric="0">
+   <!-- Auxiliary info is not a part of the identifier, it is not unique -->
+   <atom.orig-nbr>8,4,3,6,5,2,7,1</atom.orig-nbr>
+  </identifier.auxiliary-info>
+ </structure>
+</IChI>

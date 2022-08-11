@@ -1,0 +1,98 @@
+<html>
+<body>
+<pre>
+<h1>Build Log</h1>
+<h3>
+--------------------Configuration: IChI_lib - Win32 Release--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "C:\Users\ipl\AppData\Local\Temp\RSP374F.tmp" with contents
+[
+/nologo /out:"Release\IChI_lib.lib" 
+"C:\tmp2\vs6\bin2\Release\dispstru.obj"
+"C:\tmp2\vs6\bin2\Release\ichi_bns.obj"
+"C:\tmp2\vs6\bin2\Release\ichi_io.obj"
+"C:\tmp2\vs6\bin2\Release\IChI_lib.obj"
+"C:\tmp2\vs6\bin2\Release\ichican2.obj"
+"C:\tmp2\vs6\bin2\Release\ichicano.obj"
+"C:\tmp2\vs6\bin2\Release\ichicans.obj"
+"C:\tmp2\vs6\bin2\Release\ichierr.obj"
+"C:\tmp2\vs6\bin2\Release\ichiisot.obj"
+"C:\tmp2\vs6\bin2\Release\ichimak2.obj"
+"C:\tmp2\vs6\bin2\Release\ichimake.obj"
+"C:\tmp2\vs6\bin2\Release\ichimap1.obj"
+"C:\tmp2\vs6\bin2\Release\ichimap2.obj"
+"C:\tmp2\vs6\bin2\Release\ichimap4.obj"
+"C:\tmp2\vs6\bin2\Release\ichinorm.obj"
+"C:\tmp2\vs6\bin2\Release\ichiparm.obj"
+"C:\tmp2\vs6\bin2\Release\ichiprt1.obj"
+"C:\tmp2\vs6\bin2\Release\ichiprt2.obj"
+"C:\tmp2\vs6\bin2\Release\ichiprt3.obj"
+"C:\tmp2\vs6\bin2\Release\ichiqueu.obj"
+"C:\tmp2\vs6\bin2\Release\ichiread.obj"
+"C:\tmp2\vs6\bin2\Release\ichiring.obj"
+"C:\tmp2\vs6\bin2\Release\ichirvr1.obj"
+"C:\tmp2\vs6\bin2\Release\ichirvr2.obj"
+"C:\tmp2\vs6\bin2\Release\ichirvr3.obj"
+"C:\tmp2\vs6\bin2\Release\ichirvr4.obj"
+"C:\tmp2\vs6\bin2\Release\ichirvr5.obj"
+"C:\tmp2\vs6\bin2\Release\ichirvr6.obj"
+"C:\tmp2\vs6\bin2\Release\ichirvr7.obj"
+"C:\tmp2\vs6\bin2\Release\ichisort.obj"
+"C:\tmp2\vs6\bin2\Release\ichister.obj"
+"C:\tmp2\vs6\bin2\Release\ichitaut.obj"
+"C:\tmp2\vs6\bin2\Release\ikey_base26.obj"
+"C:\tmp2\vs6\bin2\Release\ikey_dll.obj"
+"C:\tmp2\vs6\bin2\Release\inchi_gui.obj"
+"C:\tmp2\vs6\bin2\Release\mol2atom.obj"
+"C:\tmp2\vs6\bin2\Release\mol_fmt1.obj"
+"C:\tmp2\vs6\bin2\Release\mol_fmt2.obj"
+"C:\tmp2\vs6\bin2\Release\mol_fmt3.obj"
+"C:\tmp2\vs6\bin2\Release\mol_fmt4.obj"
+"C:\tmp2\vs6\bin2\Release\readinch.obj"
+"C:\tmp2\vs6\bin2\Release\runichi.obj"
+"C:\tmp2\vs6\bin2\Release\runichi2.obj"
+"C:\tmp2\vs6\bin2\Release\runichi3.obj"
+"C:\tmp2\vs6\bin2\Release\runichi4.obj"
+"C:\tmp2\vs6\bin2\Release\sha2.obj"
+"C:\tmp2\vs6\bin2\Release\strutil.obj"
+"C:\tmp2\vs6\bin2\Release\util.obj"
+"C:\tmp2\vs6\bin2\Release\cIChIres.res"
+]
+Creating command line "link.exe -lib @C:\Users\ipl\AppData\Local\Temp\RSP374F.tmp"
+<h3>Output Window</h3>
+Creating library...
+<h3>
+--------------------Configuration: wIChI - Win32 Release--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "C:\Users\ipl\AppData\Local\Temp\RSP381B.tmp" with contents
+[
+IChI_lib.lib /nologo /subsystem:windows /incremental:no /pdb:"C:/tmp2/vs6/bin2/Release/winchi-1.pdb" /machine:I386 /nodefaultlib:"LIBC" /out:"Release/winchi-1.exe" /libpath:"..\IChI_lib\Release" /libpath:"..\IChI_lib\cmlpp\Release" 
+"C:\tmp2\vs6\bin2\Release\DlgGoTo.obj"
+"C:\tmp2\vs6\bin2\Release\DlgIchiOption.obj"
+"C:\tmp2\vs6\bin2\Release\DlgOptions.obj"
+"C:\tmp2\vs6\bin2\Release\fthread.obj"
+"C:\tmp2\vs6\bin2\Release\ichiparm.obj"
+"C:\tmp2\vs6\bin2\Release\isis.obj"
+"C:\tmp2\vs6\bin2\Release\MainFrm.obj"
+"C:\tmp2\vs6\bin2\Release\StdAfx.obj"
+"C:\tmp2\vs6\bin2\Release\TextView.obj"
+"C:\tmp2\vs6\bin2\Release\wIChI.obj"
+"C:\tmp2\vs6\bin2\Release\wIChIDoc.obj"
+"C:\tmp2\vs6\bin2\Release\wIChIView.obj"
+"C:\tmp2\vs6\bin2\Release\wIChI.res"
+"\Dropbox\work\INCHI\devel\INCHI-DEV\IChI_lib\Release\IChI_lib.lib"
+]
+Creating command line "link.exe @C:\Users\ipl\AppData\Local\Temp\RSP381B.tmp"
+<h3>Output Window</h3>
+Linking...
+LINK : warning LNK4089: all references to "OLEAUT32.dll" discarded by /OPT:REF
+
+
+
+<h3>Results</h3>
+winchi-1.exe - 0 error(s), 1 warning(s)
+</pre>
+</body>
+</html>

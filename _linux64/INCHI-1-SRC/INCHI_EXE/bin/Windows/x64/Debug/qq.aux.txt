@@ -1,0 +1,4 @@
+* Input_File: "C:\_ipl\INCHI\devel\INCHI-DEV\INCHI-1-SRC\INCHI_EXE\bin\Windows\x64\Debug\qq.aux"
+Structure: 1
+InChI=1S/C12H26O16P2/c13-1-6(15)3-25-30(22,23)26-5-7(4-24-29(19,20)21)27-12-11(18)10(17)9(16)8(2-14)28-12/h6-18H,1-5H2,(H,22,23)(H2,19,20,21)/t6?,7?,8-,9-,10+,11-,12+/m1/s1
+AuxInfo=1/1/N:1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30/E:(19,20,21)(22,23)/it:im/rA:37CCCCCC.?C.?C.oC.oC.eC.oC.eOOOOOOOOOOOOOOOOPPHHHHHHH/rB:;;;;s1s3;s4s5;s2;s8;s9;s10;s11;s1;s2;s6;s9;s10;s11;;;;;;s4;s3;s5;s7s12;s8s12;s19s20d21s24;s22d23s25s26;s6;s7;s8;s9;s10;s11;s12;/rC:;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

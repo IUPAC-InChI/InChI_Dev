@@ -1,0 +1,36 @@
+<IChI version="0.9Beta">
+
+ <structure number="1" id.name="" id.value="">
+
+  <identifier version="0.9Beta" tautomeric="0">
+   <basic>OOO1*3C1CCCC1C1, 6-3 7-1-4 8-2-5 9-6 10-7-9 11-8-9-10</basic>
+   <charge></charge>
+   <stereo>
+    <dbond>9-6-</dbond>
+    <sp3>10- 11+</sp3>
+   </stereo>
+  </identifier>
+
+  <identifier.auxiliary-info version="0.9Beta" tautomeric="0">
+   <!-- Auxiliary info is not a part of the identifier, it is not unique -->
+   <atom.orig-nbr>10 8 5 11 7 4 9 6 2 3 1</atom.orig-nbr>
+   <atom.equivalence>(1 2)(4 5)(7 8)(10 11)</atom.equivalence>
+  </identifier.auxiliary-info>
+
+  <identifier version="0.9Beta" tautomeric="1">
+   <basic>O*4O1C1CCCC1C1, 6-5 7-1-2 8-3-4 9-6 10-7-9 11-8-9-10, (H 1 2)(H 3 4)</basic>
+   <charge></charge>
+   <stereo>
+    <dbond>9-6-</dbond>
+    <sp3>10- 11+</sp3>
+   </stereo>
+  </identifier>
+
+  <identifier.auxiliary-info version="0.9Beta" tautomeric="1">
+   <!-- Auxiliary info is not a part of the identifier, it is not unique -->
+   <atom.orig-nbr>10 11 7 8 5 4 9 6 2 3 1</atom.orig-nbr>
+   <atom.equivalence>(1 2 3 4)(7 8)(10 11)</atom.equivalence>
+   <tgroup.equivalence>(1 2)</tgroup.equivalence>
+  </identifier.auxiliary-info>
+ </structure>
+</IChI>
