@@ -567,11 +567,13 @@ int SetAtomBondType( BNS_EDGE *edge,
                         bond_mark = BOND_MARK_ALT12NS;
                     }
                     else
-                    {
-                        return BNS_BOND_ERR; /* error */
-                    }
-                    break;
-
+                        if (flow1 == 1 && flow2 == 2) {
+                            bond_mark = BOND_MARK_ALT23;
+                        }
+                        else {
+                            return BNS_BOND_ERR; /* error */
+                        }
+                        break;
                 default:
                     new_bond_type = bond_type;
                     bond_mark = ( *bond_type12 & BOND_MARK_MASK );
@@ -8461,6 +8463,92 @@ int bExistsAltPath( CANON_GLOBALS *pCG,
                 return 0;
             }
             break;
+
+#if ( TAUT_PT_22_00 == 1 )	
+        case ALT_PATH_MODE_TAUTOM_PT_22_00:
+            /* Check for alt path allowing to move H and (-). Purpose: confirm possible tautomerism */
+            type = BNS_VERT_TYPE_ENDPOINT;
+            bChangeFlow = BNS_EF_CHNG_RSTR;
+            if (!at[nVertSingleBond].endpoint &&
+                (!nGetEndpointInfo_PT_22_00(at, nVertSingleBond, &eif) || !eif.cDonor))
+                return 0;
+            if (!at[nVertDoubleBond].endpoint &&
+                (!nGetEndpointInfo_PT_22_00(at, nVertDoubleBond, &eif) || !eif.cAcceptor))
+                return 0;
+            break;
+#endif	
+
+#if ( TAUT_PT_16_00 == 1 )	
+        case ALT_PATH_MODE_TAUTOM_PT_16_00:
+            /* Check for alt path allowing to move H and (-). Purpose: confirm possible tautomerism */
+            type = BNS_VERT_TYPE_ENDPOINT;
+            bChangeFlow = BNS_EF_CHNG_RSTR;
+            if (!at[nVertSingleBond].endpoint &&
+                (!nGetEndpointInfo_PT_16_00(at, nVertSingleBond, &eif) || !eif.cDonor))
+                return 0;
+            if (!at[nVertDoubleBond].endpoint &&
+                (!nGetEndpointInfo_PT_16_00(at, nVertDoubleBond, &eif) || !eif.cAcceptor))
+                return 0;
+            break;
+#endif
+
+#if ( TAUT_PT_06_00 == 1 )	
+        case ALT_PATH_MODE_TAUTOM_PT_06_00:
+            /* Check for alt path allowing to move H and (-). Purpose: confirm possible tautomerism */
+            type = BNS_VERT_TYPE_ENDPOINT;
+            bChangeFlow = BNS_EF_CHNG_RSTR;
+            if (!at[nVertSingleBond].endpoint &&
+                (!nGetEndpointInfo_PT_06_00(at, nVertSingleBond, &eif) || !eif.cDonor))
+                return 0;
+            if (!at[nVertDoubleBond].endpoint &&
+                (!nGetEndpointInfo_PT_06_00(at, nVertDoubleBond, &eif) || !eif.cAcceptor))
+                return 0;
+            break;
+#endif
+
+#if ( TAUT_PT_39_00 == 1 )	
+        case ALT_PATH_MODE_TAUTOM_PT_39_00:
+            /* Check for alt path allowing to move H and (-). Purpose: confirm possible tautomerism */
+            type = BNS_VERT_TYPE_ENDPOINT;
+            bChangeFlow = BNS_EF_CHNG_RSTR;
+            if (!at[nVertSingleBond].endpoint &&
+                (!nGetEndpointInfo_PT_39_00(at, nVertSingleBond, &eif) || !eif.cDonor))
+                return 0;
+            if (!at[nVertDoubleBond].endpoint &&
+                (!nGetEndpointInfo_PT_39_00(at, nVertDoubleBond, &eif) || !eif.cAcceptor))
+                return 0;
+            break;
+#endif		
+
+#if ( TAUT_PT_13_00 == 1 )	
+        case ALT_PATH_MODE_TAUTOM_PT_13_00:
+            /* Check for alt path allowing to move H and (-). Purpose: confirm possible tautomerism */
+            type = BNS_VERT_TYPE_ENDPOINT;
+            bChangeFlow = BNS_EF_CHNG_RSTR;
+            if (!at[nVertSingleBond].endpoint &&
+                (!nGetEndpointInfo_PT_13_00(at, nVertSingleBond, &eif) || !eif.cDonor))
+                return 0;
+            if (!at[nVertDoubleBond].endpoint &&
+                (!nGetEndpointInfo_PT_13_00(at, nVertDoubleBond, &eif) || !eif.cAcceptor))
+                return 0;
+            break;
+#endif
+
+#if ( TAUT_PT_18_00 == 1 )	
+        case ALT_PATH_MODE_TAUTOM_PT_18_00:
+            /* Check for alt path allowing to move H and (-). Purpose: confirm possible tautomerism */
+            type = BNS_VERT_TYPE_ENDPOINT;
+            bChangeFlow = BNS_EF_CHNG_RSTR;
+            if (!at[nVertSingleBond].endpoint &&
+                (!nGetEndpointInfo_PT_18_00(at, nVertSingleBond, &eif) || !eif.cDonor))
+                return 0;
+            if (!at[nVertDoubleBond].endpoint &&
+                (!nGetEndpointInfo_PT_18_00(at, nVertDoubleBond, &eif) || !eif.cAcceptor))
+                return 0;
+            break;
+#endif	
+
+
 #if ( KETO_ENOL_TAUT == 1 )
         case ALT_PATH_MODE_TAUTOM_KET:
             /* Check for alt path allowing to move H and (-). Purpose: confirm possible tautomerism */
@@ -9234,6 +9322,24 @@ int AddTGroups2BnStruct( CANON_GLOBALS *pCG,
             }
             /* Obtain donor/acceptor info */
             if (!nGetEndpointInfo(at, endpoint, &eif)
+#if ( TAUT_PT_22_00 == 1 )		 
+                && !((tgi->bTautFlags & TG_FLAG_PT_22_00) && nGetEndpointInfo_PT_22_00(at, endpoint, &eif))
+#endif
+#if ( TAUT_PT_16_00 == 1 )		 
+                && !((tgi->bTautFlags & TG_FLAG_PT_16_00) && nGetEndpointInfo_PT_16_00(at, endpoint, &eif))
+#endif
+#if ( TAUT_PT_06_00 == 1 )		 
+                && !((tgi->bTautFlags & TG_FLAG_PT_06_00) && nGetEndpointInfo_PT_06_00(at, endpoint, &eif))
+#endif
+#if ( TAUT_PT_39_00 == 1 )		 
+                && !((tgi->bTautFlags & TG_FLAG_PT_39_00) && nGetEndpointInfo_PT_39_00(at, endpoint, &eif))
+#endif
+#if ( TAUT_PT_13_00 == 1 )		 
+                && !((tgi->bTautFlags & TG_FLAG_PT_13_00) && nGetEndpointInfo_PT_13_00(at, endpoint, &eif))
+#endif
+#if ( TAUT_PT_18_00 == 1 )		 
+                && !((tgi->bTautFlags & TG_FLAG_PT_18_00) && nGetEndpointInfo_PT_18_00(at, endpoint, &eif))
+#endif		 
                 ) {
 #if ( KETO_ENOL_TAUT == 1 )
                 if (!( ( tgi->bTautFlags & TG_FLAG_KETO_ENOL_TAUT ) &&

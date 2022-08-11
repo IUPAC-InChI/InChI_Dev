@@ -633,6 +633,18 @@ void PrepareSaveOptBits( unsigned char *save_opt_bits, INPUT_PARMS *ip )
             {
                 ( *save_opt_bits ) |= SAVE_OPT_15T;
             }
+            if (0 != (ip->bTautFlags & TG_FLAG_PT_22_00))
+                (*save_opt_bits) |= SAVE_OPT_PT_22_00;
+            if (0 != (ip->bTautFlags & TG_FLAG_PT_16_00))
+                (*save_opt_bits) |= SAVE_OPT_PT_16_00;
+            if (0 != (ip->bTautFlags & TG_FLAG_PT_06_00))
+                (*save_opt_bits) |= SAVE_OPT_PT_06_00;
+            if (0 != (ip->bTautFlags & TG_FLAG_PT_39_00))
+                (*save_opt_bits) |= SAVE_OPT_PT_39_00;
+            if (0 != (ip->bTautFlags & TG_FLAG_PT_13_00))
+                (*save_opt_bits) |= SAVE_OPT_PT_13_00;
+            if (0 != (ip->bTautFlags & TG_FLAG_PT_18_00))
+                (*save_opt_bits) |= SAVE_OPT_PT_18_00;
             /* Check if /SNon requested and turn OFF stereo bits if so */
             if (!( ip->nMode & REQ_MODE_STEREO ))
             {

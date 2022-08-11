@@ -78,6 +78,24 @@ typedef struct
     IXA_BOOL                      option_RecMet;
     IXA_BOOL                      option_KET;
     IXA_BOOL                      option_15T;
+#if ( TAUT_PT_22_00 == 1 )
+    IXA_BOOL                      option_PT_22_00;
+#endif
+#if ( TAUT_PT_16_00 == 1 )
+    IXA_BOOL                      option_PT_16_00;
+#endif
+#if ( TAUT_PT_06_00 == 1 )
+    IXA_BOOL                      option_PT_06_00;
+#endif
+#if ( TAUT_PT_39_00 == 1 )
+    IXA_BOOL                      option_PT_39_00;
+#endif
+#if ( TAUT_PT_13_00 == 1 )
+    IXA_BOOL                      option_PT_13_00;
+#endif
+#if ( TAUT_PT_18_00 == 1 )
+    IXA_BOOL                      option_PT_18_00;
+#endif
     IXA_BOOL                      option_AuxNone;
     IXA_BOOL                      option_WarnOnEmptyStructure;
     IXA_BOOL                      option_LargeMolecules;
@@ -435,6 +453,24 @@ static void BUILDER_ClearOptions( INCHIBUILDER* pBuilder )
     pBuilder->option_RecMet = IXA_FALSE;
     pBuilder->option_KET = IXA_FALSE;
     pBuilder->option_15T = IXA_FALSE;
+#if ( TAUT_PT_22_00 == 1 )
+    pBuilder->option_PT_22_00 = IXA_FALSE;
+#endif
+#if ( TAUT_PT_16_00 == 1 )
+    pBuilder->option_PT_16_00 = IXA_FALSE;
+#endif
+#if ( TAUT_PT_06_00 == 1 )
+    pBuilder->option_PT_06_00 = IXA_FALSE;
+#endif
+#if ( TAUT_PT_39_00 == 1 )
+    pBuilder->option_PT_39_00 = IXA_FALSE;
+#endif
+#if ( TAUT_PT_13_00 == 1 )
+    pBuilder->option_PT_13_00 = IXA_FALSE;
+#endif
+#if ( TAUT_PT_18_00 == 1 )
+    pBuilder->option_PT_18_00 = IXA_FALSE;
+#endif
     pBuilder->option_AuxNone = IXA_FALSE;
     pBuilder->option_WMnumber = 0; /* i.e. unlimited time */
     pBuilder->option_WarnOnEmptyStructure = IXA_FALSE;
@@ -538,6 +574,42 @@ static void BUILDER_Update( IXA_STATUS_HANDLE hStatus,
     {
         AppendOption( options, OPTION_PREFIX "15T" );
     }
+#if ( TAUT_PT_22_00 == 1 )
+    if (pBuilder->option_PT_22_00)
+    {
+        AppendOption(options, OPTION_PREFIX "PT_22_00");
+    }
+#endif
+#if ( TAUT_PT_16_00 == 1 )
+    if (pBuilder->option_PT_16_00)
+    {
+        AppendOption(options, OPTION_PREFIX "PT_16_00");
+    }
+#endif
+#if ( TAUT_PT_06_00 == 1 )
+    if (pBuilder->option_PT_06_00)
+    {
+        AppendOption(options, OPTION_PREFIX "PT_06_00");
+    }
+#endif
+#if ( TAUT_PT_39_00 == 1 )
+    if (pBuilder->option_PT_39_00)
+    {
+        AppendOption(options, OPTION_PREFIX "PT_39_00");
+    }
+#endif
+#if ( TAUT_PT_13_00 == 1 )
+    if (pBuilder->option_PT_13_00)
+    {
+        AppendOption(options, OPTION_PREFIX "PT_13_00");
+    }
+#endif
+#if ( TAUT_PT_18_00 == 1 )
+    if (pBuilder->option_PT_18_00)
+    {
+        AppendOption(options, OPTION_PREFIX "PT_18_00");
+    }
+#endif
     if (pBuilder->option_AuxNone)
     {
         AppendOption( options, OPTION_PREFIX "AuxNone" );
@@ -1576,6 +1648,36 @@ void INCHI_DECL IXA_INCHIBUILDER_SetOption( IXA_STATUS_HANDLE hStatus,
         case IXA_INCHIBUILDER_OPTION_15T:
             builder->option_15T = vValue;
             return;
+#if ( TAUT_PT_22_00 == 1 )
+        case IXA_INCHIBUILDER_OPTION_PT_22_00:
+            builder->option_PT_22_00 = vValue;
+            return;
+#endif
+#if ( TAUT_PT_16_00 == 1 )
+        case IXA_INCHIBUILDER_OPTION_PT_16_00:
+            builder->option_PT_16_00 = vValue;
+            return;
+#endif
+#if ( TAUT_PT_06_00 == 1 )
+        case IXA_INCHIBUILDER_OPTION_PT_06_00:
+            builder->option_PT_06_00 = vValue;
+            return;
+#endif
+#if ( TAUT_PT_39_00 == 1 )
+        case IXA_INCHIBUILDER_OPTION_PT_39_00:
+            builder->option_PT_39_00 = vValue;
+            return;
+#endif
+#if ( TAUT_PT_13_00 == 1 )
+        case IXA_INCHIBUILDER_OPTION_PT_13_00:
+            builder->option_PT_13_00 = vValue;
+            return;
+#endif
+#if ( TAUT_PT_18_00 == 1 )
+        case IXA_INCHIBUILDER_OPTION_PT_18_00:
+            builder->option_PT_18_00 = vValue;
+            return;
+#endif
         case IXA_INCHIBUILDER_OPTION_SaveOpt:
             builder->option_SaveOpt = vValue;
             return;
@@ -1706,6 +1808,42 @@ IXA_BOOL INCHI_DECL IXA_INCHIBUILDER_CheckOption( IXA_STATUS_HANDLE hStatus,
     {
         val = builder->option_15T;
     }
+#if ( TAUT_PT_22_00 == 1 )
+    else if (vOption == IXA_INCHIBUILDER_OPTION_PT_22_00)
+    {
+        val = builder->option_PT_22_00;
+    }
+#endif
+#if ( TAUT_PT_16_00 == 1 )
+    else if (vOption == IXA_INCHIBUILDER_OPTION_PT_16_00)
+    {
+        val = builder->option_PT_16_00;
+    }
+#endif
+#if ( TAUT_PT_06_00 == 1 )
+    else if (vOption == IXA_INCHIBUILDER_OPTION_PT_06_00)
+    {
+        val = builder->option_PT_06_00;
+    }
+#endif
+#if ( TAUT_PT_39_00 == 1 )
+    else if (vOption == IXA_INCHIBUILDER_OPTION_PT_39_00)
+    {
+        val = builder->option_PT_39_00;
+    }
+#endif
+#if ( TAUT_PT_13_00 == 1 )
+    else if (vOption == IXA_INCHIBUILDER_OPTION_PT_13_00)
+    {
+        val = builder->option_PT_13_00;
+    }
+#endif
+#if ( TAUT_PT_18_00 == 1 )
+    else if (vOption == IXA_INCHIBUILDER_OPTION_PT_18_00)
+    {
+        val = builder->option_PT_18_00;
+    }
+#endif
     else if (vOption == IXA_INCHIBUILDER_OPTION_SaveOpt)
     {
         val = builder->option_SaveOpt;

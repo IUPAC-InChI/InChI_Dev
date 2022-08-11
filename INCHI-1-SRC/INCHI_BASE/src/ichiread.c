@@ -6756,7 +6756,7 @@ int ParseSegmentSp2( const char *str,
 
     if (!*pStart)
     {
-        /* create empty sp3 segment which means no sp3  */
+        /* create empty sp2 segment which means no sp2 */
         for (iComponent = 0; iComponent < nNumComponents; iComponent++)
         {
             INChI *pIsoInChI = &pInChI[iComponent];
@@ -6767,7 +6767,7 @@ int ParseSegmentSp2( const char *str,
                 ret = RI_ERR_SYNTAX; /* syntax error */
                 goto exit_function;
             }
-            /* allocate empty sp3 stereo */
+            /* allocate empty sp2 stereo */
             ret = CopySegment( pIsoInChI, NULL, CPY_SP2, bIso, -1 );
             if (ret < 0)
             {
@@ -7406,6 +7406,13 @@ int ParseSegmentPolymer( const char  *str,
             ret = RI_ERR_SYNTAX;
             goto exit_function;
         }
+#if ( FIX_OSS_FUZZ_30162_30343==1 )
+        if (val<100) /* type should always be non-zero followed by subtype and conn, like 101 or 200 */
+        {
+            ret = RI_ERR_SYNTAX;
+            goto exit_function;
+        }
+#endif
 
 #if ( FIX_GAF_2020_25741==1 )
         {
@@ -10474,6 +10481,13 @@ void PrepareSaveOptBits( INPUT_PARMS    *ip,
         int input_save_opt_has_sluud = input_save_opt_bits & SAVE_OPT_SLUUD;
         int input_save_opt_has_ket = input_save_opt_bits & SAVE_OPT_KET;
         int input_save_opt_has_15t = input_save_opt_bits & SAVE_OPT_15T;
+        int input_save_opt_has_pt_22_00 = input_save_opt_bits & SAVE_OPT_PT_22_00;
+        int input_save_opt_has_pt_16_00 = input_save_opt_bits & SAVE_OPT_PT_16_00;
+        int input_save_opt_has_pt_06_00 = input_save_opt_bits & SAVE_OPT_PT_06_00;
+        int input_save_opt_has_pt_39_00 = input_save_opt_bits & SAVE_OPT_PT_39_00;
+        int input_save_opt_has_pt_13_00 = input_save_opt_bits & SAVE_OPT_PT_13_00;
+        int input_save_opt_has_pt_18_00 = input_save_opt_bits & SAVE_OPT_PT_18_00;
+
         if (0 != ( ip->bTautFlags & TG_FLAG_RECONNECT_COORD ))
         {
             /* RecMet requested */
@@ -10535,6 +10549,18 @@ void PrepareSaveOptBits( INPUT_PARMS    *ip,
             *save_opt_bits |= SAVE_OPT_15T;
         }
 
+        if (input_save_opt_has_pt_22_00)
+            *save_opt_bits |= SAVE_OPT_PT_22_00;
+        if (input_save_opt_has_pt_16_00)
+            *save_opt_bits |= SAVE_OPT_PT_16_00;
+        if (input_save_opt_has_pt_06_00)
+            *save_opt_bits |= SAVE_OPT_PT_06_00;
+        if (input_save_opt_has_pt_39_00)
+            *save_opt_bits |= SAVE_OPT_PT_39_00;
+        if (input_save_opt_has_pt_13_00)
+            *save_opt_bits |= SAVE_OPT_PT_13_00;
+        if (input_save_opt_has_pt_18_00)
+            *save_opt_bits |= SAVE_OPT_PT_18_00;
 
         /* Check if /SNon requested and turn OFF stereo bits if so */
         if (!( ip->nMode & REQ_MODE_STEREO ))

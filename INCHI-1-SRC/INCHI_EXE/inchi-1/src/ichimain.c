@@ -548,7 +548,6 @@ int ProcessSingleInputFile( int argc, char *argv[] )
     int output_error_inchi = 0;
 
 
-
     /* internal tests --- */
 #ifndef TEST_FPTRS
     STRUCT_FPTRS *pStructPtrs = NULL;
@@ -770,16 +769,18 @@ int ProcessSingleInputFile( int argc, char *argv[] )
     /*  Main cycle : read input structures and create their INChI                                  */
     /*************************************************************/
 
+
     while (!sd->bUserQuit && !bInterrupted)
     {
+        int do_renumbering = 0;
         int next_action;
         int have_err_in_GetOneStructure = 0;
         int dup_fail = 0;
-        int nrepeat = 1;
         ORIG_ATOM_DATA SavedOrigAtData; /* 0=> disconnected, 1=> original */
         ORIG_ATOM_DATA *saved_orig_inp_data = &SavedOrigAtData;
         char ikey0[28];
         ikey0[0] = '\0';
+
 
         next_action = GetTheNextRecordOfInputFile( &ic, sd, ip, szTitle,
                                                    inp_file, plog, pout, pprb,
@@ -809,44 +810,130 @@ int ProcessSingleInputFile( int argc, char *argv[] )
         }
 
 
-
         /*  Create INChI for each connected component of the structure;
             optionally display them;
             output INChI for the whole structure                        */
 
-#ifndef RENUMBER_ATOMS_AND_RECALC_V106
+#if (RENUMBER_ATOMS_AND_RECALC_V106 == 1 )
+        if (ip->bRenumber == 1)
+        {
+            do_renumbering = 1;
+        }
+#endif
+        if (do_renumbering == 0)
+        {
             /* Normal calculations */
-        next_action = CalcAndPrintINCHIAndINCHIKEY( &ic, &CG, sd, ip, szTitle,
-                                                    pINChI, pINChI_Aux,
-                                                    inp_file, plog, pout, pprb,
-                                                    orig_inp_data, prep_inp_data, &num_inp, pStructPtrs,
-                                                    &nRet, have_err_in_GetOneStructure,
-                                                    &num_err, output_error_inchi,
-                                                    strbuf, &ulTotalProcessingTime,
-                                                    pLF, pTAB, ikey0,
-                                                    0 /* not silent */ );
+            next_action = CalcAndPrintINCHIAndINCHIKEY( &ic, &CG, sd, ip, szTitle,
+                                                        pINChI, pINChI_Aux,
+                                                        inp_file, plog, pout, pprb,
+                                                        orig_inp_data, prep_inp_data, &num_inp, pStructPtrs,
+                                                        &nRet, have_err_in_GetOneStructure,
+                                                        &num_err, output_error_inchi,
+                                                        strbuf, &ulTotalProcessingTime,
+                                                        pLF, pTAB, ikey0,
+                                                        0 /* not silent */ );
 
-        FreeAllINChIArrays( pINChI, pINChI_Aux, sd->num_components );
-        FreeOrigAtData( orig_inp_data );
-        FreeOrigAtData( prep_inp_data );
-        FreeOrigAtData( prep_inp_data + 1 );
+            FreeAllINChIArrays( pINChI, pINChI_Aux, sd->num_components );
+            FreeOrigAtData( orig_inp_data );
+            FreeOrigAtData( prep_inp_data );
+            FreeOrigAtData( prep_inp_data + 1 );
+        }
+        else
+        {
+            /* Internal test mode: renumber atoms and recalculate repeatedly */
+            long int nrepeat = 1;
+            /* 2! = 2 3! = 6 4! = 24 5! = 120 6! = 520 7! = 5040 8! = 40320 */
+            if (orig_inp_data->num_inp_atoms == 1)
+            {
+                nrepeat = 1;
+            }
+            else if (orig_inp_data->num_inp_atoms == 2)
+            {
+                nrepeat = 2;
+            }
+            else if (orig_inp_data->num_inp_atoms == 3)
+            {
+                nrepeat = 6;
+            }
+            else
+            {
+                nrepeat = 1000; /* 100000;*/ /*16;*/
+            }
+            /* correct (decrease repeat number) for relatively large molecules */
+            if (orig_inp_data->num_inp_atoms > 128)
+            {
+                nrepeat = 100; /* 100000;*/ /*16;*/
+            }
+            if (orig_inp_data->num_inp_atoms > 256)
+            {
+                nrepeat = 50; /* 100000;*/ /*16;*/
+            }
+            if (orig_inp_data->num_inp_atoms > 512)
+            {
+                nrepeat = 25; /* 100000;*/ /*16;*/
+            }
+            if (orig_inp_data->num_inp_atoms > 1024)
+            {
+                nrepeat = 10; /* 100000;*/ /*16;*/
+            }
 
-#else
-        REMOVED RENUMBERING STUFF
+            /*inchi_ios_eprint(plog, "Number of random atom renumberings up to: %-ld\n", nrepeat);
+            inchi_ios_flush2(plog, stderr);*/
+
+#if 0
+            else if (orig_inp_data->num_inp_atoms == 4)
+            {
+                nrepeat = 24;
+            }
+            else
+            {
+                nrepeat = 10;
+            }
+
+            else if (orig_inp_data->num_inp_atoms == 4)
+            {
+                nrepeat = 24;
+            }
+            else if (orig_inp_data->num_inp_atoms == 5)
+            {
+                nrepeat = 120;
+            }
+            else if (orig_inp_data->num_inp_atoms == 6)
+            {
+                nrepeat = 520;
+            }
+            else if (orig_inp_data->num_inp_atoms == 7)
+            {
+                nrepeat = 1000;
+            }
+            else
+            {
+                nrepeat = 10000;
+            }
 #endif
 
-            if (next_action == DO_EXIT_FUNCTION)
-            {
-                goto exit_function;
-            }
-            else if (next_action == DO_BREAK_MAIN_LOOP)
-            {
-                break;
-            }
-            else if (next_action == DO_CONTINUE_MAIN_LOOP)
-            {
-                continue;
-            }
+            next_action = RepeatedlyRenumberAtomsAndRecalcINCHI( &ic, &CG, sd, ip, szTitle,
+                                                                 pINChI, pINChI_Aux,
+                                                                 inp_file, plog, pout, pprb,
+                                                                 orig_inp_data, prep_inp_data, &num_inp, pStructPtrs,
+                                                                 &nRet, have_err_in_GetOneStructure,
+                                                                 &num_err, output_error_inchi,
+                                                                 strbuf, &ulTotalProcessingTime,
+                                                                 pLF, pTAB, nrepeat );
+        } /* if (ip->bRenumber == 1) */
+
+        if (next_action == DO_EXIT_FUNCTION)
+        {
+            goto exit_function;
+        }
+        else if (next_action == DO_BREAK_MAIN_LOOP)
+        {
+            break;
+        }
+        else if (next_action == DO_CONTINUE_MAIN_LOOP)
+        {
+            continue;
+        }
     } /* end of main cycle - while ( !sd->bUserQuit && !bInterrupted ) */
 
 
@@ -1330,5 +1417,358 @@ exit_function:
 
 
 #ifdef RENUMBER_ATOMS_AND_RECALC_V106
-REMOVED RENUMBERING STUFF
+
+/*****************************************************************************/
+int rrand(int m)
+{
+    return
+        (int)((double)m * (rand() / (RAND_MAX + 1.0)));
+}
+/*****************************************************************************/
+void shuffle(void *obj, size_t nmemb, size_t size)
+{
+    void *temp = inchi_malloc(size);
+    size_t n = nmemb;
+    while (n > 1)
+    {
+        size_t k = rrand((int)n--);
+        memcpy(temp, BYTE(obj) + n*size, size);
+        memcpy(BYTE(obj) + n*size, BYTE(obj) + k*size, size);
+        memcpy(BYTE(obj) + k*size, temp, size);
+    }
+    free(temp);
+}
+
+
+/* Use after OrigAtData_Duplicate (permuted <-- saved) */
+void OrigAtData_Permute(ORIG_ATOM_DATA *permuted, ORIG_ATOM_DATA *saved, int *numbers)
+{
+    int i, j, k;
+    int nat = saved->num_inp_atoms;
+    size_t atsize = sizeof(saved->at[0]);
+    for (i = 0; i < nat; i++)
+    {
+        j = numbers[i];
+        memcpy(permuted->at + j, saved->at + i, atsize);
+        for (k = 0; k < permuted->at[j].valence; k++)
+        {
+            permuted->at[j].neighbor[k] = numbers[permuted->at[j].neighbor[k]];
+        }
+        permuted->at[j].orig_at_number = 1 + numbers[permuted->at[j].orig_at_number - 1];
+    }
+    if (saved->polymer && permuted->polymer)
+    {
+        if (saved->polymer->pzz)
+        {
+            for (k = 0; k < saved->polymer->n_pzz; k++)
+            {
+                permuted->polymer->pzz[k] = numbers[permuted->polymer->pzz[k]];
+            }
+        }
+        if (saved->polymer->units)
+        {
+            for (k = 0; k < saved->polymer->n; k++)
+            {
+                permuted->polymer->units[k]->cap1 = 1 + numbers[permuted->polymer->units[k]->cap1 - 1];
+                permuted->polymer->units[k]->cap1 = 1 + numbers[permuted->polymer->units[k]->end_atom1 - 1];
+                permuted->polymer->units[k]->cap1 = 1 + numbers[permuted->polymer->units[k]->cap2 - 1];
+                permuted->polymer->units[k]->cap1 = 1 + numbers[permuted->polymer->units[k]->end_atom2 - 1];
+                if (permuted->polymer->units[k]->alist)
+                {
+                    for (j = 0; j < permuted->polymer->units[k]->na; j++)
+                    {
+                        permuted->polymer->units[k]->alist[j] = 1 + numbers[permuted->polymer->units[k]->alist[j] - 1];
+                    }
+                    for (j = 0; j < permuted->polymer->units[k]->nb; j++)
+                    {
+                        permuted->polymer->units[k]->blist[2 * j] = 1 + numbers[permuted->polymer->units[k]->blist[2 * j] - 1];
+                        permuted->polymer->units[k]->blist[2 * j + 1] = 1 + numbers[permuted->polymer->units[k]->blist[2 * j + 1] - 1];
+                    }
+                }
+            }
+        }
+    }
+    if (saved->v3000 && permuted->v3000)
+    {
+        if (saved->v3000->atom_index_orig && permuted->v3000->atom_index_orig)
+        {
+            for (k = 0; k < nat; k++)
+            {
+                permuted->v3000->atom_index_orig[k] = numbers[permuted->v3000->atom_index_orig[k]];
+            }
+        }
+        if (saved->v3000->atom_index_fin && permuted->v3000->atom_index_fin)
+        {
+            for (k = 0; k < nat; k++)
+            {
+                permuted->v3000->atom_index_fin[k] = numbers[permuted->v3000->atom_index_fin[k]];
+            }
+        }
+        if (saved->v3000->n_haptic_bonds && saved->v3000->lists_haptic_bonds && permuted->v3000->n_haptic_bonds && permuted->v3000->lists_haptic_bonds)
+        {
+            for (j = 0; j < saved->v3000->n_haptic_bonds; j++)
+            {
+                permuted->v3000->lists_haptic_bonds[j][1] = numbers[permuted->v3000->lists_haptic_bonds[j][1]];
+                for (k = 3; k < saved->v3000->lists_haptic_bonds[j][2]; k++)
+                {
+                    permuted->v3000->lists_haptic_bonds[j][k] = numbers[permuted->v3000->lists_haptic_bonds[j][k]];
+                }
+            }
+        }
+        if (saved->v3000->n_steabs && saved->v3000->lists_steabs && permuted->v3000->n_steabs && permuted->v3000->lists_steabs)
+        {
+            for (j = 0; j < saved->v3000->n_steabs; j++)
+            {
+                for (k = 2; k < saved->v3000->lists_steabs[j][1] + 2; k++)
+                {
+                    permuted->v3000->lists_steabs[j][k] = numbers[permuted->v3000->lists_steabs[j][k]];
+                }
+            }
+        }
+        if (saved->v3000->n_sterel && saved->v3000->lists_sterel && permuted->v3000->n_sterel && permuted->v3000->lists_sterel)
+        {
+            for (j = 0; j < saved->v3000->n_sterel; j++)
+            {
+                for (k = 2; k < saved->v3000->lists_sterel[j][1] + 2; k++)
+                {
+                    permuted->v3000->lists_sterel[j][k] = numbers[permuted->v3000->lists_sterel[j][k]];
+                }
+            }
+        }
+        if (saved->v3000->n_sterac && saved->v3000->lists_sterac && permuted->v3000->n_sterac && permuted->v3000->lists_sterac)
+        {
+            for (j = 0; j < saved->v3000->n_sterac; j++)
+            {
+                for (k = 2; k < saved->v3000->lists_sterac[j][1] + 2; k++)
+                {
+                    permuted->v3000->lists_sterac[j][k] = numbers[permuted->v3000->lists_sterac[j][k]];
+                }
+            }
+        }
+    }
+
+    return;
+}
+
+
+/*****************************************************************************/
+int RepeatedlyRenumberAtomsAndRecalcINCHI(struct tagINCHI_CLOCK *ic,
+    CANON_GLOBALS *CG,
+    STRUCT_DATA *sd,
+    INPUT_PARMS *ip,
+    char *szTitle,
+    PINChI2 *pINChI[INCHI_NUM],
+    PINChI_Aux2 *pINChI_Aux[INCHI_NUM],
+    INCHI_IOSTREAM *inp_file,
+    INCHI_IOSTREAM *plog,
+    INCHI_IOSTREAM *pout,
+    INCHI_IOSTREAM *pprb,
+    ORIG_ATOM_DATA *orig_inp_data,
+    ORIG_ATOM_DATA *prep_inp_data,
+    long *num_inp,
+    STRUCT_FPTRS *pStructPtrs,
+    int *nRet,
+    int have_err_in_GetOneStructure,
+    long *num_err,
+    int output_error_inchi,
+    INCHI_IOS_STRING *strbuf,
+    unsigned long *pulTotalProcessingTime,
+    char *pLF,
+    char *pTAB,
+    long int nrepeat)
+{
+    int next_action = DO_NEXT_STEP;
+    int dup_fail = 0;
+    ORIG_ATOM_DATA SavedOrigAtData; /* 0=> disconnected, 1=> original */
+    ORIG_ATOM_DATA *saved_orig_inp_data = &SavedOrigAtData;
+    char ikey0[28];
+    int numbers[PERMAXATOMS];
+
+    const int very_silent = 2; /* 3 0;*/
+
+                               /* Internal test mode: renumber atoms and recalculate repeatedly    */
+
+                               /* do not forget to use /key and to not use /auxnone                */
+
+
+    ikey0[0] = '\0';
+    {
+        int k;
+        for (k = 0; k < orig_inp_data->num_inp_atoms; k++)
+        {
+            numbers[k] = k;
+        }
+        for (k = orig_inp_data->num_inp_atoms; k < PERMAXATOMS; k++)
+        {
+            numbers[k] = -1;
+        }
+    }
+
+
+
+
+#if BIG_POLY_DEBUG
+    { int k; ITRACE_("\nAtoms = {"); for (k = 0; k < orig_inp_data->num_inp_atoms - 1; k++) ITRACE_(" %-03d,", numbers[k]); ITRACE_(" %-03d }", numbers[orig_inp_data->num_inp_atoms - 1]); }
+    OrigAtData_DebugTrace(orig_inp_data);
+    OrigAtDataPolymer_DebugTrace(orig_inp_data->polymer);
+#endif
+
+    memset(saved_orig_inp_data, 0, sizeof(*saved_orig_inp_data));
+    dup_fail = OrigAtData_Duplicate(saved_orig_inp_data, orig_inp_data);
+
+    next_action = CalcAndPrintINCHIAndINCHIKEY(ic, CG, sd, ip, szTitle,
+        pINChI, pINChI_Aux,
+        inp_file, plog, pout, pprb,
+        orig_inp_data, prep_inp_data, num_inp, pStructPtrs,
+        nRet, have_err_in_GetOneStructure,
+        num_err, output_error_inchi,
+        strbuf, pulTotalProcessingTime,
+        pLF, pTAB, ikey0, very_silent);
+    FreeAllINChIArrays(pINChI, pINChI_Aux, sd->num_components);
+    FreeOrigAtData(orig_inp_data);
+    FreeOrigAtData(prep_inp_data);
+    FreeOrigAtData(prep_inp_data + 1);
+
+
+    if (ikey0[0])
+    {
+        if (very_silent<2)
+        {
+            inchi_ios_eprint(plog, "#%-ld-%08ld\t...\t%-s\t%s%s%s%s\n", *num_inp, 1, ikey0, SDF_LBL_VAL(ip->pSdfLabel, ip->pSdfValue));
+        }
+    }
+
+
+    if (!dup_fail)
+    {
+        int irepeat = 0;
+        int ndiff = 0;
+        int n_written_problems = 0;
+        char ikey[28];
+        ikey[0] = '\0';
+        for (irepeat = 0; irepeat < nrepeat - 1; irepeat++)
+        {
+            dup_fail = OrigAtData_Duplicate(orig_inp_data, saved_orig_inp_data);
+            if (!dup_fail)
+            {
+                shuffle((void *)numbers, orig_inp_data->num_inp_atoms, sizeof(int));
+                OrigAtData_Permute(orig_inp_data, saved_orig_inp_data, numbers);
+#if BIG_POLY_DEBUG
+                { int k; ITRACE_("\nAtoms = {"); for (k = 0; k < orig_inp_data->num_inp_atoms - 1; k++) ITRACE_(" %-03d,", numbers[k]); ITRACE_(" %-03d }", numbers[orig_inp_data->num_inp_atoms - 1]); }
+                OrigAtData_DebugTrace(saved_orig_inp_data);
+                OrigAtData_DebugTrace(orig_inp_data);
+                OrigAtDataPolymer_DebugTrace(saved_orig_inp_data->polymer);
+                OrigAtDataPolymer_DebugTrace(orig_inp_data->polymer);
+#endif
+                next_action = CalcAndPrintINCHIAndINCHIKEY(ic, CG, sd, ip, szTitle,
+                    pINChI, pINChI_Aux,
+                    inp_file, plog, pout, pprb,
+                    orig_inp_data,
+                    prep_inp_data, num_inp, pStructPtrs,
+                    nRet, have_err_in_GetOneStructure,
+                    num_err, output_error_inchi,
+                    strbuf, pulTotalProcessingTime,
+                    pLF, pTAB, ikey,
+                    0 /* 1 be silent */);
+
+
+                if (ikey0[0] && ikey[0])
+                {
+                    if (strcmp(ikey, ikey0))
+                    {
+                        int result, bINChIOutputOptions = ip->bINChIOutputOptions;
+                        ndiff++;
+                        /*inchi_ios_eprint( plog, "!!! #%-ld-%05ld %s%s%s%s\tcurr %-s != %-s orig\n", *num_inp, irepeat + 2, SDF_LBL_VAL( ip->pSdfLabel, ip->pSdfValue ),  ikey, ikey0  );*/
+                        /*inchi_ios_eprint( plog, "!!! %s%s%s%s renum#%05ld\t%-s != %-s\n", SDF_LBL_VAL( ip->pSdfLabel, ip->pSdfValue ), irepeat + 2, ikey, ikey0  );*/
+                        inchi_ios_eprint(plog, "!!! #%-ld %s%s%s%s\t%-s --> %-s @ renum#%06d/%06ld\n", *num_inp, SDF_LBL_VAL(ip->pSdfLabel, ip->pSdfValue), ikey0, ikey, irepeat + 2, nrepeat);
+                        if (!very_silent)
+                        {
+                            int k;
+                            inchi_ios_eprint(plog, "Atoms = {");
+                            for (k = 0; k < orig_inp_data->num_inp_atoms - 1; k++)
+                            {
+                                inchi_ios_eprint(plog, " %-d,", numbers[k] + 1);
+                            }
+                            inchi_ios_eprint(plog, " %-d }\n\n", numbers[orig_inp_data->num_inp_atoms - 1] + 1);
+                        }
+                        ip->bINChIOutputOptions |= INCHI_OUT_SDFILE_ONLY;
+                        result = OrigAtData_SaveMolfile(orig_inp_data, sd, ip, *num_inp, pprb);
+                        inchi_ios_flush(pprb);
+                        ip->bINChIOutputOptions = bINChIOutputOptions;
+                        if (result == 0)
+                        {
+                            n_written_problems++;
+                        }
+#if 0
+                        /* second pass, non-silent one */
+                        FreeAllINChIArrays(pINChI, pINChI_Aux, sd->num_components);
+                        FreeOrigAtData(orig_inp_data);
+                        FreeOrigAtData(prep_inp_data);
+                        FreeOrigAtData(prep_inp_data + 1);
+                        dup_fail = OrigAtData_Duplicate(orig_inp_data, saved_orig_inp_data);
+                        if (!dup_fail)
+                        {
+                            OrigAtData_Permute(orig_inp_data, saved_orig_inp_data, numbers);
+                            next_action = CalcAndPrintINCHIAndINCHIKEY(ic, CG, sd, ip, szTitle,
+                                pINChI, pINChI_Aux,
+                                inp_file, plog, pout, pprb,
+                                orig_inp_data,
+                                prep_inp_data, num_inp, pStructPtrs,
+                                nRet, have_err_in_GetOneStructure,
+                                num_err, output_error_inchi,
+                                strbuf, pulTotalProcessingTime,
+                                pLF, pTAB, ikey, 0);
+                        }
+#endif
+                    }
+
+                    if (irepeat == nrepeat - 2)
+                    {
+                        if (very_silent < 2)
+                        {
+                            inchi_ios_eprint(plog, "...........\n#%-ld-%08ld\t...\t%-s\t%s%s%s%s\n", *num_inp, irepeat + 2, ikey0, SDF_LBL_VAL(ip->pSdfLabel, ip->pSdfValue));
+                        }
+                    }
+
+                }
+            }
+            FreeAllINChIArrays(pINChI, pINChI_Aux, sd->num_components);
+            FreeOrigAtData(orig_inp_data);
+            FreeOrigAtData(prep_inp_data);
+            FreeOrigAtData(prep_inp_data + 1);
+
+#ifdef STOP_AFTER_FIRST_CHANGE_ON_RENUMBERING
+            if (ndiff == 1)
+            {
+                next_action = DO_CONTINUE_MAIN_LOOP;
+                break;
+            }
+#endif
+        }
+        if (ndiff == 0)
+        {
+            if (very_silent < 3)
+            {
+                /*inchi_ios_eprint( plog, "#%-ld-%05ld\t...\tOK ALL\n", *num_inp, nrepeat );*/
+                /*inchi_ios_eprint( plog, "OK  #%-ld %s%s%s%s\n", *num_inp, SDF_LBL_VAL(ip->pSdfLabel, ip->pSdfValue));*/
+                /*inchi_ios_eprint(plog, "#%-ld\n", *num_inp);*/
+                inchi_ios_eprint(plog, "OK  #%-ld %s%s%s%s\t%-s\t Same for %-d/%-d renums\n", *num_inp, SDF_LBL_VAL(ip->pSdfLabel, ip->pSdfValue), ikey0, nrepeat, nrepeat);
+            }
+        }
+        else
+        {
+#ifdef STOP_AFTER_FIRST_CHANGE_ON_RENUMBERING
+            /*inchi_ios_eprint( plog, "#%-ld-%05ld\t...\tDIFF %-d\n", num_inp, nrepeat, ndiff );*/
+#else
+            inchi_ios_eprint(plog, "#%-ld-%05ld\t...\tDIFF %-d\n", num_inp, nrepeat, ndiff);
+#endif
+        }
+
+        FreeOrigAtData(saved_orig_inp_data);
+    }
+
+    return next_action;
+}
+
+
 #endif

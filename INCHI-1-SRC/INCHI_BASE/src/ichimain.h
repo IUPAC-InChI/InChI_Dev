@@ -490,7 +490,8 @@ int RepeatedlyRenumberAtomsAndRecalcINCHI( struct tagINCHI_CLOCK *ic, CANON_GLOB
                                            long *num_inp, STRUCT_FPTRS *pStructPtrs,
                                            int *nRet, int have_err_in_GetOneStructure,
                                            long *num_err, int output_error_inchi, INCHI_IOS_STRING *strbuf,
-                                           unsigned long *pulTotalProcessingTime, char *pLF, char *pTAB );
+                                           unsigned long *pulTotalProcessingTime, char *pLF, char *pTAB,
+                                           long int nrepeat);
 int bIsStructChiral( PINChI2 *pINChI2[INCHI_NUM], int num_components[] );
 
 

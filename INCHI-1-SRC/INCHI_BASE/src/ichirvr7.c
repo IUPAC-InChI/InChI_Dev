@@ -246,7 +246,7 @@ void RemoveFixHInChIIdentical2MobH( InpInChI *pOneInput )
 {
     int iInchiRec, cur_num_comp, k;
 
-    /* eliminate Fixed-H InChI that are exactly came as the corresponding Mobile-H structures */
+    /* eliminate Fixed-H InChI that are exactly same as the corresponding Mobile-H structures */
     for (iInchiRec = 0; iInchiRec < INCHI_NUM; iInchiRec++)
     {
         cur_num_comp = inchi_min( pOneInput->nNumComponents[iInchiRec][TAUT_YES],
@@ -1435,7 +1435,82 @@ void FreeInpInChI( InpInChI *pOneInput )
             {
                 for (k = 0; k < pOneInput->nNumComponents[iINChI][j]; k++)
                 {
+#if (FIX_OSS_FUZZ_25734_28139 == 1)
+                    U_CHAR  *k_nAtom        = (&pOneInput->pInpInChI[iINChI][j][k])->nAtom;
+                    AT_NUMB *k_nConnTable   = (&pOneInput->pInpInChI[iINChI][j][k])->nConnTable;
+                    AT_NUMB *k_nTautomer    = (&pOneInput->pInpInChI[iINChI][j][k])->nTautomer;
+                    S_CHAR  *k_nNum_H       = (&pOneInput->pInpInChI[iINChI][j][k])->nNum_H;
+                    S_CHAR  *k_nNum_H_fixed = (&pOneInput->pInpInChI[iINChI][j][k])->nNum_H_fixed;
+                    char    *k_szHillFormula = (&pOneInput->pInpInChI[iINChI][j][k])->szHillFormula;
+                    AT_NUMB *k_nPossibleLocationsOfIsotopicH    = (&pOneInput->pInpInChI[iINChI][j][k])->nPossibleLocationsOfIsotopicH;
+                    INChI_IsotopicAtom      *k_IsotopicAtom     = (&pOneInput->pInpInChI[iINChI][j][k])->IsotopicAtom;
+                    INChI_IsotopicTGroup    *k_IsotopicTGroup   = (&pOneInput->pInpInChI[iINChI][j][k])->IsotopicTGroup;
+                    INChI_Stereo            *k_Stereo           = (&pOneInput->pInpInChI[iINChI][j][k])->Stereo;
+                    INChI_Stereo            *k_StereoIsotopic   = (&pOneInput->pInpInChI[iINChI][j][k])->StereoIsotopic;
+
+#endif
+
                     Free_INChI_Members( &pOneInput->pInpInChI[iINChI][j][k] );
+
+#if (FIX_OSS_FUZZ_25734_28139 == 1)
+                    {
+                        /* prevent erroneous repeated freeing in copied pInpInChIp[][][kk] */
+                        int kk;
+                        for (kk = k + 1; kk < pOneInput->nNumComponents[iINChI][j]; kk++)
+                        {
+                            if (k_nAtom == (&pOneInput->pInpInChI[iINChI][j][kk])->nAtom) 
+                            {
+                                (&pOneInput->pInpInChI[iINChI][j][kk])->nAtom = NULL;
+                            }
+                            if (k_nConnTable == (&pOneInput->pInpInChI[iINChI][j][kk])->nConnTable)
+                            {
+                                (&pOneInput->pInpInChI[iINChI][j][kk])->nConnTable = NULL;
+                            }
+                            if (k_nTautomer == (&pOneInput->pInpInChI[iINChI][j][kk])->nTautomer)
+                            {
+                                (&pOneInput->pInpInChI[iINChI][j][kk])->nTautomer = NULL;
+                            }
+                            if (k_nNum_H == (&pOneInput->pInpInChI[iINChI][j][kk])->nNum_H)
+                            {
+                                (&pOneInput->pInpInChI[iINChI][j][kk])->nNum_H = NULL;
+                            }
+                            if (k_nNum_H_fixed == (&pOneInput->pInpInChI[iINChI][j][kk])->nNum_H_fixed)
+                            {
+                                (&pOneInput->pInpInChI[iINChI][j][kk])->nNum_H_fixed = NULL;
+                            }
+                            if (k_szHillFormula == (&pOneInput->pInpInChI[iINChI][j][kk])->szHillFormula)
+                            {
+                                (&pOneInput->pInpInChI[iINChI][j][kk])->szHillFormula = NULL;
+                            }
+                            if (k_nPossibleLocationsOfIsotopicH == (&pOneInput->pInpInChI[iINChI][j][kk])->nPossibleLocationsOfIsotopicH)
+                            {
+                                (&pOneInput->pInpInChI[iINChI][j][kk])->nPossibleLocationsOfIsotopicH = NULL;
+                            }
+
+                            if (k_IsotopicAtom == (&pOneInput->pInpInChI[iINChI][j][kk])->IsotopicAtom)
+                            {
+                                (&pOneInput->pInpInChI[iINChI][j][kk])->IsotopicAtom = NULL;
+                            }
+
+                            if (k_IsotopicTGroup == (&pOneInput->pInpInChI[iINChI][j][kk])->IsotopicTGroup)
+                            {
+                                (&pOneInput->pInpInChI[iINChI][j][kk])->IsotopicTGroup = NULL;
+                            }
+
+                            if (k_Stereo == (&pOneInput->pInpInChI[iINChI][j][kk])->Stereo)
+                            {
+                                (&pOneInput->pInpInChI[iINChI][j][kk])->Stereo = NULL;
+                            }
+
+                            if (k_StereoIsotopic == (&pOneInput->pInpInChI[iINChI][j][kk])->StereoIsotopic)
+                            {
+                                (&pOneInput->pInpInChI[iINChI][j][kk])->StereoIsotopic = NULL;
+                            }
+
+                        }
+                    }
+#endif                    
+                   
                 }
                 inchi_free( pOneInput->pInpInChI[iINChI][j] );
                 pOneInput->pInpInChI[iINChI][j] = NULL;

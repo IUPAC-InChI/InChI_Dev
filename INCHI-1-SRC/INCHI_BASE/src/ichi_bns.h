@@ -348,6 +348,25 @@ typedef struct tagBNS_FLOW_CHANGES {
 #define ALT_PATH_MODE_TAUTOM_KET 10  /* same as ALT_PATH_MODE_TAUTOM, applies to C=-OH or CH-=O; H may be (-) */
 #endif
 
+#if ( TAUT_PT_22_00 == 1 )
+#define ALT_PATH_MODE_TAUTOM_PT_22_00 11
+#endif
+#if ( TAUT_PT_16_00 == 1 )
+#define ALT_PATH_MODE_TAUTOM_PT_16_00 12
+#endif
+#if ( TAUT_PT_06_00 == 1 )
+#define ALT_PATH_MODE_TAUTOM_PT_06_00 13
+#endif
+#if ( TAUT_PT_39_00 == 1 )
+#define ALT_PATH_MODE_TAUTOM_PT_39_00 14
+#endif
+#if ( TAUT_PT_13_00 == 1 )
+#define ALT_PATH_MODE_TAUTOM_PT_13_00 15
+#endif
+#if ( TAUT_PT_18_00 == 1 )
+#define ALT_PATH_MODE_TAUTOM_PT_18_00 16
+#endif
+
 typedef U_SHORT  bitWord;
 #define BIT_WORD_MASK  ((bitWord)~0)
 

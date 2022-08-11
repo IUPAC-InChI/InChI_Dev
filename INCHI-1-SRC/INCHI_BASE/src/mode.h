@@ -60,28 +60,30 @@
 
 #if defined(TARGET_EXE_STANDALONE)
 /* Uncomment the next line to perform atom ordering/renumbering tests (internal only) */
-/*#define RENUMBER_ATOMS_AND_RECALC_V106 1*/
+#define RENUMBER_ATOMS_AND_RECALC_V106 1
 #ifdef      RENUMBER_ATOMS_AND_RECALC_V106
 /* Comment the next line to print all renumbering changing the initial InChIKey */
 #define STOP_AFTER_FIRST_CHANGE_ON_RENUMBERING 1
-#define APP_DESCRIPTION "InChI version 1, Software v. 1.06 (inchi-1 executable) \n*** INTERNAL TEST MODE: ATOM RENUMBERING TEST IS ACTIVE ***"
+#define APP_DESCRIPTION "InChI version 1, Software v. 1.061 (inchi-1 executable)"
+/*#define APP_DESCRIPTION "InChI version 1, Software v. 1.06-PT6 (inchi-1 executable) \n*** INTERNAL TEST MODE: ATOM RENUMBERING TEST IS ACTIVE ***"*/
 #else
-#define APP_DESCRIPTION "InChI version 1, Software v. 1.06 (inchi-1 executable)"
+#define APP_DESCRIPTION "InChI version 1, Software v. 1.061 (inchi-1 executable)***"
+/*#define APP_DESCRIPTION "InChI version 1, Software v. 1.06-PT6 (inchi-1 executable) \n*** UNOFFICIAL TEST VERSION: 6 PT TAUTO RULES AVAILABLE ***"*/
 #endif
 
 #elif defined(TARGET_API_LIB)
-#define APP_DESCRIPTION "InChI version 1, Software v. 1.06 (API Library)"
+#define APP_DESCRIPTION "InChI version 1, Software v. 1.061 (API Library)"
 
 #elif defined(TARGET_EXE_USING_API)
 #ifndef APP_DESCRIPTION
-#define APP_DESCRIPTION "InChI version 1, Software v. 1.06 (executable calling API Library)"
+#define APP_DESCRIPTION "InChI version 1, Software v. 1.061 (executable calling API Library)"
 #endif
 
 #elif defined(TARGET_LIB_FOR_WINCHI)
-#define APP_DESCRIPTION "InChI version 1, Software v. 1.06 (Library for wInChI GUI executable)"
+#define APP_DESCRIPTION "InChI version 1, Software v. 1.061 (Library for wInChI GUI executable)"
 
 #elif defined(TARGET_WINCHI)
-#define APP_DESCRIPTION "InChI version 1, Software v. 1.06 (wInChI GUI executable)"
+#define APP_DESCRIPTION "InChI version 1, Software v. 1.061 (wInChI GUI executable)"
 
 #else
 #error  No build target #defined, pls check compiler options... (TARGET_EXE_STANDALONE|TARGET_API_LIB|TARGET_EXE_USING_API|TARGET_LIB_FOR_WINCHI)
@@ -120,11 +122,11 @@ BUILD_WITH_AMI
 
 /* #define BUILD_LINK_AS_DLL */
 
-/*
+
 #ifndef BUILD_WITH_ENG_OPTIONS
 #define BUILD_WITH_ENG_OPTIONS 1
 #endif
-*/
+
 
 
 #ifndef BUILD_WITH_AMI
@@ -346,6 +348,12 @@ extern "C" {
 
 
 /* Software version 1.06 */
+
+/* INTENTIONALLY DISABLE 1.06 FIXES */
+/*#define DISABLE_106_FIXES 1  */
+
+#ifndef DISABLE_106_FIXES
+
 #define FIX_STEREOCOUNT_ERR           1 /* (2018-01-09) Supplied by DT                              */
                                         /* Fix for InChI Error -30010 (STEREOCOUNT_ERR)             */
                                         /* appeared on PubChem CIDs 124897603, 124921144            */
@@ -392,6 +400,10 @@ extern "C" {
 #define FIX_GAF_2020_25726 1
 #define FIX_GAF_2020_25741 1
 
+/* v. 1.061 August 2021 */
+#define FIX_OSS_FUZZ_30162_30343 1
+#define FIX_OSS_FUZZ_25734_28139 1
+
 /* internal v. 1.052, January 2020 */
 /* Thanks to CURE53 for detecting and reporting the issues */
 #define FIX_CURE53_ISSUE_OOB_ALREADY_HAVE_THIS_MESSAGE 1
@@ -404,7 +416,7 @@ extern "C" {
                                         */
 #define FIX_GAF_2019_3 1
 #define FIX_ONE_LINE_INCHI_INPUT_CONVERSION_ISSUE 1
-
+#endif
 
 #define ALLOW_EMPTY_INCHI_AS_INPUT    1 /* Allow "InChI=1//" and standard/beta analogues in input   */
 
@@ -452,11 +464,18 @@ extern "C" {
 #define KETO_ENOL_TAUT             1 /* include keto-enol tautomerism */
 #define TAUT_15_NON_RING           1 /* 1,5 tautomerism with endpoints not in ring */
 
+#define TAUT_PT_22_00              1 /* tautomerism rule PT_22_00 */
+#define TAUT_PT_16_00              1 /* tautomerism rule PT_16_00 */
+#define TAUT_PT_06_00              1 /* tautomerism rule PT_06_00 */
+#define TAUT_PT_39_00              1 /* tautomerism rule PT_39_00 */
+#define TAUT_PT_13_00              1 /* tautomerism rule PT_13_00 */
+#define TAUT_PT_18_00              1 /* tautomerism rule PT_18_00 */  
 
-#if 0
+#ifdef  BUILD_WITH_ENG_OPTIONS
 #define UNDERIVATIZE               1 /* split to possible underivatized fragments */
 #define RING2CHAIN                 1 /* open rings R-C(-OH)-O-R => R-C(=O) OH-R   */
-#endif 
+#endif
+
 
 #if( UNDERIVATIZE == 1 )
 #define UNDERIVATIZE_REPORT        1 /* if SdfValue found, add to SdfValue a list of removed deriv. agents */
@@ -953,6 +972,12 @@ extern "C" {
 #define TG_FLAG_FIX_ISO_FIXEDH_BUG       0x00200000   /* fix bug found after v.102b (isotopic H representation)  */
 #define TG_FLAG_FIX_TERM_H_CHRG_BUG      0x00400000   /* fix bug found after v.102b (moving H charge in 'remove_terminal_HDT') */
 
+#define TG_FLAG_PT_22_00                 0x00800000
+#define TG_FLAG_PT_16_00                 0x01000000
+#define TG_FLAG_PT_06_00                 0x02000000
+#define TG_FLAG_PT_39_00                 0x04000000
+#define TG_FLAG_PT_13_00                 0x08000000
+#define TG_FLAG_PT_18_00                 0x10000000
 
 /* output bTautFlags flags */
 
@@ -1208,7 +1233,7 @@ do {\
 /* #define STEREO_AT_ZZ 1 */
 
 /* Set to 1 and use in engineering mode, if necessary */
-/*#define ALLOW_SUBSTRUCTURE_FILTERING 1 */
+#define ALLOW_SUBSTRUCTURE_FILTERING 1
 
 
 #ifndef COMPILE_ALL_CPP

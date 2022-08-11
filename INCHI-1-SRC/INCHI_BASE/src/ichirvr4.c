@@ -3848,7 +3848,7 @@ int AddRemIsoProtonsInRestrStruct( INCHI_CLOCK *ic,
     /*----------------------------------------------------------------------------------
     nLink < 0 && num_componentsR > 0 => This is a Disconnected structure component; it is
                                         same as already processed reconnected one
-                                        Do no preicess it
+                                        Do no process it
 
     nLink > 0 && num_componentsR > 0 => This is a Disconnected structure component;
     (should not happen)                 It it is a result of (nLink-1)th Reconeected

@@ -190,6 +190,9 @@ typedef struct tagInputParms {
 #endif
 
 /* post v.1 features */
+#if ( RENUMBER_ATOMS_AND_RECALC_V106 == 1 )
+    int             bRenumber;
+#endif
 #if ( UNDERIVATIZE == 1 )
     int             bUnderivatize;
 #endif

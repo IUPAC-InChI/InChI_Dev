@@ -91,6 +91,12 @@ int set_common_options_by_parg( const char *pArg,
                                 int *pbReconnectCoord,
                                 int *pbKetoEnolTaut,
                                 int *pb15TautNonRing,
+                                int *pbPT_06_00_Taut,
+                                int *pbPT_13_00_Taut,
+                                int *pbPT_16_00_Taut,
+                                int *pbPT_18_00_Taut,
+                                int *pbPT_22_00_Taut,
+                                int *pbPT_39_00_Taut,
                                 int *pbLooseTSACheck,
                                 int *pbLargeMolecules,
                                 int *pbPolymers,
@@ -128,6 +134,12 @@ int set_common_options_by_parg( const char *pArg,
                                 int *pbReconnectCoord,
                                 int *pbKetoEnolTaut,
                                 int *pb15TautNonRing,
+                                int *pbPT_06_00_Taut,
+                                int *pbPT_13_00_Taut,
+                                int *pbPT_16_00_Taut,
+                                int *pbPT_18_00_Taut,
+                                int *pbPT_22_00_Taut,
+                                int *pbPT_39_00_Taut,
                                 int *pbLooseTSACheck,
                                 int *pbLargeMolecules,
                                 int *pbPolymers,
@@ -348,6 +360,54 @@ int set_common_options_by_parg( const char *pArg,
         *pb15TautNonRing = 1;
         *pbStdFormat = 0;
         got = 1;
+    }
+#endif
+
+#if ( TAUT_PT_22_00  == 1 )
+    else if (!inchi_stricmp(pArg, "PT_22_00"))
+    {
+        *pbPT_22_00_Taut = 1;
+        *pbStdFormat = 0;
+    }
+#endif
+
+#if ( TAUT_PT_16_00  == 1 )
+    else if (!inchi_stricmp(pArg, "PT_16_00"))
+    {
+        *pbPT_16_00_Taut = 1;
+        *pbStdFormat = 0;
+    }
+#endif
+
+#if ( TAUT_PT_06_00  == 1 )
+    else if (!inchi_stricmp(pArg, "PT_06_00"))
+    {
+        *pbPT_06_00_Taut = 1;
+        *pbStdFormat = 0;
+    }
+#endif
+
+#if ( TAUT_PT_39_00  == 1 )
+    else if (!inchi_stricmp(pArg, "PT_39_00"))
+    {
+        *pbPT_39_00_Taut = 1;
+        *pbStdFormat = 0;
+    }
+#endif
+
+#if ( TAUT_PT_13_00  == 1 )
+    else if (!inchi_stricmp(pArg, "PT_13_00"))
+    {
+        *pbPT_13_00_Taut = 1;
+        *pbStdFormat = 0;
+    }
+#endif
+
+#if ( TAUT_PT_18_00  == 1 )
+    else if (!inchi_stricmp(pArg, "PT_18_00"))
+    {
+        *pbPT_18_00_Taut = 1;
+        *pbStdFormat = 0;
     }
 #endif
 
@@ -582,6 +642,12 @@ int ReadCommandLineParms( int argc,
     int bFixFB2             = 1;
     int bKetoEnolTaut       = 0;
     int b15TautNonRing      = 0;
+    int bPT_22_00_Taut      = 0;
+    int bPT_16_00_Taut      = 0;
+    int bPT_06_00_Taut      = 0;
+    int bPT_39_00_Taut      = 0;
+    int bPT_13_00_Taut      = 0;
+    int bPT_18_00_Taut      = 0;
     int bStdFormat          = 1;
     int bHashKey            = 0;
     int bHashXtra1          = 0;
@@ -706,7 +772,9 @@ int ReadCommandLineParms( int argc,
                                               &bNoStructLabels, &bPointedEdgeStereo,
                                               &bDoNotAddH, &bForcedChiralFlag, &bReconnectCoord,
                                               &bKetoEnolTaut, 
-                                              &b15TautNonRing, 
+                                              &b15TautNonRing,
+                                              &bPT_06_00_Taut, &bPT_13_00_Taut, &bPT_16_00_Taut,
+                                              &bPT_18_00_Taut, &bPT_22_00_Taut, &bPT_39_00_Taut,
                                               &bLooseTSACheck,
                                               &bLargeMolecules, &bPolymers,
                                               &bFoldPolymerSRU, &bFrameShiftScheme,
@@ -837,6 +905,14 @@ int ReadCommandLineParms( int argc,
                 bStdFormat = 0;
             }
 #endif
+
+#if ( RENUMBER_ATOMS_AND_RECALC_V106 == 1 )
+            else if (!inchi_stricmp(pArg, "TestRenum") && developer_options)
+            {
+                ip->bRenumber = 1;
+            }
+#endif
+
 #if ( UNDERIVATIZE == 1 )
             else if (!inchi_stricmp( pArg, "DoDRV" ))
             {
@@ -1144,7 +1220,9 @@ int ReadCommandLineParms( int argc,
                                               &bNoStructLabels, &bPointedEdgeStereo,
                                               &bDoNotAddH, &bForcedChiralFlag, &bReconnectCoord,
                                               &bKetoEnolTaut, 
-                                              &b15TautNonRing, 
+                                              &b15TautNonRing,
+                                              &bPT_06_00_Taut, &bPT_13_00_Taut, &bPT_16_00_Taut,
+                                              &bPT_18_00_Taut, &bPT_22_00_Taut, &bPT_39_00_Taut,
                                               &bLooseTSACheck,
                                               &bLargeMolecules, &bPolymers,
                                               &bFoldPolymerSRU, &bFrameShiftScheme,
@@ -1334,6 +1412,15 @@ int ReadCommandLineParms( int argc,
                 bStdFormat = 0;
             }
 #endif
+
+
+#if ( RENUMBER_ATOMS_AND_RECALC_V106 == 1 )
+            else if (!inchi_stricmp(pArg, "TestRenum") && developer_options)
+            {
+                ip->bRenumber = 1;
+            }
+#endif
+
 #if ( UNDERIVATIZE == 1 )
             else if (!inchi_stricmp( pArg, "DoDRV" ) && developer_options)
             {
@@ -1873,6 +1960,23 @@ int ReadCommandLineParms( int argc,
     ip->bTautFlags |= bTgFlagHardAddRenProtons ? TG_FLAG_HARD_ADD_REM_PROTONS : 0;
     ip->bTautFlags |= bKetoEnolTaut ? TG_FLAG_KETO_ENOL_TAUT : 0;
     ip->bTautFlags |= b15TautNonRing ? TG_FLAG_1_5_TAUT : 0;
+
+    /*^^^ IPl 2020-04-02 added to forcefully enable new tauto rules (in test_ixa, etc.) */
+    /*^^^ IPl 2020-10-26 removed set to 1
+    bPT_22_00_Taut = 1;
+    bPT_16_00_Taut = 1;
+    bPT_06_00_Taut = 1;
+    bPT_39_00_Taut = 1;
+    */
+
+    /*^^^ IPl 2020-04-02 */
+    ip->bTautFlags |= bPT_22_00_Taut ? TG_FLAG_PT_22_00 : 0;
+    ip->bTautFlags |= bPT_16_00_Taut ? TG_FLAG_PT_16_00 : 0;
+    ip->bTautFlags |= bPT_06_00_Taut ? TG_FLAG_PT_06_00 : 0;
+    ip->bTautFlags |= bPT_39_00_Taut ? TG_FLAG_PT_39_00 : 0;
+    ip->bTautFlags |= bPT_13_00_Taut ? TG_FLAG_PT_13_00 : 0;
+    ip->bTautFlags |= bPT_18_00_Taut ? TG_FLAG_PT_18_00 : 0;
+
 #ifdef STEREO_WEDGE_ONLY
     ip->bTautFlags |= bPointedEdgeStereo ? TG_FLAG_POINTED_EDGE_STEREO : 0;
 #endif
@@ -2048,6 +2152,14 @@ int PrintInputParms( INCHI_IOSTREAM *log_file,
         }
         inchi_ios_eprint( log_file, "  Do not add H\n" );
     }
+
+
+#if ( RENUMBER_ATOMS_AND_RECALC_V106 == 1 )
+    if (ip->bRenumber == 1)
+    {
+        inchi_ios_eprint(log_file, "\nGenerate InChI upon random atom renumbering\n\n");
+    }
+#endif
 
 #if ( UNDERIVATIZE == 1 )
     if (ip->bUnderivatize==1)
@@ -2227,7 +2339,32 @@ int PrintInputParms( INCHI_IOSTREAM *log_file,
         {
             inchi_ios_eprint( log_file, "  Do not account for 1,5-tautomerism\n" );
         }
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
+
+        if (TG_FLAG_PT_22_00 & ip->bTautFlags)
+            inchi_ios_eprint(log_file, "  Account for PT_22_00 tautomerism\n");
+        else
+            inchi_ios_eprint(log_file, "  Do not account for PT_22_00 tautomerism\n");
+        if (TG_FLAG_PT_16_00 & ip->bTautFlags)
+            inchi_ios_eprint(log_file, "  Account for PT_16_00 tautomerism\n");
+        else
+            inchi_ios_eprint(log_file, "  Do not account for PT_16_00 tautomerism\n");
+        if (TG_FLAG_PT_06_00 & ip->bTautFlags)
+            inchi_ios_eprint(log_file, "  Account for PT_06_00 tautomerism\n");
+        else
+            inchi_ios_eprint(log_file, "  Do not account for PT_06_00 tautomerism\n");
+        if (TG_FLAG_PT_39_00 & ip->bTautFlags)
+            inchi_ios_eprint(log_file, "  Account for PT_39_00 tautomerism\n");
+        else
+            inchi_ios_eprint(log_file, "  Do not account for PT_39_00 tautomerism\n");
+        if (TG_FLAG_PT_13_00 & ip->bTautFlags)
+            inchi_ios_eprint(log_file, "  Account for PT_13_00 tautomerism\n");
+        else
+            inchi_ios_eprint(log_file, "  Do not account for PT_13_00 tautomerism\n");
+        if (TG_FLAG_PT_18_00 & ip->bTautFlags)
+            inchi_ios_eprint(log_file, "  Account for PT_18_00 tautomerism\n");
+        else
+            inchi_ios_eprint(log_file, "  Do not account for PT_18_00 tautomerism\n");
+
         if (developer_options)
         {
             if (TG_FLAG_PHOSPHINE_STEREO & ip->bTautFlags)
@@ -2621,6 +2758,13 @@ void HelpCommandLineParms( INCHI_IOSTREAM *f )
     inchi_ios_print_nodisplay( f, "  KET         Account for keto-enol tautomerism (experimental)\n" );
     inchi_ios_print_nodisplay( f, "  15T         Account for 1,5-tautomerism (experimental)\n" );
 
+    inchi_ios_print_nodisplay(f, "  PT_22_00    Account for PT_22_00 tautomerism (experimental)\n");
+    inchi_ios_print_nodisplay(f, "  PT_16_00    Account for PT_16_00 tautomerism (experimental)\n");
+    inchi_ios_print_nodisplay(f, "  PT_06_00    Account for PT_06_00 tautomerism (experimental)\n");
+    inchi_ios_print_nodisplay(f, "  PT_39_00    Account for PT_39_00 tautomerism (experimental)\n");
+    inchi_ios_print_nodisplay(f, "  PT_13_00    Account for PT_13_00 tautomerism (experimental)\n");
+    inchi_ios_print_nodisplay(f, "  PT_18_00    Account for PT_18_00 tautomerism (experimental)\n");
+
 
     inchi_ios_print_nodisplay( f, "Generation\n" );
     inchi_ios_print_nodisplay( f, "  Wnumber     Set time-out per structure in seconds; W0 means unlimited\n" );
@@ -2652,7 +2796,7 @@ void HelpCommandLineParms( INCHI_IOSTREAM *f )
 #endif
 
 #if (BUILD_WITH_ENG_OPTIONS==1)
-    inchi_ios_print_nodisplay(f, "Engineering\n");
+    inchi_ios_print_nodisplay(f, "Engineering/hidden\n");
 #ifdef TARGET_EXE_USING_API
     inchi_ios_print_nodisplay(f, "  InChI2InChI  Test mode: Mol/SDfile -> %s -> %s\n", INCHI_NAME, INCHI_NAME);
 #endif
@@ -2665,6 +2809,38 @@ void HelpCommandLineParms( INCHI_IOSTREAM *f )
     inchi_ios_print_nodisplay(f, "  FilterSS    Select input SDF records using (hard-coded) substructure filter\n");
     inchi_ios_print_nodisplay(f, "  InvFilterSS Invert match for (hard-coded) substructure filter\n");
 #endif
+
+    inchi_ios_print_nodisplay(f, "  Compress    Compressed output\n");
+    inchi_ios_print_nodisplay(f, "  MERGE       Use bMergeAllInputStructures\n");
+    inchi_ios_print_nodisplay(f, "  PGO         Use bSaveAllGoodStructsAsProblem\n");
+    inchi_ios_print_nodisplay(f, "  DCR         Use bDisplayCompositeResults\n");
+    inchi_ios_print_nodisplay(f, "  DSB         Use REQ_MODE_NO_ALT_SBONDS \n");
+    inchi_ios_print_nodisplay(f, "  NOHDR       Use bNoStructLabels\n");
+    inchi_ios_print_nodisplay(f, "  NoVarH      Set bTgFlagVariableProtons=0\n");
+    inchi_ios_print_nodisplay(f, "  NOUUSB      Use REQ_MODE_SB_IGN_ALL_UU\n");
+    inchi_ios_print_nodisplay(f, "  NOUUSC      Use REQ_MODE_SC_IGN_ALL_UU\n");
+    inchi_ios_print_nodisplay(f, "  FixRad      Set bFixAdjacentRad\n");
+    inchi_ios_print_nodisplay(f, "  TestRenum   Generate InChI upon random atom renumbering\n"); 
+    inchi_ios_print_nodisplay(f, "  DoDRV       Set bUnderivatize=1\n");
+    inchi_ios_print_nodisplay(f, "  DoDrvReport Set bUnderivatize=3\n");
+    inchi_ios_print_nodisplay(f, "  DoR2C       Set bRing2Chain\n");
+    inchi_ios_print_nodisplay(f, "  DoneOnly    Set bIgnoreUnchanged\n");
+    inchi_ios_print_nodisplay(f, "  NoADP       Set bTgFlagHardAddRenProtons=0\n");
+    inchi_ios_print_nodisplay(f, "  MOVEPOS:0|1 Set bMovePositiveCharges\n");
+    inchi_ios_print_nodisplay(f, "  RSB:n       Set nMinDbRinSize\n");
+    inchi_ios_print_nodisplay(f, "  DISCONSALT:0|1     Set bDisconnectSalts\n");
+    inchi_ios_print_nodisplay(f, "  DISCONMETAL:0|1    Set bDisconnectCoord\n");
+    inchi_ios_print_nodisplay(f, "  DISCONMETALCHKVAL:0|1 Set bDisconnectCoordChkVal \n");
+    inchi_ios_print_nodisplay(f, "  RECONMETAL:0|1     Set bReconnectCoord\n");
+    inchi_ios_print_nodisplay(f, "  MERGESALTTG:0|1    Set bMergeSaltTGroups\n");
+    inchi_ios_print_nodisplay(f, "  UNCHARGEDACIDS:0|1 Set bUnchargedAcidTaut \n");
+    inchi_ios_print_nodisplay(f, "  ACIDTAUT:0|1|2     Set bAcidTautomerism\n");
+    inchi_ios_print_nodisplay(f, "  AUXINFO:0|1|2      Set AuxInfo print options\n");
+    inchi_ios_print_nodisplay(f, "  KeepBalanceP...  \n");
+    inchi_ios_print_nodisplay(f, "  SDFID       ...\n");
+    inchi_ios_print_nodisplay(f, "  PLAINP      ....\n");
+    inchi_ios_print_nodisplay(f, "  ANNPLAIN    ....\n");
+
 #endif
 
 #endif

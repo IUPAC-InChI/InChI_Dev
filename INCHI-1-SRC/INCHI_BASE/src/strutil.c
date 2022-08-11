@@ -4755,17 +4755,17 @@ int Free_INChI_Members( INChI *pINChI )
 {
     if (pINChI)
     {
-        Free_INChI_Stereo( pINChI->Stereo );
-        Free_INChI_Stereo( pINChI->StereoIsotopic );
-        qzfree( pINChI->nAtom );
-        qzfree( pINChI->nConnTable );
-        qzfree( pINChI->nTautomer );
-        qzfree( pINChI->nNum_H );
-        qzfree( pINChI->nNum_H_fixed );
-        qzfree( pINChI->IsotopicAtom );
-        qzfree( pINChI->IsotopicTGroup );
-        qzfree( pINChI->nPossibleLocationsOfIsotopicH );
-        qzfree( pINChI->Stereo );
+        Free_INChI_Stereo(pINChI->Stereo);
+        Free_INChI_Stereo(pINChI->StereoIsotopic);
+        qzfree(pINChI->nAtom);
+        qzfree(pINChI->nConnTable);
+        qzfree(pINChI->nTautomer);
+        qzfree(pINChI->nNum_H);
+        qzfree(pINChI->nNum_H_fixed);
+        qzfree(pINChI->IsotopicAtom);
+        qzfree(pINChI->IsotopicTGroup);
+        qzfree(pINChI->nPossibleLocationsOfIsotopicH);
+        qzfree( pINChI->Stereo );       
         qzfree( pINChI->StereoIsotopic );
         qzfree( pINChI->szHillFormula );
     }
