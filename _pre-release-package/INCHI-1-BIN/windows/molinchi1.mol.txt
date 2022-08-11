@@ -1,2 +1,0 @@
-* Input_File: "C:\_ipl\INCHI\devel\INCHI-DEV\_pre-release-package\INCHI-1-BIN\windows\molinchi1.mol"
-message: type="error (no InChI)" value="Cannot read properties block line"
