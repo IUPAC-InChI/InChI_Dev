@@ -1,4 +1,6 @@
 /*
+ * UPDATE LICENSE TO FIT 
+ * 
  * International Chemical Identifier (InChI)
  * Version 1
  * Software version 1.06
