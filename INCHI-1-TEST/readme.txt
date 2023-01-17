@@ -4,6 +4,7 @@
  * Software version 1.06
  * December 15, 2020
  *
+ ***
  * The InChI library and programs are free software developed under the
  * auspices of the International Union of Pure and Applied Chemistry (IUPAC).
  * Originally developed at NIST.
