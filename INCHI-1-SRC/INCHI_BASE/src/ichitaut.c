@@ -871,7 +871,7 @@ int nGetEndpointInfo_PT_18_00(inp_ATOM *atom, int iat, ENDPOINT_INFO *eif)
     int  nEndpointValence;
     int  nMobile;
     S_CHAR cChargeSubtype;
-    int res;
+    /* int res; */ 
     if (atom[iat].radical && atom[iat].radical != RADICAL_SINGLET)
         return 0; /* a radical */
     nEndpointValence = atom[iat].el_number == (U_CHAR)get_periodic_table_number("O") ? 2 :
