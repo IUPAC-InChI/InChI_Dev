@@ -119,7 +119,7 @@ typedef struct tagInputParms {
 
 
 #if ( defined( TARGET_LIB_FOR_WINCHI ) || defined(TARGET_EXE_STANDALONE) )
-/* #ifndef COMPILE_ANSI_ONLY -- this has been removed so it can work on Windows 10/11 with MinGW; quite likely obsolete */
+/* #ifndef COMPILE_ANSI_ONLY -- this has been removed so it can work on Windows 10/11 with MinGW */
     DRAW_PARMS      dp;
     PER_DRAW_PARMS  pdp;
     TBL_DRAW_PARMS  tdp;
