@@ -394,25 +394,31 @@ MOL_FMT_DATA * MolfileReadDataLines( INCHI_IOSTREAM *inp_file,
         int i;
         for (i = 0; i < pCtab->n_atoms; i++)
         {
-            if (pCtab->atoms[i].valence > MAXVAL)
+            if (pCtab->atoms) /* djb-rwth: correcting the dereferencing NULL pointer */
             {
-                retcode = 70 + 9;
-                TREAT_ERR( retcode, 0, "Too large input atomic valence" );
-                break;
+                if (pCtab->atoms[i].valence > MAXVAL)
+                {
+                    retcode = 70 + 9;
+                    TREAT_ERR( retcode, 0, "Too large input atomic valence" );
+                    break;
+                }
             }
         }
 #if ( FIX_CURE53_ISSUE_NULL_DEREFERENCE_MAKE_A_COPY_OF_T_GROUP_INFO==1 || defined(FIX_IMPOSSIBLE_H_ISOTOPE_BUG) )
         /* Do not eat H isotopes other than [H,D,T] */
         for (i = 0; i < pCtab->n_atoms; i++)
         {
-            int dmass = pCtab->atoms[i].mass_difference;
-            if ((!strcmp(pCtab->atoms[i].symbol, "H") && dmass != 0 && dmass != 1 && dmass != 2 && dmass != 127) ||
-                (!strcmp(pCtab->atoms[i].symbol, "D") && dmass != 0 && dmass != 1 && dmass != -1) ||
-                (!strcmp(pCtab->atoms[i].symbol, "T") && dmass != 0 && dmass != -1 && dmass != -2))
+            if (pCtab->atoms) /* djb-rwth: correcting the dereferencing NULL pointer */
             {
-                retcode = 70 + 8;
-                TREAT_ERR(retcode, 0, "Unacceptable isotope of hydrogen");
-                break;
+                int dmass = pCtab->atoms[i].mass_difference;
+                if ((!strcmp(pCtab->atoms[i].symbol, "H") && dmass != 0 && dmass != 1 && dmass != 2 && dmass != 127) ||
+                    (!strcmp(pCtab->atoms[i].symbol, "D") && dmass != 0 && dmass != 1 && dmass != -1) ||
+                    (!strcmp(pCtab->atoms[i].symbol, "T") && dmass != 0 && dmass != -1 && dmass != -2))
+                {
+                    retcode = 70 + 8;
+                    TREAT_ERR(retcode, 0, "Unacceptable isotope of hydrogen");
+                    break;
+                }
             }
         }
 #endif
@@ -978,6 +984,7 @@ int MolfileReadPropBlock( MOL_FMT_CTAB* ctab,
     int  isotope_encountered = 0;
     int     polymer_occurred = 0;
 
+    szType[0] = '\0'; /* djb-rwth: adding zero termination */
     int debug_polymers = 0;
 #if ( DEBUG_POLYMERS == 1 )
     debug_polymers = 1;

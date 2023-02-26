@@ -283,7 +283,7 @@ int AddElementAndCount( const char *szElement, int mult, char *szLinearCT, int n
         if (len1 + len2 < nLenLinearCT)
         {
             memcpy( szLinearCT, szElement, len1 );
-            memcpy( szLinearCT + len1, szMult, len2 + 1 ); /*  adding zero termination */
+            memcpy( szLinearCT + len1, szMult, (long long)len2 + 1 ); /*  adding zero termination */ /* djb-rwth: added cast operator */
             return len1 + len2;
         }
         else
@@ -405,7 +405,7 @@ char *AllocateAndFillHillFormula( INChI *pINChI )
     {
 
 #if ( FIX_GAF_2019_2==1 )
-        pHillFormula = (char*)inchi_calloc(nLen + 1, sizeof(char));
+        pHillFormula = (char*)inchi_calloc((long long )nLen + 1, sizeof(char)); /* djb-rwth: cast operator added */
 #else
         pHillFormula = (char*)inchi_malloc(nLen + 1);
 #endif
@@ -522,8 +522,8 @@ int Copy2StereoBondOrAllene( INChI_Stereo *Stereo,
 
             if (j < *nNumberOfStereoCenters)
             {
-                memmove( nNumber + j + 1, nNumber + j, ( *nNumberOfStereoCenters - j ) * sizeof( nNumber[0] ) );
-                memmove( t_parity + j + 1, t_parity + j, ( *nNumberOfStereoCenters - j ) * sizeof( t_parity[0] ) );
+                memmove( nNumber + j + 1, nNumber + j, ( *nNumberOfStereoCenters - (long long)j ) * sizeof( nNumber[0] ) ); /* djb-rwth: cast operator added */
+                memmove( t_parity + j + 1, t_parity + j, ( *nNumberOfStereoCenters - (long long)j ) * sizeof( t_parity[0] ) ); /* djb-rwth: cast operator added */
             }
 
             /* fill the new stereo center info */
@@ -1023,9 +1023,9 @@ int FillOutINChI( INChI *pINChI,
         nErrorCode |= WARN_FAILED_ISOTOPIC_STEREO;
     }
 
-    pCanonRankAtoms = (AT_NUMB *) inchi_calloc( num_at_tg + 1, sizeof( pCanonRankAtoms[0] ) );
+    pCanonRankAtoms = (AT_NUMB *) inchi_calloc( (long long)num_at_tg + 1, sizeof( pCanonRankAtoms[0] ) ); /* djb-rwth: cast operator added */
 
-    pSortOrd = (AT_NUMB *) inchi_calloc( num_at_tg + 1, sizeof( pSortOrd[0] ) ); /*  must have more than num_atoms */
+    pSortOrd = (AT_NUMB *) inchi_calloc( (long long)num_at_tg + 1, sizeof( pSortOrd[0] ) ); /*  must have more than num_atoms */ /* djb-rwth: cast operator added */
 
     if (!pCanonRankAtoms || !pSortOrd)
     {
@@ -1315,14 +1315,20 @@ int FillOutINChI( INChI *pINChI,
 
             /*  Num(H), Num(-) */
 
-            for (j = 0; j < INCHI_T_NUM_MOVABLE && j < T_NUM_NO_ISOTOPIC; j++)
+            for (j = 0; j < INCHI_T_NUM_MOVABLE; j++) /* djb-rwth: redundant condition; && j < T_NUM_NO_ISOTOPIC part should be checked; can INCHI_T_NUM_MOVABLE and T_NUM_NO_ISOTOPIC change values from 2? */
             {
                 pINChI->nTautomer[len++] = t_group->num[j];
             }
+            
+            
+            /* djb-rwth: erroneous loop execution condition
+            
             for (j = T_NUM_NO_ISOTOPIC; j < INCHI_T_NUM_MOVABLE; j++)
             {
-                pINChI->nTautomer[len++] = 0; /* should not happen */
+                pINChI->nTautomer[len++] = 0; // should not happen 
             }
+            
+            */
 
             /* tautomeric group endpoint canonical numbers, pre-sorted in ascending order */
 

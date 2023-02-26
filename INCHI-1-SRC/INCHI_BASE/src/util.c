@@ -772,7 +772,7 @@ int extract_H_atoms( char *elname, S_CHAR num_iso_H[] )
 
             /*  remove the hydrogen atom from the string */
             len -= (int) ( q - elname ) - i;
-            memmove( elname + i, q, len + 1 );
+            memmove( elname + i, q, (long long)len + 1 ); /* djb-rwth: cast operator added */
             /*  c =  UCINT elname[i]; */
         }
         else
@@ -1548,7 +1548,7 @@ int normalize_string( char* name )
         {
             if (n > 0)
             {
-                memmove( (void*) &name[i - n], (void*) &name[i], len - i + 1 );
+                memmove( (void*) &name[i - n], (void*) &name[i], (long long)len - (long long)i + 1 ); /* djb-rwth: cast operators added */
                 i -= n;
                 len -= n;
             }
@@ -1746,7 +1746,11 @@ char* lrtrim( char *p, int* nLen )
             ;
         }
         if (i)
-            (memmove) ( p, p + i, ( len -= i ) + 1 );
+        {
+            len -= i; /* djb-rwth: variable has to be decreased before memmove */
+            (memmove) ( p, p + i, ( (long long)len + 1 )); /* djb-rwth: now cast operator can be added */
+        }
+            
         for (; 0 < len && __isascii( p[len - 1] ) && isspace( p[len - 1] ); len--)
         {
             ;

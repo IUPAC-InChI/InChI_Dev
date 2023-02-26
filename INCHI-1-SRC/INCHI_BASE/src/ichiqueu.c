@@ -1149,7 +1149,7 @@ int Check6MembTautRing( struct tagCANON_GLOBALS *pCG,
                         int num_atoms )
 {
 #define PATH_LEN 4
-    int i, j, k, /*m,*/ nNumBondPos, nNumEndPoint;
+    int i, j, k, /*m,*/ nNumBondPos, nNumEndPoint, ept, eptn;
     int nNumEndPointTmp, nNumBondPosTmp, o_at = 0, ret;
     /* int num_taut_endpoints, num_H; */
     int middle_pos;
@@ -1177,6 +1177,9 @@ int Check6MembTautRing( struct tagCANON_GLOBALS *pCG,
     nNumBondPosTmp = 0;
     nNumEndPointTmp = 0;
     ret = 0;
+    for (ept = 0; ept < 2; ept++) /* djb-rwth: initialisation needed for num array */
+        for (eptn = 0; eptn < T_NUM_NO_ISOTOPIC + T_NUM_ISOTOPIC; eptn++)
+            EndPointTmp[ept].num[eptn] = 0;
 
     n_at = (int) DfsPath[0].at_no;   /*  -N= or -NH- atom */
     nxt_at = DfsPath[middle_pos = ( nLenDfsPath + 1 ) / 2].at_no;  /*  must have tautomeric neighbor -OH or =O or -NH2 or =NH */
@@ -1670,7 +1673,7 @@ int Check5MembTautRing( struct tagCANON_GLOBALS *pCG,
                         int num_atoms )
 {
 #define PATH_LEN 4
-    int i, j, /*m,*/ nMobile, nMobile1, nMobile2;
+    int i, j, /*m,*/ nMobile, nMobile1, nMobile2, ept, eptn;
     int num_taut_endpoints, nNumBondPos, nNumBondPosTmp, nNumEndPoint, nNumEndPointTmp, ret;
     int endpoint;
     int n1_at = (int) DfsPath[0].at_no;
@@ -1698,6 +1701,9 @@ int Check5MembTautRing( struct tagCANON_GLOBALS *pCG,
     nNumEndPointTmp = 0;
     nNumBondPosTmp = 0;
     ret = 0;
+    for (ept = 0; ept < 2; ept++) /* djb-rwth: initialisation needed for num array */
+        for (eptn = 0; eptn < T_NUM_NO_ISOTOPIC + T_NUM_ISOTOPIC; eptn++)
+            EndPointTmp[ept].num[eptn] = 0;
 
     if (!nGetEndpointInfo( atom, n1_at, &eif1 ) ||
         !nGetEndpointInfo( atom, n2_at, &eif2 ))

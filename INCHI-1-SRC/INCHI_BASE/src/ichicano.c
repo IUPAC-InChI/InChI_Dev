@@ -888,8 +888,8 @@ int FillTautLinearCT2( CANON_GLOBALS *pCG,
         int        num_t_groups = t_group_info->num_t_groups;
         AT_NUMB   *tGroupNumber = t_group_info->tGroupNumber;
         AT_NUMB   *tSymmRank = tGroupNumber + TGSO_SYMM_RANK*num_t_groups;  /*  equivalence */
-        AT_NUMB   *tiSymmRank = tGroupNumber + TGSO_SYMM_IRANK*num_t_groups;
-        AT_NUMB   *tiGroupNumber = tGroupNumber + TGSO_SYMM_IORDER*num_t_groups;
+        AT_NUMB   *tiSymmRank = tGroupNumber + TGSO_SYMM_IRANK*(long long)num_t_groups; /* djb-rwth: cast operator added */
+        AT_NUMB   *tiGroupNumber = tGroupNumber + TGSO_SYMM_IORDER*(long long)num_t_groups; /* djb-rwth: cast operator added */
         AT_RANK    nOffset = (AT_RANK) num_atoms;
 
         /*  Fill Canonical ranks and Symmetry Ranks */
@@ -1063,6 +1063,8 @@ int UpdateFullLinearCT( int num_atoms,
     AT_NUMB      *nEndpointAtomNumber = NULL;
 
     int  nCTLen = 0, nCTLenAtOnly = 0;
+    
+    num_neigh = 0; /* djb-rwth: num_neigh initialisation added */
 
     AT_NUMB         r_neigh;
     AT_NUMB        *LinearCT = pCS->LinearCT;
@@ -1192,22 +1194,26 @@ int UpdateFullLinearCT( int num_atoms,
         ********************************************************/
 
         /* sort endpoints */
-        nEndpointAtomNumber = t_group_info->nEndpointAtomNumber + (int) t_group[i].nFirstEndpointAtNoPos;
+        if (t_group_info) 
+            nEndpointAtomNumber = t_group_info->nEndpointAtomNumber + (int) t_group[i].nFirstEndpointAtNoPos; /* djb-rwth: correcting the dereferencing NULL pointer */
         pCG->m_pn_RankForSort = nRank;
-        num_neigh = (int) t_group[i].nNumEndpoints;
+        if (t_group + i)
+            num_neigh = (int)t_group[i].nNumEndpoints;
         insertions_sort( pCG, nEndpointAtomNumber, (size_t) num_neigh, sizeof( nEndpointAtomNumber[0] ), CompRank );
 
         for (k = 0; k < num_neigh; k++)
         {
             /* rank = (new current atom Rank) */
-            if ((int) ( r_neigh = (AT_NUMB) nRank[(int) nEndpointAtomNumber[k]] )
-                                                              CT_NEIGH_SMALLER_THAN rank)
+            if (nEndpointAtomNumber + k) /* djb-rwth: correcting the dereferencing NULL pointer */
             {
-                if (CHECK_OVERFLOW( nCTLen, pCS->nMaxLenLinearCT ))
+                if ((int)(r_neigh = (AT_NUMB)nRank[(int)nEndpointAtomNumber[k]]) CT_NEIGH_SMALLER_THAN rank) 
                 {
-                    return CT_OVERFLOW;  /*  <BRKPT> */
+                    if (CHECK_OVERFLOW(nCTLen, pCS->nMaxLenLinearCT))
+                    {
+                        return CT_OVERFLOW;  /*  <BRKPT> */
+                    }
+                    COMPARE_WITH_CT(LinearCT, nCTLen, r_neigh, bCompare);
                 }
-                COMPARE_WITH_CT( LinearCT, nCTLen, r_neigh, bCompare );
             }
         }
     } /* end of cycle over all tautomeric groups. */
@@ -1665,8 +1671,8 @@ VII. Optimize isotopic stereo descriptors (optimized)
             {
                 /* tautomeric groups: save isotopic symmetry & t_group order */
                 /*AT_NUMB ntRankOffset       = (AT_RANK)num_atoms;*/
-                AT_NUMB *tiSymmRank = tGroupNumber + TGSO_SYMM_IRANK*num_t_groups;
-                AT_NUMB *tiGroupNumber = tGroupNumber + TGSO_SYMM_IORDER*num_t_groups;
+                AT_NUMB *tiSymmRank = tGroupNumber + TGSO_SYMM_IRANK*(long long)num_t_groups; /* djb-rwth: cast operator added */
+                AT_NUMB *tiGroupNumber = tGroupNumber + TGSO_SYMM_IORDER*(long long)num_t_groups; /* djb-rwth: cast operator added */
                 if (pCS->nSymmRankIsotopicTaut)
                 {
                     memcpy( pCS->nSymmRankIsotopicTaut, tiSymmRank, num_t_groups * sizeof( pCS->nSymmRankIsotopicTaut[0] ) );
@@ -1834,7 +1840,7 @@ VII. Optimize isotopic stereo descriptors (optimized)
         }
         if (!nSymmStereo && !( nMode & CMODE_NOEQ_STEREO ))
         {
-            nSymmStereo = (AT_RANK *) qmalloc( ( num_max + 1 ) * sizeof( *nSymmStereo ) );
+            nSymmStereo = (AT_RANK *) qmalloc( ( (long long)num_max + 1 ) * sizeof( *nSymmStereo ) ); /* djb-rwth: cast operator added */
         }
 
         if (!( nMode & CMODE_NOEQ_STEREO ) && 0 > CurTreeAlloc( cur_tree, num_at_tg ))
@@ -2234,7 +2240,7 @@ VII. Optimize isotopic stereo descriptors (optimized)
         }
         if (!nSymmStereo && !( nMode & CMODE_NOEQ_STEREO ))
         {
-            nSymmStereo = (AT_RANK *) qmalloc( ( num_max + 1 ) * sizeof( *nSymmStereo ) );
+            nSymmStereo = (AT_RANK *) qmalloc( ( (long long)num_max + 1 ) * sizeof( *nSymmStereo ) ); /* djb-rwth: cast operator added */
         }
         if (!( nMode & CMODE_NOEQ_STEREO ) && CurTreeAlloc( cur_tree, num_at_tg ))
         {

@@ -722,7 +722,7 @@ int NodeSetCreate( struct tagCANON_GLOBALS *pCG,
     {
         return 0;
     }
-    pSet->bitword[0] = (bitWord*) inchi_calloc( len*L, sizeof( pSet->bitword[0][0] ) );
+    pSet->bitword[0] = (bitWord*) inchi_calloc( (long long)len * (long long)L, sizeof( pSet->bitword[0][0] ) ); /* djb-rwth: cast operators added */
     if (!pSet->bitword[0])
     {
         /* Cleanup */
@@ -1793,7 +1793,7 @@ void CtPartClear( ConTable *Ct, int k )
     len = Ct->lenCt - start;
     if (len > 0)
     {
-        memset( Ct->Ctbl + start, 0, ( Ct->lenCt - start ) * sizeof( Ct->Ctbl[0] ) );
+        memset( Ct->Ctbl + start, 0, ( (long long)Ct->lenCt - (long long)start ) * sizeof( Ct->Ctbl[0] ) ); /* djb-rwth: cast operators added */
     }
     Ct->lenCt = start;
     Ct->lenPos = k;
@@ -2627,8 +2627,7 @@ int CtFullCompare( ConTable *Ct1,
         endCt1 = endCt2 = inchi_min( endCt1, Ct1->lenCt );
         endAt1 = endAt2 = inchi_min( endAt1, endAt2 );
 
-        if (Ct1->Ctbl[endCt1] == EMPTY_CT || Ct1->Ctbl[endCt1] == 0 ||
-             Ct2->Ctbl[endCt1] == EMPTY_CT || Ct2->Ctbl[endCt1] == 0)
+        if (Ct1->Ctbl[endCt1] == EMPTY_CT || Ct2->Ctbl[endCt1] == EMPTY_CT) /* djb-rwth: redundant conditions removed */
         {
             endCt1 = endCt2 = endCt1 - 1;
         }
@@ -4693,6 +4692,8 @@ void FillOutAtomInvariant2( sp_ATOM* at,
     int  nNumChemElements = 0;
     int  nNumHydrogenAtoms = 0;
     int  nNumCarbonAtoms = 0;
+    
+    ChemElements[0] = '\0'; /* djb-rwth: initialisation prevents empty string comparison */
     memset( ChemElements, 0, sizeof( ChemElements ) );
     memset( CurElement, 0, sizeof( CurElement ) );
     nNumChemElements = 0;
@@ -4738,7 +4739,7 @@ void FillOutAtomInvariant2( sp_ATOM* at,
         {
             if (nNumChemElements)
             {
-                memmove( ChemElements + ELEM_NAME_LEN, ChemElements, ELEM_NAME_LEN*nNumChemElements );
+                memmove( ChemElements + ELEM_NAME_LEN, ChemElements, (long long)ELEM_NAME_LEN * (long long)nNumChemElements );
             }
             ChemElements[0] = 'C';
             ChemElements[1] = ' ';

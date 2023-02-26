@@ -561,8 +561,8 @@ int SaveEquComponentsInfoAndSortOrder( int             iINChI,
             AT_NUMB nNumAtoms = (AT_NUMB) inp_data->num_inp_atoms;
 
             if (( prep_inp_data[iINChI].nSortedOrder =
-                (AT_NUMB *) inchi_calloc( num_components[iINChI] + 1,
-                    sizeof( prep_inp_data[0].nSortedOrder[0] ) ) ))
+                (AT_NUMB *) inchi_calloc( (long long)num_components[iINChI] + 1,
+                    sizeof( prep_inp_data[0].nSortedOrder[0] ) ) )) /* djb-rwth: cast operator added */
             {
                 inp_data->nNumEquSets = 0;
 
@@ -593,8 +593,8 @@ int SaveEquComponentsInfoAndSortOrder( int             iINChI,
                     {
                         if (inp_data->nEquLabels ||
                             ( inp_data->nEquLabels =
-                            (AT_NUMB *) inchi_calloc( inp_data->num_inp_atoms + 1,
-                                sizeof( inp_data->nEquLabels[0] ) ) ))
+                            (AT_NUMB *) inchi_calloc( (long long)inp_data->num_inp_atoms + 1,
+                                sizeof( inp_data->nEquLabels[0] ) ) )) /* djb-rwth: cast operator added */
                         {
                             nSet++;
                                 /* found i2-i1 equivalent components && */

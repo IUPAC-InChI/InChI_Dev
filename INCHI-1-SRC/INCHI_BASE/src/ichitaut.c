@@ -1384,7 +1384,7 @@ int RegisterEndPoints( CANON_GLOBALS *pCG,
         num_t--;
         if (num_t > i1)
         {
-            memmove( t_group + i1, t_group + i1 + 1, ( num_t - i1 ) * sizeof( t_group[0] ) );
+            memmove( t_group + i1, t_group + i1 + 1, ( (long long)num_t - (long long)i1 ) * sizeof( t_group[0] ) ); /* djb-rwth: cast operators added */
         }
     }
 
@@ -1393,14 +1393,14 @@ int RegisterEndPoints( CANON_GLOBALS *pCG,
         /* there are groups to merge */
         if (nNextGroupNumber >= MAX_STACK_ARRAY_LEN)
         {
-            nNewTgNumber = (AT_NUMB *) inchi_malloc( ( nNextGroupNumber + 1 ) * sizeof( *nNewTgNumber ) );
+            nNewTgNumber = (AT_NUMB *) inchi_malloc( ( (long long)nNextGroupNumber + 1 ) * sizeof( *nNewTgNumber ) ); /* djb-rwth: cast operator added */
             if (!nNewTgNumber)
             {
                 ret = -1;
                 goto exit_function; /* error: out of RAM */
             }
         }
-        memset( nNewTgNumber, 0, ( nNextGroupNumber + 1 ) * sizeof( *nNewTgNumber ) );
+        memset( nNewTgNumber, 0, ( (long long)nNextGroupNumber + 1 ) * sizeof( *nNewTgNumber ) ); /* djb-rwth: cast operator added */
         for (i = 0; i < num_t; i++)
         {
             nNewTgNumber[t_group[i].nGroupNumber] = i + 1; /* new t-group numbers */
@@ -1463,7 +1463,7 @@ int RegisterEndPoints( CANON_GLOBALS *pCG,
     }
     if (!t_group_info->tGroupNumber)
     {
-        t_group_info->tGroupNumber = (AT_NUMB *) inchi_malloc( 2 * max_num_t * sizeof( t_group_info->tGroupNumber[0] ) );
+        t_group_info->tGroupNumber = (AT_NUMB *) inchi_malloc( 2 * (long long)max_num_t * sizeof( t_group_info->tGroupNumber[0] ) ); /* djb-rwth: cast operator added */
         if (!t_group_info->tGroupNumber)
         {
             ret = -1;
@@ -1471,7 +1471,7 @@ int RegisterEndPoints( CANON_GLOBALS *pCG,
         }
     }
     /* fill out t-group index 2004-02-27 */
-    memset( t_group_info->tGroupNumber, 0, 2 * max_num_t * sizeof( t_group_info->tGroupNumber[0] ) );
+    memset( t_group_info->tGroupNumber, 0, 2 * (long long)max_num_t * sizeof( t_group_info->tGroupNumber[0] ) ); /* djb-rwth: cast operator added */
     for (i = 0; i < num_t; i++)
     {
         if (t_group[i].nNumEndpoints && t_group[i].nGroupNumber)
@@ -2398,7 +2398,7 @@ int RegisterCPoints( C_GROUP *c_group,
         num_c--;
         if (num_c > i2)
         {
-            memmove( c_group + i2, c_group + i2 + 1, ( num_c - i2 ) * sizeof( c_group[0] ) );
+            memmove( c_group + i2, c_group + i2 + 1, ( (long long)num_c - i2 ) * sizeof( c_group[0] ) ); /* djb-rwth: cast operators added */
         }
         *pnum_c = num_c;
         /* renumber c-groups */
@@ -3128,7 +3128,7 @@ int MarkSaltChargeGroups2( CANON_GLOBALS *pCG,
 
         qsort( s_candidate, nNumCandidates, sizeof( s_candidate[0] ), comp_candidates );
 
-        cPair = (S_CHAR *) inchi_calloc( nNumLeftCandidates*nNumLeftCandidates, sizeof( cPair[0] ) );
+        cPair = (S_CHAR *) inchi_calloc( (long long)nNumLeftCandidates * (long long)nNumLeftCandidates, sizeof( cPair[0] ) ); /* djb-rwth: cast operators added */
         if (!cPair)
         {
             /*printf("BNS_OUT_OF_RAM-6\n");*/
@@ -4048,10 +4048,23 @@ int MergeSaltTautGroups( CANON_GLOBALS *pCG,
                  /* >C-SH, >C-S(-); S=S,Se,Te */
 
                  /* other proton donor or acceptor */
-                 bHasAcidicHydrogen( at, i ) && ( ( s_type = 3 ), ( s_subtype = SALT_p_DONOR ) ) ||
-                 bHasAcidicMinus( at, i ) && ( ( s_type = 3 ), ( s_subtype = SALT_p_ACCEPTOR ) )
+                 bHasAcidicHydrogen( at, i ) || /* djb-rwth: incorrectly written */
+                 bHasAcidicMinus( at, i )  /* djb-rwth: incorrectly written */
                  )
             {
+                /* djb-rwth: statement from the condition correctly written */
+                if (bHasAcidicHydrogen(at, i))
+                {
+                    s_type = 3;
+                    s_subtype = SALT_p_DONOR;
+                }
+
+                /* djb-rwth: statement from the condition correctly written */
+                if (bHasAcidicMinus(at, i))
+                {
+                    s_type = 3;
+                    s_subtype = SALT_p_ACCEPTOR;
+                }
 
                 if (nNumCandidates >= nMaxNumCandidates)
                 {
@@ -4264,12 +4277,35 @@ int MakeIsotopicHGroup( inp_ATOM *at,
                    /* >C-SH, >C-S(-); S=S,Se,Te */
 
                    /* other proton donor or acceptor */
-                   bHasAcidicHydrogen( at, i ) && ( ( s_type = 3 ), ( s_subtype = SALT_p_DONOR ) ) ||
-                   bHasAcidicMinus( at, i ) && ( ( s_type = 3 ), ( s_subtype = SALT_p_ACCEPTOR ) ) ||
-                   bHasOtherExchangableH( at, i ) && ( ( s_type = 3 ), ( s_subtype = SALT_DONOR_H ) ) )
+                   bHasAcidicHydrogen( at, i ) || /* djb-rwth: incorrectly written */
+                   bHasAcidicMinus( at, i ) || /* djb-rwth: incorrectly written */
+                   bHasOtherExchangableH( at, i ) )  /* djb-rwth: incorrectly written */
 
                  )
             {
+
+                /* djb-rwth: statement from the condition correctly written */
+                if (bHasAcidicHydrogen(at, i))
+                {
+                    s_type = 3;
+                    s_subtype = SALT_p_DONOR;
+                }
+
+                /* djb-rwth: statement from the condition correctly written */
+                if (bHasAcidicMinus(at, i))
+                {
+                    s_type = 3;
+                    s_subtype = SALT_p_ACCEPTOR;
+                }
+
+                /* djb-rwth: statement from the condition correctly written */
+                if (bHasOtherExchangableH(at, i))
+                {
+                    s_type = 3;
+                    s_subtype = SALT_DONOR_H;
+                }
+
+
                 if (nNumCandidates >= nMaxNumCandidates)
                 {
                     return BNS_VERT_EDGE_OVFL;
@@ -4291,7 +4327,7 @@ int MakeIsotopicHGroup( inp_ATOM *at,
 
         if (nNumCandidates > 0)
         {
-            t_group_info->nIsotopicEndpointAtomNumber = (AT_NUMB *) inchi_calloc( nNumNonTautCandidates + 1, sizeof( t_group_info->nIsotopicEndpointAtomNumber[0] ) );
+            t_group_info->nIsotopicEndpointAtomNumber = (AT_NUMB *) inchi_calloc( (long long)nNumNonTautCandidates + 1, sizeof( t_group_info->nIsotopicEndpointAtomNumber[0] ) ); /* djb-rwth: cast operator added */
             t_group_info->nIsotopicEndpointAtomNumber[0] = nNumNonTautCandidates;
             for (i = 0, n = 1; i < nNumCandidates; i++)
             {
@@ -4388,7 +4424,7 @@ int MarkTautomerGroups( CANON_GLOBALS *pCG,
                         struct BalancedNetworkStructure *pBNS,
                         struct BalancedNetworkData *pBD )
 {
-    int i, j, k, m, endpoint_valence, centerpoint, endpoint, bond_type, nMobile, num_changes = 0, tot_changes = 0;
+    int i, j, k, m, endpoint_valence, centerpoint, endpoint, bond_type, nMobile, num_changes = 0, tot_changes = 0, tep;
     T_ENDPOINT EndPoint[MAXVAL];
     T_BONDPOS  BondPos[MAXVAL];
     AT_NUMB    nGroupNumber;
@@ -4400,6 +4436,13 @@ int MarkTautomerGroups( CANON_GLOBALS *pCG,
     int *pnum_t, max_num_t, bIgnoreIsotopic;
     ENDPOINT_INFO eif1, eif2;
     int nErr = 0;
+    
+    /* djb-rwth: EndPoint initialisation block */
+    T_ENDPOINT* ept;
+    ept = malloc(sizeof(T_ENDPOINT));
+    for (tep = 0; tep < MAXVAL; tep++)
+        EndPoint[tep] = *ept;
+
 #define ALLOWED_EDGE(PBNS, IAT,IBOND)  ( !(PBNS) || !(PBNS)->edge || !(PBNS)->vert || !(PBNS)->edge[(PBNS)->vert[IAT].iedge[IBOND]].forbidden)
 #define ACTUAL_ORDER(PBNS, IAT,IBOND, BTYPE)  ( ((PBNS) && (PBNS)->edge && (PBNS)->vert &&\
     ((BTYPE)==BOND_ALT_123 || (BTYPE)==BOND_ALT_13 || (BTYPE)==BOND_ALT_23))? (PBNS)->edge[(PBNS)->vert[IAT].iedge[IBOND]].flow+BOND_TYPE_SINGLE:(BTYPE))
@@ -5714,8 +5757,7 @@ int MarkTautomerGroups( CANON_GLOBALS *pCG,
                             */
                             /*  save information about the found possible tautomeric endpoint */
                             /*  2 = T_NUM_NO_ISOTOPIC non-isotopic values */
-                            nMobile =
-                                AddAtom2num( EndPoint[nNumEndPoints].num, at, endpoint, 2 ); /* fill out */
+                            nMobile = AddAtom2num( EndPoint[nNumEndPoints].num, at, endpoint, 2 ); /* fill out */
                             AddAtom2DA( EndPoint[nNumEndPoints].num_DA, at, endpoint, 2 );
                             /* --- why is isitopic info missing ? -- see below
                             nMobile  = EndPoint[nNumEndPoints].num[1] = (at[endpoint].charge == -1);
@@ -6440,11 +6482,11 @@ int make_a_copy_of_t_group_info( T_GROUP_INFO *t_group_info,
         if (( len = t_group_info_orig->num_t_groups ) > 0)
         {
             if (t_group_info->tGroupNumber =
-                (AT_NUMB*) inchi_malloc( len * TGSO_TOTAL_LEN * sizeof( t_group_info->tGroupNumber[0] ) ))
+                (AT_NUMB*) inchi_malloc( (long long)len * TGSO_TOTAL_LEN * sizeof( t_group_info->tGroupNumber[0] ) )) /* djb-rwth: cast operator added */
             {
                 memcpy( t_group_info->tGroupNumber,
                         t_group_info_orig->tGroupNumber,
-                        len * TGSO_TOTAL_LEN * sizeof( t_group_info->tGroupNumber[0] ) );
+                        (long long)len * TGSO_TOTAL_LEN * sizeof( t_group_info->tGroupNumber[0] ) ); /* djb-rwth: cast operator added */
             }
             else
             {
@@ -6584,7 +6626,7 @@ int CountTautomerGroups( sp_ATOM *at,
     }
     /*  Allocate memory for temp storage of numbers of endpoints  */
     if (max_t_group &&
-         !( nTautomerGroupNumber = (AT_NUMB*) inchi_calloc( max_t_group + 1, sizeof( nTautomerGroupNumber[0] ) ) /*temp*/ ))
+         !( nTautomerGroupNumber = (AT_NUMB*) inchi_calloc( (long long)max_t_group + 1, sizeof( nTautomerGroupNumber[0] ) ) /*temp*/ )) /* djb-rwth: cast operator added */
     {
         goto err_exit_function; /*  program error: out of RAM */ /*   <BRKPT> */
     }
@@ -6600,7 +6642,8 @@ int CountTautomerGroups( sp_ATOM *at,
         {
             goto err_exit_function; /*  program error */ /*   <BRKPT> */
         }
-        nTautomerGroupNumber[j] ++;
+        if (nTautomerGroupNumber) /* djb-rwth: correcting the dereferencing NULL pointer */
+            nTautomerGroupNumber[j] ++;
         nNumEndpoints++;
     }
 
@@ -6641,7 +6684,7 @@ int CountTautomerGroups( sp_ATOM *at,
                 /*  Remove the group */
                 num_t--;
                 if (i < num_t)
-                    memmove( t_group + i, t_group + i + 1, ( num_t - i ) * sizeof( t_group[0] ) );
+                    memmove( t_group + i, t_group + i + 1, ( (long long)num_t - (long long)i ) * sizeof( t_group[0] ) ); /* djb-rwth: cast operators added */
                 if (bNoH)
                 {
                     /*  Group contains no mobile hydrogen atoms, only charges. Prepare to remove it. */
@@ -6704,7 +6747,7 @@ int CountTautomerGroups( sp_ATOM *at,
     * 2) Sort the groups indexes t_group_info->tGroupNumber[]
     */
     if (!( tGroupNumber =
-        (AT_NUMB*) inchi_calloc( nNewGroupNumber*TGSO_TOTAL_LEN, sizeof( tGroupNumber[0] ) ) ))
+        (AT_NUMB*) inchi_calloc( (long long)nNewGroupNumber * (long long)TGSO_TOTAL_LEN, sizeof( tGroupNumber[0] ) ) )) /* djb-rwth: cast operator added */
     {
         goto err_exit_function; /*  out of RAM */
     }

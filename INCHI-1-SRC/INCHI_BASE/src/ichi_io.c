@@ -98,30 +98,31 @@ void inchi_ios_init( INCHI_IOSTREAM* ios, int io_type, FILE *f )
 ****************************************************************************/
 int inchi_ios_create_copy( INCHI_IOSTREAM* ios, INCHI_IOSTREAM* ios0 )
 {
-    if (ios)
+    if (ios) /* djb-rwth: correcting the dereferencing NULL pointer */
     {
         memset( ios, 0, sizeof( *ios ) );
-    }
-    ios->type = ios0->type;
-    if (ios->type == INCHI_IOS_TYPE_STRING)
-    {
-        if (ios->s.pStr)
-        {
-            inchi_free( ios->s.pStr );
-        }
-        ios->s.pStr = (char *) inchi_calloc( ios0->s.nAllocatedLength, sizeof( char ) );
-        if (ios->s.pStr)
-        {
-            ios->s.nUsedLength = ios0->s.nUsedLength;
-            ios->s.nPtr = ios0->s.nPtr;
-        }
-        else
-        {
-            return -1; /* no memory */
-        }
-    }
-    ios->f = ios0->f;
+        ios->type = ios0->type;
 
+        if (ios->type == INCHI_IOS_TYPE_STRING)
+        {
+            if (ios->s.pStr)
+            {
+                inchi_free(ios->s.pStr);
+            }
+            ios->s.pStr = (char*)inchi_calloc(ios0->s.nAllocatedLength, sizeof(char));
+            if (ios->s.pStr)
+            {
+                ios->s.nUsedLength = ios0->s.nUsedLength;
+                ios->s.nPtr = ios0->s.nPtr;
+            }
+            else
+            {
+                return -1; /* no memory */
+            }
+        }
+        ios->f = ios0->f;
+    }
+    
     return 0;
 }
 
@@ -491,7 +492,7 @@ int inchi_ios_print( INCHI_IOSTREAM * ios, const char* lpszFormat, ... )
                 /* enlarge output string */
                 int  nAddLength = inchi_max( INCHI_ADD_STR_LEN, max_len );
                 char *new_str =
-                    (char *) inchi_calloc( ios->s.nAllocatedLength + nAddLength, sizeof( char ) );
+                    (char *) inchi_calloc( (long long)ios->s.nAllocatedLength + (long long)nAddLength, sizeof( char ) ); /* djb-rwth: cast operators added */
                 if (new_str)
                 {
                     if (ios->s.pStr)
@@ -617,7 +618,7 @@ int inchi_ios_print_nodisplay( INCHI_IOSTREAM * ios,
             {
                 /* enlarge output string */
                 int  nAddLength = inchi_max( INCHI_ADD_STR_LEN, max_len );
-                char *new_str = (char *) inchi_calloc( ios->s.nAllocatedLength + nAddLength, sizeof( new_str[0] ) );
+                char *new_str = (char *) inchi_calloc( (long long)ios->s.nAllocatedLength + (long long)nAddLength, sizeof( new_str[0] ) ); /* djb-rwth: cast operators added */
                 if (new_str)
                 {
                     if (ios->s.pStr)
@@ -675,7 +676,7 @@ int inchi_ios_flush_not_displayed( INCHI_IOSTREAM * ios )
         return -1;
     }
 
-    obuf = (char *) inchi_calloc( ios->s.nUsedLength + 1, sizeof( char ) );
+    obuf = (char *) inchi_calloc( (long long)ios->s.nUsedLength + 1, sizeof( char ) ); /* djb-rwth: cast operator added */
 
     if (!obuf)
     {
@@ -721,7 +722,7 @@ int inchi_ios_eprint( INCHI_IOSTREAM * ios, const char* lpszFormat, ... )
             {
                 /* enlarge output string */
                 nAddLength = inchi_max( INCHI_ADD_STR_LEN, max_len );
-                new_str = (char *) inchi_calloc( ios->s.nAllocatedLength + nAddLength, sizeof( new_str[0] ) );
+                new_str = (char *) inchi_calloc( (long long)ios->s.nAllocatedLength + (long long)nAddLength, sizeof( new_str[0] ) ); /* djb-rwth: cast operators added */
                 if (new_str)
                 {
                     if (ios->s.pStr)
@@ -817,30 +818,33 @@ int inchi_fprintf( FILE* f, const char* lpszFormat, ... )
 int inchi_vfprintf( FILE* f, const char* lpszFormat, va_list argList )
 {
     int ret = 0;
-    if (f == stderr && lpszFormat && lpszFormat[0] && '\r' == lpszFormat[strlen( lpszFormat ) - 1])
+    if (lpszFormat && lpszFormat[0]) /* djb-rwth: condition added as lpszFormat == 0 may lead to undefined ret value */
     {
+        if (f == stderr && '\r' == lpszFormat[strlen(lpszFormat) - 1])
+        {
 #define CONSOLE_LINE_LEN 80
 #ifndef COMPILE_ANSI_ONLY
-        char szLine[CONSOLE_LINE_LEN];
+            char szLine[CONSOLE_LINE_LEN];
 
-        ret = _vsnprintf( szLine, CONSOLE_LINE_LEN - 1, lpszFormat, argList );
+            ret = _vsnprintf(szLine, CONSOLE_LINE_LEN - 1, lpszFormat, argList);
 
-        if (ret < 0)
-        {
-            /*  output is longer than the console line */
-            /* Fixed bug: (CONSOLE_LINE_LEN-4) --> (CONSOLE_LINE_LEN-4-1) 11-22-08 IPl */
-            strcpy( szLine + CONSOLE_LINE_LEN - 5, "...\r" );
-        }
+            if (ret < 0)
+            {
+                /*  output is longer than the console line */
+                /* Fixed bug: (CONSOLE_LINE_LEN-4) --> (CONSOLE_LINE_LEN-4-1) 11-22-08 IPl */
+                strcpy(szLine + CONSOLE_LINE_LEN - 5, "...\r");
+            }
 
-        fputs( szLine, f );
+            fputs(szLine, f);
 #else
-        ret = vfprintf( f, lpszFormat, argList );
+            ret = vfprintf(f, lpszFormat, argList);
 #endif
 #undef CONSOLE_LINE_LEN
-    }
-    else
-    {
-        ret = vfprintf( f, lpszFormat, argList );
+        }
+        else
+        {
+            ret = vfprintf(f, lpszFormat, argList);
+        }
     }
 
     return ret;
@@ -1190,18 +1194,25 @@ int GetMaxPrintfLength( const char *lpszFormat, va_list argList )
         }
 
         /* now should be on specifier */
+        
+        /* djb-rwth: return values needed for va_arg */
+        int ivarg;
+        double dvarg;
+        void* ivvarg;
+        int* ipvarg;
+        
         switch (*lpsz | nModifier)
         {
         /* single characters*/
             case 'c':
             case 'C':
                 nItemLen = 2;
-                va_arg( argList, int );
+                ivarg = va_arg( argList, int ); /* djb-rwth: int return value */
                 break;
             case 'c' | FORCE_ANSI:
             case 'C' | FORCE_ANSI:
                 nItemLen = 2;
-                va_arg( argList, int );
+                ivarg = va_arg( argList, int ); /* djb-rwth: int return value */
                 break;
             case 'c' | FORCE_UNICODE:
             case 'C' | FORCE_UNICODE:
@@ -1254,7 +1265,7 @@ int GetMaxPrintfLength( const char *lpszFormat, va_list argList )
                 case 'x':
                 case 'X':
                 case 'o':
-                    va_arg( argList, int );
+                    ivarg = va_arg( argList, int ); /* djb-rwth: int return value */
                     nItemLen = 32;
                     nItemLen = inchi_max( nItemLen, nWidth + nPrecision );
                     break;
@@ -1263,20 +1274,20 @@ int GetMaxPrintfLength( const char *lpszFormat, va_list argList )
                 case 'f':
                 case 'g':
                 case 'G':
-                    va_arg( argList, double );
+                    dvarg = va_arg( argList, double ); /* djb-rwth: double return value */
                     nItemLen = 32;
                     nItemLen = inchi_max( nItemLen, nWidth + nPrecision );
                     break;
 
                 case 'p':
-                    va_arg( argList, void* );
+                    ivvarg = va_arg( argList, void* ); /* djb-rwth: void* return value */
                     nItemLen = 32;
                     nItemLen = inchi_max( nItemLen, nWidth + nPrecision );
                     break;
 
                /* no output */
                 case 'n':
-                    va_arg( argList, int* );
+                    ipvarg = va_arg( argList, int* ); /* djb-rwth: int* return value */
                     break;
 
                 default:
@@ -1458,8 +1469,8 @@ int inchi_strbuf_update( INCHI_IOS_STRING *buf, int new_addition_size )
         int  nAddLength = inchi_max( buf->nPtr, new_addition_size );
                                     /* buf->nPtr stores size increment for this buffer */
         char *new_str =
-            (char *) inchi_calloc( buf->nAllocatedLength + nAddLength,
-                                   sizeof( new_str[0] ) );
+            (char *) inchi_calloc( (long long)buf->nAllocatedLength + (long long)nAddLength,
+                                   sizeof( new_str[0] ) ); /* djb-rwth: cast operators added */
         if (!new_str)
         {
             return -1; /* failed */
@@ -1657,18 +1668,31 @@ int inchi_strbuf_addline( INCHI_IOS_STRING *buf,
 
 
 /****************************************************************************/
-int _inchi_trace( char *format, ... )
+int _inchi_trace(char* format, ...)
 {
-   /*TCHAR buffer[32767];*/
+    /*
+    TCHAR buffer[32767];
     char buffer[32767];
-    va_list argptr;
-    va_start( argptr, format );
-    /*wvsprintf(buffer, format, argptr);*/
-    vsprintf( buffer, format, argptr );
-    va_end( argptr );
-    OutputDebugString( buffer );
+    */
 
-    return 1;
+    /* djb-rwth: stack size was too large so heap has to be used */
+    char* buffer;
+    buffer = (char*)malloc(32767);
+
+    if (buffer != NULL) /* djb-rwth: checking if allocated memory is available */
+    {
+        buffer[0] = '\0'; /* djb-rwth: initialisation block */
+        va_list argptr;
+        va_start(argptr, format);
+        /*wvsprintf(buffer, format, argptr);*/
+        vsprintf(buffer, format, argptr);
+        va_end(argptr);
+        OutputDebugString(buffer);
+        return 1;
+        free(buffer); /* djb-rwth: deallocating memory; C++ STL dynamic memory strategies should be considered */
+    }
+    else
+        return 0;
 }
 #else
 int _inchi_trace( char *format, ... )

@@ -444,8 +444,8 @@ int MergeStructureComponents( ICHICONST INPUT_PARMS *ip,
         }
     }
 
-    nAtomOffs = (int*) inchi_malloc( ( num_components + 1 ) * sizeof( nAtomOffs[0] ) );
-    nDelHOffs = (int*) inchi_malloc( ( num_components + 1 ) * sizeof( nDelHOffs[0] ) );
+    nAtomOffs = (int*) inchi_malloc( ( (long long)num_components + 1 ) * sizeof( nAtomOffs[0] ) ); /* djb-rwth: cast operator added */
+    nDelHOffs = (int*) inchi_malloc( ( (long long)num_components + 1 ) * sizeof( nDelHOffs[0] ) ); /* djb-rwth: cast operator added */
     if (!nAtomOffs || !nDelHOffs)
     {
         ret = RI_ERR_ALLOC;
@@ -481,7 +481,7 @@ int MergeStructureComponents( ICHICONST INPUT_PARMS *ip,
     tot_atoms = nDelHOffs[num_components];
 
     /* merge atoms together: 1. Allocate */
-    if (NULL == ( at = (inp_ATOM *) inchi_malloc( ( tot_atoms + 1 ) * sizeof( at[0] ) ) ))
+    if (NULL == ( at = (inp_ATOM *) inchi_malloc( ( (long long)tot_atoms + 1 ) * sizeof( at[0] ) ) )) /* djb-rwth: cast operator added */
     {
         ret = RI_ERR_ALLOC;
         goto exit_function;
@@ -722,12 +722,12 @@ int DisplayRestoredComponent( struct tagCANON_GLOBALS *pCG,
     {
         return 0;
     }
-    at = (inp_ATOM *) inchi_calloc( num_at + num_deleted_H, sizeof( at[0] ) );
+    at = (inp_ATOM *) inchi_calloc( (long long)num_at + (long long)num_deleted_H, sizeof( at[0] ) ); /* djb-rwth: cast operator added */
     if (!at)
     {
         return RI_ERR_ALLOC;
     }
-    memcpy( at, atom, ( num_at + num_deleted_H ) * sizeof( at[0] ) );
+    memcpy( at, atom, ( (long long)num_at + (long long)num_deleted_H ) * sizeof( at[0] ) ); /* djb-rwth: cast operator added */
     for (i = 0; i < num_at; i++)
     {
         at[i].x = pxyz[i].xyz[0];
@@ -827,8 +827,8 @@ int DisplayStructureComponents( struct tagCANON_GLOBALS *pCG,
     }
     num_components = k;
 
-    nAtomOffs = (int*) inchi_malloc( ( num_components + 1 ) * sizeof( nAtomOffs[0] ) );
-    nDelHOffs = (int*) inchi_malloc( ( num_components + 1 ) * sizeof( nDelHOffs[0] ) );
+    nAtomOffs = (int*) inchi_malloc( ( (long long)num_components + 1 ) * sizeof( nAtomOffs[0] ) ); /* djb-rwth: cast operator added */
+    nDelHOffs = (int*) inchi_malloc( ( (long long)num_components + 1 ) * sizeof( nDelHOffs[0] ) ); /* djb-rwth: cast operator added */
     if (!nAtomOffs || !nDelHOffs)
     {
         ret = RI_ERR_ALLOC;
@@ -879,7 +879,7 @@ int DisplayStructureComponents( struct tagCANON_GLOBALS *pCG,
     tot_atoms = nDelHOffs[num_components];
 
     /* merge atoms together: 1. Allocate */
-    if (NULL == ( at = (inp_ATOM *) inchi_malloc( ( tot_atoms + 1 ) * sizeof( at[0] ) ) ))
+    if (NULL == ( at = (inp_ATOM *) inchi_malloc( ( (long long)tot_atoms + 1 ) * sizeof( at[0] ) ) )) /* djb-rwth: cast operator added */
     {
         ret = RI_ERR_ALLOC;
         goto exit_function;
@@ -902,7 +902,7 @@ int DisplayStructureComponents( struct tagCANON_GLOBALS *pCG,
             len2 = nDelHOffs[k + 1] - nDelHOffs[k]; /* do not separate H from the atom: we will not need them */
             iCurAtomOffs = nAtomOffs[k];
             a = at + iCurAtomOffs;
-            memcpy( a, pStruct1->at2, ( len + len2 ) * sizeof( at[0] ) );
+            memcpy( a, pStruct1->at2, ( (long long)len + (long long)len2 ) * sizeof( at[0] ) ); /* djb-rwth: cast operator added */
             DisconnectedConnectedH( a, len, len2 );
             if (pxyz)
             {
@@ -936,7 +936,7 @@ int DisplayStructureComponents( struct tagCANON_GLOBALS *pCG,
                     }
                     else
                     {
-                        delta /= sqrt( (double) ( nNewCoord + 1 ) );
+                        delta /= sqrt( (double) ( (long long)nNewCoord + 1 ) ); /* djb-rwth: cast operator added */
                     }
                 }
                 for (i = 0; i < len; i++)
@@ -2205,7 +2205,7 @@ int CompareTwoPairsOfInChI( INChI *pInChI1[TAUT_NUM],
         if (!pInChI1[iMobileH] != !pInChI2[iMobileH])
         {
             if (iMobileH == TAUT_NON &&
-                 pInChI1[TAUT_YES] && pInChI1[TAUT_YES])
+                 pInChI1[TAUT_YES] && pInChI2[TAUT_YES]) /* djb-rwth: condition corrected */
             {
                 CompareInchiFlags[iMobileH] |= INCHIDIFF_COMP_HLAYER;
             }
@@ -2355,10 +2355,10 @@ INCHI_MODE CompareReversedStereoINChI3( INChI_Stereo *s1,
     int nNumSb1 = s1 ? s1->nNumberOfStereoBonds : 0;
     int nNumSb2 = s2 ? s2->nNumberOfStereoBonds : 0;
 
-    if (( nNumSc1 || nNumSc1 ) &&
+    if (( nNumSc1 || nNumSc2 ) &&
         ( nNumSc1 != nNumSc2 ||
             memcmp( s1->nNumber, s2->nNumber, nNumSc1 * sizeof( s1->nNumber[0] ) ) ||
-            memcmp( s1->t_parity, s2->t_parity, nNumSc1 * sizeof( s1->t_parity[0] ) ) ))
+            memcmp( s1->t_parity, s2->t_parity, nNumSc1 * sizeof( s1->t_parity[0] ) ) )) /* djb-rwth: condition corrected */
     {
 
         num_eq = num_dif = num_extra_undf = num_miss_undf = num_in1_only = num_in2_only = 0;
@@ -2872,8 +2872,8 @@ INCHI_MODE CompareReversedINChI3( INChI *i1 /* InChI from reversed struct */,
         /* number of endpoints */
         int num1 = 0, num2 = 0, num_M1 = 0, num_M2 = 0;
         int len, num_eq, num_in1_only, num_in2_only;
-        AT_NUMB *pe1 = (AT_NUMB *) inchi_malloc( ( i1->lenTautomer + 1 ) * sizeof( pe1[0] ) );
-        AT_NUMB *pe2 = (AT_NUMB *) inchi_malloc( ( i2->lenTautomer + 1 ) * sizeof( pe2[0] ) );
+        AT_NUMB *pe1 = (AT_NUMB *) inchi_malloc( ( (long long)i1->lenTautomer + 1 ) * sizeof( pe1[0] ) ); /* djb-rwth: cast operator added */
+        AT_NUMB *pe2 = (AT_NUMB *) inchi_malloc( ( (long long)i2->lenTautomer + 1 ) * sizeof( pe2[0] ) ); /* djb-rwth: cast operator added */
         num_H1 = num_H2 = 0;
         /* collect endpoints, H, (-) */
         if (!pe1 || !pe2)

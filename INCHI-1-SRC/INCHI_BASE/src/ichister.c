@@ -2446,7 +2446,8 @@ int half_stereo_bond_parity( inp_ATOM *at,
     bond_parity = 2 - ( tmp1 < tmp2 );
     for (j = 0; j < 3; j++)
     {
-        z_dir[j] = (S_CHAR) ( pnt[p2][j] >= 0.0 ? floor( 0.5 + 100.0 * pnt[p2][j] ) :
+        if (z_dir)
+            z_dir[j] = (S_CHAR) ( pnt[p2][j] >= 0.0 ? floor( 0.5 + 100.0 * pnt[p2][j] ) :
                                                -floor( 0.5 - 100.0 * pnt[p2][j] ) ); /*  abs(z_dir) = 100 */
     }
     /*  check for ambiguity */
@@ -3503,7 +3504,7 @@ int set_stereo_bonds_parity( sp_ATOM *out_at,
         {
             return CT_CALC_STEREO_ERR;
         }
-        if (( at[at_1].bUsed0DParity & FlagSB_0D ) || ( at[at_1].bUsed0DParity & FlagSB_0D ))
+        if (( at[at_1].bUsed0DParity & FlagSB_0D ) || ( at[at_2].bUsed0DParity & FlagSB_0D )) /* djb-rwth: condition corrected */
         {
             FixSb0DParities( at, /* at_removed_H, num_removed_H,*/ chain_length,
                              at_1, i_next_at_1, z_dir1,

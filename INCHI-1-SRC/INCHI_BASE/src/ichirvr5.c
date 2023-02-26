@@ -1282,7 +1282,7 @@ int FixMobileHRestoredStructure( CANON_GLOBALS *pCG,
                 one_success = 0;
                 delta = 1;
                 iat = iat_DB_O[i];
-                peDB_O_Minus = pBNS->edge + ( pVA[iat].nCMinusGroupEdge - 1 );
+                peDB_O_Minus = pBNS->edge + ( (long long)pVA[iat].nCMinusGroupEdge - 1 ); /* djb-rwth: cast operator added */
                 pe = pBNS->edge + pBNS->vert[iat].iedge[0];
 
                 if (!pe->flow)

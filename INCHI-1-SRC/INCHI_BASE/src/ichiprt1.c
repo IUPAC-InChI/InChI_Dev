@@ -2144,7 +2144,7 @@ char *szGetTag( const INCHI_TAG *Tag,
                 len = (int) strlen( szTag );
                 if (len)
                 {
-                    memmove( szTag + num, szTag, len + 1 );
+                    memmove( szTag + num, szTag, (long long)len + 1 ); /* djb-rwth: cast operator added */
                     memcpy( szTag, Tag[j].szPlainLabel, num );
                 }
                 else
@@ -2229,7 +2229,7 @@ int str_LineEnd( const char       *tag,
             {
                 int n_added = tag_len + 2 + 2;
                 inchi_strbuf_update( buf, n_added );
-                memmove( buf->pStr + tag_len, buf->pStr, buf->nUsedLength + 1 );
+                memmove( buf->pStr + tag_len, buf->pStr, (long long)buf->nUsedLength + 1 ); /* djb-rwth: cast operator added */
                                     /* NB: trailing 0 is also memmoved */
                 memcpy( buf->pStr, tag, tag_len );
                 /* to be sure...  */
@@ -2312,7 +2312,7 @@ int CleanOrigCoord( MOL_COORD szCoord, int delim )
             }
             if (i < last)
             {
-                memmove( szVal + i + 1, szVal + last + 1, len - last );
+                memmove( szVal + i + 1, szVal + last + 1, (long long)len - (long long)last ); /* djb-rwth: cast operator added */
                 len -= last - i;
             }
             /* remove leading zeroes */
@@ -2322,13 +2322,16 @@ int CleanOrigCoord( MOL_COORD szCoord, int delim )
             }
             if (i > fst)
             {
-                memmove( szVal + fst, szVal + i, len - fst );
+                memmove( szVal + fst, szVal + i, (long long)len - (long long)fst ); /* djb-rwth: cast operator added */
                 len -= i - fst;
             }
         }
-        if (len_buf)
+        if (len_buf && (len_buf < (int)sizeof(MOL_COORD)))
         {
+#pragma warning (push)
+#pragma warning (disable: 6386)
             szBuf[len_buf++] = delim;
+#pragma warning (pop)
         }
         memcpy( szBuf + len_buf, szVal, len ); /* does not copy zero termination*/
         len_buf += len;
@@ -2787,11 +2790,16 @@ int WriteOrigBonds( CANON_GLOBALS *pCG,
                 {
                     /* both atoms belong to a stereo bond */
                     int kc;
-                    int p1, p2, p1NM, p2NM, neigh, neigh1, neigh2, bHasMetal, bWellDef;
+                    int p1=0, p2, p1NM=0, p2NM, neigh, neigh1, neigh2, bHasMetal, bWellDef; /* djb-rwth: initialising p1 and p1NM */
                     int     bNeighSwitched1, bNeighSwitched2;
 
-                    p1 = SB_PARITY_1( at[pcur_atom].sb_parity[picur_sb_parity_ord] );
-                    p1NM = SB_PARITY_2( at[pcur_atom].sb_parity[picur_sb_parity_ord] );
+                    /* djb-rwth: avoiding buffer overrun as picur_sb_parity_ord == -1 is possible */
+                    if (picur_sb_parity_ord >= 0)
+                    {
+                        p1 = SB_PARITY_1( at[pcur_atom].sb_parity[picur_sb_parity_ord] );
+                        p1NM = SB_PARITY_2( at[pcur_atom].sb_parity[picur_sb_parity_ord] );
+                    }
+
                     p2 = SB_PARITY_1( at[pnxt_atom].sb_parity[pinxt_sb_parity_ord] );
                     p2NM = SB_PARITY_2( at[pnxt_atom].sb_parity[pinxt_sb_parity_ord] );
 
@@ -2954,7 +2962,7 @@ int OrigStruct_FillOut( CANON_GLOBALS *pCG,
         {
             len_coord += len;
         }
-        pOrigStruct->szCoord = (char*) inchi_malloc( ( len_coord + 1 ) * sizeof( pOrigStruct->szCoord[0] ) );
+        pOrigStruct->szCoord = (char*) inchi_malloc( ( (long long)len_coord + 1 ) * sizeof( pOrigStruct->szCoord[0] ) ); /* djb-rwth: cast operator added */
         i = 0;
         if (pOrigStruct->szCoord &&
              len_coord == WriteOrigCoord( orig_inp_data->num_inp_atoms,
@@ -2983,7 +2991,7 @@ int OrigStruct_FillOut( CANON_GLOBALS *pCG,
         if (!orig_inp_data->num_inp_atoms)
             break;
     }
-    pOrigStruct->szAtoms = (char*) inchi_malloc( ( len_atoms + 1 ) * sizeof( pOrigStruct->szAtoms[0] ) );
+    pOrigStruct->szAtoms = (char*) inchi_malloc( ( (long long)len_atoms + 1 ) * sizeof( pOrigStruct->szAtoms[0] ) ); /* djb-rwth: cast operator added */
     i = 0;
     if (pOrigStruct->szAtoms &&
          len_atoms == WriteOrigAtoms( pCG, orig_inp_data->num_inp_atoms,
@@ -3014,7 +3022,7 @@ int OrigStruct_FillOut( CANON_GLOBALS *pCG,
         }
     }
 
-    pOrigStruct->szBonds = (char*) inchi_malloc( ( len_bonds + 2 ) * sizeof( pOrigStruct->szBonds[0] ) );
+    pOrigStruct->szBonds = (char*) inchi_malloc( ( (long long)len_bonds + 2 ) * sizeof( pOrigStruct->szBonds[0] ) ); /* djb-rwth: cast operator added */
     i = 1;
 
     if (pOrigStruct->szBonds &&
@@ -3903,172 +3911,176 @@ static int OutputINCHI_PolymerLayer( CANON_GLOBALS *pCG,
         return 0;
     }
 
-    p = pOrigStruct->polymer;
-    is_inchi2inchi = !pOrigStruct->szAtoms && !pOrigStruct->szBonds && !pOrigStruct->szCoord;
-    if (is_inchi2inchi)
+    if (pOrigStruct)
     {
-        err = NOT_YET_I2I_FOR_POLYMERS;
-        goto exit_function;
-    }
+        p = pOrigStruct->polymer;
+        is_inchi2inchi = !pOrigStruct->szAtoms && !pOrigStruct->szBonds && !pOrigStruct->szCoord;
 
-    /*OAD_Polymer_DebugTrace( p );*/
+        if (is_inchi2inchi)
+        {
+            err = NOT_YET_I2I_FOR_POLYMERS;
+            goto exit_function;
+        }
 
-    /* Get canonical numbers and numbers-of-components for each original atom */
-    cano_nums = (int *) inchi_calloc( pOrigStruct->num_atoms + 1, sizeof( int ) );
-    if (!cano_nums)
-    {
-        err = 1;
-        goto exit_function;
-    }
-    compnt_nums = (int *) inchi_calloc( pOrigStruct->num_atoms + 1, sizeof( int ) );
-    if (!compnt_nums)
-    {
-        err = 2;
-        goto exit_function;
-    }
-    err = InternallyGetCanoNumsAndComponentNums( pCG,
-                                                 strbuf,
-                                                 io,
-                                                 pOrigStruct->num_atoms,
-                                                 cano_nums,
-                                                 compnt_nums );
-    if (err != 0)
-    {
-        err = 3;
-        goto exit_function;
-    }
+        /*OAD_Polymer_DebugTrace( p );*/
 
-
-    /* Set atom properties for sorting */
-    aprops = (OAD_AtProps *) inchi_calloc( nat + 1, sizeof( OAD_AtProps ) );
-    /* nat + 1: add extra element for possibe 1-based indexing */
-    if (!aprops)
-    {
-        return 0;
-    }
-
-    /* Note that aprops[] is in orig_atoms domain (0-based) and      */
-    /* u (from units) are in cano_nums domain (1-based)              */
-    /* Supply non-NULL cano_nums to adjust the domains (base will be adjusted at place) */
-    OAD_Polymer_SetAtProps( p, at, nat, &num_inp_bonds, aprops, cano_nums );
+        /* Get canonical numbers and numbers-of-components for each original atom */
+        cano_nums = (int*)inchi_calloc((long long)pOrigStruct->num_atoms + 1, sizeof(int)); /* djb-rwth: cast operator added */
+        if (!cano_nums)
+        {
+            err = 1;
+            goto exit_function;
+        }
+        compnt_nums = (int*)inchi_calloc((long long)pOrigStruct->num_atoms + 1, sizeof(int)); /* djb-rwth: cast operator added */
+        if (!compnt_nums)
+        {
+            err = 2;
+            goto exit_function;
+        }
+        err = InternallyGetCanoNumsAndComponentNums(pCG,
+            strbuf,
+            io,
+            pOrigStruct->num_atoms,
+            cano_nums,
+            compnt_nums);
+        if (err != 0)
+        {
+            err = 3;
+            goto exit_function;
+        }
 
 
-    /* Make a working copy of polymer units data: units2 is a copy        */
-    /* of original polymer units (p->units) with atomic numbers changed    */
-    /* to curr canonical ones; atoms in alists sorted; atoms in blists    */
-    /* and blists themselves sorted                                     */
-    units2 = (OAD_PolymerUnit **) inchi_calloc( p->n, sizeof( OAD_PolymerUnit* ) );
+        /* Set atom properties for sorting */
+        aprops = (OAD_AtProps*)inchi_calloc((long long)nat + 1, sizeof(OAD_AtProps)); /* djb-rwth: cast operator added */
+        /* nat + 1: add extra element for possibe 1-based indexing */
+        if (!aprops)
+        {
+            return 0;
+        }
 
-    if (NULL == units2)
-    {
-        err = 3;
-        goto exit_function;
-    }
-    memset( units2, 0, sizeof( *units2 ) );
-
-    old_stars = (int *) inchi_calloc( pOrigStruct->polymer->n_pzz, sizeof( int ) );
-    if (NULL == old_stars)
-    {
-        err = 3;
-        goto exit_function;
-    }
-    for (i = 0; i < pOrigStruct->polymer->n_pzz; i++)
-    {
-        old_stars[i] = pOrigStruct->polymer->pzz[i];
-    }
+        /* Note that aprops[] is in orig_atoms domain (0-based) and      */
+        /* u (from units) are in cano_nums domain (1-based)              */
+        /* Supply non-NULL cano_nums to adjust the domains (base will be adjusted at place) */
+        OAD_Polymer_SetAtProps(p, at, nat, &num_inp_bonds, aprops, cano_nums);
 
 
-    for (i = 0; i < p->n; i++)
-    {
-        units2[i] = OAD_PolymerUnit_CreateCopy( p->units[i] );
-        if (NULL == units2[i])
+        /* Make a working copy of polymer units data: units2 is a copy        */
+        /* of original polymer units (p->units) with atomic numbers changed    */
+        /* to curr canonical ones; atoms in alists sorted; atoms in blists    */
+        /* and blists themselves sorted                                     */
+        units2 = (OAD_PolymerUnit**)inchi_calloc(p->n, sizeof(OAD_PolymerUnit*));
+
+        if (NULL == units2)
+        {
+            err = 3;
+            goto exit_function;
+        }
+        memset(units2, 0, sizeof(*units2));
+
+        old_stars = (int*)inchi_calloc(pOrigStruct->polymer->n_pzz, sizeof(int));
+        if (NULL == old_stars)
+        {
+            err = 3;
+            goto exit_function;
+        }
+        for (i = 0; i < pOrigStruct->polymer->n_pzz; i++)
+        {
+            old_stars[i] = pOrigStruct->polymer->pzz[i];
+        }
+
+
+        for (i = 0; i < p->n; i++)
+        {
+            units2[i] = OAD_PolymerUnit_CreateCopy(p->units[i]);
+            if (NULL == units2[i])
+            {
+                err = 4;
+                goto exit_function;
+            }
+            nunits2 = i + 1;
+        }
+
+        /* unum contains numbers of units (0..p->n) as they go  */
+        /* when sorted by alist's in lexicographic order        */
+        unum = (int*)inchi_calloc(p->n, sizeof(int));
+        if (NULL == unum)
         {
             err = 4;
             goto exit_function;
         }
-        nunits2 = i + 1;
-    }
-
-    /* unum contains numbers of units (0..p->n) as they go  */
-    /* when sorted by alist's in lexicographic order        */
-    unum = (int *) inchi_calloc( p->n, sizeof( int ) );
-    if (NULL == unum)
-    {
-        err = 4;
-        goto exit_function;
-    }
 
 
-    err = OAD_Polymer_PrepareWorkingSet( p, cano_nums, compnt_nums, units2, unum );
+        err = OAD_Polymer_PrepareWorkingSet(p, cano_nums, compnt_nums, units2, unum);
 
-    if (err != 0)
-    {
-        err = 5;
-        goto exit_function;
-    }
-
-    /* Prepare polymer substring */
-
-    /* Mark layer beginning */
-    inchi_strbuf_printf( strbuf, "%s", "/z" );
-
-    /* Print polymer units data */
-    n_used_stars = 0;
-    for (i = 0; i < p->n; i++)
-    {
-        /* For each unit u ... */
-        u = units2[unum[i]];
-
-        err = OutputINCHI_PolymerLayer_SingleUnit(  u, 
-                                                    io->bPolymers,
-                                                    pOrigStruct->polymer->n_pzz, 
-                                                    &n_used_stars, aprops,
-                                                    cano_nums, 
-                                                    orig_inp_data, 
-                                                    pOrigStruct, strbuf );
-        if (err)
+        if (err != 0)
         {
+            err = 5;
             goto exit_function;
         }
-        if (i < p->n - 1)
-        {
-            inchi_strbuf_printf( strbuf, ";" );
-        }
-    }
-    inchi_ios_print_nodisplay( out_file, "%s%s", strbuf->pStr, pLF );
 
-exit_function:
-    if (cano_nums)
-    {
-        inchi_free( cano_nums );
-    }
-    if (compnt_nums)
-    {
-        inchi_free( compnt_nums );
-    }
-    if (aprops)
-    {
-        inchi_free( aprops );
-    }
-    if (unum)
-    {
-        inchi_free( unum );
-    }
-    if (units2)
-    {
-        for (i = 0; i < nunits2; i++)
-        {
-            OAD_PolymerUnit_Free( units2[i] );
-        }
-        inchi_free( units2 );
-    }
-    if (old_stars)
-    {
-        for (i = 0; i < pOrigStruct->polymer->n_pzz; i++)
-            pOrigStruct->polymer->pzz[i] = old_stars[i];
-        inchi_free( old_stars );
-    }
+        /* Prepare polymer substring */
 
+        /* Mark layer beginning */
+        inchi_strbuf_printf(strbuf, "%s", "/z");
+
+        /* Print polymer units data */
+        n_used_stars = 0;
+        for (i = 0; i < p->n; i++)
+        {
+            /* For each unit u ... */
+            u = units2[unum[i]];
+
+            err = OutputINCHI_PolymerLayer_SingleUnit(u,
+                io->bPolymers,
+                pOrigStruct->polymer->n_pzz,
+                &n_used_stars, aprops,
+                cano_nums,
+                orig_inp_data,
+                pOrigStruct, strbuf);
+            if (err)
+            {
+                goto exit_function;
+            }
+            if (i < p->n - 1)
+            {
+                inchi_strbuf_printf(strbuf, ";");
+            }
+        }
+        inchi_ios_print_nodisplay(out_file, "%s%s", strbuf->pStr, pLF);
+
+    exit_function:
+        if (cano_nums)
+        {
+            inchi_free(cano_nums);
+        }
+        if (compnt_nums)
+        {
+            inchi_free(compnt_nums);
+        }
+        if (aprops)
+        {
+            inchi_free(aprops);
+        }
+        if (unum)
+        {
+            inchi_free(unum);
+        }
+        if (units2)
+        {
+            for (i = 0; i < nunits2; i++)
+            {
+                OAD_PolymerUnit_Free(units2[i]);
+            }
+            inchi_free(units2);
+        }
+        if (old_stars)
+        {
+            for (i = 0; i < pOrigStruct->polymer->n_pzz; i++)
+                pOrigStruct->polymer->pzz[i] = old_stars[i];
+            inchi_free(old_stars);
+        }
+
+    }
     return err;
 }
 
@@ -4763,7 +4775,7 @@ int OutputAUXINFO_ReversibilityInfo( CANON_GLOBALS    *pCG,
             }
             if (last_pos > cur_pos)
             {
-                memcpy( strbuf->pStr + strbuf->nUsedLength, p + cur_pos, last_pos - cur_pos );
+                memcpy( strbuf->pStr + strbuf->nUsedLength, p + cur_pos, (long long)last_pos - (long long)cur_pos ); /* djb-rwth: cast operators added */
                 strbuf->pStr[strbuf->nUsedLength + last_pos - cur_pos] = '\0';
                 /*strbuf->nUsedLength = strbuf->nUsedLength + last_pos - cur_pos;*/
 
@@ -4820,7 +4832,7 @@ int OutputAUXINFO_ReversibilityInfo( CANON_GLOBALS    *pCG,
             }
             if (last_pos > cur_pos)
             {
-                memcpy( strbuf->pStr, p + cur_pos, last_pos - cur_pos );
+                memcpy( strbuf->pStr, p + cur_pos, (long long)last_pos - (long long)cur_pos ); /* djb-rwth: cast operators added */
                 strbuf->pStr[last_pos - cur_pos] = '\0';
                 strbuf->nUsedLength = last_pos - cur_pos;
                 inchi_ios_print( out_file, "%s%s", strbuf->pStr, io->bPlainTextTags ? "" : "\n" );
@@ -4865,7 +4877,7 @@ int OutputAUXINFO_ReversibilityInfo( CANON_GLOBALS    *pCG,
             }
             if (last_pos > cur_pos)
             {
-                memcpy( strbuf->pStr, p + cur_pos, last_pos - cur_pos );
+                memcpy( strbuf->pStr, p + cur_pos, (long long)last_pos - (long long)cur_pos ); /* djb-rwth: cast operator added */
                 strbuf->pStr[last_pos - cur_pos] = '\0';
                 strbuf->nUsedLength = last_pos - cur_pos;
                 inchi_ios_print( out_file, "%s%s", strbuf->pStr, io->bPlainTextTags ? "" : "\n" );
@@ -5056,7 +5068,7 @@ void EditINCHI_HidePolymerZz(INCHI_IOSTREAM *out, int n_pzz, int n_zy)
     nzz1 = n_pzz;
 
     /* OK, we must hide n_pzz Zz's*/
-    buf = (char *) inchi_calloc( out->s.nUsedLength + 1, sizeof( char ) );
+    buf = (char *) inchi_calloc( (long long)out->s.nUsedLength + 1, sizeof( char ) ); /* djb-rwth: cast operator added */
     if (!buf)
     {
         return;
@@ -5409,13 +5421,13 @@ int MergeZzInHillFormula(INCHI_IOS_STRING *strbuf)
     {
         return 0;
     }
-    scopy = (char *)inchi_calloc(strbuf->nAllocatedLength+1, sizeof(char));
+    scopy = (char *)inchi_calloc((long long)strbuf->nAllocatedLength+1, sizeof(char)); /* djb-rwth: cast operator added */
     if (!scopy)
     {
         return -1; /* failed */
     }    
     memcpy(scopy, strbuf->pStr, strbuf->nAllocatedLength);
-    stmp = (char *)inchi_calloc(strbuf->nAllocatedLength + 1, sizeof(char));
+    stmp = (char *)inchi_calloc((long long)strbuf->nAllocatedLength + 1, sizeof(char)); /* djb-rwth: cast operator added */
     if (!stmp)
     {
         return -1; /* failed */

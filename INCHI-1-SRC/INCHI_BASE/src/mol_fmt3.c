@@ -457,6 +457,8 @@ int MolfileV3000ReadCTABBeginAndCountsLine( MOL_FMT_CTAB* ctab,
     INCHI_IOS_STRING *pin = &tmpin.s;
     inchi_ios_init( &tmpin, INCHI_IOS_TYPE_STRING, NULL );
 
+    field[0] = '\0'; /* djb-rwth: adding zero termination */
+
     /* Check for proper start */
 
     /*p = inchi_fgetsLf_V3000( line, inp_file );*/
@@ -929,6 +931,8 @@ int MolfileV3000ReadAtomsBlock( MOL_FMT_CTAB* ctab,
             int len;
             char symbol[6]; /* TODO: treat possibly long V3000 atom names */
             double fx = 0.0, fy = 0.0, fz = 0.0;
+
+            symbol[0] = '\0'; /* djb-rwth: adding zero termination */
 
             /* Read positional parameters */
             failed = 0;
@@ -1716,7 +1720,7 @@ int MolfileV3000ReadHapticBond( MOL_FMT_CTAB* ctab,
         return -1;
     }
 
-    *num_list = (int *) inchi_calloc( nnum + 3, sizeof( int ) );
+    *num_list = (int *) inchi_calloc( (long long)nnum + 3, sizeof( int ) ); /* djb-rwth: cast operator added */
 
     if (!*num_list)
     {
@@ -1803,7 +1807,7 @@ int MolfileV3000ReadStereoCollection( MOL_FMT_CTAB* ctab,
         return -1;
     }
 
-    *num_list = (int *) inchi_calloc( nnum + 3, sizeof( int ) );
+    *num_list = (int *) inchi_calloc( (long long)nnum + 3, sizeof( int ) ); /* djb-rwth: cast operator added */
 
     if (!*num_list)
     {
@@ -1862,7 +1866,7 @@ int get_V3000_input_line_to_strbuf( INCHI_IOS_STRING *buf,
             return -1;
         }
 
-        memmove( (void*) ( buf->pStr + old_used ), (void*) ( buf->pStr + old_used + 7 ), buf->nUsedLength - old_used + 1 );
+        memmove( (void*) ( buf->pStr + old_used ), (void*) ( buf->pStr + old_used + 7 ), (long long)buf->nUsedLength - (long long)old_used + 1 ); /* djb-rwth: cast operators added */
         buf->nUsedLength -= 7;
 
         if (buf->pStr[buf->nUsedLength - 1] != '-')

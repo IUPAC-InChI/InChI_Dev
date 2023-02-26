@@ -106,7 +106,7 @@ static void ModSCenter_DelFrom( ModSCenterInfo *scinfo, int idel );
 static int ModSCenter_IsChanged( ModSCenterInfo *scinfo, inp_ATOM *at );
 
 static int GetFrameShiftInfoFrom105PlusInChI( char *sinchi, int *alist, int max_crossing );
-static int IsPolymerRequiringEdits( ORIG_ATOM_DATA *orig_inp_data );
+/* static int IsPolymerRequiringEdits(ORIG_ATOM_DATA* orig_inp_data); */ /* djb-rwth: function definition not found*/
 static int analyze_CRU_folding( ORIG_ATOM_DATA *orig_at_data,
                                 int iunit,
                                 int n_all_bkb,
@@ -159,7 +159,7 @@ int GetOneStructure( INCHI_CLOCK    *ic,
         {
 
             INCHI_FPTR *new_fptr = (INCHI_FPTR *) 
-                                        inchi_calloc( struct_fptrs->len_fptr + ADD_LEN_STRUCT_FPTRS, sizeof( new_fptr[0] ) );
+                                        inchi_calloc( (long long)struct_fptrs->len_fptr + ADD_LEN_STRUCT_FPTRS, sizeof( new_fptr[0] ) ); /* djb-rwth: cast operator added */
 
             if (new_fptr)
             {
@@ -1423,8 +1423,8 @@ int extract_nonstereo_eq_classes_from_auxinfo_string( char *saux,
     /* Note that all atom and class numbers here are 1-based */
 
     *nclasses = 0;
-    memset(eclass, -1, (nat+1) * sizeof(int));
-    memset(eclass_by_origs, -1, (nat+1) * sizeof(int));
+    memset(eclass, -1, ((long long)nat+1) * sizeof(int)); /* djb-rwth: cast operator added */
+    memset(eclass_by_origs, -1, ((long long)nat+1) * sizeof(int)); /* djb-rwth: cast operator added */
 
     p = strstr(saux, "/E:");
     if (!p)
@@ -1543,13 +1543,13 @@ int  POSEContext_Init(POSEContext *context,
     /* assuming that NULL's are there. If not just raise an error.                  */
 
     context->pINChI2[0] = context->pINChI2[1] = NULL;
-    if (pINChI2 && (pINChI2[0] || pINChI2[0]))
+    if (pINChI2 && (pINChI2[0] || pINChI2[1])) /* djb-rwth: condition corrected */
     {
         ret = _IS_ERROR;
         goto exit_function;
     }
-    context->pINChI_Aux2[0] = context->pINChI_Aux2[1] = NULL;
-    if (pINChI_Aux2 && (pINChI_Aux2[0] || pINChI_Aux2[0]))
+    context->pINChI_Aux2[0] = context->pINChI_Aux2[1] = NULL; 
+    if (pINChI_Aux2 && (pINChI_Aux2[0] || pINChI_Aux2[1])) /* djb-rwth: condition corrected */
     {
         ret = _IS_ERROR;
         goto exit_function;
@@ -1825,160 +1825,184 @@ int  OAD_Polymer_PrepareFoldCRUEdits( ORIG_ATOM_DATA *orig_at_data,
     int *orig = NULL;
     int nat = orig_at_data->num_inp_atoms;
     int neclasses = 0;		/* No of constitutional equivalence classses for the atoms		*/
-    int ec[MAX_ATOMS],		/* equivalence classes for atoms, in order of 1-based orig nums	*/
-        ec_cano[MAX_ATOMS],	/* equivalence classes for atoms, in order of 1-based cano nums	*/
-        at_stereo_mark_orig[MAX_ATOMS];	/* stereo parities, in order of 1-based orig nums	*/
     int nxclasses = 0;      /* No of extended (stereo-aware) atom classses == 3*neclasses   */
-    int xc[MAX_ATOMS];      /* Extended (stereo-aware) atom classes.
+    
+    /* djb-rwth: all arrays in the following block have been converted to pointers */
+    int *ec,		/* equivalence classes for atoms, in order of 1-based orig nums	*/
+        *ec_cano,	/* equivalence classes for atoms, in order of 1-based cano nums	*/
+        *at_stereo_mark_orig;	/* stereo parities, in order of 1-based orig nums	*/
+    int *xc;      /* Extended (stereo-aware) atom classes.
                                 There are 'n_ec' non-stereo atom equivalence classes
                                 For ec[i]=k, keep value k for no-stereo atoms while use
                                 (k + neclasses)   for '-' parity
                                 (k + 2*neclasses) for '+' parity                            */
+
     int *all_bkb_orig = NULL, n_all_bkb_orig = 0;
     OAD_Polymer *p = orig_at_data->polymer;
     int nu = orig_at_data->polymer->n;
-         
-    /* Extract cano_nums-->orig_nums mapping from AuxInfo AuxInfo Main Layer */
-    orig = (int *)inchi_calloc(nat + 1, sizeof(int));
-    if (!orig)
-    {
-        ret = _IS_ERROR;
-        goto exit_function;
-    }
-    ret = extract_orig_nums_from_auxinfo_string(saux, orig);
-    if (ret != _IS_OKAY && ret != _IS_WARNING)
-    {
-        ret = _IS_ERROR;
-        goto exit_function;
-    }
-    /* Extract non-stereo eq. classes data from AuxInfo */
-    ret = extract_nonstereo_eq_classes_from_auxinfo_string(saux, nat, orig, &neclasses, ec_cano, ec);
-    if (ret != _IS_OKAY && ret != _IS_WARNING)
-    {
-        ret = _IS_ERROR;
-        goto exit_function;
-    }
-    if (neclasses==0)
-    {
-        goto exit_function;
-    }
-    /* Extract stereocenter data from InChI */
     
-    /*ret = extract_stereo_info_from_inchi_string(sinchi, nat, orig, at_stereo_mark_orig);*/
-    ret = extract_stereo_info_from_inchi_string(sinchi_noedits, nat, orig, at_stereo_mark_orig);
-    if (ret != _IS_OKAY && ret != _IS_WARNING)
-    {
-        ret = _IS_ERROR;
-        goto exit_function;
-    }
-    /* Make extended stereo-aware atom classes */
-    nxclasses = neclasses * 3;
-    for (i = 1; i <= nat; i++)  /* orig # */
-    {
-        int atom_class = ec[i];
+    /* djb-rwth: stack size was too large so heap has to be used */
+    ec = (int*)malloc(MAX_ATOMS);
+    ec_cano = (int*)malloc(MAX_ATOMS);
+    at_stereo_mark_orig = (int*)malloc(MAX_ATOMS);
+    xc = (int*)malloc(MAX_ATOMS);
 
-        if (at_stereo_mark_orig[i] == INCHI_PARITY_ODD)
+    if ((ec != NULL) && (ec_cano != NULL) && (at_stereo_mark_orig != NULL) && (xc != NULL))
+    {
+        /* djb-rwth: initialisation block */
+        ec[0] = 0;
+        ec_cano[0] = 0;
+        at_stereo_mark_orig[0] = 0;
+        xc[0] = 0;
+
+        /* Extract cano_nums-->orig_nums mapping from AuxInfo AuxInfo Main Layer */
+        orig = (int*)inchi_calloc((long long)nat + 1, sizeof(int)); /* djb-rwth: cast operator added */
+        if (!orig)
         {
-            atom_class += neclasses;
+            ret = _IS_ERROR;
+            goto exit_function;
         }
-        else if (at_stereo_mark_orig[i] == INCHI_PARITY_EVEN)
+        ret = extract_orig_nums_from_auxinfo_string(saux, orig);
+        if (ret != _IS_OKAY && ret != _IS_WARNING)
         {
-            atom_class += 2 * neclasses;
+            ret = _IS_ERROR;
+            goto exit_function;
         }
-        xc[i] = atom_class;
-    }
-    /* Extract all backbone bonds, in all units, from InChI (z layer).
-        NB: we assume that units are not 'inter-crossing' so 
-        any particular bkbond belongs to some unique CRU.
-    */
-    all_bkb_orig = (int *)inchi_calloc(2 * (orig_at_data->num_inp_bonds + 1), sizeof(int));
-    if (!all_bkb_orig)
-    {
-        ret = _IS_ERROR;
-        goto exit_function;
-    }
-    memset(all_bkb_orig, 0, (orig_at_data->num_inp_bonds + 1) * sizeof(int));
-    ret = extract_all_backbone_bonds_from_inchi_string(sinchi, &n_all_bkb_orig, orig, all_bkb_orig);
-    if (ret != _IS_OKAY && ret != _IS_WARNING)
-    {
-        ret = _IS_ERROR;
-        goto exit_function;
-    }
-    /* just for case, remove those bkbonds which are not single (alternate may be here) */
-    for (k = n_all_bkb_orig-1; k >=0 ; k--)
-    {
-        int orig1 = all_bkb_orig[2 * k];
-        int orig2 = all_bkb_orig[2 * k + 1];
-        int bond_type = Inp_Atom_GetBondType(orig_at_data->at, orig1 - 1, orig2 - 1);
-        if (bond_type > BOND_TYPE_SINGLE) /* not == intentionally, to keep -1 ("no bond") */
+        /* Extract non-stereo eq. classes data from AuxInfo */
+        ret = extract_nonstereo_eq_classes_from_auxinfo_string(saux, nat, orig, &neclasses, ec_cano, ec);
+        if (ret != _IS_OKAY && ret != _IS_WARNING)
         {
-            /* remove k-th bond and shift others to start of list */
-            int kk;
-            for (kk = k; kk < n_all_bkb_orig; kk++)
+            ret = _IS_ERROR;
+            goto exit_function;
+        }
+        if (neclasses == 0)
+        {
+            goto exit_function;
+        }
+        /* Extract stereocenter data from InChI */
+
+        /*ret = extract_stereo_info_from_inchi_string(sinchi, nat, orig, at_stereo_mark_orig);*/
+        ret = extract_stereo_info_from_inchi_string(sinchi_noedits, nat, orig, at_stereo_mark_orig);
+        if (ret != _IS_OKAY && ret != _IS_WARNING)
+        {
+            ret = _IS_ERROR;
+            goto exit_function;
+        }
+        /* Make extended stereo-aware atom classes */
+        nxclasses = neclasses * 3;
+        for (i = 1; i <= nat; i++)  /* orig # */
+        {
+            int atom_class = ec[i];
+
+            if (at_stereo_mark_orig[i] == INCHI_PARITY_ODD)
             {
-                all_bkb_orig[2*kk]	= all_bkb_orig[2*(kk+1)];
-                all_bkb_orig[2*kk+1]= all_bkb_orig[2*(kk + 1) + 1];
+                atom_class += neclasses;
             }
-            all_bkb_orig[2 * n_all_bkb_orig] = 0;
-            all_bkb_orig[2 * n_all_bkb_orig + 1] = 0;
-            n_all_bkb_orig--;
+            else if (at_stereo_mark_orig[i] == INCHI_PARITY_EVEN)
+            {
+                atom_class += 2 * neclasses;
+            }
+            xc[i] = atom_class;
         }
-    }
+        /* Extract all backbone bonds, in all units, from InChI (z layer).
+            NB: we assume that units are not 'inter-crossing' so
+            any particular bkbond belongs to some unique CRU.
+        */
+        all_bkb_orig = (int*)inchi_calloc(2 * ((long long)orig_at_data->num_inp_bonds + 1), sizeof(int)); /* djb-rwth: cast operator added */
+        if (!all_bkb_orig)
+        {
+            ret = _IS_ERROR;
+            goto exit_function;
+        }
+        memset(all_bkb_orig, 0, ((long long)orig_at_data->num_inp_bonds + 1) * sizeof(int)); /* djb-rwth: cast operator added */
+        ret = extract_all_backbone_bonds_from_inchi_string(sinchi, &n_all_bkb_orig, orig, all_bkb_orig);
+        if (ret != _IS_OKAY && ret != _IS_WARNING)
+        {
+            ret = _IS_ERROR;
+            goto exit_function;
+        }
+        /* just for case, remove those bkbonds which are not single (alternate may be here) */
+        for (k = n_all_bkb_orig - 1; k >= 0; k--)
+        {
+            int orig1 = all_bkb_orig[2 * k];
+            int orig2 = all_bkb_orig[2 * k + 1];
+            int bond_type = Inp_Atom_GetBondType(orig_at_data->at, orig1 - 1, orig2 - 1);
+            if (bond_type > BOND_TYPE_SINGLE) /* not == intentionally, to keep -1 ("no bond") */
+            {
+                /* remove k-th bond and shift others to start of list */
+                int kk;
+                for (kk = k; kk < n_all_bkb_orig; kk++)
+                {
+                    all_bkb_orig[2 * kk] = all_bkb_orig[2 * (kk + 1)];
+                    all_bkb_orig[2 * kk + 1] = all_bkb_orig[2 * (kk + 1) + 1];
+                }
+                all_bkb_orig[2 * n_all_bkb_orig] = 0;
+                all_bkb_orig[2 * n_all_bkb_orig + 1] = 0;
+                n_all_bkb_orig--;
+            }
+        }
 
-    err = OAD_ValidatePolymerAndPseudoElementData(orig_at_data,
-        POLYMERS_MODERN,
-        1, /* ip->bNPZz,*/
-        pStrErr,
-        0 /*ip->bNoWarnings*/);
-    if (err)
-    {
-        goto exit_function;
-    }
-
-    /* For each unit analyze a possibility of folding (i.e., removal of excess in-CRU repeats) */
-    for (j = 0; j < nu; j++)
-    {
-        OAD_PolymerUnit *u = p->units[j];
-        
-        if (u->na < 2)
-        {
-            goto nextj;
-        }
-        if (u->nb < 2)
-        {
-            goto nextj;
-        }
-        /* this is only for bi-star CRU's */
-        if (!u->cap1_is_undef)
-        {
-            goto nextj;
-        }
-        if (!u->cap2_is_undef)
-        {
-            goto nextj;
-        }
-
-        err = analyze_CRU_folding(orig_at_data, j, 
-                                  n_all_bkb_orig, all_bkb_orig, 
-                                  nxclasses, xc, 
-                                  ed);
+        err = OAD_ValidatePolymerAndPseudoElementData(orig_at_data,
+            POLYMERS_MODERN,
+            1, /* ip->bNPZz,*/
+            pStrErr,
+            0 /*ip->bNoWarnings*/);
         if (err)
         {
-            ret = inchi_max( _IS_WARNING, err);
-            goto nextj;
+            goto exit_function;
         }
 
-nextj:;
-    }
+        /* For each unit analyze a possibility of folding (i.e., removal of excess in-CRU repeats) */
+        for (j = 0; j < nu; j++)
+        {
+            OAD_PolymerUnit* u = p->units[j];
 
-exit_function:
-    if (orig)
-    {
-        inchi_free(orig);
-    }
-    if (all_bkb_orig)
-    {
-        inchi_free(all_bkb_orig);
+            if (u->na < 2)
+            {
+                goto nextj;
+            }
+            if (u->nb < 2)
+            {
+                goto nextj;
+            }
+            /* this is only for bi-star CRU's */
+            if (!u->cap1_is_undef)
+            {
+                goto nextj;
+            }
+            if (!u->cap2_is_undef)
+            {
+                goto nextj;
+            }
+
+            err = analyze_CRU_folding(orig_at_data, j,
+                n_all_bkb_orig, all_bkb_orig,
+                nxclasses, xc,
+                ed);
+            if (err)
+            {
+                ret = inchi_max(_IS_WARNING, err);
+                goto nextj;
+            }
+
+        nextj:;
+        }
+
+    exit_function:
+        if (orig)
+        {
+            inchi_free(orig);
+        }
+        if (all_bkb_orig)
+        {
+            inchi_free(all_bkb_orig);
+        }
+
+        /* djb-rwth: deallocating memory; C++ STL dynamic memory strategies should be considered */
+        free(ec);
+        free(ec_cano);
+        free(at_stereo_mark_orig);
+        free(xc);
     }
 
     return ret;
@@ -2152,7 +2176,7 @@ int analyze_CRU_folding(ORIG_ATOM_DATA *orig_at_data,
 
 
     /* Reserve space for frag-specific xclass counts */
-    frag_xc_counts = (int *)inchi_calloc(nxclasses + 1, sizeof(int));
+    frag_xc_counts = (int *)inchi_calloc((long long)nxclasses + 1, sizeof(int)); /* djb-rwth: cast operator added */
     if (!frag_xc_counts)
     {
         ret = _IS_ERROR;
@@ -2161,7 +2185,7 @@ int analyze_CRU_folding(ORIG_ATOM_DATA *orig_at_data,
 
 
     /* Prepare list of cuts - backbone lying on the way from cap1 to cap2 */
-    cut = (int *)inchi_calloc(2 * n_all_bkb, sizeof(int));
+    cut = (int *)inchi_calloc(2 * (long long)n_all_bkb, sizeof(int)); /* djb-rwth: cast operator added */
     if (!cut)
     {
         ret = _IS_ERROR;
@@ -2506,7 +2530,7 @@ int  OAD_Polymer_PrepareFrameShiftEdits( ORIG_ATOM_DATA *orig_at_data,
     int nat = orig_at_data->num_inp_atoms;
     
     /* Extract cano_nums-->orig_nums mapping for InChI AuxInfo Main Layer */
-    orig = (int *)inchi_calloc(nat + 1, sizeof(int));
+    orig = (int *)inchi_calloc((long long)nat + 1, sizeof(int)); /* djb-rwth: cast operator added */
     if (!orig)
     {
         ret = _IS_ERROR;
@@ -2528,7 +2552,7 @@ int  OAD_Polymer_PrepareFrameShiftEdits( ORIG_ATOM_DATA *orig_at_data,
     
 
     /* Parse InChI and extract, for each 'bistar' CRU, the senior bkbond (to frame-shift brackets to its ends) */
-    frame_shift_info = (int *)inchi_calloc(3 * (nu + 1), sizeof(int));
+    frame_shift_info = (int *)inchi_calloc(3 * ((long long)nu + 1), sizeof(int)); /* djb-rwth: cast operator added */
     if (!frame_shift_info)
     {
         ret = _IS_ERROR;

@@ -4603,7 +4603,7 @@ int RestoreCyanoGroup( BN_STRUCT *pBNS,
              cnList[pVA[i].cnListIndex - 1].bits == cn_bits_MN)
         {
             /* found N(-)=C= */
-            pe = pBNS->edge + ( pVA[i].nCMinusGroupEdge - 1 ); /* N#N(+) triple bond edge */
+            pe = pBNS->edge + ( (long long)pVA[i].nCMinusGroupEdge - 1 ); /* N#N(+) triple bond edge */ /* djb-rwth: cast operator added */
 
             if (!pe->flow)
             {
@@ -7476,7 +7476,7 @@ int RemoveRadFromMobileHEndpointFixH( BN_STRUCT *pBNS,
                 Vertex    vEndp1 = ecp1_found->neighbor12 ^ centerpoint_found;
                 Vertex    vEndp2 = ecp2_found->neighbor12 ^ centerpoint_found;
                 BNS_EDGE *pe0 = ecp0_found;
-                BNS_EDGE *pe1 = pBNS->edge + ( pVA[vEndp1].nCMinusGroupEdge - 1 );
+                BNS_EDGE *pe1 = pBNS->edge + ( (long long)pVA[vEndp1].nCMinusGroupEdge - 1 ); /* djb-rwth: cast operator added */
                 pEndp1 = pBNS->vert + vEndp1;
                 pEndp2 = pBNS->vert + vEndp2;
                 pCentp = pCentp_found;
@@ -7739,8 +7739,8 @@ int MoveChargeToMakeCenerpoints( BN_STRUCT *pBNS,
             if (j == at2[i].valence && num_endpoints > 1)
             {
                 /* found possible centerpoint */
-                pEdgePlus = pBNS->edge + ( pVA[i].nCPlusGroupEdge - 1 );
-                pEdgeMinus = ( pVA[i].nCMinusGroupEdge > 0 ) ? pBNS->edge + ( pVA[i].nCMinusGroupEdge - 1 ) : NULL;
+                pEdgePlus = pBNS->edge + ( (long long)pVA[i].nCPlusGroupEdge - 1 ); /* djb-rwth: cast operator added */
+                pEdgeMinus = ( pVA[i].nCMinusGroupEdge > 0 ) ? pBNS->edge + ((long long) pVA[i].nCMinusGroupEdge - 1 ) : NULL; /* djb-rwth: cast operator added */
                 if (pEdgePlus->flow + ( pEdgeMinus ? pEdgeMinus->flow : 0 ) != 1)
                 {
                     continue;

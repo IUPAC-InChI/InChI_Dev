@@ -4130,8 +4130,8 @@ int bin_AuxTautTrans( INCHI_SORT *pINChISort,
             is->ord_number != is2->ord_number)
         {
             if (( nTrans_n && nTrans_s ) ||
-                ( nTrans_n = (AT_NUMB *) inchi_calloc( num_components + 1, sizeof( nTrans_n[0] ) ) ) &&
-                ( nTrans_s = (AT_NUMB *) inchi_calloc( num_components + 1, sizeof( nTrans_s[0] ) ) ))
+                ( nTrans_n = (AT_NUMB *) inchi_calloc( (long long)num_components + 1, sizeof( nTrans_n[0] ) ) ) &&
+                ( nTrans_s = (AT_NUMB *) inchi_calloc( (long long)num_components + 1, sizeof( nTrans_s[0] ) ) )) /* djb-rwth: cast operators added */
             {
                 /* new ordering number for original non-tautomeric component number is->ord_number */
                 nTrans_n[is->ord_number] = /*nTrans_t[is2->ord_number] =*/ i + 1;

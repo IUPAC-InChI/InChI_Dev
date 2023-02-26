@@ -848,7 +848,7 @@ int CurTreeReAlloc( CUR_TREE *cur_tree )
         if (cur_tree->tree && cur_tree->max_len > 0 && cur_tree->incr_len > 0)
         {
             void *p = cur_tree->tree;
-            if (cur_tree->tree = (AT_NUMB *) inchi_calloc( cur_tree->max_len + cur_tree->incr_len, sizeof( cur_tree->tree[0] ) ))
+            if (cur_tree->tree = (AT_NUMB *) inchi_calloc( (long long)cur_tree->max_len + (long long)cur_tree->incr_len, sizeof( cur_tree->tree[0] ) )) /* djb-rwth: cast operators added */
             {
                 memcpy( cur_tree->tree, p, cur_tree->cur_len * sizeof( cur_tree->tree[0] ) );
                 inchi_free( p );
@@ -967,7 +967,7 @@ void CurTreeKeepLastAtomsOnly( CUR_TREE *cur_tree, int tpos, int shift )
             cur_tree->cur_len -= (int) cur_tree->tree[cur_length_pos] - 2;
             memmove( cur_tree->tree + cur_length_pos - cur_tree->tree[cur_length_pos] + 1, /*  1st atom pos */
                      cur_tree->tree + cur_length_pos - 1,  /*  last atom in the current segment position */
-                     ( shift + 1 ) * sizeof( cur_tree->tree[0] ) );
+                     ( (long long)shift + 1 ) * sizeof( cur_tree->tree[0] ) ); /* djb-rwth: cast operator added */
             /*  (current segment length) distance from the last tree element has not changed */
             cur_tree->tree[cur_tree->cur_len - shift] = 2;
             /*  add 3 to move to the previous segment length position */

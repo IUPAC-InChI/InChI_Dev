@@ -1136,7 +1136,7 @@ int CreateOneStructureINChI( CANON_GLOBALS          *pCG,
 
     /* allocate pINChI[iINChI] and pINChI_Aux2[iINChI] -- arrays of pointers to INChI and INChI_Aux */
     /* assign values to sd->num_components[]                                                  */
-    MYREALLOC2( PINChI2, PINChI_Aux2, pINChI2[iINChI], pINChI_Aux2[iINChI], sd->num_components[iINChI], cur_prep_inp_data->num_components, k );
+    MYREALLOC2( PINChI2, PINChI_Aux2, pINChI2[iINChI], pINChI_Aux2[iINChI], sd->num_components[iINChI], (long long)cur_prep_inp_data->num_components, k ); /* djb-rwth: cast operators added */
 
     if (k)
     {
@@ -1725,10 +1725,17 @@ int CreateOneComponentINChI( CANON_GLOBALS      *pCG,
     /*  Allocate memory for non-tautomeric (k=0) and tautomeric (k=1) results */
     for (k = 0; k < TAUT_NUM; k++)
     {
-        int nAllocMode = ( k == TAUT_YES ? REQ_MODE_TAUT : 0 ) |
-            ( bTautFlagsDone & ( TG_FLAG_FOUND_ISOTOPIC_H_DONE |
-                TG_FLAG_FOUND_ISOTOPIC_ATOM_DONE ) )
-            ? ( ip->nMode & REQ_MODE_ISO ) : 0;
+        /* djb-rwth: introducing variables for correct nAllocMode expression */
+        int nAM1 = 0, nAM2 = 0;
+
+        if (k == TAUT_YES)
+            nAM1 = REQ_MODE_TAUT;
+
+        if (bTautFlagsDone & (TG_FLAG_FOUND_ISOTOPIC_H_DONE | TG_FLAG_FOUND_ISOTOPIC_ATOM_DONE))
+            nAM2 = ip->nMode & REQ_MODE_ISO;
+
+        int nAllocMode = nAM1 | nAM2; /* djb-rwth: original sequence of bit-wise operations had to be rewritten */
+
 
         if (k == TAUT_NON && ( ip->nMode & REQ_MODE_BASIC ) ||
              k == TAUT_YES && ( ip->nMode & REQ_MODE_TAUT ))
@@ -1912,7 +1919,7 @@ int CreateOneComponentINChI( CANON_GLOBALS      *pCG,
                 int bIsotopic = ( pINChI[i][j]->nNumberOfIsotopicAtoms ||
                                   pINChI[i][j]->nNumberOfIsotopicTGroups ||
                                   pINChI[i][j]->nPossibleLocationsOfIsotopicH && pINChI[i][j]->nPossibleLocationsOfIsotopicH[0] > 1 );
-                if (j == TAUT_YES)
+                if (pINChI_Aux[i][j] && (j == TAUT_YES)) /* djb-rwth: correcting the dereferencing NULL pointer */
                 {
                     bIsotopic |= ( 0 < pINChI_Aux[i][j]->nNumRemovedIsotopicH[0] +
                                       pINChI_Aux[i][j]->nNumRemovedIsotopicH[1] +
@@ -2250,7 +2257,7 @@ frame_shift:        ;
 
                         ret = OAD_Polymer_PrepareFrameShiftEdits( orig_inp_data, sinchi_105p, saux_105p, ed_fs);
                      
-                        if (ret == _IS_FATAL && ret == _IS_ERROR)
+                        if (ret == _IS_FATAL || ret == _IS_ERROR) /* djb-rwth: logical operator corrected */
                         {
                             ret = _IS_WARNING;
                             /*inchi_ios_eprint(log_file, "Warning (Frame shift analysis failed) structure #%ld.%s%s%s%s\n",
@@ -2612,7 +2619,7 @@ int OAD_StructureEdits_Apply( STRUCT_DATA *sd,
                     }
                     if (u->blist)
                     {
-                        memcpy(ibuf, u->blist, 2*u->nb * sizeof(int));
+                        memcpy(ibuf, u->blist, 2*(long long)u->nb * sizeof(int)); /* djb-rwth: cast operator added */
                         new_nb = set_renumbered_or_delete(u->blist, ibuf, 2*u->nb, at_renum, 1);
                         new_nb /= 2;
                         if (new_nb == -1)
@@ -2843,7 +2850,8 @@ int ValidateAndPreparePolymerAndPseudoatoms( struct tagINCHI_CLOCK *ic,
                           sd->nErrorCode, sd->pStrErrStruct, num_inp,
                           SDF_LBL_VAL( ip->pSdfLabel, ip->pSdfValue ) );
         res = _IS_ERROR;
-        orig_inp_data->num_inp_atoms = -1;
+        if (orig_inp_data) /* djb-rwth: correcting the dereferencing NULL pointer */
+            orig_inp_data->num_inp_atoms = -1;
         goto exit_function;
     }
 
@@ -3079,7 +3087,7 @@ int mark_atoms_to_delete_or_renumber( ORIG_ATOM_DATA *orig_at_data,
     int i, j;
     int fail=0, ret = 0;
     int *atnums = NULL;
-    int max_atoms = orig_at_data->num_inp_atoms;
+    size_t max_atoms = orig_at_data->num_inp_atoms;
 
     /* NB:	new/old ORIG_ATOM_DATA atom numbers are 0-based (==orig_number-1) 
             while those in ed->... are just 1-based orig_numbers */
@@ -3095,7 +3103,7 @@ int mark_atoms_to_delete_or_renumber( ORIG_ATOM_DATA *orig_at_data,
         (i.e., delete a whole connected component(s) comprising original atoms)
         */
         int natnums = 0;
-        atnums = (int *)inchi_calloc(max_atoms, sizeof(int));
+        atnums = (int *)inchi_calloc(max_atoms, sizeof(size_t)); /* djb-rwth: size_t type used for max_atoms to fit the definition of inchi_calloc  */
         if (!atnums)
         {
             return _IS_ERROR;

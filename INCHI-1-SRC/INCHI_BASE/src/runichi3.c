@@ -157,7 +157,7 @@ int OrigAtData_Duplicate( ORIG_ATOM_DATA *new_orig_atom,
     }
     else
     {
-        at = (inp_ATOM *) inchi_calloc( orig_nat + 1, sizeof( at[0] ) );
+        at = (inp_ATOM *) inchi_calloc( (long long)orig_nat + 1, sizeof( at[0] ) ); /* djb-rwth: cast operator added */
         if (!at)
         {
             goto exit_function;
@@ -171,7 +171,7 @@ int OrigAtData_Duplicate( ORIG_ATOM_DATA *new_orig_atom,
     }
     else
     {
-        nCurAtLen = (AT_NUMB *) inchi_calloc( orig_atom->num_components + 1, sizeof( nCurAtLen[0] ) );
+        nCurAtLen = (AT_NUMB *) inchi_calloc( (long long)orig_atom->num_components + 1, sizeof( nCurAtLen[0] ) ); /* djb-rwth: cast operator added */
         if (!nCurAtLen)
         {
             goto exit_function;
@@ -185,8 +185,8 @@ int OrigAtData_Duplicate( ORIG_ATOM_DATA *new_orig_atom,
     }
     else
     {
-        nOldCompNumber = (AT_NUMB *) inchi_calloc( orig_atom->num_components + 1,
-                                                  sizeof( nOldCompNumber[0] ) );
+        nOldCompNumber = (AT_NUMB *) inchi_calloc( (long long)orig_atom->num_components + 1,
+                                                  sizeof( nOldCompNumber[0] ) ); /* djb-rwth: cast operator added */
         if (!nOldCompNumber)
         {
             goto exit_function;
@@ -1267,7 +1267,7 @@ OAD_PolymerUnit* OAD_PolymerUnit_CreateCopy( OAD_PolymerUnit *u )
         u2->alist[k]	= u->alist[k];
     }
 
-    u2->blist	= (int *) inchi_calloc( 2 * u2->nb, sizeof( int ) );
+    u2->blist	= (int *) inchi_calloc( 2 * (long long)u2->nb, sizeof( int ) ); /* djb-rwth: cast operator added */
     if (!u2->blist)
     {
         err = 2;
@@ -2607,7 +2607,7 @@ int  OrigAtData_AddBond( int        this_atom,
         }
     }
 
-    if (!already_here)
+    if (!already_here && (k < MAXVAL)) /* djb-rwth: condition added to prevent buffer overrun */
     {
         a->neighbor[k] = this_atom;
         a->bond_type[k] = (U_CHAR) bond_type;
@@ -3128,7 +3128,7 @@ void OAD_PolymerUnit_DelistIntraRingBackboneBonds( OAD_PolymerUnit *unit,
     /* Establish ring systems assignments for all related atoms */
 
     *err = 1;
-    num_ring_sys = (int *) inchi_calloc( at_data->num_inp_atoms + 1, sizeof( int ) );
+    num_ring_sys = (int *) inchi_calloc( (long long)at_data->num_inp_atoms + 1, sizeof( int ) ); /* djb-rwth: cast operator added */
     if (!num_ring_sys)
     {
         goto exit_function;
@@ -3324,12 +3324,12 @@ void OAD_Polymer_SetAtProps( OAD_Polymer *pd,
     }
 
     /* Establish ring systems assignments for atoms */
-    num_ring_sys = (int *) inchi_calloc( nat + 1, sizeof( int ) );
+    num_ring_sys = (int *) inchi_calloc( (long long)nat + 1, sizeof( int ) ); /* djb-rwth: cast operator added */
     if (NULL == num_ring_sys)
     {
         goto exit_function;
     }
-    size_ring_sys = (int *) inchi_calloc( nat + 1, sizeof( int ) );
+    size_ring_sys = (int *) inchi_calloc( (long long)nat + 1, sizeof( int ) ); /* djb-rwth: cast operator added */
     if (NULL == size_ring_sys)
     {
         goto exit_function;
@@ -3472,8 +3472,8 @@ void OAD_PolymerUnit_DelistHighOrderBackboneBonds( OAD_PolymerUnit *unit,
     if (composite_norm_data)
     {
         check_taut = 1;
-        orig_num = (int *) inchi_calloc( orig_at_data->num_inp_atoms + 2, sizeof( int ) );
-        curr_num = (int *) inchi_calloc( orig_at_data->num_inp_atoms + 2, sizeof( int ) );
+        orig_num = (int *) inchi_calloc( (long long)orig_at_data->num_inp_atoms + 2, sizeof( int ) ); /* djb-rwth: cast operator added */
+        curr_num = (int *) inchi_calloc( (long long)orig_at_data->num_inp_atoms + 2, sizeof( int ) ); /* djb-rwth: cast operator added */
         if (orig_num && curr_num)
         {
             check_taut = 1;
@@ -3839,7 +3839,7 @@ void OAD_Polymer_SmartReopenCyclizedUnits( OAD_Polymer *p,
     OAD_Polymer_DebugTrace( p );*/
 
     /* Set atom properties for sorting */
-    aprops = (OAD_AtProps *) inchi_calloc( nat + 1, sizeof( OAD_AtProps ) );
+    aprops = (OAD_AtProps *) inchi_calloc( (long long)nat + 1, sizeof( OAD_AtProps ) ); /* djb-rwth: cast operator added */
                                         /* nat + 1: add extra element for possibe 1-based indexing */
     if (!aprops)
     {
@@ -3913,7 +3913,7 @@ void OAD_PolymerUnit_ReopenCyclized( OAD_PolymerUnit *u,
     u->nbkbonds = 0;
     if (!u->blist)
     {
-        u->blist = (int *) inchi_calloc( 2 * u->nb, sizeof( int ) );
+        u->blist = (int *) inchi_calloc( 2 * (long long)u->nb, sizeof( int ) ); /* djb-rwth: cast operator added */
     }
     if (!u->blist)
     {
