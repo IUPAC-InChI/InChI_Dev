@@ -1,0 +1,83 @@
+Finished:
+	dispstru.h
+	extr_ct.h
+	ichi.h
+	ichicano.h
+	ichicant.h
+	ichicomn.h
+	ichicomp.h
+	ichidrp.h
+	ichierr.h
+	ichimain.h
+	ichimake.h
+	ichinorm.h
+	ichiring.h
+	ichirvrs.h
+	ichisize.h
+	ichister.h
+	ichitaut.h
+	ichitime.h
+	ichi_bns.h
+	ichi_io.h
+	ikey_base26.h
+	inchicmp.h
+	inchi_api.h
+	inchi_gui.h
+	incomdef.h
+	inpdef.h
+	ixa.h
+	mode.h
+	mol_fmt.h
+	readinch.h
+	sha2.h
+	strutil.h
+	util.h
+
+	dispstru.c (8 M)
+	ichi_bns.c (18 M)
+	ichi_io.c
+	ichican2.c (4 M)
+	ichicano.c (2 M)
+	ichicans.c (15 M)
+	ichierr.c
+	ichiisot.c
+	ichimain.c (16 M)
+	ichimak2.c (1 M)
+	ichimake.c (15 M)
+	ichimap1.c
+	ichimap2.c (17 M)
+	ichimap4.c (10 M)
+	ichinorm.c (14 M)
+	ichiparm.c (2 M)
+	ichiprt1.c (16 M)
+	ichiprt2.c (6 M)
+	ichiprt3.c
+	ichiqueu.c (12 M)
+	ichiread.c (29 M)
+	ichiring.c
+	ichirvr1.c (24 M)
+	ichirvr2.c (7 M)
+	ichirvr3.c (42 M)
+	ichirvr4.c (5 M)
+	ichirvr5.c (5 M)
+	ichirvr6.c (1 M)
+	ichirvr7.c (10 M)
+	ichisort.c (2 M)
+	ichister.c (32 M)
+	ichitaut.c (11 M)
+	ikey_base26.c
+	ikey_dll.c (2 M)
+	inchi_gui.c
+	mol_fmt1.c (12 M)
+	mol_fmt2.c
+	mol_fmt3.c (9 M)
+	mol_fmt4.c
+	mol2atom.c (2 M)
+	readinch.c (3 M)
+	runichi.c (13 M)
+	runichi2.c (5 M)
+	runichi3.c (2 M)
+	runichi4.c (2 M)
+	sha2.c (2M)
+	strutil.c (13 M) -- Buffer overrun
+	util.c (2 M)

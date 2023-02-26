@@ -75,6 +75,7 @@
     <OutDir>../../bin2/Windows/$(Platform)/$(Configuration)\</OutDir>
     <IntDir>../../bin2/Windows/intermediate/$(Platform)/$(Configuration)\</IntDir>
     <LinkIncremental>true</LinkIncremental>
+    <CodeAnalysisRuleSet>NativeRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>../../bin2/Windows/$(Platform)/$(Configuration)\</OutDir>
@@ -116,7 +117,7 @@
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>../../common;../../main;../../cmlpp;../../ICHI_LIB;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;WIN64;DEBUG;_CONSOLE;ADD_CMLPP=0;ADD_AMI_MODE=1;TARGET_EXE_STANDALONE=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <MinimalRebuild>true</MinimalRebuild>
+      <MinimalRebuild>false</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <PrecompiledHeader />
@@ -234,7 +235,6 @@
     <ClCompile Include="..\src\ichimain.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\INCHI_BASE\src\aux2atom.h" />
     <ClInclude Include="..\..\..\INCHI_BASE\src\extr_ct.h" />
     <ClInclude Include="..\..\..\INCHI_BASE\src\ichi.h" />
     <ClInclude Include="..\..\..\INCHI_BASE\src\ichicano.h" />
@@ -267,6 +267,9 @@
     <ClInclude Include="..\..\..\INCHI_BASE\src\strutil.h" />
     <ClInclude Include="..\..\..\INCHI_BASE\src\util.h" />
     <ClInclude Include="..\src\dispstru.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="_code_cleanup.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
