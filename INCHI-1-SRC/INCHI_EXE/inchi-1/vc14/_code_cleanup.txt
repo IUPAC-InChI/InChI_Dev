@@ -79,5 +79,5 @@ Finished:
 	runichi3.c (2 M)
 	runichi4.c (2 M)
 	sha2.c (2M)
-	strutil.c (13 M) -- Buffer overrun
+	strutil.c (13 M)
 	util.c (2 M)
