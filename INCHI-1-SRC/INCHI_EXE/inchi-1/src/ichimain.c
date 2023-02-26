@@ -54,6 +54,8 @@
 #include <io.h>
 #endif
 
+
+#include <crtdbg.h>
 #include "../../INCHI_BASE/src/ichitime.h"
 #include "../../INCHI_BASE/src/incomdef.h"
 #include "../../INCHI_BASE/src/ichidrp.h"
@@ -68,6 +70,8 @@
 #ifdef TARGET_EXE_STANDALONE
 #include "../../INCHI_BASE/src/inchi_api.h"
 #endif
+
+int ret_val; /* djb-rwth: variable added for return value */
 
  /*  Console-specific */
 
@@ -142,7 +146,7 @@ void eat_keyboard_input( void )
     {
         if (0xE0 == _getch())
         {
-            _getch();
+            ret_val = _getch(); /* djb-rwth: return value variable added */
         }
     }
 
@@ -314,7 +318,7 @@ int ProcessMultipleInputFiles( int argc, char *argv[] )
         goto exit_ami;
     }
 
-    targv = (char**)inchi_calloc(argc + 3, sizeof(char *));
+    targv = (char**)inchi_calloc((long long)argc + 3, sizeof(char *)); /* djb-rwth: cast operator added */
 
     if (!targv)
     {
@@ -353,7 +357,7 @@ int ProcessMultipleInputFiles( int argc, char *argv[] )
         fn_in = pathname;
         if (0 == numFiles % 5000)
         {
-            _heapmin(); /* reduce heap fragmentation */
+            ret_val = _heapmin(); /* reduce heap fragmentation */ /* djb-rwth: return value variable added */
         }
 #else
         const char *fn_in = fn_ins[p];
@@ -378,7 +382,7 @@ int ProcessMultipleInputFiles( int argc, char *argv[] )
         else
         {
             /* make output name as input name plus ext. */
-            fn_out = (char*)inchi_calloc( inlen + 6, sizeof(char) );
+            fn_out = (char*)inchi_calloc( (long long)inlen + 6, sizeof(char) ); /* djb-rwth: cast operator added */
             if (fn_out)
             {
                 strcpy( fn_out, fn_in );
@@ -400,7 +404,7 @@ int ProcessMultipleInputFiles( int argc, char *argv[] )
         else
         {
             /* Make log name as input name plus ext. */
-            fn_log = (char*)inchi_calloc(inlen + 6, sizeof(char));
+            fn_log = (char*)inchi_calloc((long long)inlen + 6, sizeof(char)); /* djb-rwth: cast operator added */
             if (fn_log)
             {
                 strcpy( fn_log, fn_in );
@@ -421,7 +425,7 @@ int ProcessMultipleInputFiles( int argc, char *argv[] )
         else
         {
             /* Make problem file name as input file name plus ext. */
-            fn_prb = (char*)inchi_calloc( inlen + 6, sizeof(char) );
+            fn_prb = (char*)inchi_calloc( (long long)inlen + 6, sizeof(char) ); /* djb-rwth: cast operator added */
             if (fn_prb)
             {
                 strcpy( fn_prb, fn_in );
@@ -558,7 +562,7 @@ int ProcessSingleInputFile( int argc, char *argv[] )
 #if ( defined(_WIN32) && defined(_MSC_VER) )
 #if WINVER >= 0x0501 /* XP or newer */ /* 0x0600 Vista or newer */
     DWORD tick_inchi_start, tick_inchi_stop;
-    tick_inchi_start = GetTickCount();
+    tick_inchi_start = GetTickCount64(); /* djb-rwth: GetTickCount64() should be used */
 #endif
 #endif
 
@@ -966,7 +970,7 @@ exit_function:
     }
 #if ( defined(_WIN32) && defined(_MSC_VER) )
 #if WINVER >= 0x0501 /* XP or newer */ /* 0x0600 Vista or newer */
-    tick_inchi_stop = GetTickCount();
+    tick_inchi_stop = GetTickCount64(); /* djb-rwth: GetTickCount64() should be used */
     inchi_ios_eprint(plog, "\nElapsed walltime: %d msec.\n", tick_inchi_stop - tick_inchi_start);
     inchi_ios_flush2(plog, stderr);
 #endif
@@ -1436,7 +1440,7 @@ void shuffle(void *obj, size_t nmemb, size_t size)
         memcpy(BYTE(obj) + n*size, BYTE(obj) + k*size, size);
         memcpy(BYTE(obj) + k*size, temp, size);
     }
-    free(temp);
+    _free_dbg(temp, _NORMAL_BLOCK); /* djb-rwth: _free_dbg for _malloc_dbg must be used */
 }
 
 
@@ -1552,219 +1556,227 @@ void OrigAtData_Permute(ORIG_ATOM_DATA *permuted, ORIG_ATOM_DATA *saved, int *nu
 
 
 /*****************************************************************************/
-int RepeatedlyRenumberAtomsAndRecalcINCHI(struct tagINCHI_CLOCK *ic,
-    CANON_GLOBALS *CG,
-    STRUCT_DATA *sd,
-    INPUT_PARMS *ip,
-    char *szTitle,
-    PINChI2 *pINChI[INCHI_NUM],
-    PINChI_Aux2 *pINChI_Aux[INCHI_NUM],
-    INCHI_IOSTREAM *inp_file,
-    INCHI_IOSTREAM *plog,
-    INCHI_IOSTREAM *pout,
-    INCHI_IOSTREAM *pprb,
-    ORIG_ATOM_DATA *orig_inp_data,
-    ORIG_ATOM_DATA *prep_inp_data,
-    long *num_inp,
-    STRUCT_FPTRS *pStructPtrs,
-    int *nRet,
+int RepeatedlyRenumberAtomsAndRecalcINCHI(struct tagINCHI_CLOCK* ic,
+    CANON_GLOBALS* CG,
+    STRUCT_DATA* sd,
+    INPUT_PARMS* ip,
+    char* szTitle,
+    PINChI2* pINChI[INCHI_NUM],
+    PINChI_Aux2* pINChI_Aux[INCHI_NUM],
+    INCHI_IOSTREAM* inp_file,
+    INCHI_IOSTREAM* plog,
+    INCHI_IOSTREAM* pout,
+    INCHI_IOSTREAM* pprb,
+    ORIG_ATOM_DATA* orig_inp_data,
+    ORIG_ATOM_DATA* prep_inp_data,
+    long* num_inp,
+    STRUCT_FPTRS* pStructPtrs,
+    int* nRet,
     int have_err_in_GetOneStructure,
-    long *num_err,
+    long* num_err,
     int output_error_inchi,
-    INCHI_IOS_STRING *strbuf,
-    unsigned long *pulTotalProcessingTime,
-    char *pLF,
-    char *pTAB,
+    INCHI_IOS_STRING* strbuf,
+    unsigned long* pulTotalProcessingTime,
+    char* pLF,
+    char* pTAB,
     long int nrepeat)
 {
     int next_action = DO_NEXT_STEP;
     int dup_fail = 0;
     ORIG_ATOM_DATA SavedOrigAtData; /* 0=> disconnected, 1=> original */
-    ORIG_ATOM_DATA *saved_orig_inp_data = &SavedOrigAtData;
+    ORIG_ATOM_DATA* saved_orig_inp_data = &SavedOrigAtData;
     char ikey0[28];
-    int numbers[PERMAXATOMS];
+    
+    /* djb-rwth: stack size was too large so heap has to be used */
+    int* numbers;
+    numbers = (int*)malloc(PERMAXATOMS);
 
-    const int very_silent = 2; /* 3 0;*/
-
-                               /* Internal test mode: renumber atoms and recalculate repeatedly    */
-
-                               /* do not forget to use /key and to not use /auxnone                */
-
-
-    ikey0[0] = '\0';
+    if (numbers != NULL)
     {
-        int k;
-        for (k = 0; k < orig_inp_data->num_inp_atoms; k++)
+        numbers[0] = 0; /* djb-rwth: initialisation block */
+        const int very_silent = 2; /* 3 0;*/
+
+        /* Internal test mode: renumber atoms and recalculate repeatedly    */
+
+        /* do not forget to use /key and to not use /auxnone                */
+
+
+        ikey0[0] = '\0';
         {
-            numbers[k] = k;
-        }
-        for (k = orig_inp_data->num_inp_atoms; k < PERMAXATOMS; k++)
-        {
-            numbers[k] = -1;
-        }
-    }
-
-
-
-
-#if BIG_POLY_DEBUG
-    { int k; ITRACE_("\nAtoms = {"); for (k = 0; k < orig_inp_data->num_inp_atoms - 1; k++) ITRACE_(" %-03d,", numbers[k]); ITRACE_(" %-03d }", numbers[orig_inp_data->num_inp_atoms - 1]); }
-    OrigAtData_DebugTrace(orig_inp_data);
-    OrigAtDataPolymer_DebugTrace(orig_inp_data->polymer);
-#endif
-
-    memset(saved_orig_inp_data, 0, sizeof(*saved_orig_inp_data));
-    dup_fail = OrigAtData_Duplicate(saved_orig_inp_data, orig_inp_data);
-
-    next_action = CalcAndPrintINCHIAndINCHIKEY(ic, CG, sd, ip, szTitle,
-        pINChI, pINChI_Aux,
-        inp_file, plog, pout, pprb,
-        orig_inp_data, prep_inp_data, num_inp, pStructPtrs,
-        nRet, have_err_in_GetOneStructure,
-        num_err, output_error_inchi,
-        strbuf, pulTotalProcessingTime,
-        pLF, pTAB, ikey0, very_silent);
-    FreeAllINChIArrays(pINChI, pINChI_Aux, sd->num_components);
-    FreeOrigAtData(orig_inp_data);
-    FreeOrigAtData(prep_inp_data);
-    FreeOrigAtData(prep_inp_data + 1);
-
-
-    if (ikey0[0])
-    {
-        if (very_silent<2)
-        {
-            inchi_ios_eprint(plog, "#%-ld-%08ld\t...\t%-s\t%s%s%s%s\n", *num_inp, 1, ikey0, SDF_LBL_VAL(ip->pSdfLabel, ip->pSdfValue));
-        }
-    }
-
-
-    if (!dup_fail)
-    {
-        int irepeat = 0;
-        int ndiff = 0;
-        int n_written_problems = 0;
-        char ikey[28];
-        ikey[0] = '\0';
-        for (irepeat = 0; irepeat < nrepeat - 1; irepeat++)
-        {
-            dup_fail = OrigAtData_Duplicate(orig_inp_data, saved_orig_inp_data);
-            if (!dup_fail)
+            int k;
+            for (k = 0; k < orig_inp_data->num_inp_atoms; k++)
             {
-                shuffle((void *)numbers, orig_inp_data->num_inp_atoms, sizeof(int));
-                OrigAtData_Permute(orig_inp_data, saved_orig_inp_data, numbers);
+                *(numbers+k) = k;
+            }
+            for (k = orig_inp_data->num_inp_atoms; k < PERMAXATOMS; k++)
+            {
+                *(numbers+k) = -1; /* djb-rwth: using pointer format to avoid loop warnings */
+            }
+        }
+
+
+
+
 #if BIG_POLY_DEBUG
-                { int k; ITRACE_("\nAtoms = {"); for (k = 0; k < orig_inp_data->num_inp_atoms - 1; k++) ITRACE_(" %-03d,", numbers[k]); ITRACE_(" %-03d }", numbers[orig_inp_data->num_inp_atoms - 1]); }
-                OrigAtData_DebugTrace(saved_orig_inp_data);
-                OrigAtData_DebugTrace(orig_inp_data);
-                OrigAtDataPolymer_DebugTrace(saved_orig_inp_data->polymer);
-                OrigAtDataPolymer_DebugTrace(orig_inp_data->polymer);
+        { int k; ITRACE_("\nAtoms = {"); for (k = 0; k < orig_inp_data->num_inp_atoms - 1; k++) ITRACE_(" %-03d,", numbers[k]); ITRACE_(" %-03d }", numbers[orig_inp_data->num_inp_atoms - 1]); }
+        OrigAtData_DebugTrace(orig_inp_data);
+        OrigAtDataPolymer_DebugTrace(orig_inp_data->polymer);
 #endif
-                next_action = CalcAndPrintINCHIAndINCHIKEY(ic, CG, sd, ip, szTitle,
-                    pINChI, pINChI_Aux,
-                    inp_file, plog, pout, pprb,
-                    orig_inp_data,
-                    prep_inp_data, num_inp, pStructPtrs,
-                    nRet, have_err_in_GetOneStructure,
-                    num_err, output_error_inchi,
-                    strbuf, pulTotalProcessingTime,
-                    pLF, pTAB, ikey,
-                    0 /* 1 be silent */);
+
+        memset(saved_orig_inp_data, 0, sizeof(*saved_orig_inp_data));
+        dup_fail = OrigAtData_Duplicate(saved_orig_inp_data, orig_inp_data);
+
+        next_action = CalcAndPrintINCHIAndINCHIKEY(ic, CG, sd, ip, szTitle,
+            pINChI, pINChI_Aux,
+            inp_file, plog, pout, pprb,
+            orig_inp_data, prep_inp_data, num_inp, pStructPtrs,
+            nRet, have_err_in_GetOneStructure,
+            num_err, output_error_inchi,
+            strbuf, pulTotalProcessingTime,
+            pLF, pTAB, ikey0, very_silent);
+        FreeAllINChIArrays(pINChI, pINChI_Aux, sd->num_components);
+        FreeOrigAtData(orig_inp_data);
+        FreeOrigAtData(prep_inp_data);
+        FreeOrigAtData(prep_inp_data + 1);
 
 
-                if (ikey0[0] && ikey[0])
+        if (ikey0[0])
+        {
+            if (very_silent < 2)
+            {
+                inchi_ios_eprint(plog, "#%-ld-%08ld\t...\t%-s\t%s%s%s%s\n", *num_inp, 1, ikey0, SDF_LBL_VAL(ip->pSdfLabel, ip->pSdfValue));
+            }
+        }
+
+
+        if (!dup_fail)
+        {
+            int irepeat = 0;
+            int ndiff = 0;
+            int n_written_problems = 0;
+            char ikey[28];
+            ikey[0] = '\0';
+            for (irepeat = 0; irepeat < nrepeat - 1; irepeat++)
+            {
+                dup_fail = OrigAtData_Duplicate(orig_inp_data, saved_orig_inp_data);
+                if (!dup_fail)
                 {
-                    if (strcmp(ikey, ikey0))
-                    {
-                        int result, bINChIOutputOptions = ip->bINChIOutputOptions;
-                        ndiff++;
-                        /*inchi_ios_eprint( plog, "!!! #%-ld-%05ld %s%s%s%s\tcurr %-s != %-s orig\n", *num_inp, irepeat + 2, SDF_LBL_VAL( ip->pSdfLabel, ip->pSdfValue ),  ikey, ikey0  );*/
-                        /*inchi_ios_eprint( plog, "!!! %s%s%s%s renum#%05ld\t%-s != %-s\n", SDF_LBL_VAL( ip->pSdfLabel, ip->pSdfValue ), irepeat + 2, ikey, ikey0  );*/
-                        inchi_ios_eprint(plog, "!!! #%-ld %s%s%s%s\t%-s --> %-s @ renum#%06d/%06ld\n", *num_inp, SDF_LBL_VAL(ip->pSdfLabel, ip->pSdfValue), ikey0, ikey, irepeat + 2, nrepeat);
-                        if (!very_silent)
-                        {
-                            int k;
-                            inchi_ios_eprint(plog, "Atoms = {");
-                            for (k = 0; k < orig_inp_data->num_inp_atoms - 1; k++)
-                            {
-                                inchi_ios_eprint(plog, " %-d,", numbers[k] + 1);
-                            }
-                            inchi_ios_eprint(plog, " %-d }\n\n", numbers[orig_inp_data->num_inp_atoms - 1] + 1);
-                        }
-                        ip->bINChIOutputOptions |= INCHI_OUT_SDFILE_ONLY;
-                        result = OrigAtData_SaveMolfile(orig_inp_data, sd, ip, *num_inp, pprb);
-                        inchi_ios_flush(pprb);
-                        ip->bINChIOutputOptions = bINChIOutputOptions;
-                        if (result == 0)
-                        {
-                            n_written_problems++;
-                        }
-#if 0
-                        /* second pass, non-silent one */
-                        FreeAllINChIArrays(pINChI, pINChI_Aux, sd->num_components);
-                        FreeOrigAtData(orig_inp_data);
-                        FreeOrigAtData(prep_inp_data);
-                        FreeOrigAtData(prep_inp_data + 1);
-                        dup_fail = OrigAtData_Duplicate(orig_inp_data, saved_orig_inp_data);
-                        if (!dup_fail)
-                        {
-                            OrigAtData_Permute(orig_inp_data, saved_orig_inp_data, numbers);
-                            next_action = CalcAndPrintINCHIAndINCHIKEY(ic, CG, sd, ip, szTitle,
-                                pINChI, pINChI_Aux,
-                                inp_file, plog, pout, pprb,
-                                orig_inp_data,
-                                prep_inp_data, num_inp, pStructPtrs,
-                                nRet, have_err_in_GetOneStructure,
-                                num_err, output_error_inchi,
-                                strbuf, pulTotalProcessingTime,
-                                pLF, pTAB, ikey, 0);
-                        }
+                    shuffle((void*)numbers, orig_inp_data->num_inp_atoms, sizeof(int));
+                    OrigAtData_Permute(orig_inp_data, saved_orig_inp_data, numbers);
+#if BIG_POLY_DEBUG
+                    { int k; ITRACE_("\nAtoms = {"); for (k = 0; k < orig_inp_data->num_inp_atoms - 1; k++) ITRACE_(" %-03d,", numbers[k]); ITRACE_(" %-03d }", numbers[orig_inp_data->num_inp_atoms - 1]); }
+                    OrigAtData_DebugTrace(saved_orig_inp_data);
+                    OrigAtData_DebugTrace(orig_inp_data);
+                    OrigAtDataPolymer_DebugTrace(saved_orig_inp_data->polymer);
+                    OrigAtDataPolymer_DebugTrace(orig_inp_data->polymer);
 #endif
-                    }
+                    next_action = CalcAndPrintINCHIAndINCHIKEY(ic, CG, sd, ip, szTitle,
+                        pINChI, pINChI_Aux,
+                        inp_file, plog, pout, pprb,
+                        orig_inp_data,
+                        prep_inp_data, num_inp, pStructPtrs,
+                        nRet, have_err_in_GetOneStructure,
+                        num_err, output_error_inchi,
+                        strbuf, pulTotalProcessingTime,
+                        pLF, pTAB, ikey,
+                        0 /* 1 be silent */);
 
-                    if (irepeat == nrepeat - 2)
+
+                    if (ikey0[0] && ikey[0])
                     {
-                        if (very_silent < 2)
+                        if (strcmp(ikey, ikey0))
                         {
-                            inchi_ios_eprint(plog, "...........\n#%-ld-%08ld\t...\t%-s\t%s%s%s%s\n", *num_inp, irepeat + 2, ikey0, SDF_LBL_VAL(ip->pSdfLabel, ip->pSdfValue));
+                            int result, bINChIOutputOptions = ip->bINChIOutputOptions;
+                            ndiff++;
+                            /*inchi_ios_eprint( plog, "!!! #%-ld-%05ld %s%s%s%s\tcurr %-s != %-s orig\n", *num_inp, irepeat + 2, SDF_LBL_VAL( ip->pSdfLabel, ip->pSdfValue ),  ikey, ikey0  );*/
+                            /*inchi_ios_eprint( plog, "!!! %s%s%s%s renum#%05ld\t%-s != %-s\n", SDF_LBL_VAL( ip->pSdfLabel, ip->pSdfValue ), irepeat + 2, ikey, ikey0  );*/
+                            inchi_ios_eprint(plog, "!!! #%-ld %s%s%s%s\t%-s --> %-s @ renum#%06d/%06ld\n", *num_inp, SDF_LBL_VAL(ip->pSdfLabel, ip->pSdfValue), ikey0, ikey, irepeat + 2, nrepeat);
+                            if (!very_silent)
+                            {
+                                int k;
+                                inchi_ios_eprint(plog, "Atoms = {");
+                                for (k = 0; k < orig_inp_data->num_inp_atoms - 1; k++)
+                                {
+                                    inchi_ios_eprint(plog, " %-d,", numbers[k] + 1);
+                                }
+                                inchi_ios_eprint(plog, " %-d }\n\n", numbers[orig_inp_data->num_inp_atoms - 1] + 1);
+                            }
+                            ip->bINChIOutputOptions |= INCHI_OUT_SDFILE_ONLY;
+                            result = OrigAtData_SaveMolfile(orig_inp_data, sd, ip, *num_inp, pprb);
+                            inchi_ios_flush(pprb);
+                            ip->bINChIOutputOptions = bINChIOutputOptions;
+                            if (result == 0)
+                            {
+                                n_written_problems++;
+                            }
+#if 0
+                            /* second pass, non-silent one */
+                            FreeAllINChIArrays(pINChI, pINChI_Aux, sd->num_components);
+                            FreeOrigAtData(orig_inp_data);
+                            FreeOrigAtData(prep_inp_data);
+                            FreeOrigAtData(prep_inp_data + 1);
+                            dup_fail = OrigAtData_Duplicate(orig_inp_data, saved_orig_inp_data);
+                            if (!dup_fail)
+                            {
+                                OrigAtData_Permute(orig_inp_data, saved_orig_inp_data, numbers);
+                                next_action = CalcAndPrintINCHIAndINCHIKEY(ic, CG, sd, ip, szTitle,
+                                    pINChI, pINChI_Aux,
+                                    inp_file, plog, pout, pprb,
+                                    orig_inp_data,
+                                    prep_inp_data, num_inp, pStructPtrs,
+                                    nRet, have_err_in_GetOneStructure,
+                                    num_err, output_error_inchi,
+                                    strbuf, pulTotalProcessingTime,
+                                    pLF, pTAB, ikey, 0);
+                            }
+#endif
                         }
-                    }
 
+                        if (irepeat == nrepeat - 2)
+                        {
+                            if (very_silent < 2)
+                            {
+                                inchi_ios_eprint(plog, "...........\n#%-ld-%08ld\t...\t%-s\t%s%s%s%s\n", *num_inp, irepeat + 2, ikey0, SDF_LBL_VAL(ip->pSdfLabel, ip->pSdfValue));
+                            }
+                        }
+
+                    }
+                }
+                FreeAllINChIArrays(pINChI, pINChI_Aux, sd->num_components);
+                FreeOrigAtData(orig_inp_data);
+                FreeOrigAtData(prep_inp_data);
+                FreeOrigAtData(prep_inp_data + 1);
+
+#ifdef STOP_AFTER_FIRST_CHANGE_ON_RENUMBERING
+                if (ndiff == 1)
+                {
+                    next_action = DO_CONTINUE_MAIN_LOOP;
+                    break;
+                }
+#endif
+            }
+            if (ndiff == 0)
+            {
+                if (very_silent < 3)
+                {
+                    /*inchi_ios_eprint( plog, "#%-ld-%05ld\t...\tOK ALL\n", *num_inp, nrepeat );*/
+                    /*inchi_ios_eprint( plog, "OK  #%-ld %s%s%s%s\n", *num_inp, SDF_LBL_VAL(ip->pSdfLabel, ip->pSdfValue));*/
+                    /*inchi_ios_eprint(plog, "#%-ld\n", *num_inp);*/
+                    inchi_ios_eprint(plog, "OK  #%-ld %s%s%s%s\t%-s\t Same for %-d/%-d renums\n", *num_inp, SDF_LBL_VAL(ip->pSdfLabel, ip->pSdfValue), ikey0, nrepeat, nrepeat);
                 }
             }
-            FreeAllINChIArrays(pINChI, pINChI_Aux, sd->num_components);
-            FreeOrigAtData(orig_inp_data);
-            FreeOrigAtData(prep_inp_data);
-            FreeOrigAtData(prep_inp_data + 1);
-
-#ifdef STOP_AFTER_FIRST_CHANGE_ON_RENUMBERING
-            if (ndiff == 1)
+            else
             {
-                next_action = DO_CONTINUE_MAIN_LOOP;
-                break;
-            }
-#endif
-        }
-        if (ndiff == 0)
-        {
-            if (very_silent < 3)
-            {
-                /*inchi_ios_eprint( plog, "#%-ld-%05ld\t...\tOK ALL\n", *num_inp, nrepeat );*/
-                /*inchi_ios_eprint( plog, "OK  #%-ld %s%s%s%s\n", *num_inp, SDF_LBL_VAL(ip->pSdfLabel, ip->pSdfValue));*/
-                /*inchi_ios_eprint(plog, "#%-ld\n", *num_inp);*/
-                inchi_ios_eprint(plog, "OK  #%-ld %s%s%s%s\t%-s\t Same for %-d/%-d renums\n", *num_inp, SDF_LBL_VAL(ip->pSdfLabel, ip->pSdfValue), ikey0, nrepeat, nrepeat);
-            }
-        }
-        else
-        {
 #ifdef STOP_AFTER_FIRST_CHANGE_ON_RENUMBERING
-            /*inchi_ios_eprint( plog, "#%-ld-%05ld\t...\tDIFF %-d\n", num_inp, nrepeat, ndiff );*/
+                /*inchi_ios_eprint( plog, "#%-ld-%05ld\t...\tDIFF %-d\n", num_inp, nrepeat, ndiff );*/
 #else
-            inchi_ios_eprint(plog, "#%-ld-%05ld\t...\tDIFF %-d\n", num_inp, nrepeat, ndiff);
+                inchi_ios_eprint(plog, "#%-ld-%05ld\t...\tDIFF %-d\n", num_inp, nrepeat, ndiff);
 #endif
-        }
+            }
 
-        FreeOrigAtData(saved_orig_inp_data);
+            FreeOrigAtData(saved_orig_inp_data);
+        }
+        free(numbers); /* djb-rwth: deallocating memory; C++ STL dynamic memory strategies should be considered */
     }
 
     return next_action;

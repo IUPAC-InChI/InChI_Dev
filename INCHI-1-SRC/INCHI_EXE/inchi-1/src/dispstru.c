@@ -196,7 +196,7 @@ HWND GetConsoleHwnd( void )
 
     /* Format a "unique" NewWindowTitle. */
     wsprintf( pszNewWindowTitle, "InChITmpWnd%ul/%ul",
-        (unsigned long) GetTickCount( ),
+        (unsigned long) GetTickCount64( ),
         (unsigned long) GetCurrentProcessId( ) );
 
     /* Change current window title. */
@@ -850,8 +850,8 @@ int DrawBondStereo( HDC      pDC,
         }
     }
 
-    dx = x2 - x1;
-    dy = y2 - y1;
+    dx = (double)x2 - (double)x1; /* djb-rwth: cast operators added */
+    dy = (double)y2 - (double)y1; /* djb-rwth: cast operators added */
     lambda = dx*dx + dy*dy;
     if (lambda == 0.0)
         return 0;
@@ -912,8 +912,8 @@ int DrawBondStereo( HDC      pDC,
             for (i = 1; i <= 3 * n / 2; i++)
             {
                 mult = (double) i / (double) n / 1.5;
-                dx1 = ( x2 - x1 )*mult;
-                dy1 = ( y2 - y1 )*mult;
+                dx1 = ( (double)x2 - (double)x1 )*mult; /* djb-rwth: cast operators added */
+                dy1 = ( (double)y2 - (double)y1 )*mult; /* djb-rwth: cast operators added */
                 if (i % 2)
                 {
                     dx1 += ax1*mult;
@@ -944,8 +944,8 @@ int DrawBondStereo( HDC      pDC,
             {
                 mult = (double) i / (double) n;
 
-                dx = dx1 = ( x2 - x1 )*mult; /* x1,y1 offset */
-                dy = dy1 = ( y2 - y1 )*mult;
+                dx = dx1 = ( (double)x2 - (double)x1 )*mult; /* x1,y1 offset */ /* djb-rwth: cast operators added */
+                dy = dy1 = ( (double)y2 - (double)y1 )*mult; /* djb-rwth: cast operators added */
 
                 mult = (double) ( i ) / (double) ( n );
 
@@ -1273,8 +1273,8 @@ int DrawBondNoStereo( HDC      pDC,
             }
         }
 
-        lambda = ( (double) ( x2 - x1 ) ) * ( x2 - x1 ) +
-            ( (double) ( y2 - y1 ) ) * ( y2 - y1 );
+        lambda = ( ((double)x2 - (double)x1 ) ) * ( (double)x2 - (double)x1 ) +
+            ( ((double)y2 - (double)y1 ) ) * ( (double)y2 - (double)y1 ); /* djb-rwth: cast operators added */
 
         if (lambda > 0.0)
         {
@@ -1288,10 +1288,10 @@ int DrawBondNoStereo( HDC      pDC,
         for (i = 0; i < 2; i++, lambda = -lambda)
         {
             c = i ? r : l;
-            ax1 = lambda * ( y1 - y2 ) + x1;
-            ay1 = lambda * ( x2 - x1 ) + y1;
-            ax2 = lambda * ( y1 - y2 ) + x2;
-            ay2 = lambda * ( x2 - x1 ) + y2;
+            ax1 = lambda * ((double)y1 - (double)y2 ) + (double)x1; /* djb-rwth: cast operators added */
+            ay1 = lambda * ((double)x2 - (double)x1 ) + (double)y1; /* djb-rwth: cast operators added */
+            ax2 = lambda * ((double)y1 - (double)y2 ) + (double)x2; /* djb-rwth: cast operators added */
+            ay2 = lambda * ((double)x2 - (double)x1 ) + (double)y2; /* djb-rwth: cast operators added */
 
             if (c == 'S')
             {
@@ -1882,6 +1882,8 @@ void CalcTblParms( HDC            hMemoryDC,
                    int            yoffs1 )
 {
     int i, j, n, w, h;
+    w = 0; /* initialisation needed in for loop */
+    h = 0; /* initialisation needed in for loop */
     tp->tblCols = tdp->bDrawTbl;
     tp->tblRows = 0;
     for (i = 0; i < tp->tblCols; i++)
@@ -2120,7 +2122,7 @@ void GetStructSizes( HDC            hDC,
                     cRightChar = str[cur_len - 1];
                     len += GetSubstringWidth( hDC, cur_len, str );
                 }
-                str += cur_len + 1;
+                str += (long long)cur_len + 1; /* djb-rwth: cast operator added */
             }
             while (str[0]);
             inf_at[i].DrawingLabelLength = len;
@@ -2286,7 +2288,7 @@ void ResizeAtomForDrawing( inf_ATOM         *inf_at,
         {
             goto done;
         }
-        if (new_dx < (double) new_width && new_dx >( double )( new_width - 2 * nFontWidth ))
+        if ((new_dx < (double)new_width) && (new_dx > ((double)new_width - 2 * (double)nFontWidth )))
         {
             goto done;
         }
@@ -2660,7 +2662,8 @@ int CreateInputStructPicture( HDC            hDC,
 
     if (pWinData)
     {
-        char str[128] = "";
+        char str[128];
+        str[0] = '\0'; /* djb-rwth: proper initialisation */
         /* exact rectangle around the structure drawing */
         /*Rectangle( hMemoryDC, xStructOffs+xs-1, yStructOffs+ys+yoffs1-afont-1, xStructOffs+xs+xoffs1+xoffs2+w+1, yStructOffs+ys+yoffs1+nFontHeight+h+1); */
         Res = DrawTheInputStructure( at1, &pWinData->inf_at_data, num_at, hMemoryDC,
@@ -3185,12 +3188,12 @@ int DisplayInputStructure( char          *szOutputString,
 
     /* provide window procedure with the pointer to the chemical structure */
     memset( &WinData, 0, sizeof( WinData ) );
-    WinData.at0 = (inp_ATOM *) inchi_calloc( num_at + 1, sizeof( WinData.at0[0] ) );
-    WinData.at1 = (inp_ATOM *) inchi_calloc( num_at + 1, sizeof( WinData.at1[0] ) );
+    WinData.at0 = (inp_ATOM*)inchi_calloc((long long)num_at + 1, sizeof(WinData.at0[0])); /* djb-rwth: cast operator added */
+    WinData.at1 = (inp_ATOM*)inchi_calloc((long long)num_at + 1, sizeof(WinData.at1[0])); /* djb-rwth: cast operator added */
 
     if (dp->nEquLabels && dp->nNumEquSets)
     {
-        WinData.nEquLabels = (AT_NUMB *) inchi_calloc( num_at + 1, sizeof( WinData.nEquLabels[0] ) );
+        WinData.nEquLabels = (AT_NUMB*)inchi_calloc((long long)num_at + 1, sizeof(WinData.nEquLabels[0])); /* djb-rwth: cast operator added */
         WinData.nNumEquSets = dp->nNumEquSets;
         WinData.nCurEquLabel = 0;
         WinData.nNewEquLabel = dp->nCurEquLabel;
