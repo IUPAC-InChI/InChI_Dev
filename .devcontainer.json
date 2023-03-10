@@ -1,0 +1,8 @@
+// https://containers.dev/implementors/json_reference/
+// https://github.com/devcontainers/images/tree/main/src/cpp
+
+{
+    "name": "InChI_Dev",
+    "image": "mcr.microsoft.com/devcontainers/cpp:debian",
+    "remoteUser": "root"
+}
