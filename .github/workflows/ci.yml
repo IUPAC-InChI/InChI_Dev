@@ -1,0 +1,20 @@
+name: InChI Continuous Integration
+
+on:
+  push:
+    branches: [ $default-branch ]
+  pull_request:
+    branches: [ $default-branch ]
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    container: gcc:latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Run tests
+        run: ./run_tests.sh
+        shell: bash
