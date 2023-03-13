@@ -1,8 +1,20 @@
 // https://containers.dev/implementors/json_reference/
-// https://github.com/devcontainers/images/tree/main/src/cpp
-
+// https://hub.docker.com/_/gcc
 {
     "name": "InChI_Dev",
-    "image": "mcr.microsoft.com/devcontainers/cpp:debian",
-    "remoteUser": "root"
+    "image": "gcc:latest",
+    "customizations": {
+        "vscode": {
+            "settings": {
+                "terminal.integrated.scrollback": 5000
+            },
+            "extensions": [
+                "ms-vscode.cpptools",
+                "twxs.cmake",
+                "ms-vscode.cmake-tools",
+                "eamodio.gitlens",
+                "streetsidesoftware.code-spell-checker"
+            ]
+        }
+    }
 }
