@@ -5111,7 +5111,7 @@ next_line:
                 ret = RI_ERR_EOL; /* end of line */
                 break;
             }
-            if(pLine->str)
+            if(pLine->str) /* djb-rwth: correcting the dereferencing NULL pointer */
                 fst = UCINT pLine->str[0];
 
             /*

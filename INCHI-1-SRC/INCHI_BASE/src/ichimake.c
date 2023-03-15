@@ -2632,8 +2632,8 @@ int CompareReversedStereoINChI2( INChI_Stereo *s1/* InChI from reversed struct *
     int nNumSb1 = s1 ? s1->nNumberOfStereoBonds : 0;
     int nNumSb2 = s2 ? s2->nNumberOfStereoBonds : 0;
 
-    /* djb-rwth: redundant part of the condition removed; correcting the dereferencing NULL pointers */
-    if (s1 && s2 && ( nNumSc1 != nNumSc2 ||
+    /* djb-rwth: redundant part of the condition corrected; correcting the dereferencing NULL pointers */
+    if (s1 && s2 && ( nNumSc1 || nNumSc2 ) && ( nNumSc1 != nNumSc2 ||
             memcmp( s1->nNumber, s2->nNumber, nNumSc1 * sizeof( s1->nNumber[0] ) ) ||
             memcmp( s1->t_parity, s2->t_parity, nNumSc1 * sizeof( s1->t_parity[0] ) ) ))
     {
