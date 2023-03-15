@@ -25,7 +25,7 @@ mkdir $TEST_DIR/results
 unzip INCHI-1-TEST/test/test-datasets.zip -d $TEST_DIR/datasets
 unzip INCHI-1-TEST/test/test-results.zip -d $TEST_DIR/expected-results
 
-(cd INCHI-1-SRC/INCHI_EXE/inchi-1/gcc && make -j)
+(cd INCHI-1-SRC/INCHI_EXE/inchi-1/gcc && make -j && make clean)
 
 REGRESSIONS=""
 
