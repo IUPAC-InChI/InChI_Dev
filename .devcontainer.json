@@ -3,18 +3,28 @@
 {
     "name": "InChI_Dev",
     "image": "gcc:latest",
+    "features": {
+        "ghcr.io/devcontainers/features/python:1": {
+            "version": "3.11"
+        }
+    },
     "customizations": {
         "vscode": {
             "settings": {
-                "terminal.integrated.scrollback": 5000
+                "terminal.integrated.scrollback": 5000,
+                "editor.formatOnSave": true,
+                "python.formatting.provider": "black"
             },
             "extensions": [
                 "ms-vscode.cpptools",
                 "twxs.cmake",
                 "ms-vscode.cmake-tools",
                 "eamodio.gitlens",
-                "streetsidesoftware.code-spell-checker"
+                "streetsidesoftware.code-spell-checker",
+                "ms-python.python",
+                "ms-vscode.makefile-tools"
             ]
         }
-    }
+    },
+    "postCreateCommand": "pip install black"
 }
