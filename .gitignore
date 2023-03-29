@@ -1,5 +1,7 @@
-test/
 *.o
 *.so*
 __pycache__
 .pytest_cache
+*/test/datasets
+*/test/expected-results
+*/test/results

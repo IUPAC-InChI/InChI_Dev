@@ -1,31 +1,23 @@
-# TODO:
-# * parametrize hard-coded paths?
-# * logging
-# * clean up .o files during/after compilation
-
+# TODO: logging
 
 function test_inchi_regression() {
     local dataset=$1
     local name_output=$2
     local args=$3
 
-    INCHI-1-SRC/INCHI_EXE/bin/Linux/inchi-1 $TEST_DIR/datasets/$dataset $TEST_DIR/results/$name_output NUL -AuxNone -OutErrINCHI -NoLabels -NoWarnings $args
+    ../../INCHI-1-SRC/INCHI_EXE/bin/Linux/inchi-1 datasets/$dataset results/$name_output NUL -AuxNone -OutErrINCHI -NoLabels -NoWarnings $args
 
-    local inchi_diff=$(diff --strip-trailing-cr -y --suppress-common-lines $TEST_DIR/expected-results/$name_output $TEST_DIR/results/$name_output)
+    local inchi_diff=$(diff --strip-trailing-cr -y --suppress-common-lines expected-results/$name_output results/$name_output)
     if [ "$inchi_diff" ]; then
         REGRESSIONS+="\n\nInChI(s) computed on '${dataset}' with arguments '${args}' are not as expected:\n${inchi_diff}"
     fi
 }
 
-TEST_DIR=test
+mkdir -p results
+unzip -o test-datasets.zip -d datasets
+unzip -o test-results.zip -d expected-results
 
-mkdir -p $TEST_DIR
-mkdir -p $TEST_DIR/results
-
-unzip -o INCHI-1-TEST/test/test-datasets.zip -d $TEST_DIR/datasets
-unzip -o INCHI-1-TEST/test/test-results.zip -d $TEST_DIR/expected-results
-
-(cd INCHI-1-SRC/INCHI_EXE/inchi-1/gcc && make -j && make clean)
+(cd ../../INCHI-1-SRC/INCHI_EXE/inchi-1/gcc && make -j && make clean)
 
 REGRESSIONS=""
 
