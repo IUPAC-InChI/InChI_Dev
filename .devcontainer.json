@@ -13,7 +13,8 @@
             "settings": {
                 "terminal.integrated.scrollback": 5000,
                 "editor.formatOnSave": true,
-                "python.formatting.provider": "black"
+                "python.formatting.provider": "black",
+                "python.linting.mypyEnabled": true
             },
             "extensions": [
                 "ms-vscode.cpptools",
@@ -26,5 +27,5 @@
             ]
         }
     },
-    "postCreateCommand": "pip install black pytest syrupy"
+    "postCreateCommand": "pip install black mypy git+https://github.com/TUCAN-nest/SDF-pipeline.git"
 }
