@@ -1,11 +1,4 @@
 import ctypes
-from pathlib import Path
-from typing import Callable, Final
-
-INCHI_LIB_PATH: Final = Path().absolute() / "libinchi.so.1"
-INCHI_LIB: Final = ctypes.CDLL(INCHI_LIB_PATH)
-MAKE_INCHI_FROM_MOLFILE_TEXT: Final[Callable] = INCHI_LIB.MakeINCHIFromMolfileText
-FREE_INCHI: Final[Callable] = INCHI_LIB.FreeINCHI
 
 
 class InChIOutput(ctypes.Structure):
@@ -20,7 +13,7 @@ class InChIOutput(ctypes.Structure):
 
 
 def make_inchi_from_molfile_text(
-    molfile: str, inchi_options: str = ""
+    inchi_lib: ctypes.CDLL, molfile: str, inchi_options: str = ""
 ) -> tuple[int, str, str, str, str]:
     """`INCHI-1-SRC/INCHI_API/demos/python_sample` stripped to the essentials."""
 
@@ -33,7 +26,7 @@ def make_inchi_from_molfile_text(
     szLog = ctypes.create_string_buffer(1)
     c_inchi_output = InChIOutput(szInChI, szAuxInfo, szMessage, szLog)
 
-    inchi_exit_code = MAKE_INCHI_FROM_MOLFILE_TEXT(
+    inchi_exit_code = inchi_lib.MakeINCHIFromMolfileText(
         c_molfile, c_inchi_options, ctypes.byref(c_inchi_output)
     )
 
@@ -75,6 +68,6 @@ def make_inchi_from_molfile_text(
     if not standard_aux:
         c_inchi_output.szAuxInfo = None
 
-    FREE_INCHI(ctypes.byref(c_inchi_output))
+    inchi_lib.FreeINCHI(ctypes.byref(c_inchi_output))
 
     return inchi_exit_code, standard_inchi, standard_log, standard_message, standard_aux
