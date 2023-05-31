@@ -7,10 +7,7 @@ from sdf_pipeline import drivers, utils
 from config import (
     INCHI_LIB_PATH,
     INCHI_REFERENCE_LIB_PATH,
-    INCHI_SDF_PATH,
-    MCULE_SDF_PATH,
-    get_inchi_id,
-    get_mcule_id,
+    DATASETS,
 )
 
 
@@ -30,15 +27,11 @@ def _regression_consumer(
 
 
 if __name__ == "__main__":
-    TEST_PATH: Final = Path(__file__).parent.absolute()
+    TEST_PATH: Final[Path] = Path(__file__).parent.absolute()
 
     args = drivers.parse_cli_args()
 
-    for sdf_path, log_name, get_molfile_id in zip(
-        [INCHI_SDF_PATH, MCULE_SDF_PATH],
-        ["inchi_regression", "mcule_regression"],
-        [get_inchi_id, get_mcule_id],
-    ):
+    for dataset, config in DATASETS.items():
         if args.test_type == "regression":
             if args.compute_reference_result:
                 INCHI_REFERENCE_LIB: Final = ctypes.CDLL(
@@ -46,24 +39,26 @@ if __name__ == "__main__":
                 )
 
                 drivers.regression_reference(
-                    sdf_path=TEST_PATH.joinpath(sdf_path),
-                    log_path=TEST_PATH.joinpath("data", f"{log_name}_reference.sqlite"),
+                    sdf_path=TEST_PATH.joinpath(config["sdf_path"]),
+                    log_path=TEST_PATH.joinpath(
+                        "data", f"{dataset}_regression_reference.sqlite"
+                    ),
                     consumer_function=partial(
                         _regression_consumer, inchi_lib=INCHI_REFERENCE_LIB
                     ),
-                    get_molfile_id=get_molfile_id,
+                    get_molfile_id=config["molfile_id"],
                 )
             else:
                 INCHI_LIB: Final = ctypes.CDLL(TEST_PATH.joinpath(INCHI_LIB_PATH))
 
                 drivers.regression(
-                    sdf_path=TEST_PATH.joinpath(sdf_path),
-                    log_path=TEST_PATH.joinpath("data", f"{log_name}.sqlite"),
+                    sdf_path=TEST_PATH.joinpath(config["sdf_path"]),
+                    log_path=TEST_PATH.joinpath("data", f"{dataset}_regression.sqlite"),
                     reference_path=TEST_PATH.joinpath(
-                        "data", f"{log_name}_reference.sqlite"
+                        "data", f"{dataset}_regression_reference.sqlite"
                     ),
                     consumer_function=partial(
                         _regression_consumer, inchi_lib=INCHI_LIB
                     ),
-                    get_molfile_id=get_molfile_id,
+                    get_molfile_id=config["molfile_id"],
                 )
