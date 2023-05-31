@@ -23,7 +23,8 @@
                 "eamodio.gitlens",
                 "streetsidesoftware.code-spell-checker",
                 "ms-python.python",
-                "ms-vscode.makefile-tools"
+                "ms-vscode.makefile-tools",
+                "GitHub.vscode-github-actions"
             ]
         }
     },

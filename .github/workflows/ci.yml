@@ -14,7 +14,22 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
 
-      - name: Run tests
-        run: cd INCHI-1-TEST/test && ./run_tests.sh
+      - name: Install SDF-pipeline
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install git+https://github.com/TUCAN-nest/SDF-pipeline.git
+
+      - name: Run regression tests
+        run: ./tests/run_regression_tests.sh
         shell: bash
+
+      - name: Upload regression test results
+        if: '!cancelled()' 
+        uses: actions/upload-artifact@v3
+        with:
+          name: regression-test-results
+          path: ./tests/data/*_regression.sqlite

@@ -31,6 +31,8 @@ if __name__ == "__main__":
 
     args = drivers.parse_cli_args()
 
+    exit_code = 0
+
     for dataset, config in DATASETS.items():
         if args.test_type == "regression":
             if args.compute_reference_result:
@@ -38,27 +40,37 @@ if __name__ == "__main__":
                     TEST_PATH.joinpath(INCHI_REFERENCE_LIB_PATH)
                 )
 
-                drivers.regression_reference(
-                    sdf_path=TEST_PATH.joinpath(config["sdf_path"]),
-                    log_path=TEST_PATH.joinpath(
-                        "data", f"{dataset}_regression_reference.sqlite"
+                exit_code = max(
+                    exit_code,
+                    drivers.regression_reference(
+                        sdf_path=TEST_PATH.joinpath(config["sdf_path"]),
+                        log_path=TEST_PATH.joinpath(
+                            "data", f"{dataset}_regression_reference.sqlite"
+                        ),
+                        consumer_function=partial(
+                            _regression_consumer, inchi_lib=INCHI_REFERENCE_LIB
+                        ),
+                        get_molfile_id=config["molfile_id"],
                     ),
-                    consumer_function=partial(
-                        _regression_consumer, inchi_lib=INCHI_REFERENCE_LIB
-                    ),
-                    get_molfile_id=config["molfile_id"],
                 )
             else:
                 INCHI_LIB: Final = ctypes.CDLL(TEST_PATH.joinpath(INCHI_LIB_PATH))
 
-                drivers.regression(
-                    sdf_path=TEST_PATH.joinpath(config["sdf_path"]),
-                    log_path=TEST_PATH.joinpath("data", f"{dataset}_regression.sqlite"),
-                    reference_path=TEST_PATH.joinpath(
-                        "data", f"{dataset}_regression_reference.sqlite"
+                exit_code = max(
+                    exit_code,
+                    drivers.regression(
+                        sdf_path=TEST_PATH.joinpath(config["sdf_path"]),
+                        log_path=TEST_PATH.joinpath(
+                            "data", f"{dataset}_regression.sqlite"
+                        ),
+                        reference_path=TEST_PATH.joinpath(
+                            "data", f"{dataset}_regression_reference.sqlite"
+                        ),
+                        consumer_function=partial(
+                            _regression_consumer, inchi_lib=INCHI_LIB
+                        ),
+                        get_molfile_id=config["molfile_id"],
                     ),
-                    consumer_function=partial(
-                        _regression_consumer, inchi_lib=INCHI_LIB
-                    ),
-                    get_molfile_id=config["molfile_id"],
                 )
+
+    raise SystemExit(exit_code)
