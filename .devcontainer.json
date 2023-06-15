@@ -24,9 +24,10 @@
                 "streetsidesoftware.code-spell-checker",
                 "ms-python.python",
                 "ms-vscode.makefile-tools",
-                "GitHub.vscode-github-actions"
+                "GitHub.vscode-github-actions",
+                "ms-azuretools.vscode-docker"
             ]
         }
     },
-    "postCreateCommand": "pip install black mypy git+https://github.com/TUCAN-nest/SDF-pipeline.git"
+    "postCreateCommand": "pip install --upgrade pip && pip install black mypy git+https://github.com/TUCAN-nest/SDF-pipeline.git"
 }
