@@ -2,6 +2,20 @@
 
 <img src="./regression.svg" alt="schematic" width="400"/>
 
+Preferably run the tests in the [Visual Studio Code devcontainer](https://code.visualstudio.com/docs/devcontainers/containers)
+that's specified under [.devcontainer.json](../../.devcontainer.json).
+
+Alternatively, you can run the tests in a plain Docker container.
+Build a Docker image from the [Dockerfile](../Dockerfile) with
+
+```Shell
+docker build -t inchi-tests ./tests
+```
+, and subsequently run the tests with
+
+```Shell
+docker run -rm -v $(pwd):/workdir inchi-tests bash -c "cd workdir && ./tests/<name_of_script>.sh"
+```
 
 ## Compute reference
 
@@ -42,4 +56,3 @@ To convince yourself that the tests fail once a regression has been introduced,
 change `INCHI_NAME` in `INCHI-1-SRC/INCHI_BASE/src/mode.h`  
 and re-run the tests (remove `<dataset>_regression.sqlite` before, it won't be overwritten by default).
 The tests should now fail and indicate that the difference between the reference results and the latest test run is the change you've made.
-
