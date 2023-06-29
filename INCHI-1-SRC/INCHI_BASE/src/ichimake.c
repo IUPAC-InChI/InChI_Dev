@@ -2632,8 +2632,8 @@ int CompareReversedStereoINChI2( INChI_Stereo *s1/* InChI from reversed struct *
     int nNumSb1 = s1 ? s1->nNumberOfStereoBonds : 0;
     int nNumSb2 = s2 ? s2->nNumberOfStereoBonds : 0;
 
-    if (( nNumSc1 || nNumSc1 ) &&
-        ( nNumSc1 != nNumSc2 ||
+    /* djb-rwth: redundant part of the condition corrected; correcting the dereferencing NULL pointers */
+    if (s1 && s2 && ( nNumSc1 || nNumSc2 ) && ( nNumSc1 != nNumSc2 ||
             memcmp( s1->nNumber, s2->nNumber, nNumSc1 * sizeof( s1->nNumber[0] ) ) ||
             memcmp( s1->t_parity, s2->t_parity, nNumSc1 * sizeof( s1->t_parity[0] ) ) ))
     {
@@ -3499,8 +3499,8 @@ INCHI_MODE CompareReversedINChI2( INChI *i1 /* InChI from reversed struct */,
         /* number of endpoints */
         int num1 = 0, num2 = 0, num_M1 = 0, num_M2 = 0;
         int len, num_eq, num_in1_only, num_in2_only;
-        AT_NUMB *pe1 = (AT_NUMB *) inchi_malloc( ( i1->lenTautomer + 1 ) * sizeof( pe1[0] ) );
-        AT_NUMB *pe2 = (AT_NUMB *) inchi_malloc( ( i2->lenTautomer + 1 ) * sizeof( pe2[0] ) );
+        AT_NUMB *pe1 = (AT_NUMB *) inchi_malloc( ( (long long)i1->lenTautomer + 1 ) * sizeof( pe1[0] ) ); /* djb-rwth: cast operator added */
+        AT_NUMB *pe2 = (AT_NUMB *) inchi_malloc( ( (long long)i2->lenTautomer + 1 ) * sizeof( pe2[0] ) ); /* djb-rwth: cast operator added */
         num_H1 = num_H2 = 0;
         /* collect endpoints, H, (-) */
         if (!pe1 || !pe2)
@@ -5011,7 +5011,7 @@ int FillOutCanonInfAtom( struct tagCANON_GLOBALS *pCG,
                 if (norm_at[j].bAmbiguousStereo && ( c == '+' || c == '-' || c == '?' ) && str[0] != '!' &&
                      len + 1 < ( int )sizeof( inf_norm_at[0].at_string ))
                 {
-                    memmove( str + 1, str, len + 1 );
+                    memmove( str + 1, str, (long long)len + 1 ); /* djb-rwth: cast operator added */
                     str[0] = '!'; /* output the atom in red color */
                 }
             }
@@ -5652,7 +5652,7 @@ int FillOutOneCanonInfAtom( struct tagCANON_GLOBALS *pCG,
                 if (norm_at[j].bAmbiguousStereo && ( c == '+' || c == '-' || c == '?' ) && str[0] != '!' &&
                      len + 1 < ( int )sizeof( inf_norm_at[0].at_string ))
                 {
-                    memmove( str + 1, str, len + 1 );
+                    memmove( str + 1, str, (long long)len + 1 ); /* djb-rwth: cast operator added */
                     str[0] = '!'; /* output the atom in red color */
                 }
             }
@@ -6254,7 +6254,7 @@ int CheckCanonNumberingCorrectness( int num_atoms,
     static int count = 0; /* for debug only */
     count++;
 
-    pCanonRankAtoms = (AT_NUMB *) inchi_calloc( num_at_tg + 1, sizeof( pCanonRankAtoms[0] ) );
+    pCanonRankAtoms = (AT_NUMB *) inchi_calloc( (long long)num_at_tg + 1, sizeof( pCanonRankAtoms[0] ) ); /* djb-rwth: cast operator added */
 
     /*
         Non-isotopic part

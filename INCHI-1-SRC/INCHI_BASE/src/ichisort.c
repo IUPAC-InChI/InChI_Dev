@@ -705,7 +705,7 @@ NEIGH_LIST *CreateNeighListFromLinearCT( AT_NUMB *LinearCT, int nLenCT, int num_
     {
         goto exit_function;
     }
-    if (!( valence = (S_CHAR*) inchi_calloc( num_atoms + 1, sizeof( valence[0] ) ) ))
+    if (!( valence = (S_CHAR*) inchi_calloc( (long long)num_atoms + 1, sizeof( valence[0] ) ) )) /* djb-rwth: cast operator added */
     {
         goto exit_function;
     }
@@ -731,7 +731,7 @@ NEIGH_LIST *CreateNeighListFromLinearCT( AT_NUMB *LinearCT, int nLenCT, int num_
         goto exit_function;
     }
     length = num_bonds + num_atoms + 1;
-    if (pp = (NEIGH_LIST *) inchi_calloc( ( num_atoms + 1 ), sizeof( NEIGH_LIST ) ))
+    if (pp = (NEIGH_LIST *) inchi_calloc( ( (long long)num_atoms + 1 ), sizeof( NEIGH_LIST ) )) /* djb-rwth: cast operator added */
     {
         if (pAtList = (AT_NUMB *) inchi_malloc( length * sizeof( *pAtList ) ))
         {
@@ -803,7 +803,7 @@ NEIGH_LIST *CreateNeighList( int num_atoms,
                              T_GROUP_INFO *t_group_info )
 {
     /*  +1 to add NULL termination */
-    NEIGH_LIST *pp = (NEIGH_LIST *) inchi_calloc( ( num_at_tg + 1 ), sizeof( NEIGH_LIST ) );
+    NEIGH_LIST *pp = (NEIGH_LIST *) inchi_calloc( ( (long long)num_at_tg + 1 ), sizeof( NEIGH_LIST ) ); /* djb-rwth: cast operator added */
     T_GROUP   *t_group = NULL;
     AT_NUMB   *nEndpointAtomNumber = NULL;
     int        num_t_groups = 0;

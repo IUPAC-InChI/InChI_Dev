@@ -723,27 +723,28 @@ inp_ATOM* MakeInpAtomsFromMolfileData( MOL_FMT_DATA* mfdata,
         }
 
         /* bond type */
-        at[a1].bond_type[n1] =
-            at[a2].bond_type[n2] = bond_type;
-
-        /* connection */
-        at[a1].neighbor[n1] = (AT_NUMB) a2;
-        at[a2].neighbor[n2] = (AT_NUMB) a1;
-
-        /* stereo */
-        if (bond_stereo == INPUT_STEREO_DBLE_EITHER /* 3 */)
+        if (n1 < MAXVAL && n2 < MAXVAL) /* djb-rwth: buffer overrun prevention */
         {
-            at[a1].bond_stereo[n1] =
-                at[a2].bond_stereo[n2] =
-                STEREO_DBLE_EITHER;
-        }
-        else if (bond_stereo == INPUT_STEREO_SNGL_UP ||  /* 1 */
-                  bond_stereo == INPUT_STEREO_SNGL_EITHER ||  /* 4 */
-                  bond_stereo == INPUT_STEREO_SNGL_DOWN       /* 6 */)
-        {
-            char cStereo;
-            switch (bond_stereo)
+            at[a1].bond_type[n1] = at[a2].bond_type[n2] = bond_type;
+
+            /* connection */
+            at[a1].neighbor[n1] = (AT_NUMB)a2;
+            at[a2].neighbor[n2] = (AT_NUMB)a1;
+
+            /* stereo */
+            if (bond_stereo == INPUT_STEREO_DBLE_EITHER /* 3 */)
             {
+                at[a1].bond_stereo[n1] =
+                    at[a2].bond_stereo[n2] =
+                    STEREO_DBLE_EITHER;
+            }
+            else if (bond_stereo == INPUT_STEREO_SNGL_UP ||  /* 1 */
+                bond_stereo == INPUT_STEREO_SNGL_EITHER ||  /* 4 */
+                bond_stereo == INPUT_STEREO_SNGL_DOWN       /* 6 */)
+            {
+                char cStereo;
+                switch (bond_stereo)
+                {
                 case INPUT_STEREO_SNGL_UP:
                     cStereo = STEREO_SNGL_UP;
                     break;
@@ -753,15 +754,16 @@ inp_ATOM* MakeInpAtomsFromMolfileData( MOL_FMT_DATA* mfdata,
                 case INPUT_STEREO_SNGL_DOWN:
                     cStereo = STEREO_SNGL_DOWN;
                     break;
+                }
+                at[a1].bond_stereo[n1] = cStereo; /*  >0: the wedge (pointed) end is at this atom, a1 */
+                at[a2].bond_stereo[n2] = -cStereo; /*  <0: the wedge (pointed) end is at the opposite atom, a1 */
             }
-            at[a1].bond_stereo[n1] = cStereo; /*  >0: the wedge (pointed) end is at this atom, a1 */
-            at[a2].bond_stereo[n2] = -cStereo; /*  <0: the wedge (pointed) end is at the opposite atom, a1 */
-        }
-        else if (bond_stereo)
-        {
-            *err |= 16; /*  Ignored unrecognized Bond stereo */
-            TREAT_ERR( *err, 0, "Unrecognized bond stereo" );
-            continue;
+            else if (bond_stereo)
+            {
+                *err |= 16; /*  Ignored unrecognized Bond stereo */
+                TREAT_ERR(*err, 0, "Unrecognized bond stereo");
+                continue;
+            }
         }
     } /* eof copy bond info */
 
@@ -1089,7 +1091,7 @@ int CreateCompAtomData( COMP_ATOM_DATA *inp_at_data,
 
     if (( inp_at_data->at = CreateInpAtom( num_atoms ) ) &&
         ( num_components <= 1 || bIntermediateTaut ||
-         ( inp_at_data->nOffsetAtAndH = (AT_NUMB*) inchi_calloc( sizeof( inp_at_data->nOffsetAtAndH[0] ), 2 * ( num_components + 1 ) ) ) ))
+         ( inp_at_data->nOffsetAtAndH = (AT_NUMB*) inchi_calloc( sizeof( inp_at_data->nOffsetAtAndH[0] ), 2 * ( (long long)num_components + 1 ) ) ) )) /* djb-rwth: cast operator added */
     {
         inp_at_data->num_at = num_atoms;
         inp_at_data->num_components = ( num_components > 1 ) ? num_components : 0;
@@ -1149,7 +1151,7 @@ int CreateInfoAtomData( INF_ATOM_DATA *inf_at_data,
 
     if (( inf_at_data->at = CreateInfAtom( num_atoms ) ) &&
         ( num_components <= 1 ||
-         ( inf_at_data->pStereoFlags = (AT_NUMB *) inchi_calloc( num_components + 1, sizeof( inf_at_data->pStereoFlags[0] ) ) )
+         ( inf_at_data->pStereoFlags = (AT_NUMB *) inchi_calloc( (long long)num_components + 1, sizeof( inf_at_data->pStereoFlags[0] ) ) ) /* djb-rwth: cast operator added */
           )
          )
     {
@@ -1172,7 +1174,7 @@ int AllocateInfoAtomData( INF_ATOM_DATA *inf_at_data,
     if (inf_at_data->at = CreateInfAtom( num_atoms ))
     {
         if (num_components > 1 &&
-             !( inf_at_data->pStereoFlags = (AT_NUMB *) inchi_calloc( num_components + 1, sizeof( inf_at_data->pStereoFlags[0] ) ) ))
+             !( inf_at_data->pStereoFlags = (AT_NUMB *) inchi_calloc( (long long)num_components + 1, sizeof( inf_at_data->pStereoFlags[0] ) ) )) /* djb-rwth: cast operator added */
         {
             FreeInfAtom( &inf_at_data->at );
             return 0;
@@ -1197,7 +1199,7 @@ int DuplicateInfoAtomData( INF_ATOM_DATA *inf_at_data_to,
         if (inf_at_data_to->pStereoFlags && inf_at_data_from->pStereoFlags)
         {
             memcpy( inf_at_data_to->pStereoFlags, inf_at_data_from->pStereoFlags,
-                ( inf_at_data_from->num_components + 1 ) * sizeof( inf_at_data_to->pStereoFlags[0] ) );
+                ( (long long)inf_at_data_from->num_components + 1 ) * sizeof( inf_at_data_to->pStereoFlags[0] ) ); /* djb-rwth: cast operator added */
         }
         return 1;
     }
@@ -1404,7 +1406,7 @@ int SetExtOrigAtDataByMolfileExtInput( MOL_FMT_DATA* mfdata,
             unitk->nb = groupk->blist.used;
             if (unitk->nb > 0)
             {
-                unitk->blist = (int *) inchi_calloc( 2 * unitk->nb, sizeof( int ) );
+                unitk->blist = (int *) inchi_calloc( 2 * (long long)unitk->nb, sizeof( int ) ); /* djb-rwth: cast operator added */
                 if (!unitk->blist )
                 {
                     TREAT_ERR( err, 9001, "Out of RAM" );

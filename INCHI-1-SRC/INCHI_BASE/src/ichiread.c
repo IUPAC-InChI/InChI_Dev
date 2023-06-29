@@ -34,6 +34,7 @@
 
 #include <string.h>
 #include <ctype.h>
+#include <stdbool.h> /* djb-rwth: needed for boolean variables */
 
 /* #define CHECK_WIN32_VC_HEAP */
 
@@ -75,6 +76,8 @@
 
 
 #define SEGM_LINE_ADD 128
+
+bool if_cnd = true; /* djb-rwth: needed for some if condition restructuring */
 
 typedef struct tagOneLinkedBond
 {
@@ -1250,11 +1253,11 @@ int OutputInChIAsRequested( struct tagCANON_GLOBALS *pCG,
 
         if (num_components[INCHI_BAS])
         {
-            MYREALLOC2( PINChI2, PINChI_Aux2, pINChI[INCHI_BAS], pINChI_Aux[INCHI_BAS], num_components[INCHI_BAS], num_components[INCHI_BAS], k1 );
+            MYREALLOC2( PINChI2, PINChI_Aux2, pINChI[INCHI_BAS], pINChI_Aux[INCHI_BAS], num_components[INCHI_BAS], (long long)num_components[INCHI_BAS], k1 ); /* djb-rwth: cast operator added */
         }
     if (num_components[INCHI_REC])
     {
-        MYREALLOC2( PINChI2, PINChI_Aux2, pINChI[INCHI_REC], pINChI_Aux[INCHI_REC], num_components[INCHI_REC], num_components[INCHI_REC], k2 );
+        MYREALLOC2( PINChI2, PINChI_Aux2, pINChI[INCHI_REC], pINChI_Aux[INCHI_REC], num_components[INCHI_REC], (long long)num_components[INCHI_REC], k2 ); /* djb-rwth: cast operator added */
     }
 
 
@@ -1336,7 +1339,7 @@ int OutputInChIAsRequested( struct tagCANON_GLOBALS *pCG,
                              !pINChI[iINChI][k][j]->nNum_H_fixed)
                         {
                             /* serializer crashes if it is not allocated */
-                            pINChI[iINChI][k][j]->nNum_H_fixed = (S_CHAR *) inchi_calloc( pINChI[iINChI][k][j]->nNumberOfAtoms + 1, sizeof( pINChI[0][0][0]->nNum_H_fixed[0] ) );
+                            pINChI[iINChI][k][j]->nNum_H_fixed = (S_CHAR *) inchi_calloc( (long long)pINChI[iINChI][k][j]->nNumberOfAtoms + 1, sizeof( pINChI[0][0][0]->nNum_H_fixed[0] ) ); /* djb-rwth: cast operator added */
                         }
 
                         if (j == TAUT_YES && k < OneInput->nNumComponents[iINChI][TAUT_NON] &&
@@ -1562,28 +1565,35 @@ int GetNumNeighborsFromInchi( INChI *pInChI, AT_NUMB nAtNumber )
     nNumNeigh = 0; /* number of bonds */
     bTautAtom = 0; /* 1 if atom belongs to a Mobile-H group */
     nNumH = 0; /* number of terminal neighbors H */
-    num_atoms = pInChI->nNumberOfAtoms;
-    /* from RestoreAtomConnectionsSetStereo() */
-    /* Connection table structure:
-    Vert(1) [, Neigh(11), Neigh(12),...], Vert(2) [, Neigh(2,1), Neigh(2,2),...] ...
-    where Neigh(i,1) < Neigh(i,2) <... < Vert(i);
-    Vert(i) < Vert(i+1)
-    */
-    for (i = 1, n_vertex = pInChI->nConnTable[0] - 1; i < pInChI->lenConnTable; i++)
+    num_atoms = 0; /* djb-rwth: initialisation with pInChI below */
+    
+    if (pInChI) /* djb-rwth: correcting the dereferencing NULL pointer */
     {
-        if (( n_neigh = pInChI->nConnTable[i] - 1 ) < n_vertex)
+        num_atoms = pInChI->nNumberOfAtoms;
+        /* from RestoreAtomConnectionsSetStereo() */
+        /* Connection table structure:
+        Vert(1) [, Neigh(11), Neigh(12),...], Vert(2) [, Neigh(2,1), Neigh(2,2),...] ...
+        where Neigh(i,1) < Neigh(i,2) <... < Vert(i);
+        Vert(i) < Vert(i+1)
+        */
+        for (i = 1, n_vertex = pInChI->nConnTable[0] - 1; i < pInChI->lenConnTable; i++)
         {
-            /*  vertex - neighbor connection */
-            nNumNeigh += ( nAtNumber == n_vertex || nAtNumber == n_neigh );
-        }
-        else
-        {/* n_neigh is the next vertex */
-            if (( n_vertex = n_neigh ) >= num_atoms)
+            if ((n_neigh = pInChI->nConnTable[i] - 1) < n_vertex)
             {
-                return  RI_ERR_PROGR;
+                /*  vertex - neighbor connection */
+                nNumNeigh += (nAtNumber == n_vertex || nAtNumber == n_neigh);
+            }
+            else
+            {/* n_neigh is the next vertex */
+                if ((n_vertex = n_neigh) >= num_atoms)
+                {
+                    return  RI_ERR_PROGR;
+                }
             }
         }
     }
+
+
     /* is atom tautomeric, from GetTgroupInfoFromInChI() */
     if (pInChI && pInChI->lenTautomer > 1 && pInChI->nTautomer && pInChI->nTautomer[0] > 0)
     {
@@ -1608,7 +1618,7 @@ int GetNumNeighborsFromInchi( INChI *pInChI, AT_NUMB nAtNumber )
         }
     }
     /* count hydrogen neighbors */
-    if (pInChI->nNum_H)
+    if (pInChI && pInChI->nNum_H) /* djb-rwth: condition added for correcting the dereferencing NULL pointer */
     {
         nNumH = pInChI->nNum_H[nAtNumber];
     }
@@ -2054,7 +2064,7 @@ int SetProtonsAndXchgIsoH( int       bInChI2Structure,
             if (nLen == nPrevLen)
             {
                 /* add one more component */
-                INChI *pInChI = (INChI *) inchi_calloc( nLen + 1, sizeof( *pInChI ) );
+                INChI *pInChI = (INChI *) inchi_calloc( (long long)nLen + 1, sizeof( *pInChI ) ); /* djb-rwth: cast operator added */
                 if (!pInChI)
                 {
                     ret2 = RI_ERR_ALLOC;
@@ -2358,7 +2368,7 @@ int InChILine2Data( INCHI_IOSTREAM  *pInp,
                 /* add missing nNum_H and nConnTable */
                 if (nNumComponents[iINChI][j])
                 {
-                    num_elem[iINChI][j] = (NUM_ELEM *) inchi_calloc( nElDataLen + 1, sizeof( num_elem[0][0][0] ) );
+                    num_elem[iINChI][j] = (NUM_ELEM *) inchi_calloc( (long long)nElDataLen + 1, sizeof( num_elem[0][0][0] ) ); /* djb-rwth: cast operator added */
                     if (!num_elem[iINChI][j])
                     {
                         ret2 = RI_ERR_ALLOC;
@@ -2388,7 +2398,7 @@ int InChILine2Data( INCHI_IOSTREAM  *pInp,
                         }
                         /**** add empty immobile H (nNum_H) if it is missing ****/
                         if (!pInChI->nNum_H &&
-                             !( pInChI->nNum_H = (S_CHAR *) inchi_calloc( pInChI->nNumberOfAtoms + 1, sizeof( pInChI->nNum_H[0] ) ) ))
+                             !( pInChI->nNum_H = (S_CHAR *) inchi_calloc( (long long)pInChI->nNumberOfAtoms + 1, sizeof( pInChI->nNum_H[0] ) ) )) /* djb-rwth: cast operator added */
                         {
                             ret2 = RI_ERR_ALLOC;
                             goto exit_function;
@@ -2402,7 +2412,7 @@ int InChILine2Data( INCHI_IOSTREAM  *pInp,
                                 ( pCT = pInpInChI[iINChI][TAUT_YES][k].nConnTable ) &&
                                  ( lenCT = pInpInChI[iINChI][TAUT_YES][k].lenConnTable ) > 0)
                             {
-                                if (!( pInChI->nConnTable = (AT_NUMB *) inchi_calloc( lenCT + 1, sizeof( pInChI->nConnTable[0] ) ) ))
+                                if (!( pInChI->nConnTable = (AT_NUMB *) inchi_calloc( (long long)lenCT + 1, sizeof( pInChI->nConnTable[0] ) ) )) /* djb-rwth: cast operator added */
                                 {
                                     ret2 = RI_ERR_ALLOC;
                                     goto exit_function;
@@ -2418,7 +2428,7 @@ int InChILine2Data( INCHI_IOSTREAM  *pInp,
                                     ret2 = RI_ERR_SYNTAX;
                                     goto exit_function;
                                 }
-                                if (!( pInChI->nConnTable = (AT_NUMB *) inchi_calloc( pInChI->nNumberOfAtoms + 1, sizeof( pInChI->nConnTable[0] ) ) ))
+                                if (!( pInChI->nConnTable = (AT_NUMB *) inchi_calloc( (long long)pInChI->nNumberOfAtoms + 1, sizeof( pInChI->nConnTable[0] ) ) )) /* djb-rwth: cast operator added */
                                 {
                                     ret2 = RI_ERR_ALLOC;
                                     goto exit_function;
@@ -3722,8 +3732,8 @@ int CopyAtomNumbers( INChI  *pInChI_To,
     }
     if (!pInChI_To->nPossibleLocationsOfIsotopicH)
     {
-        pInChI_To->nPossibleLocationsOfIsotopicH = (AT_NUMB *) inchi_calloc( 2 * pInChI_To->nNumberOfAtoms,
-                                                                             sizeof( pInChI_To->nPossibleLocationsOfIsotopicH[0] ) );
+        pInChI_To->nPossibleLocationsOfIsotopicH = (AT_NUMB *) inchi_calloc( 2 * (long long)pInChI_To->nNumberOfAtoms,
+                                                                             sizeof( pInChI_To->nPossibleLocationsOfIsotopicH[0] ) ); /* djb-rwth: cast operator added */
         if (!pInChI_To->nPossibleLocationsOfIsotopicH)
         {
             return RI_ERR_ALLOC;
@@ -3837,10 +3847,22 @@ int ParseAuxSegmentNumbers( const char  *str,               /* AuxInfo string   
         }
         pInChI = pInpInChI[bMobileH] + iComponent;
         pAltInChI = pInpInChI[ALT_TAUT( bMobileH )] + iComponent;
-        if (( isdigit( UCINT *pStart ) &&
-              0 < ( val = (int) inchi_strtol( pStart, &q, 10 ) ) ||
-              ( q = pStart, val = 1 ) ) &&
-              ( t = strchr((char *)mult_type, *q)) && q + 1 == pEnd)
+
+        /* djb-rwth: condition for if block had to be rewritten */
+        if ((int)inchi_strtol(pStart, &q, 10) > 0)
+        {
+            val = (int)inchi_strtol(pStart, &q, 10);
+            if_cnd = isdigit(UCINT * pStart);
+
+        }
+        else
+        {
+            val = 1;
+            q = pStart;
+            if_cnd = true;
+        }
+
+        if (if_cnd && ( t = strchr((char *)mult_type, *q)) && q + 1 == pEnd) /* djb-rwth: bool if_cnd applied */
         {
             /* Process the abbreviation */
             pInChI_From = NULL;
@@ -3941,7 +3963,7 @@ int ParseAuxSegmentNumbers( const char  *str,               /* AuxInfo string   
             pNumb = pInChI->nPossibleLocationsOfIsotopicH;
             if (!pNumb)
             {
-                pNumb = (AT_NUMB *) inchi_calloc( 2 * pInChI->nNumberOfAtoms, sizeof( pNumb[0] ) );
+                pNumb = (AT_NUMB *) inchi_calloc( 2 * (long long)pInChI->nNumberOfAtoms, sizeof( pNumb[0] ) ); /* djb-rwth: cast operator added */
                 if (!pNumb)
                 {
                     ret = RI_ERR_ALLOC;
@@ -4942,14 +4964,14 @@ next_line:
             c = nGetInChISegment( pInp, pLine, szToken );
         INCHI_HEAPCHK
     }
-    if (c == RI_ERR_EOF && !pLine->len && !pLine->str[0])
-    {
-        ret = c;
-        goto exit_function;
-    }
+    if (pLine->str && (c == RI_ERR_EOF && !pLine->len && !pLine->str[0])) /* djb-rwth: correcting the dereferencing NULL pointer */
+        {
+            ret = c;
+            goto exit_function;
+        }
     INCHI_HEAPCHK
 
-        if (pLine->len == 0 || c != SEG_END && c != RI_ERR_EOF || !( p = strstr( pLine->str, "InChI=1" ) ))
+        if (pLine->str && (pLine->len == 0 || c != SEG_END && c != RI_ERR_EOF || !( p = strstr( pLine->str, "InChI=1" ) ))) /* djb-rwth: correcting the dereferencing NULL pointer */
         {
             if (pLine->str && pLine->str == strstr( pLine->str, "Structure" ))
             {
@@ -4979,7 +5001,7 @@ next_line:
 
 
     /* Check if got a standard InChI */
-    if (( pLine->len == len_std_prefix ) && ( pLine->str[len_std_prefix - 1] == 'S' ))
+    if (pLine->str && ( pLine->len == len_std_prefix ) && ( pLine->str[len_std_prefix - 1] == 'S' )) /* djb-rwth: correcting the dereferencing NULL pointer */
     {
         *bStdFormat = 1;
     }
@@ -5089,7 +5111,8 @@ next_line:
                 ret = RI_ERR_EOL; /* end of line */
                 break;
             }
-            fst = UCINT pLine->str[0];
+            if(pLine->str) /* djb-rwth: correcting the dereferencing NULL pointer */
+                fst = UCINT pLine->str[0];
 
             /*
             if ( fst == 'z' )
@@ -5479,7 +5502,7 @@ int ParseSegmentIsoExchgH( const char   *str,
                 goto exit_function;
             }
             p = strchr((char *)abc_h, *q);
-            if (p && ( i = (int) ( p - abc_h ) ) < i_prev)
+            if (p && ( i = (int) ( p - abc_h ) ) < i_prev && (i < NUM_H_ISOTOPES)) /* djb-rwth: additional condition for buffer overrun prevention */
             {
                 nNumProtons[bMobileH].nNumRemovedIsotopicH[i] = (NUM_H) num;
                 p = q + 1;
@@ -5742,10 +5765,21 @@ int ParseSegmentIsoAtoms( const char *str,
         }
         else
         {
-            if (( isdigit( *pStart ) &&
-                  0 < ( val = (int) inchi_strtol( pStart, &q, 10 ) ) ||
-                  ( q = pStart, val = 1 ) ) &&
-                  ( t = strchr((char *)mult_type, *q)) && q + 1 == pEnd)
+            /* djb-rwth: condition for if block had to be rewritten */
+            if ((int)inchi_strtol(pStart, &q, 10) > 0)
+            {
+                val = (int)inchi_strtol(pStart, &q, 10);
+                if_cnd = isdigit(*pStart);
+
+            }
+            else
+            {
+                val = 1;
+                q = pStart;
+                if_cnd = true;
+            }
+
+            if ( if_cnd && ( t = strchr((char *)mult_type, *q)) && q + 1 == pEnd) /* djb-rwth: bool if_cnd applied */
             {
                 /* process the abbreviation */
                 ret = 0;
@@ -6030,7 +6064,7 @@ one_more_time:
             /* end of the 1st pass */
             len = iAtom;
             /* memory allocation */
-            if (!( *pIsotopicAtom = (INChI_IsotopicAtom *) inchi_calloc( len + 1, sizeof( **pIsotopicAtom ) ) ))
+            if (!( *pIsotopicAtom = (INChI_IsotopicAtom *) inchi_calloc( (long long)len + 1, sizeof( **pIsotopicAtom ) ) )) /* djb-rwth: cast operator added */
             {
                 ret = RI_ERR_ALLOC; /* memory allocation failed */
                 goto exit_function;
@@ -6159,9 +6193,9 @@ int ParseSegmentSp3s( const char *str,
             }
             /* allocate empty sp3 stereo */
             if (!pStereo[0]->t_parity &&
-                 !( pStereo[0]->t_parity = (S_CHAR *) inchi_calloc( len + 1, sizeof( pStereo[0]->b_parity[0] ) ) ) ||
+                 !( pStereo[0]->t_parity = (S_CHAR *) inchi_calloc( (long long)len + 1, sizeof( pStereo[0]->b_parity[0] ) ) ) ||
                  !pStereo[0]->nNumber &&
-                 !( pStereo[0]->nNumber = (AT_NUMB *) inchi_calloc( len + 1, sizeof( pStereo[0]->nNumber[0] ) ) ))
+                 !( pStereo[0]->nNumber = (AT_NUMB *) inchi_calloc( (long long)len + 1, sizeof( pStereo[0]->nNumber[0] ) ) )) /* djb-rwth: cast operators added */
             {
                 /* cleanup */
                 if (pStereo[0]->t_parity)
@@ -6382,9 +6416,9 @@ int ParseSegmentSp3m( const char *str,
 #endif
             /* allocate empty sp3 stereo */
             if (!pStereo[0]->t_parity &&
-                 !( pStereo[0]->t_parity = (S_CHAR *) inchi_calloc( len + 1, sizeof( pStereo[0]->b_parity[0] ) ) ) ||
+                 !( pStereo[0]->t_parity = (S_CHAR *) inchi_calloc( (long long)len + 1, sizeof( pStereo[0]->b_parity[0] ) ) ) ||
                  !pStereo[0]->nNumber &&
-                 !( pStereo[0]->nNumber = (AT_NUMB *) inchi_calloc( len + 1, sizeof( pStereo[0]->nNumber[0] ) ) ))
+                 !( pStereo[0]->nNumber = (AT_NUMB *) inchi_calloc( (long long)len + 1, sizeof( pStereo[0]->nNumber[0] ) ) )) /* djb-rwth: cast operators added */
             {
                 /* cleanup */
                 if (pStereo[0]->t_parity)
@@ -6507,12 +6541,22 @@ int ParseSegmentSp3( const char *str,			/* input; string of segment starting wit
             pEnd = pStart + strlen( pStart );
         }
 
+        /* djb-rwth: condition for if block had to be rewritten */
+        if ((int)inchi_strtol(pStart, &q, 10) > 0)
+        {
+            val = (int)inchi_strtol(pStart, &q, 10);
+            if_cnd = isdigit(*pStart);
+
+        }
+        else
+        {
+            val = 1;
+            q = pStart;
+            if_cnd = true;
+        }
 
         /* Abbreviation? */
-        if (( isdigit( *pStart ) &&
-              0 < ( val = (int) inchi_strtol( pStart, &q, 10 ) ) ||
-              ( q = pStart, val = 1 ) ) &&
-              ( t = strchr((char *)mult_type, *q)) && q + 1 == pEnd)
+        if (if_cnd && ( t = strchr((char *)mult_type, *q)) && q + 1 == pEnd) /* djb-rwth: if_cnd applied */
         {
             /* Process abbrebiation */
             retf = SegmentSp3ProcessAbbreviation( &mpy_component, iComponent, nNumComponents,
@@ -6637,8 +6681,8 @@ int ParseSegmentSp3( const char *str,			/* input; string of segment starting wit
             goto exit_function;
         }
         /* Allocate sp3 stereo */
-        if (!( pStereo[0]->t_parity = (S_CHAR *) inchi_calloc( len + 1, sizeof( pStereo[0]->b_parity[0] ) ) ) ||
-             !( pStereo[0]->nNumber = (AT_NUMB *) inchi_calloc( len + 1, sizeof( pStereo[0]->nNumber[0] ) ) ))
+        if (!( pStereo[0]->t_parity = (S_CHAR *) inchi_calloc( (long long)len + 1, sizeof( pStereo[0]->b_parity[0] ) ) ) ||
+             !( pStereo[0]->nNumber = (AT_NUMB *) inchi_calloc( (long long)len + 1, sizeof( pStereo[0]->nNumber[0] ) ) )) /* djb-rwth: cast operators added */
         {
             /* cleanup */
             if (pStereo[0]->t_parity)
@@ -6786,10 +6830,22 @@ int ParseSegmentSp2( const char *str,
             pEnd = pStart + strlen( pStart );
         }
 
-        if (( isdigit( *pStart ) &&
-              0 < ( val = (int) inchi_strtol( pStart, &q, 10 ) ) ||
-              ( q = pStart, val = 1 ) ) &&
-              ( t = strchr((char *)mult_type, *q)) && q + 1 == pEnd)
+        /* djb-rwth: condition for if block had to be rewritten */
+        if ((int)inchi_strtol(pStart, &q, 10) > 0)
+        {
+            val = (int)inchi_strtol(pStart, &q, 10);
+            if_cnd = isdigit( *pStart );
+
+        }
+        else
+        {
+            val = 1;
+            q = pStart;
+            if_cnd = true;
+        }
+
+
+        if (if_cnd && (t = strchr((char*)mult_type, *q)) && q + 1 == pEnd) /* djb-rwth: bool if_cnd applied */
         {
             /* process the abbreviation */
             ret = 0;
@@ -7088,9 +7144,9 @@ int ParseSegmentSp2( const char *str,
             goto exit_function;
         }
         /* allocate sp2 stereo */
-        if (!( pStereo[0]->b_parity = (S_CHAR *) inchi_calloc( len + 1, sizeof( pStereo[0]->b_parity[0] ) ) ) ||
-             !( pStereo[0]->nBondAtom1 = (AT_NUMB *) inchi_calloc( len + 1, sizeof( pStereo[0]->nBondAtom1[0] ) ) ) ||
-             !( pStereo[0]->nBondAtom2 = (AT_NUMB *) inchi_calloc( len + 1, sizeof( pStereo[0]->nBondAtom2[0] ) ) ))
+        if (!( pStereo[0]->b_parity = (S_CHAR *) inchi_calloc( (long long)len + 1, sizeof( pStereo[0]->b_parity[0] ) ) ) ||
+             !( pStereo[0]->nBondAtom1 = (AT_NUMB *) inchi_calloc( (long long)len + 1, sizeof( pStereo[0]->nBondAtom1[0] ) ) ) ||
+             !( pStereo[0]->nBondAtom2 = (AT_NUMB *) inchi_calloc( (long long)len + 1, sizeof( pStereo[0]->nBondAtom2[0] ) ) )) /* djb-rwth: cast operators added */
         {
             /* cleanup */
             if (pStereo[0]->b_parity)
@@ -7574,7 +7630,7 @@ int ParseSegmentPolymer( const char  *str,
                 {
                     pStart = p + 1;
                     unit->nb = 2;
-                    unit->blist = (int *) inchi_calloc( 2 * unit->nb, sizeof( int ) );
+                    unit->blist = (int *) inchi_calloc( 2 * (long long)unit->nb, sizeof( int ) ); /* djb-rwth: cast operator added */
                     if (!unit->blist)
                     {
                         ret = RI_ERR_ALLOC; IntArray_Free( &numlist ); goto exit_function;
@@ -7869,10 +7925,22 @@ int ParseSegmentCharge( const char  *str,
             pEnd = pStart + strlen( pStart );
         }
 
-        if (( isdigit( UCINT *pStart ) &&
-              0 < ( val = (int) inchi_strtol( pStart, &q, 10 ) ) ||
-              ( q = pStart, val = 1 ) ) &&
-              ( t = strchr((char *)mult_type, *q)) && q + 1 == pEnd)
+        /* djb-rwth: condition for if block had to be rewritten */
+        if ((int)inchi_strtol(pStart, &q, 10) > 0)
+        {
+            val = (int)inchi_strtol(pStart, &q, 10);
+            if_cnd = isdigit(UCINT * pStart);
+
+        }
+        else
+        {
+            val = 1;
+            q = pStart;
+            if_cnd = true;
+        }
+
+
+        if (if_cnd && (t = strchr((char*)mult_type, *q)) && q + 1 == pEnd) /* djb-rwth: bool if_cnd applied */
         {
             /* process the abbreviation */
 
@@ -8066,7 +8134,7 @@ int ParseSegmentMobileH( const char *str,
         /* copy immobile H from Mobile-H layer to Fixed-H layer */
         if (bMobileH == TAUT_NON && i < pnNumComponents[nAltMobileH])
         {
-            memcpy( pInChI[i].nNum_H, pAltInChI[i].nNum_H, ( len - 1 ) * sizeof( pInChI[0].nNum_H[0] ) );
+            memcpy( pInChI[i].nNum_H, pAltInChI[i].nNum_H, ( (long long)len - 1 ) * sizeof( pInChI[0].nNum_H[0] ) ); /* djb-rwth: cast operator added */
         }
     }
 
@@ -8195,7 +8263,7 @@ int ParseSegmentMobileH( const char *str,
                         }
                         if (len > 1)
                         {
-                            memcpy( pInChI[iComponent + i].nAtom, pAltInChI[iComponent + i].nAtom, ( len - 1 ) * sizeof( pInChI[0].nAtom[0] ) );
+                            memcpy(pInChI[iComponent + i].nAtom, pAltInChI[iComponent + i].nAtom, ((long long)len - 1) * sizeof(pInChI[0].nAtom[0])); /* djb-rwth: cast operator added */
                         }
                         /* correct number of atoms including bridging H */
                         pInChI[iComponent + i].nNumberOfAtoms = pAltInChI[iComponent + i].nNumberOfAtoms;
@@ -8460,7 +8528,7 @@ int ParseSegmentMobileH( const char *str,
                         tg_alloc_len = ( ( 3 + INCHI_T_NUM_MOVABLE )*pInChI[iComponent].nNumberOfAtoms ) / 2 + 1;
                         for (i = 0; i < mpy_component; i++)
                         {
-                            pInChI[iComponent + i].nTautomer = (AT_NUMB*) inchi_calloc( tg_alloc_len + 1, sizeof( pInChI->nTautomer[0] ) );
+                            pInChI[iComponent + i].nTautomer = (AT_NUMB*) inchi_calloc( (long long)tg_alloc_len + 1, sizeof( pInChI->nTautomer[0] ) ); /* djb-rwth: cast operator added */
                             if (!pInChI[iComponent + i].nTautomer)
                             {
                                 ret = RI_ERR_ALLOC; /* allocation error */
@@ -8621,7 +8689,7 @@ int ParseSegmentMobileH( const char *str,
                                         tg_alloc_len = ( ( 3 + INCHI_T_NUM_MOVABLE )*pInChI[iComponent].nNumberOfAtoms ) / 2 + 1;
                                         for (i = 0; i < mpy_component; i++)
                                         {
-                                            pInChI[iComponent + i].nTautomer = (AT_NUMB*) inchi_calloc( tg_alloc_len + 1, sizeof( pInChI->nTautomer[0] ) );
+                                            pInChI[iComponent + i].nTautomer = (AT_NUMB*) inchi_calloc( (long long)tg_alloc_len + 1, sizeof( pInChI->nTautomer[0] ) ); /* djb-rwth: cast operator added */
                                             if (!pInChI[iComponent + i].nTautomer)
                                             {
                                                 ret = RI_ERR_ALLOC; /* allocation error */
@@ -8828,14 +8896,14 @@ int ParseSegmentConnections( const char *str,
                 return RI_ERR_ALLOC; /* alloc failure */
             }
             /* allocate empty formula */
-            pInChI[iComponent].szHillFormula = (char *) inchi_calloc( lenFormula + 1, sizeof( pInChI[0].szHillFormula[0] ) );
+            pInChI[iComponent].szHillFormula = (char *) inchi_calloc( (long long)lenFormula + 1, sizeof( pInChI[0].szHillFormula[0] ) ); /* djb-rwth: cast operator added */
             if (!pInChI[iComponent].szHillFormula)
             {
                 ret = RI_ERR_ALLOC; /* allocation failure */
                 goto exit_function;
             }
             /* allocate empty connection table */
-            pInChI[iComponent].nConnTable = (AT_NUMB *) inchi_calloc( lenConnTable + 1, sizeof( pInChI[0].nConnTable[0] ) );
+            pInChI[iComponent].nConnTable = (AT_NUMB*)inchi_calloc((long long)lenConnTable + 1, sizeof(pInChI[0].nConnTable[0])); /* djb-rwth: cast operator added */
             if (!pInChI[iComponent].nConnTable)
             {
                 ret = RI_ERR_ALLOC; /* allocation failure */
@@ -8855,7 +8923,7 @@ int ParseSegmentConnections( const char *str,
                 {
                     inchi_free( pInChI[i].nConnTable );
                 }
-                pInChI[i].nConnTable = (AT_NUMB *) inchi_calloc( lenConnTable + 1, sizeof( pInChI[0].nConnTable[0] ) );
+                pInChI[i].nConnTable = (AT_NUMB *) inchi_calloc( (long long)lenConnTable + 1, sizeof( pInChI[0].nConnTable[0] ) ); /* djb-rwth: cast operator added */
                 if (!pInChI[i].nConnTable)
                 {
                     ret = RI_ERR_ALLOC; /* allocation failure */
@@ -9079,7 +9147,7 @@ int ParseSegmentConnections( const char *str,
             if (( j = pInChI[iComponent + i].nNumberOfAtoms ) < nNumAtoms)
             {
                 /* reallocate */
-                U_CHAR *nAtomTmp = (U_CHAR *) inchi_malloc( nNumAtoms + 1 );
+                U_CHAR *nAtomTmp = (U_CHAR *) inchi_malloc( (long long)nNumAtoms + 1 ); /* djb-rwth: cast operator added */
                 if (!nAtomTmp)
                 {
                     ret = RI_ERR_ALLOC; /* allocation failure */
@@ -9116,7 +9184,7 @@ int ParseSegmentConnections( const char *str,
             {
                 lenConnTable = 1;  /* one atom, no bonds */
             }
-            pInChI[iComponent + i].nConnTable = (AT_NUMB *) inchi_calloc( lenConnTable + 1, sizeof( pInChI[0].nConnTable[0] ) );
+            pInChI[iComponent + i].nConnTable = (AT_NUMB *) inchi_calloc( (long long)lenConnTable + 1, sizeof( pInChI[0].nConnTable[0] ) ); /* djb-rwth: cast operator added */
             if (!pInChI[iComponent + i].nConnTable)
             {
                 ret = RI_ERR_ALLOC; /* allocation failure */
@@ -9428,7 +9496,7 @@ int nFillOutProtonMobileH( INChI *pInChI )
     pInChI->bDeleted = 1;
     /* formula */
     if (!pInChI->szHillFormula &&
-         !( pInChI->szHillFormula = (char *) inchi_calloc( len + 1, sizeof( pInChI->szHillFormula[0] ) ) ))
+         !( pInChI->szHillFormula = (char *) inchi_calloc( (long long)len + 1, sizeof( pInChI->szHillFormula[0] ) ) )) /* djb-rwth: cast operator added */
     {
         return RI_ERR_ALLOC; /* alloc failure */
     }
@@ -9437,7 +9505,7 @@ int nFillOutProtonMobileH( INChI *pInChI )
 
     /* atoms */
     if (!pInChI->nAtom &&
-         !( pInChI->nAtom = (U_CHAR *) inchi_calloc( len + 1, sizeof( pInChI->nAtom[0] ) ) ))
+         !( pInChI->nAtom = (U_CHAR *) inchi_calloc( (long long)len + 1, sizeof( pInChI->nAtom[0] ) ) )) /* djb-rwth: cast operator added */
     {
         return RI_ERR_ALLOC; /* alloc failure */
     }
@@ -9446,7 +9514,7 @@ int nFillOutProtonMobileH( INChI *pInChI )
     pInChI->nTotalCharge = 1;
     /* connection table */
     if (!pInChI->nConnTable &&
-         !( pInChI->nConnTable = (AT_NUMB *) inchi_calloc( len + 1, sizeof( pInChI->nConnTable[0] ) ) ))
+         !( pInChI->nConnTable = (AT_NUMB *) inchi_calloc( (long long)len + 1, sizeof( pInChI->nConnTable[0] ) ) )) /* djb-rwth: cast operator added */
     {
         return RI_ERR_ALLOC; /* alloc failure */
     }
@@ -9454,13 +9522,13 @@ int nFillOutProtonMobileH( INChI *pInChI )
     pInChI->lenConnTable = len;
     /* tautomer */
     if (!pInChI->nTautomer &&
-         !( pInChI->nTautomer = (AT_NUMB *) inchi_calloc( len + 1, sizeof( pInChI->nTautomer[0] ) ) ))
+         !( pInChI->nTautomer = (AT_NUMB *) inchi_calloc( (long long)len + 1, sizeof( pInChI->nTautomer[0] ) ) )) /* djb-rwth: cast operator added */
     {
         return RI_ERR_ALLOC; /* alloc failure */
     }
     /* nNum_H */
     if (!pInChI->nNum_H &&
-         !( pInChI->nNum_H = (S_CHAR *) inchi_calloc( len + 1, sizeof( pInChI->nNum_H[0] ) ) ))
+         !( pInChI->nNum_H = (S_CHAR *) inchi_calloc( (long long)len + 1, sizeof( pInChI->nNum_H[0] ) ) )) /* djb-rwth: cast operator added */
     {
         return RI_ERR_ALLOC; /* alloc failure */
     }
@@ -9641,7 +9709,7 @@ int ParseSegmentFormula( const char *str,
                         {
                             inchi_free( pInpInChI[bMobileH][i].nAtom );
                         }
-                        if (pInpInChI[bMobileH][i].nAtom = (U_CHAR *) inchi_malloc( ( len + 1 ) * sizeof( pInpInChI[0][0].nAtom[0] ) ))
+                        if (pInpInChI[bMobileH][i].nAtom = (U_CHAR *) inchi_malloc( ( (long long)len + 1 ) * sizeof( pInpInChI[0][0].nAtom[0] ) )) /* djb-rwth: cast operator added */
                         {
                             memcpy( pInpInChI[bMobileH][i].nAtom, pInpInChI[nAltMobileH][i].nAtom, len );
                             pInpInChI[bMobileH][i].nAtom[len] = 0;
@@ -9749,7 +9817,7 @@ int ParseSegmentFormula( const char *str,
             {
                 inchi_free( pInChI[iComponent + i].szHillFormula );
             }
-            pInChI[iComponent + i].szHillFormula = (char*) inchi_malloc( inchi_max( len, 1 ) + 1 );
+            pInChI[iComponent + i].szHillFormula = (char*) inchi_malloc( inchi_max( (long long)len, 1 ) + 1 ); /* djb-rwth: cast operator added */
             memcpy( pInChI[iComponent].szHillFormula, p, len );
             pInChI[iComponent + i].szHillFormula[len] = '\0';
             if (!i)
@@ -9810,7 +9878,7 @@ int ParseSegmentFormula( const char *str,
                 {
                     inchi_free( pInChI[iComponent + i].nAtom );
                 }
-                pInChI[iComponent + i].nAtom = (U_CHAR *) inchi_malloc( ( nNumAtomsAndH + 1 ) * sizeof( pInChI[0].nAtom[0] ) );
+                pInChI[iComponent + i].nAtom = (U_CHAR*)inchi_malloc(((long long)nNumAtomsAndH + 1) * sizeof(pInChI[0].nAtom[0])); /* djb-rwth: cast operator added */
                 if (!pInChI[iComponent + i].nAtom)
                 {
                     return RI_ERR_ALLOC; /* failed allocation */
@@ -9891,12 +9959,12 @@ int ParseSegmentFormula( const char *str,
                 {
                     inchi_free( pInChI[iComponent + i].nAtom );
                 }
-                pInChI[iComponent + i].nAtom = (U_CHAR *) inchi_malloc( nNumAtoms + 1 );
+                pInChI[iComponent + i].nAtom = (U_CHAR *) inchi_malloc( (long long)nNumAtoms + 1 ); /* djb-rwth: cast operator added */
                 if (!pInChI[iComponent + i].nAtom)
                 {
                     return RI_ERR_ALLOC; /* failed allocation */
                 }
-                memcpy( pInChI[iComponent + i].nAtom, pInChI[iComponent].nAtom, nNumAtoms + 1 );
+                memcpy( pInChI[iComponent + i].nAtom, pInChI[iComponent].nAtom, (long long)nNumAtoms + 1 ); /* djb-rwth: cast operator added */
             }
         }
         iComponent += i;
@@ -9928,7 +9996,7 @@ int ParseSegmentFormula( const char *str,
                 /* there are bridging H in this component */
                 if (pInpInChI[nAltMobileH][i].nAtom)
                 {
-                    U_CHAR *nAtom = (U_CHAR *) inchi_malloc( ( len + 1 ) * sizeof( nAtom[0] ) );
+                    U_CHAR *nAtom = (U_CHAR *) inchi_malloc( ( (long long)len + 1 ) * sizeof( nAtom[0] ) ); /* djb-rwth: cast operator added */
                     if (!nAtom)
                     {
                         return RI_ERR_ALLOC;
@@ -10002,9 +10070,9 @@ int CopySegment( INChI *pInChITo,
                         goto exit_function;
                     }
                     /* allocate sp2 stereo */
-                    if (!( pstereoTo[0]->b_parity = (S_CHAR *) inchi_calloc( len + 1, sizeof( pstereoTo[0]->b_parity[0] ) ) ) ||
-                         !( pstereoTo[0]->nBondAtom1 = (AT_NUMB *) inchi_calloc( len + 1, sizeof( pstereoTo[0]->nBondAtom1[0] ) ) ) ||
-                         !( pstereoTo[0]->nBondAtom2 = (AT_NUMB *) inchi_calloc( len + 1, sizeof( pstereoTo[0]->nBondAtom2[0] ) ) ))
+                    if (!( pstereoTo[0]->b_parity = (S_CHAR *) inchi_calloc( (long long)len + 1, sizeof( pstereoTo[0]->b_parity[0] ) ) ) ||
+                         !( pstereoTo[0]->nBondAtom1 = (AT_NUMB *) inchi_calloc( (long long)len + 1, sizeof( pstereoTo[0]->nBondAtom1[0] ) ) ) ||
+                         !( pstereoTo[0]->nBondAtom2 = (AT_NUMB *) inchi_calloc( (long long)len + 1, sizeof( pstereoTo[0]->nBondAtom2[0] ) ) )) /* djb-rwth: cast operators added */
                     {
                         /* cleanup */
                         if (pstereoTo[0]->b_parity)
@@ -10038,9 +10106,9 @@ int CopySegment( INChI *pInChITo,
                             goto exit_function;
                         }
 #endif
-                        memcpy( pstereoTo[0]->b_parity, stereoFrom->b_parity, ( len + 1 ) * sizeof( pstereoTo[0]->b_parity[0] ) );
-                        memcpy( pstereoTo[0]->nBondAtom1, stereoFrom->nBondAtom1, ( len + 1 ) * sizeof( pstereoTo[0]->nBondAtom1[0] ) );
-                        memcpy( pstereoTo[0]->nBondAtom2, stereoFrom->nBondAtom2, ( len + 1 ) * sizeof( pstereoTo[0]->nBondAtom2[0] ) );
+                        memcpy( pstereoTo[0]->b_parity, stereoFrom->b_parity, ( (long long)len + 1 ) * sizeof( pstereoTo[0]->b_parity[0] ) ); /* djb-rwth: cast operator added */
+                        memcpy( pstereoTo[0]->nBondAtom1, stereoFrom->nBondAtom1, ( (long long)len + 1 ) * sizeof( pstereoTo[0]->nBondAtom1[0] ) ); /* djb-rwth: cast operator added */
+                        memcpy( pstereoTo[0]->nBondAtom2, stereoFrom->nBondAtom2, ( (long long)len + 1 ) * sizeof( pstereoTo[0]->nBondAtom2[0] ) ); /* djb-rwth: cast operator added */
                     }
                     pstereoTo[0]->nNumberOfStereoBonds = len;
 
@@ -10077,8 +10145,8 @@ int CopySegment( INChI *pInChITo,
                             goto exit_function;
                         }
                         /* allocate sp3 stereo */
-                        if (!( pstereoTo[0]->t_parity = (S_CHAR *) inchi_calloc( len + 1, sizeof( pstereoTo[0]->b_parity[0] ) ) ) ||
-                             !( pstereoTo[0]->nNumber = (AT_NUMB *) inchi_calloc( len + 1, sizeof( pstereoTo[0]->nBondAtom1[0] ) ) ))
+                        if (!( pstereoTo[0]->t_parity = (S_CHAR *) inchi_calloc( (long long)len + 1, sizeof( pstereoTo[0]->b_parity[0] ) ) ) ||
+                             !( pstereoTo[0]->nNumber = (AT_NUMB *) inchi_calloc( (long long)len + 1, sizeof( pstereoTo[0]->nBondAtom1[0] ) ) )) /* djb-rwth: cast operators added */
                         {
                             /* cleanup */
                             if (pstereoTo[0]->t_parity)
@@ -10096,8 +10164,8 @@ int CopySegment( INChI *pInChITo,
                         /* copy stereo */
                         if (bIsotopicFrom >= 0 && len)
                         {
-                            memcpy( pstereoTo[0]->t_parity, stereoFrom->t_parity, ( len + 1 ) * sizeof( pstereoTo[0]->t_parity[0] ) );
-                            memcpy( pstereoTo[0]->nNumber, stereoFrom->nNumber, ( len + 1 ) * sizeof( pstereoTo[0]->nNumber[0] ) );
+                            memcpy( pstereoTo[0]->t_parity, stereoFrom->t_parity, ( (long long)len + 1 ) * sizeof( pstereoTo[0]->t_parity[0] ) ); /* djb-rwth: cast operator added */
+                            memcpy( pstereoTo[0]->nNumber, stereoFrom->nNumber, ( (long long)len + 1 ) * sizeof( pstereoTo[0]->nNumber[0] ) ); /* djb-rwth: cast operator added */
                         }
                         pstereoTo[0]->nNumberOfStereoCenters = len;
                         return len + 1;
@@ -10152,7 +10220,8 @@ int CopySegment( INChI *pInChITo,
                                 ret = RI_ERR_SYNTAX; /* stereo already exists */
                                 goto exit_function;
                             }
-                            pstereoTo[0]->bTrivialInv = stereoFrom->bTrivialInv;
+                            if (stereoFrom) /* djb-rwth: correcting the dereferencing NULL pointer */
+                                pstereoTo[0]->bTrivialInv = stereoFrom->bTrivialInv;
                             if (bIsotopicFrom < 0)
                             {
                                 pstereoTo[0]->bTrivialInv = 0;
@@ -10189,7 +10258,7 @@ int CopySegment( INChI *pInChITo,
             pIsotopicAtomTo = &pInChITo->IsotopicAtom;
             if (!*pIsotopicAtomTo)
             {
-                if (!( *pIsotopicAtomTo = (INChI_IsotopicAtom *) inchi_calloc( len + 1, sizeof( **pIsotopicAtomTo ) ) ))
+                if (!( *pIsotopicAtomTo = (INChI_IsotopicAtom *) inchi_calloc( (long long)len + 1, sizeof( **pIsotopicAtomTo ) ) )) /* djb-rwth: cast operator added */
                 {
                     goto exit_function;
                 }
@@ -10201,7 +10270,7 @@ int CopySegment( INChI *pInChITo,
             }
             if (bIsotopicFrom >= 0 && len)
             {
-                memcpy( *pIsotopicAtomTo, IsotopicAtomFrom, ( len + 1 ) * sizeof( **pIsotopicAtomTo ) );
+                memcpy( *pIsotopicAtomTo, IsotopicAtomFrom, ( (long long)len + 1 ) * sizeof( **pIsotopicAtomTo ) ); /* djb-rwth: cast operator added */
             }
             pInChITo->nNumberOfIsotopicAtoms = len;
             return len + 1;
@@ -10293,7 +10362,7 @@ int AddInChIChar( INCHI_IOSTREAM *pInp,
 
         if (Line->len + 2 >= Line->len_alloc)
         {
-            char *str = (char *) inchi_calloc( Line->len_alloc + SEGM_LINE_ADD, sizeof( str[0] ) );
+            char *str = (char *) inchi_calloc( (long long)Line->len_alloc + SEGM_LINE_ADD, sizeof( str[0] ) ); /* djb-rwth: cast operator added */
             INCHI_HEAPCHK
                 if (str)
                 {
@@ -10410,7 +10479,7 @@ int AddLinkedBond( AT_NUMB at1,
     if (!pLB->len)
     {
         pLB->len = num_at + 1;
-        memset( pLB->pBond, 0, ( num_at + 1 ) * sizeof( pLB->pBond[0] ) );
+        memset( pLB->pBond, 0, ( (long long)num_at + 1 ) * sizeof( pLB->pBond[0] ) ); /* djb-rwth: cast operator added */
     }
 
     prev = pLB->pBond[at1].prev; /* position of the last neighbor of at1 in the pLB->pBond */
@@ -11182,7 +11251,7 @@ int ConvertInChI2Struct( ICHICONST INPUT_PARMS   *ip_inp,
                 len = nMessageLen - ( int )sizeof( szMetal );
             }
             shift = nInitLenMessage + ( int )sizeof( szMetal ) - 1;
-            memmove( szMessage + shift, szMessage + nInitLenMessage, ( len - nInitLenMessage ) * sizeof( szMessage[0] ) );
+            memmove( szMessage + shift, szMessage + nInitLenMessage, ( (long long)len - nInitLenMessage ) * sizeof( szMessage[0] ) ); /* djb-rwth: cast operator added */
             memcpy( szMessage + nInitLenMessage, szMetal, sizeof( szMetal ) - sizeof( szMessage[0] ) );
             szMessage[shift + len - nInitLenMessage] = '\0';
         }
@@ -11260,7 +11329,7 @@ dealloc:
     InchiTimeGet( pulTStart );
 
     /* Print one structure report */
-    if (szMsg && nMsgLen > 1)
+    if (szMessage && szMsg && nMsgLen > 1) /* djb-rwth: additional condition for szMessage */
     {
         int len = inchi_min( (int) strlen( szMessage ), nMsgLen - 1 );
         if (len > 0)
@@ -11274,7 +11343,7 @@ dealloc:
         }
     }
 
-    if (nInitLenMessage < (int) strlen( szMessage ))
+    if (szMessage && (nInitLenMessage < (int) strlen( szMessage ))) /* djb-rwth: additional condition for szMessage */
     {
         inchi_ios_eprint( pLog, "%s\n", szMessage );
     }
@@ -11316,7 +11385,7 @@ int DetectAndExposePolymerInternals( INCHI_IOSTREAM *is )
     int  slength;
 
     slength = is->s.nUsedLength;
-    s = (char *) inchi_calloc( 2 * slength + 32, sizeof( char ) );
+    s = (char *) inchi_calloc( 2 * (long long)slength + 32, sizeof( char ) ); /* djb-rwth: cast operator added */
     if (!s)
     {
         goto endf;
@@ -11334,7 +11403,7 @@ int DetectAndExposePolymerInternals( INCHI_IOSTREAM *is )
     }
     if (i2)
     {
-        s2 = (char *) inchi_calloc( slength - i2 + 2, sizeof( char ) );
+        s2 = (char *) inchi_calloc( (long long)slength - (long long)i2 + 2, sizeof( char ) ); /* djb-rwth: cast operators added */
         if (!s2) goto endf;
         strcpy( s2, s + i2 );
         s[i2] = '\0';
@@ -11443,7 +11512,7 @@ int DetectAndExposePolymerInternals( INCHI_IOSTREAM *is )
     }
 
 #if ( FIX_GAF_2019_2==1 )
-    insert_pos = (int *)inchi_calloc(is->s.nUsedLength + 1, sizeof(int));
+    insert_pos = (int *)inchi_calloc((long long)is->s.nUsedLength + 1, sizeof(int)); /* djb-rwth: cast operator added */
 #else
     /* max num of insert positions is 2 in formulas + Npolymeric units, the latter may not be > nheavy */
     insert_pos = (int *)inchi_calloc(nheavy + 32, sizeof(int));
@@ -11476,7 +11545,7 @@ int DetectAndExposePolymerInternals( INCHI_IOSTREAM *is )
     {
         zlen = (int) strlen( pz );
     }
-    tmpstr = (char *) inchi_calloc( zlen + 32, sizeof( char ) );
+    tmpstr = (char *) inchi_calloc( (long long)zlen + 32, sizeof( char ) ); /* djb-rwth: cast operator added */
     if (!tmpstr)
     {
         ret = -2;
@@ -11529,7 +11598,7 @@ int DetectAndExposePolymerInternals( INCHI_IOSTREAM *is )
             {
                 inchi_free( tmpstr );
             }
-            tmpstr = (char *) inchi_calloc( zlen + 32, sizeof( char ) );
+            tmpstr = (char *) inchi_calloc( (long long)zlen + 32, sizeof( char ) ); /* djb-rwth: cast operator added */
             if (!tmpstr)
             {
                 ret = -2;
@@ -11547,7 +11616,7 @@ int DetectAndExposePolymerInternals( INCHI_IOSTREAM *is )
     }
 
     slen = (int) strlen( s );
-    edited_s = (char *) inchi_calloc( slen * 100 + 32 * 10 * ninsert, sizeof( char ) ); /* high reservation */
+    edited_s = (char *) inchi_calloc( (long long)slen * 100 + 32 * 10 * (long long)ninsert, sizeof( char ) ); /* high reservation */ /* djb-rwth: cast operator added */
     if (!edited_s)
     {
         ret = -2;
@@ -11743,11 +11812,11 @@ static int SegmentSp3CreateEmpty( const char *str,
         }
         /* allocate empty sp3 stereo */
         if (!pStereo[0]->b_parity &&
-             !( pStereo[0]->b_parity = (S_CHAR *) inchi_calloc( len0 + 1, sizeof( pStereo[0]->b_parity[0] ) ) ) ||
+             !( pStereo[0]->b_parity = (S_CHAR *) inchi_calloc( (long long)len0 + 1, sizeof( pStereo[0]->b_parity[0] ) ) ) ||
              !pStereo[0]->nBondAtom1 &&
-             !( pStereo[0]->nBondAtom1 = (AT_NUMB *) inchi_calloc( len0 + 1, sizeof( pStereo[0]->nBondAtom1[0] ) ) ) ||
+             !( pStereo[0]->nBondAtom1 = (AT_NUMB *) inchi_calloc( (long long)len0 + 1, sizeof( pStereo[0]->nBondAtom1[0] ) ) ) ||
              !pStereo[0]->nBondAtom2 &&
-             !( pStereo[0]->nBondAtom2 = (AT_NUMB *) inchi_calloc( len0 + 1, sizeof( pStereo[0]->nBondAtom2[0] ) ) ))
+             !( pStereo[0]->nBondAtom2 = (AT_NUMB *) inchi_calloc( (long long)len0 + 1, sizeof( pStereo[0]->nBondAtom2[0] ) ) )) /* djb-rwth: cast operator added */
         {
             /* cleanup */
             if (pStereo[0]->b_parity)
@@ -12164,7 +12233,7 @@ int extract_stereo_info_from_inchi_string(char *sinchi,
     int  icomponent, i, bReconn = 0, bMobileH = 1, at_offset_component = 0;
 
     /* 0 is INCHI_PARITY_NONE */
-    memset(at_stereo_mark_orig, 0, (nat+1) * sizeof(int));
+    memset(at_stereo_mark_orig, 0, ((long long)nat+1) * sizeof(int)); /* djb-rwth: cast operator added */
 
     ret = extract_from_inchi_string(sinchi, &OneInput);
     if (ret == _IS_ERROR || ret == _IS_FATAL)

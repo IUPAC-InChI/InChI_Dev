@@ -599,7 +599,7 @@ int GetTgroupInfoFromInChI( T_GROUP_INFO *ti,
             ti->num_t_groups = num_t_groups;
             if (ti->tGroupNumber)
                 inchi_free( ti->tGroupNumber );
-            ti->tGroupNumber = (AT_NUMB *) inchi_calloc( ( ti->num_t_groups + 1 )*TGSO_TOTAL_LEN, sizeof( ti->tGroupNumber[0] ) );
+            ti->tGroupNumber = (AT_NUMB *) inchi_calloc( ( (long long)ti->num_t_groups + 1 )*TGSO_TOTAL_LEN, sizeof( ti->tGroupNumber[0] ) ); /* djb-rwth: cast operator added */
         }
 
         /* allocation ti->tGroupNumber */
@@ -608,7 +608,7 @@ int GetTgroupInfoFromInChI( T_GROUP_INFO *ti,
             ti->nNumEndpoints = len_tg;
             if (ti->nEndpointAtomNumber)
                 inchi_free( ti->nEndpointAtomNumber );
-            ti->nEndpointAtomNumber = (AT_NUMB *) inchi_calloc( len_tg + 1, sizeof( ti->nEndpointAtomNumber[0] ) );
+            ti->nEndpointAtomNumber = (AT_NUMB *) inchi_calloc( (long long)len_tg + 1, sizeof( ti->nEndpointAtomNumber[0] ) ); /* djb-rwth: cast operator added */
         }
 
         /* check */
@@ -619,9 +619,9 @@ int GetTgroupInfoFromInChI( T_GROUP_INFO *ti,
         }
 
         tGroupNumber = ti->tGroupNumber;
-        tSymmRank = tGroupNumber + TGSO_SYMM_RANK   * ti->num_t_groups;  /*  equivalence; cannot restore */
-        tiSymmRank = tGroupNumber + TGSO_SYMM_IRANK  * ti->num_t_groups;
-        tiGroupNumber = tGroupNumber + TGSO_SYMM_IORDER * ti->num_t_groups;
+        tSymmRank = tGroupNumber + TGSO_SYMM_RANK   * (long long)ti->num_t_groups;  /*  equivalence; cannot restore */ /* djb-rwth: cast operator added */
+        tiSymmRank = tGroupNumber + TGSO_SYMM_IRANK  * (long long)ti->num_t_groups; /* djb-rwth: cast operator added */
+        tiGroupNumber = tGroupNumber + TGSO_SYMM_IORDER * (long long)ti->num_t_groups; /* djb-rwth: cast operator added */
 
 
         INCHI_HEAPCHK
@@ -1498,7 +1498,7 @@ number of valence electrons = (type>1)? type-1: type
 /****************************************************************************/
 int ReallocTCGroups( ALL_TC_GROUPS *pTCGroups, int nAdd )
 {
-    TC_GROUP *pTCGroup = (TC_GROUP *) inchi_malloc( sizeof( pTCGroup[0] )*( pTCGroups->max_tc_groups + nAdd ) );
+    TC_GROUP *pTCGroup = (TC_GROUP *) inchi_malloc( sizeof( pTCGroup[0] )*( (long long)pTCGroups->max_tc_groups + nAdd ) ); /* djb-rwth: cast operator added */
 
     if (pTCGroup)
     {
@@ -3086,10 +3086,10 @@ int ConnectSuperCGroup( int nSuperCGroup, int nAddGroups[], int num_add,
         return 0;
     }
 
-    e0X = (BNS_EDGE   **) inchi_calloc( num_groups + 1, sizeof( e0X[0] ) );
-    pvX = (BNS_VERTEX **) inchi_calloc( num_groups + 1, sizeof( pvX[0] ) );
-    jX = (int         *) inchi_calloc( num_groups + 1, sizeof( jX[0] ) );
-    iX = (int         *) inchi_calloc( num_groups + 1, sizeof( iX[0] ) );
+    e0X = (BNS_EDGE   **) inchi_calloc( (long long)num_groups + 1, sizeof( e0X[0] ) ); /* djb-rwth: cast operator added */
+    pvX = (BNS_VERTEX **) inchi_calloc( (long long)num_groups + 1, sizeof( pvX[0] ) ); /* djb-rwth: cast operator added */
+    jX = (int         *) inchi_calloc( (long long)num_groups + 1, sizeof( jX[0] ) ); /* djb-rwth: cast operator added */
+    iX = (int         *) inchi_calloc( (long long)num_groups + 1, sizeof( iX[0] ) ); /* djb-rwth: cast operator added */
 
     if (!e0X || !pvX || !jX || !iX)
     {
@@ -3284,7 +3284,7 @@ int AddCGroups2TCGBnStruct( BN_STRUCT *pBNS, StrFromINChI *pStruct, VAL_AT *pVA,
 
         nMaxCGroupNumber = num_cg;
         /* clear all vertices not used until now */
-        memset( pBNS->vert + num_vertices, 0, ( pBNS->max_vertices - num_vertices ) * sizeof( pBNS->vert[0] ) );
+        memset( pBNS->vert + num_vertices, 0, ( (long long)pBNS->max_vertices - num_vertices ) * sizeof( pBNS->vert[0] ) ); /* djb-rwth: cast operator added */
         tot_st_cap = pBNS->tot_st_cap;
         tot_st_flow = pBNS->tot_st_flow;
 
@@ -5099,7 +5099,7 @@ int MakeOneInChIOutOfStrFromINChI2( struct tagCANON_GLOBALS *pCG,
     memset( sd, 0, sizeof( *sd ) );
 
     /* create structure out of BNS */
-    memcpy( at2, at, ( pStruct->num_atoms + pStruct->num_deleted_H ) * sizeof( at2[0] ) );
+    memcpy( at2, at, ( (long long)pStruct->num_atoms + (long long)pStruct->num_deleted_H ) * sizeof( at2[0] ) ); /* djb-rwth: cast operator added */
     pStruct->at = at2;
     ret = CopyBnsToAtom( pStruct, pBNS, pVA, pTCGroups, 1 );
     pStruct->at = at;
@@ -5270,10 +5270,17 @@ int MakeOneInChIOutOfStrFromINChI( struct tagCANON_GLOBALS *pCG,
         {
             /* pStruct->bMobileH=0: k = 0, 1   => allow allocation of both Fixed-H and Mobile-H InChI
                pStruct->bMobileH=1: k = 1 only => allow allocation of only Mobile-H InChI              */
-            int nAllocMode = ( k == TAUT_YES ? REQ_MODE_TAUT : 0 ) |
-                ( bTautFlagsDone & ( TG_FLAG_FOUND_ISOTOPIC_H_DONE |
-                    TG_FLAG_FOUND_ISOTOPIC_ATOM_DONE ) ) ?
-                    ( ip->nMode & REQ_MODE_ISO ) : 0;
+
+            /* djb-rwth: introducing variables for correct nAllocMode expression */
+            int nAM1 = 0, nAM2 = 0;
+
+            if (k == TAUT_YES)
+                nAM1 = REQ_MODE_TAUT;
+
+            if (bTautFlagsDone & (TG_FLAG_FOUND_ISOTOPIC_H_DONE | TG_FLAG_FOUND_ISOTOPIC_ATOM_DONE))
+                nAM2 = ip->nMode & REQ_MODE_ISO;
+
+            int nAllocMode = nAM1 | nAM2; /* djb-rwth: original sequence of bit-wise operations had to be rewritten */
 
             if (k == TAUT_NON && ( ip->nMode & REQ_MODE_BASIC ) ||
                  k == TAUT_YES && ( ip->nMode & REQ_MODE_TAUT ))
@@ -5358,7 +5365,8 @@ int MakeOneInChIOutOfStrFromINChI( struct tagCANON_GLOBALS *pCG,
             bMobileH = TAUT_YES;
         }
 
-        pStruct->nChargeRevrs = cur_INChI[TAUT_YES]->nTotalCharge;
+        if (cur_INChI[1])
+            pStruct->nChargeRevrs = cur_INChI[TAUT_YES]->nTotalCharge; /* djb-rwth: correcting the dereferencing NULL pointer */
 
         pStruct->pOneINChI[0] = cur_INChI[bMobileH];
         pStruct->pOneINChI_Aux[0] = cur_INChI_Aux[bMobileH];
@@ -5579,6 +5587,7 @@ int DisconnectedConnectedH( inp_ATOM *at, int num_atoms, int num_deleted_H )
 {
     int i, j, k, n, m, num_H, num_iso_H;
     int tot_atoms = num_atoms + num_deleted_H;
+    S_CHAR ctmp = '0';
 
     /* add implicit isotopic H to total implicit H */
     for (i = 0; i < num_atoms; i++)
@@ -5610,7 +5619,8 @@ int DisconnectedConnectedH( inp_ATOM *at, int num_atoms, int num_deleted_H )
         }
 
         /* remove bonds to explicit H located in front of all other bonds in the connection list */
-        n = ( at[k].valence -= num_H ); /* new number of bonds */
+        at[k].valence -= num_H; /* djb-rwth: use of cast operators avoided */
+        n = at[k].valence; /* new number of bonds */ 
         at[k].chem_bonds_valence -= num_H; /* new no-H valence */
         if (n)
         {
@@ -5720,7 +5730,7 @@ int MakeInChIOutOfStrFromINChI2( INCHI_CLOCK *ic,
     memset( pStruct->RevInChI.pINChI_Aux, 0, sizeof( pStruct->RevInChI.pINChI_Aux ) );
     memset( szTitle, 0, sizeof( szTitle ) );
 
-    len = sizeof( orig_inp_data->at[0] )*( pStruct->num_atoms + pStruct->num_deleted_H );
+    len = sizeof( orig_inp_data->at[0] )*( (long long)pStruct->num_atoms + (long long)pStruct->num_deleted_H ); /* djb-rwth: cast operators added */
 
     orig_inp_data->at = (inp_ATOM *) inchi_malloc( len );
 

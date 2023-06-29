@@ -1758,7 +1758,7 @@ int ReadCommandLineParms( int argc,
                 char *pLastExt = NULL;
 #endif
                 len = (int) strlen( p ) + strlen( szNameSuffix ) + strlen( ext[i] );
-                if (sz = (char*) inchi_malloc( ( len + 1 ) * sizeof( sz[0] ) ))
+                if (sz = (char*) inchi_malloc( ( (long long)len + 1 ) * sizeof( sz[0] ) )) /* djb-rwth: cast operator added */
                 {
                     strcpy( sz, p );
 #if ( BUILD_WITH_AMI == 1 ) && ( OUTPUT_FILE_EXT == 1 )

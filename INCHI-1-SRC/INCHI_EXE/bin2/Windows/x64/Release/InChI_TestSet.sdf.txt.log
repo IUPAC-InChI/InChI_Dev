@@ -1,0 +1,101 @@
+InChI version 1, Software v. 1.061 (inchi-1 executable) 
+Windows 64-bit Build (MS VS 2017 or later) of Feb 28 2023 04:19:02
+
+Opened log file 'InChI_TestSet.sdf.txt.log'
+Opened input file 'InChI_TestSet.sdf.txt'
+Opened output file 'InChI_TestSet.sdf.txt.txt'
+Opened problem file 'InChI_TestSet.sdf.txt.prb'
+The command line used:
+"inchi-1 InChI_TestSet.sdf.txt /InChI2Struct"
+Converting InChI(s) to structure(s) in aux. info format
+Input format: InChI (plain identifier)
+Output format: Plain text
+Full Aux. info
+Timeout per structure: 60000 msec
+Up to 1024 atoms per structure
+
+! Working in engineering mode
+
+108:  Problems/mismatches: Mobile-H( Error: Wrong result)
+109:  Problems/mismatches: Mobile-H( Charge(s): Do not match)
+110:  Problems/mismatches: Mobile-H( Charge(s): Do not match)
+111:  Problems/mismatches: Mobile-H( Charge(s): Do not match)
+112:  Problems/mismatches: Mobile-H( Charge(s): Do not match)
+147:  Problems/mismatches: Mobile-H( Isotopic: Atoms do not match; Exchangeable isotopic H: Do not match)
+171:  Problems/mismatches: Mobile-H( Hydrogens: Number; Mobile-H groups: Number; Charge(s): Do not match; Stereobonds/cumulenes: Extra undefined, Missing known)
+187:  Problems/mismatches: Mobile-H( Hydrogens: Locations or number; Mobile-H groups: Missing, Attachment points; Isotopic: Atoms do not match)
+190:  Problems/mismatches: Mobile-H( Hydrogens: Locations or number; Mobile-H groups: Missing, Attachment points)
+248:  Problems/mismatches: Mobile-H( Hydrogens: Locations or number; Mobile-H groups: Missing, Attachment points)
+251:  Problems/mismatches: Mobile-H( Charge(s): Do not match)
+257:  Problems/mismatches: Mobile-H( Hydrogens: Locations or number; Mobile-H groups: Missing, Attachment points; Charge(s): Do not match)
+406:  Problems/mismatches: Mobile-H( Hydrogens: Locations or number; Mobile-H groups: Attachment points, Number)
+407:  Problems/mismatches: Mobile-H( Proton balance: Does not match; Stereobonds/cumulenes: Missing known)
+408:  Problems/mismatches: Mobile-H( Stereobonds/cumulenes: Missing known)
+409:  Problems/mismatches: Mobile-H( Stereobonds/cumulenes: Extra undefined)
+411:  Problems/mismatches: Mobile-H( Hydrogens: Locations or number, Number; Mobile-H groups: Missing, Falsely present, Attachment points, Number; Charge(s): Do not match; Stereobonds/cumulenes: Extra undefined, Missing undefined, Missing known)
+412:  Problems/mismatches: Mobile-H( Hydrogens: Number; Mobile-H groups: Falsely present, Attachment points, Number; Charge(s): Do not match; Stereobonds/cumulenes: Missing known)
+415:  Problems/mismatches: Mobile-H( Mobile-H groups: One instead of multiple, Number)
+418:  Problems/mismatches: Mobile-H( Hydrogens: Locations or number, Number; Mobile-H groups: One instead of multiple, Attachment points, Number; Charge(s): Do not match; Proton balance: Does not match)
+419:  Problems/mismatches: Mobile-H( Hydrogens: Number; Mobile-H groups: Missing, Attachment points; Charge(s): Do not match; Proton balance: Does not match)
+521:  Problems/mismatches: Mobile-H( Proton balance: Does not match)
+522:  Problems/mismatches: Mobile-H( Proton balance: Does not match)
+591:  Problems/mismatches: Mobile-H( Hydrogens: Locations or number; Mobile-H groups: Missing, Attachment points)
+593:  Problems/mismatches: Mobile-H( Proton balance: Does not match)
+649:  Problems/mismatches: Mobile-H( Charge(s): Do not match)
+745:  Problems/mismatches: Mobile-H( Isotopic: Atoms do not match; Exchangeable isotopic H: Do not match)
+746:  Problems/mismatches: Mobile-H( Isotopic: Atoms do not match; Exchangeable isotopic H: Do not match)
+797:  Problems/mismatches: Mobile-H( Stereobonds/cumulenes: Missing known)
+798:  Problems/mismatches: Mobile-H( Stereobonds/cumulenes: Missing known)
+803:  Problems/mismatches: Mobile-H( Charge(s): Do not match)
+804:  Problems/mismatches: Mobile-H( Charge(s): Do not match)
+805:  Problems/mismatches: Mobile-H( Charge(s): Do not match)
+829:  Problems/mismatches: Mobile-H( Proton balance: Does not match)
+834:  Problems/mismatches: Mobile-H( Proton balance: Does not match)
+839:  Problems/mismatches: Mobile-H( Stereobonds/cumulenes: Extra undefined)
+840:  Problems/mismatches: Mobile-H( Stereobonds/cumulenes: Extra undefined)
+841:  Problems/mismatches: Mobile-H( Stereobonds/cumulenes: Extra undefined)
+842:  Problems/mismatches: Mobile-H( Stereobonds/cumulenes: Extra undefined)
+905:  Problems/mismatches: Mobile-H( Charge(s): Do not match)
+927:  Problems/mismatches: Mobile-H( Mobile-H groups: Attachment points, Number)
+932:  Problems/mismatches: Mobile-H( Mobile-H groups: Attachment points, Number)
+933:  Problems/mismatches: Mobile-H( Hydrogens: Number; Mobile-H groups: Missing, Attachment points; Charge(s): Do not match)
+935:  Problems/mismatches: Mobile-H( Hydrogens: Locations or number, Number; Mobile-H groups: Missing, Attachment points; Charge(s): Do not match)
+940:  Problems/mismatches: Mobile-H( Hydrogens: Locations or number, Number; Mobile-H groups: Missing, Attachment points; Charge(s): Do not match)
+941:  Problems/mismatches: Mobile-H( Mobile-H groups: Attachment points, Number)
+952:  Problems/mismatches: Mobile-H( Hydrogens: Locations or number; Mobile-H groups: Falsely present, Attachment points; Stereobonds/cumulenes: Missing known)
+965:  Problems/mismatches: Mobile-H( Charge(s): Do not match)
+975:  Problems/mismatches: Mobile-H( Hydrogens: Locations or number; Mobile-H groups: Missing, Attachment points)
+990:  Problems/mismatches: Mobile-H( Stereobonds/cumulenes: Missing known)
+1100:  Problems/mismatches: Mobile-H( Proton balance: Does not match)
+1157:  Problems/mismatches: Mobile-H( Hydrogens: Locations or number, Number; Charge(s): Do not match)
+1240:  Problems/mismatches: Mobile-H( Hydrogens: Locations or number; Mobile-H groups: Attachment points, Number)
+1242:  Problems/mismatches: Mobile-H( Hydrogens: Locations or number; Mobile-H groups: Attachment points, Number)
+1312:  Problems/mismatches: Mobile-H( Mobile-H groups: Attachment points, Number)
+1398:  Problems/mismatches: Mobile-H( Charge(s): Do not match)
+1404:  Problems/mismatches: Mobile-H( Hydrogens: Locations or number, Number; Charge(s): Do not match; Proton balance: Does not match)
+1417:  Problems/mismatches: Mobile-H( Hydrogens: Number; Mobile-H groups: Number; Charge(s): Do not match)
+1450:  Problems/mismatches: Mobile-H( Stereo centers/allenes: Extra undefined)
+1451:  Problems/mismatches: Mobile-H( Stereo centers/allenes: Extra undefined)
+1614:  Problems/mismatches: Mobile-H( Hydrogens: Locations or number; Mobile-H groups: Falsely present, Attachment points)
+1725:  Problems/mismatches: Mobile-H( Charge(s): Do not match)
+1831:  Problems/mismatches: Mobile-H( Hydrogens: Locations or number; Mobile-H groups: Missing, Attachment points)
+1856:  Problems/mismatches: Mobile-H( Hydrogens: Locations or number; Mobile-H groups: Missing, Attachment points)
+1909:  Problems/mismatches: Mobile-H( Stereobonds/cumulenes: Extra undefined)
+1943:  Problems/mismatches: Mobile-H( Hydrogens: Locations or number; Mobile-H groups: Missing, Attachment points)
+1944:  Problems/mismatches: Mobile-H( Hydrogens: Locations or number; Mobile-H groups: Missing, Attachment points)
+1945:  Problems/mismatches: Mobile-H( Hydrogens: Number; Mobile-H groups: Missing, Attachment points; Charge(s): Do not match)
+1946:  Problems/mismatches: Mobile-H( Hydrogens: Locations or number; Mobile-H groups: Missing, Attachment points)
+2039:  Problems/mismatches: Mobile-H( Hydrogens: Locations or number; Mobile-H groups: Missing, Attachment points; Exchangeable isotopic H: Do not match)
+2048:  Problems/mismatches: Mobile-H( Hydrogens: Locations or number; Mobile-H groups: Missing, Attachment points; Exchangeable isotopic H: Do not match)
+2120:  Problems/mismatches: Mobile-H( Hydrogens: Locations or number; Mobile-H groups: Missing, Attachment points)
+2125:  Problems/mismatches: Mobile-H( Hydrogens: Locations or number; Mobile-H groups: Attachment points, Number)
+2141:  Problems/mismatches: Mobile-H( Mobile-H groups: Attachment points, Number)
+2142:  Problems/mismatches: Mobile-H( Mobile-H groups: Attachment points, Number)
+2143:  Problems/mismatches: Mobile-H( Mobile-H groups: Attachment points, Number)
+2177:  Problems/mismatches: Mobile-H( Mobile-H groups: Attachment points, Number)
+2180:  Problems/mismatches: Mobile-H( Mobile-H groups: Attachment points, Number)
+2183:  Problems/mismatches: Mobile-H( Hydrogens: Locations or number, Number; Charge(s): Do not match; Proton balance: Does not match)
+2185:  Problems/mismatches: Mobile-H( Hydrogens: Locations or number, Number; Charge(s): Do not match; Proton balance: Does not match)
+Finished processing 2185 structures: 0 errors, processing time 0:00:00.00
+
+Elapsed walltime: 5156 msec.

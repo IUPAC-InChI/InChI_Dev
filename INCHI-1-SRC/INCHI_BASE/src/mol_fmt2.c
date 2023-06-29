@@ -72,7 +72,7 @@ int MolfileStrnread( char* dest, char* source, int len, char **first_space )
 
     for (i = ( len - 1 ); i >= 0 && 0 != ( c = source[i] ) && isspace( UCINT c ); i--);
 
-    *first_space = dest + ( i + 1 ); /* first blank or zero terminating byte in dest */
+    *first_space = dest + ( (long long)i + 1 ); /* first blank or zero terminating byte in dest */ /* djb-rwth: cast operator added */
 
     return len; /* number of actually processed bytes excluding zero terminator */
 }
@@ -136,7 +136,7 @@ int MolfileReadField( void* data,
 
             ret = ( q - (char*) data );/* actual data length */
             *q = '\0';                /* add zero termination to data if it is not there yet*/
-            *line_ptr += ( len + i );     /* ptr to the 1st byte of the next input field or to zero termination */
+            *line_ptr += ( (long long)len + (long long)i );     /* ptr to the 1st byte of the next input field or to zero termination */ /* djb-rwth: cast operators added */
             break;
 
 

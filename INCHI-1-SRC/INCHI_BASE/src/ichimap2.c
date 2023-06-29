@@ -1605,7 +1605,7 @@ int BreakNeighborsTie( CANON_GLOBALS *pCG,
     int     nNumDiffRanks, nNumDiffRanks1, nNumDiffRanks2, i;
     int n1 = (int) neigh_num[in1];
     int n2 = (int) neigh_num[in2];
-    int other_neigh[2], other_neig_ord[2], num_other_neigh;
+    int other_neigh[2] = {0}, other_neig_ord[2] = {0}, num_other_neigh; /* djb-rwth: initialisations added */
 
     /*  asymmetric calculation */
 
@@ -3263,7 +3263,7 @@ second_pass:
                                 /*  remove pCS->LinearCTStereoDble[n] */
                                 memmove( pCS->LinearCTStereoDble + n,
                                          pCS->LinearCTStereoDble + n + 1,
-                                         ( m - n ) * sizeof( pCS->LinearCTStereoDble[0] ) );
+                                         ( (long long)m - (long long)n ) * sizeof( pCS->LinearCTStereoDble[0] ) ); /* djb-rwth: cast operators added */
                             }
                             pCS->nLenLinearCTStereoDble--;
 #if ( bRELEASE_VERSION == 0 )
@@ -3564,7 +3564,7 @@ second_pass:
                                         /*  remove pCS->LinearCTStereoDble[n] */
                                         memmove( pCS->LinearCTStereoCarb + n,
                                                  pCS->LinearCTStereoCarb + n + 1,
-                                                 ( m - n ) * sizeof( pCS->LinearCTStereoCarb[0] ) );
+                                                 ( (long long)m - (long long)n ) * sizeof( pCS->LinearCTStereoCarb[0] ) ); /* djb-rwth: cast operators added */
                                     }
                                     pCS->nLenLinearCTStereoCarb--;
 #if ( bRELEASE_VERSION == 0 )

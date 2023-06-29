@@ -3321,9 +3321,11 @@ int mark_atoms_deriv( inp_ATOM *at,
 {
     int i, nFound = 0, ret;
     DERIV_AT da1;
+    da1.other_atom = 0; /* djb-rwth: initialisation needed for if conditons */
 #if( defined(DERIV_RING_DMOX_DEOX_N) && defined(DERIV_RING_DMOX_DEOX_O) )
     int      ret2;
     DERIV_AT da2;
+    da2.other_atom = 0; /* djb-rwth: initialisation needed for if conditons */
 #endif
     if (!( at[start].cFlags & cFlags ))
     {
@@ -4121,7 +4123,7 @@ int is_DERIV_RING_O_or_NH_OUTSIDE_PRECURSOR( inp_ATOM *at,
                                              int lenUnderiv2,
                                              BIT_UNDERIV *bitUnderiv )
 {
-    int i, j, k, neigh_at[2], prev_ord[2], neigh, is_B = 0, is_C = 0, n0, n1, n2, n3, n[4], nFound;
+    int i, j, k, neigh_at[2], prev_ord[2], neigh, is_B = 0, is_C = 0, n0, n1, n2, n3, n[4] = {0}, nFound; /* djb-rwth: initialisation for n array added */
     AT_NUMB *p;
     const char *pUnk;
     char str[16] = { '\0' };
@@ -5140,7 +5142,7 @@ int underiv_list_add( char *szUnderivList, int lenUnderivList, const char *szUnd
             {
                 szUnderivList[lenList++] = cDelimiter;
             }
-            memcpy( szUnderivList + lenList, szUnderiv, lenAdd + 1 ); /* +1 adds zero termination */
+            memcpy( szUnderivList + lenList, szUnderiv, (long long)lenAdd + 1 ); /* +1 adds zero termination */ /* djb-rwth: cast operator added */
             return lenList + lenAdd;
         }
     }
@@ -5292,7 +5294,7 @@ int sort_merge_underiv( char *pSdfValue,
             {
                 k = sprintf( coeff, "%d", num );
             }
-            if (n + k + sizeof( pszUnderivPostfix ) < MAX_SDF_VALUE)
+            if ((long long)n + (long long)k + sizeof( pszUnderivPostfix ) < MAX_SDF_VALUE) /* djb-rwth: cast operators added */
             {
                 m = i ? cDerivSeparator : 0;
                 if (num > 1)

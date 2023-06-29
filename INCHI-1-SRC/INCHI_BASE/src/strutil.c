@@ -44,6 +44,8 @@
 #include "ichi_io.h"
 #include "ichimain.h"
 
+#include <stdbool.h>
+
 /* Added fix to remove_ion_pairs() -- 2010-03-17 DT */
 #define FIX_P_IV_Plus_O_Minus
 
@@ -803,12 +805,12 @@ int fix_odd_things( int num_atoms,
              ( 0 == at[i1].radical || RADICAL_SINGLET == at[i1].radical ) &&
              !NUMH( at, i1 ) &&
              BOND_TYPE_SINGLE == at[i1].bond_type[0] &&
-             memchr( en + FIRST_NEIGHB2, at[i1].el_number, ne - FIRST_NEIGHB2 ))
+             memchr( en + FIRST_NEIGHB2, at[i1].el_number, (long long)ne - FIRST_NEIGHB2 )) /* djb-rwth: cast operator added */
         {
             int charge, i;
             /* found a candidate for X */
             c = (int) at[i1].neighbor[0]; /* candidate for Y */
-            if (( ( charge = 2 ) == at[c].charge && memchr( en + FIRST_CENTER2, at[c].el_number, ne - FIRST_CENTER2 )
+            if (( ( charge = 2 ) == at[c].charge && memchr( en + FIRST_CENTER2, at[c].el_number, (long long)ne - FIRST_CENTER2 ) /* djb-rwth: cast operator added */
 
 #ifndef FIX_P_IV_Plus_O_Minus
                   || ( charge = 1 ) == at[c].charge && EL_NUMBER_P == at[c].el_number
@@ -834,7 +836,7 @@ int fix_odd_things( int num_atoms,
                 }
                 if (1 == at[i2].valence &&
                      -1 == at[i2].charge  &&
-                     memchr( en + FIRST_NEIGHB2, at[i2].el_number, ne - FIRST_NEIGHB2 ) &&
+                     memchr( en + FIRST_NEIGHB2, at[i2].el_number, (long long)ne - FIRST_NEIGHB2 ) && /* djb-rwth: cast operator added */
                      /*at[i2].el_number == at[i1].el_number &&*/ /* exact match */
                      ( 0 == at[i2].radical || RADICAL_SINGLET == at[i2].radical ) &&
                      !NUMH( at, i2 ) &&
@@ -2165,10 +2167,10 @@ int RemoveInpAtBond( inp_ATOM *atom, int iat, int k )
                         /* remove bond parity from at */
                         if (m < MAX_NUM_STEREO_BONDS - 1)
                         {
-                            memmove( at->sb_parity + m, at->sb_parity + m + 1, ( MAX_NUM_STEREO_BONDS - 1 - m ) * sizeof( at->sb_parity[0] ) );
-                            memmove( at->sb_ord + m, at->sb_ord + m + 1, ( MAX_NUM_STEREO_BONDS - 1 - m ) * sizeof( at->sb_ord[0] ) );
-                            memmove( at->sn_ord + m, at->sn_ord + m + 1, ( MAX_NUM_STEREO_BONDS - 1 - m ) * sizeof( at->sn_ord[0] ) );
-                            memmove( at->sn_orig_at_num + m, at->sn_orig_at_num + m + 1, ( MAX_NUM_STEREO_BONDS - 1 - m ) * sizeof( at->sn_orig_at_num[0] ) );
+                            memmove( at->sb_parity + m, at->sb_parity + m + 1, ( MAX_NUM_STEREO_BONDS - 1 - (long long)m ) * sizeof( at->sb_parity[0] ) ); /* djb-rwth: cast operator added */
+                            memmove( at->sb_ord + m, at->sb_ord + m + 1, ( MAX_NUM_STEREO_BONDS - 1 - (long long)m ) * sizeof( at->sb_ord[0] ) ); /* djb-rwth: cast operator added */
+                            memmove( at->sn_ord + m, at->sn_ord + m + 1, ( MAX_NUM_STEREO_BONDS - 1 - (long long)m ) * sizeof( at->sn_ord[0] ) ); /* djb-rwth: cast operator added */
+                            memmove( at->sn_orig_at_num + m, at->sn_orig_at_num + m + 1, ( MAX_NUM_STEREO_BONDS - 1 - (long long)m ) * sizeof( at->sn_orig_at_num[0] ) ); /* djb-rwth: cast operator added */
                         }
                         at->sb_parity[MAX_NUM_STEREO_BONDS - 1] = 0;
                         at->sb_ord[MAX_NUM_STEREO_BONDS - 1] = 0;
@@ -2177,10 +2179,10 @@ int RemoveInpAtBond( inp_ATOM *atom, int iat, int k )
                         /* remove bond parity from at2 */
                         if (m2 < MAX_NUM_STEREO_BONDS - 1)
                         {
-                            memmove( at2->sb_parity + m2, at2->sb_parity + m2 + 1, ( MAX_NUM_STEREO_BONDS - 1 - m2 ) * sizeof( at2->sb_parity[0] ) );
-                            memmove( at2->sb_ord + m2, at2->sb_ord + m2 + 1, ( MAX_NUM_STEREO_BONDS - 1 - m2 ) * sizeof( at2->sb_ord[0] ) );
-                            memmove( at2->sn_ord + m2, at2->sn_ord + m2 + 1, ( MAX_NUM_STEREO_BONDS - 1 - m2 ) * sizeof( at2->sn_ord[0] ) );
-                            memmove( at2->sn_orig_at_num + m2, at2->sn_orig_at_num + m2 + 1, ( MAX_NUM_STEREO_BONDS - 1 - m2 ) * sizeof( at2->sn_orig_at_num[0] ) );
+                            memmove( at2->sb_parity + m2, at2->sb_parity + m2 + 1, ( MAX_NUM_STEREO_BONDS - 1 - (long long)m2 ) * sizeof( at2->sb_parity[0] ) ); /* djb-rwth: cast operator added */
+                            memmove( at2->sb_ord + m2, at2->sb_ord + m2 + 1, ( MAX_NUM_STEREO_BONDS - 1 - (long long)m2 ) * sizeof( at2->sb_ord[0] ) ); /* djb-rwth: cast operator added */
+                            memmove( at2->sn_ord + m2, at2->sn_ord + m2 + 1, ( MAX_NUM_STEREO_BONDS - 1 - (long long)m2 ) * sizeof( at2->sn_ord[0] ) ); /* djb-rwth: cast operator added */
+                            memmove( at2->sn_orig_at_num + m2, at2->sn_orig_at_num + m2 + 1, ( MAX_NUM_STEREO_BONDS - 1 - (long long)m2 ) * sizeof( at2->sn_orig_at_num[0] ) ); /* djb-rwth: cast operator added */
                         }
                         at2->sb_parity[MAX_NUM_STEREO_BONDS - 1] = 0;
                         at2->sb_ord[MAX_NUM_STEREO_BONDS - 1] = 0;
@@ -2280,9 +2282,9 @@ int RemoveInpAtBond( inp_ATOM *atom, int iat, int k )
 
         if (k < val)
         {
-            memmove( at->neighbor + k, at->neighbor + k + 1, sizeof( at->neighbor[0] )*( val - k ) );
-            memmove( at->bond_stereo + k, at->bond_stereo + k + 1, sizeof( at->bond_stereo[0] )*( val - k ) );
-            memmove( at->bond_type + k, at->bond_type + k + 1, sizeof( at->bond_type[0] )*( val - k ) );
+            memmove( at->neighbor + k, at->neighbor + k + 1, sizeof( at->neighbor[0] )*( (long long)val - (long long)k ) ); /* djb-rwth: cast operators added */
+            memmove( at->bond_stereo + k, at->bond_stereo + k + 1, sizeof( at->bond_stereo[0] )*( (long long)val - (long long)k ) ); /* djb-rwth: cast operators added */
+            memmove( at->bond_type + k, at->bond_type + k + 1, sizeof( at->bond_type[0] )*( (long long)val - (long long)k ) ); /* djb-rwth: cast operators added */
         }
 
         at->neighbor[val] = 0;
@@ -2921,8 +2923,8 @@ int DisconnectMetals( ORIG_ATOM_DATA *orig_inp_data,
     num_at = num_atoms;
     num_disconnected = 0;
 
-    if (!( at = (inp_ATOM *) inchi_calloc( num_at + nNumExplH, sizeof( at[0] ) ) ) ||
-         !( bMetal = (S_CHAR    *) inchi_calloc( num_at + nNumExplH, sizeof( bMetal[0] ) ) ))
+    if (!( at = (inp_ATOM *) inchi_calloc( (long long)num_at + (long long)nNumExplH, sizeof( at[0] ) ) ) || /* djb-rwth: cast operators added */
+         !( bMetal = (S_CHAR    *) inchi_calloc( (long long)num_at + (long long)nNumExplH, sizeof( bMetal[0] ) ) )) /* djb-rwth: cast operators added */
     {
         err = 1;
         goto exit_function;
@@ -3528,7 +3530,7 @@ int move_explicit_Hcation( inp_ATOM *at,
     const double f_step = two_pi / NUM_SEGM;
     const double h_step = f_step / 2.0;
     double min_dist[NUM_SEGM];
-    int nB, i, k, kk, next, val;
+    int nB, i, k, kk, next, val = 0;
     double r, r0, xd, yd, zd, xr, yr, zr, ave_bond_len;
     /*double step = 4.0*atan(1.0)/NUM_SEGM;*/
     /* find at[iat] neighbors coordinates */
@@ -3661,7 +3663,7 @@ int move_explicit_Hcation( inp_ATOM *at,
             else
             {
                 /* found a good sector */
-                f = f_step * ( start_max + (double) ( len_max - 1 ) / 2.0 );
+                f = f_step * ( (double)start_max +  ((double)len_max - 1.0 ) / 2.0 ); /* djb-rwth: cast operators added */
                 r0 = dist / 1.5;
                 xr = r0 * cos( f );
                 yr = r0 * sin( f );
@@ -3710,11 +3712,18 @@ done:
 
         /* connect H to at[iat] */
         val = at[iat].valence;
-        at[iat].neighbor[val] = iat_H;
-        at[iat].bond_type[val] = at[iat_H].bond_type[0];
-        at[iat].bond_stereo[val] = 0;
-        at[iat].chem_bonds_valence += at[iat_H].bond_type[0];
-        at[iat].valence = val + 1;
+        
+#pragma warning (push)
+#pragma warning (disable: 6386)
+        if (val < MAXVAL)
+        {
+            at[iat].neighbor[val] = iat_H;
+            at[iat].bond_type[val] = at[iat_H].bond_type[0];
+            at[iat].bond_stereo[val] = 0;
+            at[iat].chem_bonds_valence += at[iat_H].bond_type[0];
+            at[iat].valence = val + 1;
+        };
+#pragma warning (pop)
 
         at[iat_H].component = at[iat].component;
         at[iat_H].neighbor[0] = iat;
@@ -4439,11 +4448,11 @@ int MarkDisconnectedComponents( ORIG_ATOM_DATA *orig_at_data,
     i = inchi_max( num_components, orig_at_data->num_components );
 
     if (!( nCurAtLen = (AT_NUMB *)
-           inchi_calloc( num_components + 1, sizeof( nCurAtLen[0] ) ) ) ||
+           inchi_calloc( (long long)num_components + 1, sizeof( nCurAtLen[0] ) ) ) || /* djb-rwth: cast operator added */
          !( nOldCompNumber = (AT_NUMB *)
-            inchi_calloc( i + 1, sizeof( nOldCompNumber[0] ) ) ) ||
+            inchi_calloc( (long long)i + 1, sizeof( nOldCompNumber[0] ) ) ) || /* djb-rwth: cast operator added */
          !( component_nbr = (AT_TRIPLE *)
-            inchi_calloc( num_components + 1, sizeof( component_nbr[0] ) ) ))
+            inchi_calloc( (long long)num_components + 1, sizeof( component_nbr[0] ) ) )) /* djb-rwth: cast operator added */
     {
         goto exit_function;
     }
@@ -4810,8 +4819,8 @@ INChI *Alloc_INChI( inp_ATOM *at,
     *found_num_isotopic = num_isotopic_atoms;
 
     if (( pINChI->nAtom = (U_CHAR*) inchi_calloc( num_at, sizeof( pINChI->nAtom[0] ) ) ) &&
-        ( pINChI->nConnTable = (AT_NUMB*) inchi_calloc( num_at + num_bonds, sizeof( pINChI->nConnTable[0] ) ) ) &&
-         ( pINChI->nTautomer = (AT_NUMB*) inchi_calloc( ( ( 3 + INCHI_T_NUM_MOVABLE )*num_at ) / 2 + 1, sizeof( pINChI->nTautomer[0] ) ) ) &&
+        ( pINChI->nConnTable = (AT_NUMB*) inchi_calloc( (long long)num_at + (long long)num_bonds, sizeof( pINChI->nConnTable[0] ) ) ) && /* djb-rwth: cast operator added */
+         ( pINChI->nTautomer = (AT_NUMB*) inchi_calloc( ( ( 3 + INCHI_T_NUM_MOVABLE )*(long long)num_at ) / 2 + 1, sizeof( pINChI->nTautomer[0] ) ) ) && /* djb-rwth: cast operator added */
          ( pINChI->nNum_H = (S_CHAR*) inchi_calloc( num_at, sizeof( pINChI->nNum_H[0] ) ) ) &&
          ( pINChI->nNum_H_fixed = (S_CHAR*) inchi_calloc( num_at, sizeof( pINChI->nNum_H_fixed[0] ) ) ))
     {
@@ -4853,7 +4862,7 @@ INChI *Alloc_INChI( inp_ATOM *at,
         {
             goto out_of_RAM;
         }
-        if (!( pINChI->nPossibleLocationsOfIsotopicH = (AT_NUMB *) inchi_calloc( num_at + 1, sizeof( pINChI->nPossibleLocationsOfIsotopicH[0] ) ) ))
+        if (!( pINChI->nPossibleLocationsOfIsotopicH = (AT_NUMB *) inchi_calloc( (long long)num_at + 1, sizeof( pINChI->nPossibleLocationsOfIsotopicH[0] ) ) )) /* djb-rwth: cast operator added */
         {
             goto out_of_RAM;
         }
@@ -4968,7 +4977,7 @@ INChI_Aux *Alloc_INChI_Aux( int num_at,
     }
 
     if (num_at > 1 &&
-        ( pINChI_Aux->nConstitEquTGroupNumbers = (AT_NUMB*) inchi_calloc( sizeof( pINChI_Aux->nConstitEquTGroupNumbers[0] ), num_at / 2 + 1 ) ))
+        ( pINChI_Aux->nConstitEquTGroupNumbers = (AT_NUMB*) inchi_calloc( sizeof( pINChI_Aux->nConstitEquTGroupNumbers[0] ), (long long)num_at / 2 + 1 ) )) /* djb-rwth: cast operator added */
     {
         ;
     }
@@ -5009,7 +5018,7 @@ INChI_Aux *Alloc_INChI_Aux( int num_at,
         }
 
         if ( /*num_isotopic_atoms && num_at > 1 &&*/
-            ( pINChI_Aux->nConstitEquIsotopicTGroupNumbers = (AT_NUMB*) inchi_calloc( sizeof( pINChI_Aux->nConstitEquIsotopicTGroupNumbers[0] ), num_at / 2 + 1 ) ))
+            ( pINChI_Aux->nConstitEquIsotopicTGroupNumbers = (AT_NUMB*) inchi_calloc( sizeof( pINChI_Aux->nConstitEquIsotopicTGroupNumbers[0] ), (long long)num_at / 2 + 1 ) )) /* djb-rwth: cast operator added */
         {
             ;
         }
@@ -5133,7 +5142,7 @@ subgraf *subgraf_new( ORIG_ATOM_DATA *orig_inp_data,
 
     /* orig2node is mapping of original at numbers --> subgraph node numbers */
     err = 1;
-    if (!( sg->orig2node = (int *) inchi_calloc( nat + 1, sizeof( int ) ) ))
+    if (!( sg->orig2node = (int *) inchi_calloc( (long long)nat + 1, sizeof( int ) ) )) /* djb-rwth: cast operator added */
     {
         goto exit_function;
     }

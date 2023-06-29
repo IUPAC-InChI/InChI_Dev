@@ -951,7 +951,7 @@ int AddOrRemoveExplOrImplH( int nDelta,
             if (nNumRemovedExplicitH > i)
             {
                 inp_ATOM at_i = at_H[i];
-                memmove( at_H + i, at_H + i + 1, sizeof( at_H[0] )*( nNumRemovedExplicitH - i ) );
+                memmove( at_H + i, at_H + i + 1, sizeof( at_H[0] )*( (long long)nNumRemovedExplicitH - i ) ); /* djb-rwth: cast operator added */
                 at_H[nNumRemovedExplicitH] = at_i; /* save removed H (for debugging purposes?) */
             }
             /* Adjust 0D parities */
@@ -5408,7 +5408,7 @@ int mark_alt_bonds_and_taut_groups( struct tagINCHI_CLOCK   *ic,
         {
             inchi_free( t_group_info->tGroupNumber );
         }
-        t_group_info->tGroupNumber = (AT_NUMB *) inchi_calloc( 2 * num_atoms + 1, sizeof( t_group_info->tGroupNumber[0] ) );
+        t_group_info->tGroupNumber = (AT_NUMB *) inchi_calloc( 2 * (long long)num_atoms + 1, sizeof( t_group_info->tGroupNumber[0] ) ); /* djb-rwth: cast operator added */
         if (!t_group_info->tGroupNumber)
         {
             /*printf("BNS_OUT_OF_RAM-9\n");*/

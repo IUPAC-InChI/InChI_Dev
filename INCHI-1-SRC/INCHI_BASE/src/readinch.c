@@ -451,7 +451,7 @@ char* FindToken( INCHI_IOSTREAM *inp_file,
         if (( q = strrchr( p, '/' ) ) && ( q + lToken > szLine + *res ))
         {
             *res -= q - szLine; /* res = the length of the szLine to be left in */
-            memmove( szLine, q, *res + 1 );
+            memmove( szLine, q, (long long)*res + 1 ); /* djb-rwth: cast operator added */
         }
         else
         {
@@ -498,7 +498,7 @@ char *LoadLine( INCHI_IOSTREAM *inp_file,
         if (pos)
         {
             *res -= pos;
-            memmove( szLine, p, *res + 1 );
+            memmove( szLine, p, (long long)*res + 1 ); /* djb-rwth: cast operator added */
             p = szLine;
             if (*s)
             {
@@ -556,7 +556,7 @@ int InchiToInpAtom( INCHI_IOSTREAM *inp_file,
     int      num_atoms = 0, bFindNext = 0, bItemIsOver;
     int      i, k, k2, res, bond_type, bond_stereo1, bond_stereo2, bond_char, neigh, bond_parity, bond_parityNM;
     int      res2, bTooLongLine2, hk;
-    char     szLine[INCHI_LINE_LEN], *p, *q, *s, parity;
+    char     *szLine, *p, *q, *s, parity; /* djb-rwth: szLine is now a pointer */
     int      b2D = 0, b3D = 0, b23D, nNumBonds = 0, bNonZeroXYZ, bNonMetal;
     int      len_stereo0D = 0, max_len_stereo0D = 0;
     inp_ATOM    *atom = NULL;
@@ -574,138 +574,144 @@ int InchiToInpAtom( INCHI_IOSTREAM *inp_file,
     const  char *sToken;
     int  lToken, len, hlen;
 
-    ReadINCHI_CtlData ir;
-
-    if (!lenStructHdrPlnAuxStart)
+    szLine = (char *)malloc( INCHI_LINE_LEN ); /* djb-rwth: stack size was too large so heap has to be used */
+    
+    if (szLine != NULL) 
     {
-        lenStructHdrPlnAuxStart = sprintf( sStructHdrPlnAuxStart, "AuxInfo=" );
-    }
+        szLine[0] = '\0'; /* djb-rwth: initialisation block */
 
-    if (at)
-    {
-        if (*at && max_num_at)
-            memset( *at, 0, max_num_at * sizeof( **at ) );
-        if (szCoord && *szCoord)
+        ReadINCHI_CtlData ir;
+
+        if (!lenStructHdrPlnAuxStart)
         {
-            inchi_free( *szCoord );
-            *szCoord = NULL;
-        }
-    }
-    else
-    {
-        bFindNext = 1;
-    }
-
-    ir.bHeaderRead = ir.bErrorMsg = ir.bRestoreInfo = 0;
-    *num_dimensions = *num_bonds = 0;
-
-
-    if (nInputType != INPUT_INCHI_PLAIN)
-        return num_atoms;
-
-    /*
-        Extract reversibility info from plain text INChI format
-    */
-
-    ir.bHeaderRead = hk = 0;
-    while (0 < ( res = inchi_ios_getsTab( szLine, sizeof( szLine ) - 1, inp_file, &ir.bTooLongLine ) ))
-    {
-
-        if (!ir.bTooLongLine &&
-            ( hlen = sizeof( sStructHdrPln ) - 1, !memcmp( szLine, sStructHdrPln, hlen ) ))
-
-        {
-            num_atoms = 0;
-            find_and_interpret_structure_header( szLine, pSdfLabel, pSdfValue,
-                                                 Id, hlen, &ir );
+            lenStructHdrPlnAuxStart = sprintf(sStructHdrPlnAuxStart, "AuxInfo=");
         }
 
-        else if (!memcmp( szLine, sStructHdrPlnAuxStart, lenStructHdrPlnAuxStart ))
+        if (at)
         {
-            /* Reject to deal with polymers for now */
-            if (szLine && strstr( szLine, "/Z:" ))
+            if (*at && max_num_at)
+                memset(*at, 0, max_num_at * sizeof(**at));
+            if (szCoord && *szCoord)
             {
-                *err = INCHI_INP_ERROR_ERR;
-                num_atoms = INCHI_INP_ERROR_RET;
-                TREAT_ERR( *err, 0, "Reading polymer AuxInfo is not supported yet" );
-                goto bypass_end_of_INChI_plain;
+                inchi_free(*szCoord);
+                *szCoord = NULL;
+            }
+        }
+        else
+        {
+            bFindNext = 1;
+        }
+
+        ir.bHeaderRead = ir.bErrorMsg = ir.bRestoreInfo = 0;
+        *num_dimensions = *num_bonds = 0;
+
+
+        if (nInputType != INPUT_INCHI_PLAIN)
+            return num_atoms;
+
+        /*
+            Extract reversibility info from plain text INChI format
+        */
+
+        ir.bHeaderRead = hk = 0;
+        while (0 < (res = inchi_ios_getsTab(szLine, sizeof(szLine) - 1, inp_file, &ir.bTooLongLine)))
+        {
+
+            if (!ir.bTooLongLine &&
+                (hlen = sizeof(sStructHdrPln) - 1, !memcmp(szLine, sStructHdrPln, hlen)))
+
+            {
+                num_atoms = 0;
+                find_and_interpret_structure_header(szLine, pSdfLabel, pSdfValue,
+                    Id, hlen, &ir);
             }
 
-            /* Found the header of the AuxInfo, read AuxInfo head of the line */
-            if (!ir.bHeaderRead)
+            else if (!memcmp(szLine, sStructHdrPlnAuxStart, lenStructHdrPlnAuxStart))
             {
-                ir.ulongID = 0LU;
-                if (Id)
+                /* Reject to deal with polymers for now */
+                if (szLine && strstr(szLine, "/Z:"))
                 {
-                    *Id = ir.ulongID;
+                    *err = INCHI_INP_ERROR_ERR;
+                    num_atoms = INCHI_INP_ERROR_RET;
+                    TREAT_ERR(*err, 0, "Reading polymer AuxInfo is not supported yet");
+                    goto bypass_end_of_INChI_plain;
                 }
-                if (pSdfLabel)
+
+                /* Found the header of the AuxInfo, read AuxInfo head of the line */
+                if (!ir.bHeaderRead)
                 {
-                    pSdfLabel[0] = '\0';
-                }
-                if (pSdfValue)
-                {
-                    pSdfValue[0] = '\0';
-                }
-            }
-
-            ir.bHeaderRead = 0;
-
-            /* Check for empty "AuxInfo=ver//" */
-            p = strchr( szLine + lenStructHdrPlnAuxStart, '/' );
-
-            if (p && p[1] == '/' && ( !p[2] || '\n' == p[2] ))
-            {
-                goto bypass_end_of_INChI_plain;
-            }
-
-            /*
-                Search for atoms block (plain)
-            */
-
-            p = szLine;
-            sToken = sStructHdrPlnRevAt;
-            lToken = sizeof( sStructHdrPlnRevAt ) - 1;
-
-            /* Search for sToken in the line; load next segments of the line if sToken has not found */
-
-            p = FindToken( inp_file, &ir.bTooLongLine, sToken, lToken,
-                           szLine, sizeof( szLine ), p, &res );
-
-            if (!p)
-            {
-                *err = INCHI_INP_ERROR_ERR;
-                num_atoms = INCHI_INP_ERROR_RET;
-                TREAT_ERR( *err, 0, "Missing atom data" );
-                goto bypass_end_of_INChI_plain;
-            }
-            else
-            {
-                /* atoms block started */
-                i = 0;
-                res2 = bTooLongLine2 = -1;
-                bItemIsOver = ( s = strchr( p, '/' ) ) || !ir.bTooLongLine;
-                while (1)
-                {
-
-                    p = LoadLine( inp_file, &ir.bTooLongLine, &bItemIsOver, &s,
-                                  szLine, sizeof( szLine ), INCHI_LINE_ADD, p, &res );
-
-                    if (!i)
+                    ir.ulongID = 0LU;
+                    if (Id)
                     {
-                        /* allocate atom */
-                        num_atoms = strtol( p, &q, 10 );
+                        *Id = ir.ulongID;
+                    }
+                    if (pSdfLabel)
+                    {
+                        pSdfLabel[0] = '\0';
+                    }
+                    if (pSdfValue)
+                    {
+                        pSdfValue[0] = '\0';
+                    }
+                }
 
-                        if (!num_atoms || !q || !*q)
-                        {
-                            num_atoms = 0; /* no atom data */
-                            goto bypass_end_of_INChI_plain;
-                        }
-                        p = q;
+                ir.bHeaderRead = 0;
 
-                        /* Molfile chirality flag */
-                        switch (*p)
+                /* Check for empty "AuxInfo=ver//" */
+                p = strchr(szLine + lenStructHdrPlnAuxStart, '/');
+
+                if (p && p[1] == '/' && (!p[2] || '\n' == p[2]))
+                {
+                    goto bypass_end_of_INChI_plain;
+                }
+
+                /*
+                    Search for atoms block (plain)
+                */
+
+                p = szLine;
+                sToken = sStructHdrPlnRevAt;
+                lToken = sizeof(sStructHdrPlnRevAt) - 1;
+
+                /* Search for sToken in the line; load next segments of the line if sToken has not found */
+
+                p = FindToken(inp_file, &ir.bTooLongLine, sToken, lToken,
+                    szLine, sizeof(szLine), p, &res);
+
+                if (!p)
+                {
+                    *err = INCHI_INP_ERROR_ERR;
+                    num_atoms = INCHI_INP_ERROR_RET;
+                    TREAT_ERR(*err, 0, "Missing atom data");
+                    goto bypass_end_of_INChI_plain;
+                }
+                else
+                {
+                    /* atoms block started */
+                    i = 0;
+                    res2 = bTooLongLine2 = -1;
+                    bItemIsOver = (s = strchr(p, '/')) || !ir.bTooLongLine;
+                    while (1)
+                    {
+
+                        p = LoadLine(inp_file, &ir.bTooLongLine, &bItemIsOver, &s,
+                            szLine, sizeof(szLine), INCHI_LINE_ADD, p, &res);
+
+                        if (!i)
                         {
+                            /* allocate atom */
+                            num_atoms = strtol(p, &q, 10);
+
+                            if (!num_atoms || !q || !*q)
+                            {
+                                num_atoms = 0; /* no atom data */
+                                goto bypass_end_of_INChI_plain;
+                            }
+                            p = q;
+
+                            /* Molfile chirality flag */
+                            switch (*p)
+                            {
                             case 'c':
                                 InpAtomFlags |= FLAG_INP_AT_CHIRAL;
                                 p++;
@@ -714,117 +720,117 @@ int InchiToInpAtom( INCHI_IOSTREAM *inp_file,
                                 InpAtomFlags |= FLAG_INP_AT_NONCHIRAL;
                                 p++;
                                 break;
+                            }
+
+                            if (at && *at)
+                            {
+                                if (num_atoms > max_num_at)
+                                {
+                                    inchi_free(*at);
+                                    *at = NULL;
+                                }
+                                else
+                                {
+                                    memset(*at, 0, max_num_at * sizeof(**at));
+                                    atom = *at;
+                                }
+                            }
+
+                            if (!at || !*at)
+                            {
+
+                                atom = CreateInpAtom(num_atoms + 1);
+
+                                if (!atom)
+                                {
+                                    num_atoms = INCHI_INP_FATAL_RET; /* was -1; error */
+                                    *err = INCHI_INP_FATAL_ERR;
+                                    TREAT_ERR(*err, 0, "Out of RAM");
+                                    goto bypass_end_of_INChI_plain;
+                                }
+                            }
+
+                            {
+                                max_len_stereo0D = num_atoms + 1;
+
+                                atom_stereo0D = CreateInchi_Stereo0D(max_len_stereo0D);
+
+                                if (!atom_stereo0D)
+                                {
+                                    num_atoms = INCHI_INP_FATAL_RET; /* fatal error: cannot allocate */
+                                    *err = INCHI_INP_FATAL_ERR;
+                                    TREAT_ERR(*err, 0, "Out of RAM");
+                                    goto bypass_end_of_INChI_plain;
+                                }
+                            }
                         }
 
-                        if (at && *at)
+                        /* element, first char */
+                        if (!isalpha(UCINT * p) || !isupper(UCINT * p) || i >= num_atoms)
                         {
-                            if (num_atoms > max_num_at)
-                            {
-                                inchi_free( *at );
-                                *at = NULL;
-                            }
-                            else
-                            {
-                                memset( *at, 0, max_num_at * sizeof( **at ) );
-                                atom = *at;
-                            }
+                            break; /* end of atoms block */
                         }
 
-                        if (!at || !*at)
+                        atom[i].elname[0] = *p++;
+
+                        /* element, second char */
+                        if (isalpha(UCINT * p) && islower(UCINT * p))
                         {
-
-                            atom = CreateInpAtom( num_atoms + 1 );
-
-                            if (!atom)
-                            {
-                                num_atoms = INCHI_INP_FATAL_RET; /* was -1; error */
-                                *err = INCHI_INP_FATAL_ERR;
-                                TREAT_ERR( *err, 0, "Out of RAM" );
-                                goto bypass_end_of_INChI_plain;
-                            }
+                            atom[i].elname[1] = *p++;
                         }
 
+                        atom[i].el_number = get_periodic_table_number(atom[i].elname);
+
+                        /* bonds' valence + number of non-isotopic H */
+                        if (isdigit(UCINT * p))
                         {
-                            max_len_stereo0D = num_atoms + 1;
-
-                            atom_stereo0D = CreateInchi_Stereo0D( max_len_stereo0D );
-
-                            if (!atom_stereo0D)
-                            {
-                                num_atoms = INCHI_INP_FATAL_RET; /* fatal error: cannot allocate */
-                                *err = INCHI_INP_FATAL_ERR;
-                                TREAT_ERR( *err, 0, "Out of RAM" );
-                                goto bypass_end_of_INChI_plain;
-                            }
-                        }
-                    }
-
-                    /* element, first char */
-                    if (!isalpha( UCINT *p ) || !isupper( UCINT *p ) || i >= num_atoms)
-                    {
-                        break; /* end of atoms block */
-                    }
-
-                    atom[i].elname[0] = *p++;
-
-                    /* element, second char */
-                    if (isalpha( UCINT *p ) && islower( UCINT *p ))
-                    {
-                        atom[i].elname[1] = *p++;
-                    }
-
-                    atom[i].el_number = get_periodic_table_number( atom[i].elname );
-
-                    /* bonds' valence + number of non-isotopic H */
-                    if (isdigit( UCINT *p ))
-                    {
-                        AT_BONDS_VAL( atom, i ) = (char) strtol( p, &q, 10 );
-                        if (!AT_BONDS_VAL( atom, i ))
-                            AT_BONDS_VAL( atom, i ) = ISOLATED_ATOM; /* same convention as in MOLfile, found zero bonds valence */
-                        p = q;
-                    }
-
-                    /* charge */
-                    atom[i].charge = ( *p == '+' ) ? 1 : ( *p == '-' ) ? -1 : 0;
-                    if (atom[i].charge)
-                    {
-                        p++;
-                        if (isdigit( UCINT *p ))
-                        {
-                            atom[i].charge *= (S_CHAR) ( strtol( p, &q, 10 ) & CHAR_MASK );
+                            AT_BONDS_VAL(atom, i) = (char)strtol(p, &q, 10);
+                            if (!AT_BONDS_VAL(atom, i))
+                                AT_BONDS_VAL(atom, i) = ISOLATED_ATOM; /* same convention as in MOLfile, found zero bonds valence */
                             p = q;
                         }
-                    }
 
-                    /* radical */
-                    if (*p == '.')
-                    {
-                        p++;
-                        if (isdigit( UCINT *p ))
+                        /* charge */
+                        atom[i].charge = (*p == '+') ? 1 : (*p == '-') ? -1 : 0;
+                        if (atom[i].charge)
                         {
-                            atom[i].radical = (S_CHAR) strtol( p, &q, 10 );
-                            p = q;
+                            p++;
+                            if (isdigit(UCINT * p))
+                            {
+                                atom[i].charge *= (S_CHAR)(strtol(p, &q, 10) & CHAR_MASK);
+                                p = q;
+                            }
                         }
-                    }
 
-                    /* isotopic mass */
-                    if (*p == 'i')
-                    {
-                        p++;
-                        if (isdigit( UCINT *p ))
+                        /* radical */
+                        if (*p == '.')
                         {
-                            int mw = strtol( p, &q, 10 );
-                            p = q;
-                            mw -= get_atomic_mass_from_elnum( atom[i].el_number );
-                            if (mw >= 0)
-                                mw++;
-                            atom[i].iso_atw_diff = mw;
+                            p++;
+                            if (isdigit(UCINT * p))
+                            {
+                                atom[i].radical = (S_CHAR)strtol(p, &q, 10);
+                                p = q;
+                            }
                         }
-                    }
 
-                    /* parity */
-                    switch (*p)
-                    {
+                        /* isotopic mass */
+                        if (*p == 'i')
+                        {
+                            p++;
+                            if (isdigit(UCINT * p))
+                            {
+                                int mw = strtol(p, &q, 10);
+                                p = q;
+                                mw -= get_atomic_mass_from_elnum(atom[i].el_number);
+                                if (mw >= 0)
+                                    mw++;
+                                atom[i].iso_atw_diff = mw;
+                            }
+                        }
+
+                        /* parity */
+                        switch (*p)
+                        {
                         case 'o':
                             parity = INCHI_PARITY_ODD;
                             p++;
@@ -844,111 +850,111 @@ int InchiToInpAtom( INCHI_IOSTREAM *inp_file,
                         default:
                             parity = 0;
                             break;
-                    }
+                        }
 
-                    if (parity)
-                    {
-                        atom_stereo0D[len_stereo0D].central_atom = i;
-                        atom_stereo0D[len_stereo0D].parity = parity;
-                        atom_stereo0D[len_stereo0D].type = INCHI_StereoType_Tetrahedral;
-                        len_stereo0D++;
-                    }
-
-                    /* isotopic h, d, t */
-                    for (k = 0; k < NUM_H_ISOTOPES; k++)
-                    {
-                        if (*p == szIsoH[k])
+                        if (parity)
                         {
-                            NUM_ISO_Hk( atom, i, k ) = 1;
-                            p++;
-                            if (isdigit( UCINT *p ))
+                            atom_stereo0D[len_stereo0D].central_atom = i;
+                            atom_stereo0D[len_stereo0D].parity = parity;
+                            atom_stereo0D[len_stereo0D].type = INCHI_StereoType_Tetrahedral;
+                            len_stereo0D++;
+                        }
+
+                        /* isotopic h, d, t */
+                        for (k = 0; k < NUM_H_ISOTOPES; k++)
+                        {
+                            if (*p == szIsoH[k])
                             {
-                                NUM_ISO_Hk( atom, i, k ) = (char) strtol( p, &q, 10 );
-                                p = q;
+                                NUM_ISO_Hk(atom, i, k) = 1;
+                                p++;
+                                if (isdigit(UCINT * p))
+                                {
+                                    NUM_ISO_Hk(atom, i, k) = (char)strtol(p, &q, 10);
+                                    p = q;
+                                }
                             }
                         }
-                    }
 
-                    i++;
-                }
-
-                if (!bItemIsOver || i != num_atoms || s && p != s)
-                {
-                    num_atoms = INCHI_INP_ERROR_RET; /* error */
-                    *err = INCHI_INP_ERROR_ERR;
-                    TREAT_ERR( *err, 0, "Wrong number of atoms" );
-                    goto bypass_end_of_INChI_plain;
-                }
-            }
-
-            /*
-                Search for bonds block (plain) and read it
-            */
-
-            /*p = szLine;*/
-            sToken = sStructHdrPlnRevBn;
-            lToken = sizeof( sStructHdrPlnRevBn ) - 1;
-
-            /* Search for sToken in the line; load next segments of the line if sToken has not found */
-            p = FindToken( inp_file, &ir.bTooLongLine, sToken, lToken, szLine, sizeof( szLine ), p, &res );
-
-            if (!p)
-            {
-                num_atoms = INCHI_INP_ERROR_RET; /* error */
-                *err = INCHI_INP_ERROR_ERR;
-                TREAT_ERR( *err, 0, "Missing bonds data" );
-                goto bypass_end_of_INChI_plain;
-            }
-            else
-            {
-                /* bonds block started */
-
-                i = 1;
-
-                res2 = bTooLongLine2 = -1;
-
-                bItemIsOver = ( s = strchr( p, '/' ) ) || !ir.bTooLongLine;
-
-                if (1 == num_atoms)
-                {
-                    /* needed because the next '/' may be still out of szLine */
-
-                    p = LoadLine( inp_file, &ir.bTooLongLine, &bItemIsOver, &s,
-                                  szLine, sizeof( szLine ), INCHI_LINE_ADD, p, &res );
-                }
-
-                while (i < num_atoms)
-                {
-
-                    p = LoadLine( inp_file, &ir.bTooLongLine, &bItemIsOver, &s,
-                                  szLine, sizeof( szLine ), INCHI_LINE_ADD, p, &res );
-
-                    if (i >= num_atoms || s && p >= s)
-                    {
-                        break; /* end of bonds (plain) */
-                    }
-
-                    /* bond, first char */
-                    if (*p == ';')
-                    {
-                        p++;
                         i++;
-                        continue;
                     }
 
-                    if (!isalpha( UCINT *p ))
+                    if (!bItemIsOver || i != num_atoms || s && p != s)
                     {
                         num_atoms = INCHI_INP_ERROR_RET; /* error */
                         *err = INCHI_INP_ERROR_ERR;
-                        TREAT_ERR( *err, 0, "Wrong bonds data" );
+                        TREAT_ERR(*err, 0, "Wrong number of atoms");
                         goto bypass_end_of_INChI_plain;
                     }
+                }
 
-                    bond_char = *p++;
+                /*
+                    Search for bonds block (plain) and read it
+                */
 
-                    /* bond parity */
-                    switch (*p)
+                /*p = szLine;*/
+                sToken = sStructHdrPlnRevBn;
+                lToken = sizeof(sStructHdrPlnRevBn) - 1;
+
+                /* Search for sToken in the line; load next segments of the line if sToken has not found */
+                p = FindToken(inp_file, &ir.bTooLongLine, sToken, lToken, szLine, sizeof(szLine), p, &res);
+
+                if (!p)
+                {
+                    num_atoms = INCHI_INP_ERROR_RET; /* error */
+                    *err = INCHI_INP_ERROR_ERR;
+                    TREAT_ERR(*err, 0, "Missing bonds data");
+                    goto bypass_end_of_INChI_plain;
+                }
+                else
+                {
+                    /* bonds block started */
+
+                    i = 1;
+
+                    res2 = bTooLongLine2 = -1;
+
+                    bItemIsOver = (s = strchr(p, '/')) || !ir.bTooLongLine;
+
+                    if (1 == num_atoms)
                     {
+                        /* needed because the next '/' may be still out of szLine */
+
+                        p = LoadLine(inp_file, &ir.bTooLongLine, &bItemIsOver, &s,
+                            szLine, sizeof(szLine), INCHI_LINE_ADD, p, &res);
+                    }
+
+                    while (i < num_atoms)
+                    {
+
+                        p = LoadLine(inp_file, &ir.bTooLongLine, &bItemIsOver, &s,
+                            szLine, sizeof(szLine), INCHI_LINE_ADD, p, &res);
+
+                        if (i >= num_atoms || s && p >= s)
+                        {
+                            break; /* end of bonds (plain) */
+                        }
+
+                        /* bond, first char */
+                        if (*p == ';')
+                        {
+                            p++;
+                            i++;
+                            continue;
+                        }
+
+                        if (!isalpha(UCINT * p))
+                        {
+                            num_atoms = INCHI_INP_ERROR_RET; /* error */
+                            *err = INCHI_INP_ERROR_ERR;
+                            TREAT_ERR(*err, 0, "Wrong bonds data");
+                            goto bypass_end_of_INChI_plain;
+                        }
+
+                        bond_char = *p++;
+
+                        /* bond parity */
+                        switch (*p)
+                        {
                         case '-':
                             bond_parity = INCHI_PARITY_ODD;
                             p++;
@@ -968,12 +974,12 @@ int InchiToInpAtom( INCHI_IOSTREAM *inp_file,
                         default:
                             bond_parity = 0;
                             break;
-                    }
+                        }
 
-                    if (bond_parity)
-                    {
-                        switch (*p)
+                        if (bond_parity)
                         {
+                            switch (*p)
+                            {
                             case '-':
                                 bond_parityNM = INCHI_PARITY_ODD;
                                 p++;
@@ -993,42 +999,42 @@ int InchiToInpAtom( INCHI_IOSTREAM *inp_file,
                             default:
                                 bond_parityNM = 0;
                                 break;
+                            }
                         }
-                    }
-                    else
-                    {
-                        bond_parityNM = 0;
-                    }
+                        else
+                        {
+                            bond_parityNM = 0;
+                        }
 
-                    /* neighbor of the current atom */
-                    if (!isdigit( UCINT *p ))
-                    {
-                        num_atoms = INCHI_INP_ERROR_RET; /* error */
-                        *err = INCHI_INP_ERROR_ERR;
-                        TREAT_ERR( *err, 0, "Wrong bonds data" );
-                        goto bypass_end_of_INChI_plain;
-                    }
+                        /* neighbor of the current atom */
+                        if (!isdigit(UCINT * p))
+                        {
+                            num_atoms = INCHI_INP_ERROR_RET; /* error */
+                            *err = INCHI_INP_ERROR_ERR;
+                            TREAT_ERR(*err, 0, "Wrong bonds data");
+                            goto bypass_end_of_INChI_plain;
+                        }
 
-                    neigh = (int) strtol( p, &q, 10 ) - 1;
+                        neigh = (int)strtol(p, &q, 10) - 1;
 
 #if ( FIX_CURE53_ISSUE_HEAP_BUFFER_OVERFLOW_INCHITOINPATOM==1 )
-                    if (i >= num_atoms || neigh >= num_atoms || neigh < 0) 
-                    {
+                        if (i >= num_atoms || neigh >= num_atoms || neigh < 0)
+                        {
 #else
-                    if (i >= num_atoms || neigh >= num_atoms) {
+                        if (i >= num_atoms || neigh >= num_atoms) {
 #endif
-                        num_atoms = INCHI_INP_ERROR_RET; /* error */
-                        *err = INCHI_INP_ERROR_ERR;
-                        TREAT_ERR( *err, 0, "Bond to nonexistent atom" );
-                        goto bypass_end_of_INChI_plain;
+                            num_atoms = INCHI_INP_ERROR_RET; /* error */
+                            *err = INCHI_INP_ERROR_ERR;
+                            TREAT_ERR(*err, 0, "Bond to nonexistent atom");
+                            goto bypass_end_of_INChI_plain;
                     }
 
-                    p = q;
-                    bond_stereo1 = bond_stereo2 = 0;
+                        p = q;
+                        bond_stereo1 = bond_stereo2 = 0;
 
-                    /* bond type & 2D stereo */
-                    switch (bond_char)
-                    {
+                        /* bond type & 2D stereo */
+                        switch (bond_char)
+                        {
                         case 'v':
                             bond_type = INCHI_BOND_TYPE_SINGLE;
                             bond_stereo1 = INCHI_BOND_STEREO_SINGLE_1EITHER;
@@ -1079,163 +1085,163 @@ int InchiToInpAtom( INCHI_IOSTREAM *inp_file,
                         default:
                             num_atoms = INCHI_INP_ERROR_RET; /* error */
                             *err = INCHI_INP_ERROR_ERR;
-                            TREAT_ERR( *err, 0, "Wrong bond type" );
+                            TREAT_ERR(*err, 0, "Wrong bond type");
                             goto bypass_end_of_INChI_plain;
-                    }
-
-                    k = AT_NUM_BONDS( atom[i] )++; /* AT_NUM_BONDS(AT)  ==>  (AT).valence */
-
-                    atom[i].bond_type[k] = bond_type;
-                    atom[i].bond_stereo[k] = bond_stereo1;
-                    atom[i].neighbor[k] = (AT_NUMB) neigh;
-
-                    k2 = AT_NUM_BONDS( atom[neigh] )++; /* AT_NUM_BONDS(AT)  ==>  (AT).valence */
-                    atom[neigh].bond_type[k2] = bond_type;
-                    atom[neigh].bond_stereo[k2] = bond_stereo2;
-                    atom[neigh].neighbor[k2] = (AT_NUMB) i;
-
-                    bond_parity |= ( bond_parityNM << SB_PARITY_SHFT );
-
-                    if (bond_parity)
-                    {
-                        if (max_len_stereo0D <= len_stereo0D)
-                        {
-                            /* realloc atom_Stereo0D */
-
-                            inchi_Stereo0D *new_atom_stereo0D = CreateInchi_Stereo0D( max_len_stereo0D + num_atoms );
-
-                            if (!new_atom_stereo0D)
-                            {
-                                num_atoms = INCHI_INP_FATAL_RET; /* fatal error: cannot allocate */
-                                *err = INCHI_INP_FATAL_ERR;
-                                TREAT_ERR( *err, 0, "Out of RAM" );
-                                goto bypass_end_of_INChI_plain;
-                            }
-
-                            memcpy( new_atom_stereo0D, atom_stereo0D, len_stereo0D * sizeof( *atom_stereo0D ) );
-                            FreeInchi_Stereo0D( &atom_stereo0D );
-                            atom_stereo0D = new_atom_stereo0D;
-                            max_len_stereo0D += num_atoms;
                         }
 
-                        /* (a) i may be allene endpoint and     neigh = allene middle point or
-                           (b) i may be allene middle point and neigh = allene endpoint
-                           !!!!! CURRENTLY ONLY (b) IS ALLOWED !!!!!
-                        */
+                        k = AT_NUM_BONDS(atom[i])++; /* AT_NUM_BONDS(AT)  ==>  (AT).valence */
 
-                        atom_stereo0D[len_stereo0D].neighbor[1] = neigh; /* neigh < i */
-                        atom_stereo0D[len_stereo0D].neighbor[2] = i;
-                        atom_stereo0D[len_stereo0D].parity = bond_parity;
-                        atom_stereo0D[len_stereo0D].type = INCHI_StereoType_DoubleBond; /* incl allenes & cumulenes */
-                        len_stereo0D++;
-                    }
+                        atom[i].bond_type[k] = bond_type;
+                        atom[i].bond_stereo[k] = bond_stereo1;
+                        atom[i].neighbor[k] = (AT_NUMB)neigh;
+
+                        k2 = AT_NUM_BONDS(atom[neigh])++; /* AT_NUM_BONDS(AT)  ==>  (AT).valence */
+                        atom[neigh].bond_type[k2] = bond_type;
+                        atom[neigh].bond_stereo[k2] = bond_stereo2;
+                        atom[neigh].neighbor[k2] = (AT_NUMB)i;
+
+                        bond_parity |= (bond_parityNM << SB_PARITY_SHFT);
+
+                        if (bond_parity)
+                        {
+                            if (max_len_stereo0D <= len_stereo0D)
+                            {
+                                /* realloc atom_Stereo0D */
+
+                                inchi_Stereo0D* new_atom_stereo0D = CreateInchi_Stereo0D(max_len_stereo0D + num_atoms);
+
+                                if (!new_atom_stereo0D)
+                                {
+                                    num_atoms = INCHI_INP_FATAL_RET; /* fatal error: cannot allocate */
+                                    *err = INCHI_INP_FATAL_ERR;
+                                    TREAT_ERR(*err, 0, "Out of RAM");
+                                    goto bypass_end_of_INChI_plain;
+                                }
+
+                                memcpy(new_atom_stereo0D, atom_stereo0D, len_stereo0D * sizeof(*atom_stereo0D));
+                                FreeInchi_Stereo0D(&atom_stereo0D);
+                                atom_stereo0D = new_atom_stereo0D;
+                                max_len_stereo0D += num_atoms;
+                            }
+
+                            /* (a) i may be allene endpoint and     neigh = allene middle point or
+                               (b) i may be allene middle point and neigh = allene endpoint
+                               !!!!! CURRENTLY ONLY (b) IS ALLOWED !!!!!
+                            */
+
+                            atom_stereo0D[len_stereo0D].neighbor[1] = neigh; /* neigh < i */
+                            atom_stereo0D[len_stereo0D].neighbor[2] = i;
+                            atom_stereo0D[len_stereo0D].parity = bond_parity;
+                            atom_stereo0D[len_stereo0D].type = INCHI_StereoType_DoubleBond; /* incl allenes & cumulenes */
+                            len_stereo0D++;
+                        }
                 }
 
-                if (!bItemIsOver || i != num_atoms || s && p != s)
+                    if (!bItemIsOver || i != num_atoms || s && p != s)
+                    {
+                        num_atoms = INCHI_INP_ERROR_RET; /* error */
+                        *err = INCHI_INP_ERROR_ERR;
+                        TREAT_ERR(*err, 0, "Wrong number of bonds");
+                        goto bypass_end_of_INChI_plain;
+                    }
+            }
+
+                /*
+                    Search for coordinates block (plain)
+                */
+
+                /*p = szLine;*/
+                sToken = sStructHdrPlnRevXYZ;
+                lToken = sizeof(sStructHdrPlnRevXYZ) - 1;
+
+                /* search for sToken in the line; load next segments of the line if sToken has not found */
+                p = FindToken(inp_file, &ir.bTooLongLine, sToken, lToken, szLine, sizeof(szLine), p, &res);
+
+                if (!p)
                 {
                     num_atoms = INCHI_INP_ERROR_RET; /* error */
                     *err = INCHI_INP_ERROR_ERR;
-                    TREAT_ERR( *err, 0, "Wrong number of bonds" );
+                    TREAT_ERR(*err, 0, "Missing atom coordinates data");
                     goto bypass_end_of_INChI_plain;
-                }
-            }
-
-            /*
-                Search for coordinates block (plain)
-            */
-
-            /*p = szLine;*/
-            sToken = sStructHdrPlnRevXYZ;
-            lToken = sizeof( sStructHdrPlnRevXYZ ) - 1;
-
-            /* search for sToken in the line; load next segments of the line if sToken has not found */
-            p = FindToken( inp_file, &ir.bTooLongLine, sToken, lToken, szLine, sizeof( szLine ), p, &res );
-
-            if (!p)
-            {
-                num_atoms = INCHI_INP_ERROR_RET; /* error */
-                *err = INCHI_INP_ERROR_ERR;
-                TREAT_ERR( *err, 0, "Missing atom coordinates data" );
-                goto bypass_end_of_INChI_plain;
-            }
-            else
-            {
-                /* Coordinates block started */
-                if (pszCoord = (MOL_COORD*) inchi_malloc( inchi_max( num_atoms, 1 ) * sizeof( MOL_COORD ) ))
-                {
-                    memset( pszCoord, ' ', inchi_max( num_atoms, 1 ) * sizeof( MOL_COORD ) );
                 }
                 else
                 {
-                    num_atoms = INCHI_INP_FATAL_RET; /* allocation error */
-                    *err = INCHI_INP_FATAL_ERR;
-                    TREAT_ERR( *err, 0, "Out of RAM" );
-                    goto bypass_end_of_INChI_plain;
-                }
-
-                i = 0;
-                res2 = bTooLongLine2 = -1;
-                bItemIsOver = ( s = strchr( p, '/' ) ) || !ir.bTooLongLine;
-
-                while (i < num_atoms)
-                {
-
-                    p = LoadLine( inp_file, &ir.bTooLongLine, &bItemIsOver, &s,
-                                  szLine, sizeof( szLine ), INCHI_LINE_ADD, p, &res );
-
-                    if (i >= num_atoms || s && p >= s)
+                    /* Coordinates block started */
+                    if (pszCoord = (MOL_COORD*)inchi_malloc(inchi_max(num_atoms, 1) * sizeof(MOL_COORD)))
                     {
-                        break; /* end of bonds (plain) */
+                        memset(pszCoord, ' ', inchi_max(num_atoms, 1) * sizeof(MOL_COORD));
+                    }
+                    else
+                    {
+                        num_atoms = INCHI_INP_FATAL_RET; /* allocation error */
+                        *err = INCHI_INP_FATAL_ERR;
+                        TREAT_ERR(*err, 0, "Out of RAM");
+                        goto bypass_end_of_INChI_plain;
                     }
 
-                    /* coord, first char */
-                    if (*p == ';')
+                    i = 0;
+                    res2 = bTooLongLine2 = -1;
+                    bItemIsOver = (s = strchr(p, '/')) || !ir.bTooLongLine;
+
+                    while (i < num_atoms)
                     {
-                        for (k = 0; k < NUM_COORD; k++)
+
+                        p = LoadLine(inp_file, &ir.bTooLongLine, &bItemIsOver, &s,
+                            szLine, sizeof(szLine), INCHI_LINE_ADD, p, &res);
+
+                        if (i >= num_atoms || s && p >= s)
                         {
-                            pszCoord[i][LEN_COORD*k + 4] = '0';
+                            break; /* end of bonds (plain) */
                         }
-                        p++;
-                        i++;
-                        continue;
-                    }
 
-                    for (k = 0; k < 3; k++)
-                    {
-                        double xyz;
-                        bNonZeroXYZ = 0;
+                        /* coord, first char */
                         if (*p == ';')
                         {
-                            pszCoord[i][LEN_COORD*k + 4] = '0';
-                            xyz = 0.0;
-                        }
-                        else
-                        {
-                            if (*p == ',')
+                            for (k = 0; k < NUM_COORD; k++)
                             {
-                                /* empty */
-                                pszCoord[i][LEN_COORD*k + 4] = '0';
+                                pszCoord[i][LEN_COORD * k + 4] = '0';
+                            }
+                            p++;
+                            i++;
+                            continue;
+                        }
+
+                        for (k = 0; k < 3; k++)
+                        {
+                            double xyz;
+                            bNonZeroXYZ = 0;
+                            if (*p == ';')
+                            {
+                                pszCoord[i][LEN_COORD * k + 4] = '0';
                                 xyz = 0.0;
-                                p++;
                             }
                             else
                             {
-                                xyz = strtod( p, &q );
-                                bNonZeroXYZ = fabs( xyz ) > MIN_BOND_LENGTH;
-                                if (q != NULL)
+                                if (*p == ',')
                                 {
-                                    memcpy( pszCoord[i] + LEN_COORD*k, p, q - p );
-                                    if (*q == ',')
-                                        q++;
-                                    p = q;
+                                    /* empty */
+                                    pszCoord[i][LEN_COORD * k + 4] = '0';
+                                    xyz = 0.0;
+                                    p++;
                                 }
                                 else
-                                    pszCoord[i][LEN_COORD*k + 4] = '0';
+                                {
+                                    xyz = strtod(p, &q);
+                                    bNonZeroXYZ = fabs(xyz) > MIN_BOND_LENGTH;
+                                    if (q != NULL)
+                                    {
+                                        memcpy(pszCoord[i] + LEN_COORD * (long long)k, p, q - p); /* djb-rwth: cast operator added */
+                                        if (*q == ',')
+                                            q++;
+                                        p = q;
+                                    }
+                                    else
+                                        pszCoord[i][LEN_COORD * k + 4] = '0';
+                                }
                             }
-                        }
 
-                        switch (k)
-                        {
+                            switch (k)
+                            {
                             case 0:
                                 atom[i].x = xyz;
                                 b2D |= bNonZeroXYZ;
@@ -1248,97 +1254,97 @@ int InchiToInpAtom( INCHI_IOSTREAM *inp_file,
                                 b3D |= bNonZeroXYZ;
                                 atom[i].z = xyz;
                                 break;
+                            }
+                        }
+
+                        if (*p == ';')
+                        {
+                            p++; /* end of this triple of coordinates */
+                            i++;
+                        }
+                        else
+                        {
+                            num_atoms = INCHI_INP_ERROR_RET; /* error in input data: atoms, bonds & coord must be present together */
+                            *err = INCHI_INP_ERROR_ERR;
+                            TREAT_ERR(*err, 0, "Wrong atom coordinates data");
+                            goto bypass_end_of_INChI_plain;
                         }
                     }
 
-                    if (*p == ';')
+                    if (!bItemIsOver || s && p != s || i != num_atoms)
                     {
-                        p++; /* end of this triple of coordinates */
-                        i++;
-                    }
-                    else
-                    {
-                        num_atoms = INCHI_INP_ERROR_RET; /* error in input data: atoms, bonds & coord must be present together */
+                        num_atoms = INCHI_INP_ERROR_RET; /* error */
                         *err = INCHI_INP_ERROR_ERR;
-                        TREAT_ERR( *err, 0, "Wrong atom coordinates data" );
+                        TREAT_ERR(*err, 0, "Wrong number of coordinates");
                         goto bypass_end_of_INChI_plain;
                     }
-                }
+                } /* end of coordinates */
 
-                if (!bItemIsOver || s && p != s || i != num_atoms)
+                /*
+                    Set special valences and implicit H (xml)
+                */
+
+                b23D = b2D | b3D;
+                b2D = b3D = 0;
+                if (at)
                 {
-                    num_atoms = INCHI_INP_ERROR_RET; /* error */
-                    *err = INCHI_INP_ERROR_ERR;
-                    TREAT_ERR( *err, 0, "Wrong number of coordinates" );
-                    goto bypass_end_of_INChI_plain;
-                }
-            } /* end of coordinates */
-
-            /*
-                Set special valences and implicit H (xml)
-            */
-
-            b23D = b2D | b3D;
-            b2D = b3D = 0;
-            if (at)
-            {
-                if (!*at)
-                {
-                    int a1, a2, n1, n2, valence;
-                    int chem_bonds_valence;
-                    int    nX = 0, nY = 0, nZ = 0, nXYZ;
-                    *at = atom;
-
-                    /* special valences */
-
-                    for (bNonMetal = 0; bNonMetal < 1; bNonMetal++)
+                    if (!*at)
                     {
-                        for (a1 = 0; a1 < num_atoms; a1++)
+                        int a1, a2, n1, n2, valence;
+                        int chem_bonds_valence;
+                        int    nX = 0, nY = 0, nZ = 0, nXYZ;
+                        *at = atom;
+
+                        /* special valences */
+
+                        for (bNonMetal = 0; bNonMetal < 1; bNonMetal++)
                         {
-                            int num_bond_type[MAX_INPUT_BOND_TYPE - MIN_INPUT_BOND_TYPE + 1];
-                            int bHasMetalNeighbor = 0;
-
-                            memset( num_bond_type, 0, sizeof( num_bond_type ) );
-
-                            valence = AT_BONDS_VAL( atom, a1 ); /*  save atom valence if available */
-                            AT_BONDS_VAL( atom, a1 ) = 0;
-
-                            atom[a1].orig_at_number = a1 + 1;
-
-                            nX = nY = nZ = 0;
-
-                            for (n1 = 0; n1 < AT_NUM_BONDS( atom[a1] ); n1++) /*AT_NUM_BONDS(AT)  ==>  (AT).valence */
+                            for (a1 = 0; a1 < num_atoms; a1++)
                             {
-                                bond_type = atom[a1].bond_type[n1] - MIN_INPUT_BOND_TYPE;
-                                if (bond_type < 0 || bond_type > MAX_INPUT_BOND_TYPE - MIN_INPUT_BOND_TYPE)
+                                int num_bond_type[MAX_INPUT_BOND_TYPE - MIN_INPUT_BOND_TYPE + 1];
+                                int bHasMetalNeighbor = 0;
+
+                                memset(num_bond_type, 0, sizeof(num_bond_type));
+
+                                valence = AT_BONDS_VAL(atom, a1); /*  save atom valence if available */
+                                AT_BONDS_VAL(atom, a1) = 0;
+
+                                atom[a1].orig_at_number = a1 + 1;
+
+                                nX = nY = nZ = 0;
+
+                                for (n1 = 0; n1 < AT_NUM_BONDS(atom[a1]); n1++) /*AT_NUM_BONDS(AT)  ==>  (AT).valence */
                                 {
-                                    bond_type = 0;
-                                    TREAT_ERR( *err, 0, "Unknown bond type in InChI aux assigned as a single bond" );
+                                    bond_type = atom[a1].bond_type[n1] - MIN_INPUT_BOND_TYPE;
+                                    if (bond_type < 0 || bond_type > MAX_INPUT_BOND_TYPE - MIN_INPUT_BOND_TYPE)
+                                    {
+                                        bond_type = 0;
+                                        TREAT_ERR(*err, 0, "Unknown bond type in InChI aux assigned as a single bond");
+                                    }
+
+                                    num_bond_type[bond_type] ++;
+                                    nNumBonds++;
+                                    if (b23D)
+                                    {
+                                        neigh = atom[a1].neighbor[n1];
+                                        nX |= (fabs(atom[a1].x - atom[neigh].x) > MIN_BOND_LENGTH);
+                                        nY |= (fabs(atom[a1].y - atom[neigh].y) > MIN_BOND_LENGTH);
+                                        nZ |= (fabs(atom[a1].z - atom[neigh].z) > MIN_BOND_LENGTH);
+                                    }
                                 }
 
-                                num_bond_type[bond_type] ++;
-                                nNumBonds++;
-                                if (b23D)
+                                chem_bonds_valence = 0;
+                                for (n1 = 0; MIN_INPUT_BOND_TYPE + n1 <= 3 && MIN_INPUT_BOND_TYPE + n1 <= MAX_INPUT_BOND_TYPE; n1++)
                                 {
-                                    neigh = atom[a1].neighbor[n1];
-                                    nX |= ( fabs( atom[a1].x - atom[neigh].x ) > MIN_BOND_LENGTH );
-                                    nY |= ( fabs( atom[a1].y - atom[neigh].y ) > MIN_BOND_LENGTH );
-                                    nZ |= ( fabs( atom[a1].z - atom[neigh].z ) > MIN_BOND_LENGTH );
+                                    chem_bonds_valence += (MIN_INPUT_BOND_TYPE + n1) * num_bond_type[n1];
                                 }
-                            }
 
-                            chem_bonds_valence = 0;
-                            for (n1 = 0; MIN_INPUT_BOND_TYPE + n1 <= 3 && MIN_INPUT_BOND_TYPE + n1 <= MAX_INPUT_BOND_TYPE; n1++)
-                            {
-                                chem_bonds_valence += ( MIN_INPUT_BOND_TYPE + n1 ) * num_bond_type[n1];
-                            }
-
-                            if (MIN_INPUT_BOND_TYPE <= INCHI_BOND_TYPE_ALTERN && INCHI_BOND_TYPE_ALTERN <= MAX_INPUT_BOND_TYPE &&
-                                ( n2 = num_bond_type[INCHI_BOND_TYPE_ALTERN - MIN_INPUT_BOND_TYPE] ))
-                            {
-                                /* accept input aromatic bonds for now */
-                                switch (n2)
+                                if (MIN_INPUT_BOND_TYPE <= INCHI_BOND_TYPE_ALTERN && INCHI_BOND_TYPE_ALTERN <= MAX_INPUT_BOND_TYPE &&
+                                    (n2 = num_bond_type[INCHI_BOND_TYPE_ALTERN - MIN_INPUT_BOND_TYPE]))
                                 {
+                                    /* accept input aromatic bonds for now */
+                                    switch (n2)
+                                    {
                                     case 2:
                                         chem_bonds_valence += 3;  /* =A- */
                                         break;
@@ -1349,13 +1355,13 @@ int InchiToInpAtom( INCHI_IOSTREAM *inp_file,
 
                                     default:
                                         /*  if 1 or >= 4 aromatic bonds then replace such bonds with single bonds */
-                                        for (n1 = 0; n1 < AT_NUM_BONDS( atom[a1] ); n1++) /* AT_NUM_BONDS(AT)  ==>  (AT).valence */
+                                        for (n1 = 0; n1 < AT_NUM_BONDS(atom[a1]); n1++) /* AT_NUM_BONDS(AT)  ==>  (AT).valence */
                                         {
                                             if (atom[a1].bond_type[n1] == INCHI_BOND_TYPE_ALTERN)
                                             {
-                                                AT_NUMB *p1;
+                                                AT_NUMB* p1;
                                                 a2 = atom[a1].neighbor[n1];
-                                                p1 = is_in_the_list( atom[a2].neighbor, (AT_NUMB) a1, AT_NUM_BONDS( atom[a2] ) ); /*AT_NUM_BONDS(AT)  ==>  (AT).valence*/
+                                                p1 = is_in_the_list(atom[a2].neighbor, (AT_NUMB)a1, AT_NUM_BONDS(atom[a2])); /*AT_NUM_BONDS(AT)  ==>  (AT).valence*/
                                                 if (p1)
                                                 {
                                                     atom[a1].bond_type[n1] =
@@ -1364,7 +1370,7 @@ int InchiToInpAtom( INCHI_IOSTREAM *inp_file,
                                                 else
                                                 {
                                                     *err = -2;  /*  Program error */
-                                                    TREAT_ERR( *err, 0, "Program error interpreting InChI aux" );
+                                                    TREAT_ERR(*err, 0, "Program error interpreting InChI aux");
                                                     num_atoms = 0;
                                                     goto bypass_end_of_INChI_plain; /*  no structure */
                                                 }
@@ -1373,92 +1379,92 @@ int InchiToInpAtom( INCHI_IOSTREAM *inp_file,
 
                                         chem_bonds_valence += n2;
                                         *err |= 32; /*  Unrecognized aromatic bond(s) replaced with single */
-                                        TREAT_ERR( *err, 0, "Atom has 1 or more than 3 aromatic bonds" );
+                                        TREAT_ERR(*err, 0, "Atom has 1 or more than 3 aromatic bonds");
                                         break;
+                                    }
                                 }
-                            }
 
-                            /* added 2006-07-19 to process aromatic bonds same way as from molfile */
-                            if (n2 && !valence)
-                            {
-                                int num_H = NUMH( atom, a1 ); /* only isotopic */
-                                int chem_valence = chem_bonds_valence;
-                                int bUnusualValenceArom =
-                                    detect_unusual_el_valence( (int) atom[a1].el_number, atom[a1].charge,
-                                                                atom[a1].radical, chem_valence,
-                                                                num_H, atom[a1].valence );
-                                int bUnusualValenceNoArom =
-                                    detect_unusual_el_valence( (int) atom[a1].el_number, atom[a1].charge,
-                                                                atom[a1].radical, chem_valence - 1,
-                                                                num_H, atom[a1].valence );
+                                /* added 2006-07-19 to process aromatic bonds same way as from molfile */
+                                if (n2 && !valence)
+                                {
+                                    int num_H = NUMH(atom, a1); /* only isotopic */
+                                    int chem_valence = chem_bonds_valence;
+                                    int bUnusualValenceArom =
+                                        detect_unusual_el_valence((int)atom[a1].el_number, atom[a1].charge,
+                                            atom[a1].radical, chem_valence,
+                                            num_H, atom[a1].valence);
+                                    int bUnusualValenceNoArom =
+                                        detect_unusual_el_valence((int)atom[a1].el_number, atom[a1].charge,
+                                            atom[a1].radical, chem_valence - 1,
+                                            num_H, atom[a1].valence);
 
 #if ( CHECK_AROMBOND2ALT == 1 )
-                                if (bUnusualValenceArom && !bUnusualValenceNoArom && 0 == nBondsValToMetal( atom, a1 ))
+                                    if (bUnusualValenceArom && !bUnusualValenceNoArom && 0 == nBondsValToMetal(atom, a1))
 #else
-                                if (bUnusualValenceArom && !bUnusualValenceNoArom)
+                                    if (bUnusualValenceArom && !bUnusualValenceNoArom)
 #endif
 
-                                {
-                                    /* typically NH in 5-member aromatic ring */
-                                    chem_bonds_valence--;
+                                    {
+                                        /* typically NH in 5-member aromatic ring */
+                                        chem_bonds_valence--;
+                                    }
                                 }
-                            }
-                            else if (n2 && valence)
-                            {
-                                /* atom has aromatic bonds AND the chemical valence is known */
-                                int num_H = NUMH( atom, a1 );
-                                int chem_valence = chem_bonds_valence + num_H;
-                                if (valence == chem_valence - 1)
+                                else if (n2 && valence)
                                 {
-                                    /* typically NH in 5-member aromatic ring */
-                                    chem_bonds_valence--;
+                                    /* atom has aromatic bonds AND the chemical valence is known */
+                                    int num_H = NUMH(atom, a1);
+                                    int chem_valence = chem_bonds_valence + num_H;
+                                    if (valence == chem_valence - 1)
+                                    {
+                                        /* typically NH in 5-member aromatic ring */
+                                        chem_bonds_valence--;
+                                    }
                                 }
+
+                                atom[a1].chem_bonds_valence = chem_bonds_valence;
+
+                                atom[a1].num_H = get_num_H(atom[a1].elname,
+                                    atom[a1].num_H,
+                                    atom[a1].num_iso_H,
+                                    atom[a1].charge,
+                                    atom[a1].radical,
+                                    atom[a1].chem_bonds_valence,
+                                    valence,
+                                    0,
+                                    bDoNotAddH,
+                                    bHasMetalNeighbor);
                             }
-
-                            atom[a1].chem_bonds_valence = chem_bonds_valence;
-
-                            atom[a1].num_H = get_num_H( atom[a1].elname,
-                                                        atom[a1].num_H,
-                                                        atom[a1].num_iso_H,
-                                                        atom[a1].charge,
-                                                        atom[a1].radical,
-                                                        atom[a1].chem_bonds_valence,
-                                                        valence,
-                                                        0,
-                                                        bDoNotAddH,
-                                                        bHasMetalNeighbor );
                         }
-                    }
 
-                    nNumBonds /= 2;
+                        nNumBonds /= 2;
 
-                    if (b23D && nNumBonds)
-                    {
-                        nXYZ = nX + nY + nZ;
-                        b2D = ( nXYZ > 0 );
-                        b3D = ( nXYZ == 3 );
-                        *num_dimensions = b3D ? 3 : b2D ? 2 : 0;
-                        *num_bonds = nNumBonds;
-                    }
-
-                    /*======= 0D parities =================================*/
-
-                    for (i = 0; i < len_stereo0D; i++)
-                    {
-                        AT_NUMB *p1, *p2;
-                        int     sb_ord_from_a1 = -1, sb_ord_from_a2 = -1, bEnd1 = 0, bEnd2 = 0;
-
-                        switch (atom_stereo0D[i].type)
+                        if (b23D && nNumBonds)
                         {
+                            nXYZ = nX + nY + nZ;
+                            b2D = (nXYZ > 0);
+                            b3D = (nXYZ == 3);
+                            *num_dimensions = b3D ? 3 : b2D ? 2 : 0;
+                            *num_bonds = nNumBonds;
+                        }
+
+                        /*======= 0D parities =================================*/
+
+                        for (i = 0; i < len_stereo0D; i++)
+                        {
+                            AT_NUMB* p1, * p2;
+                            int     sb_ord_from_a1 = -1, sb_ord_from_a2 = -1, bEnd1 = 0, bEnd2 = 0;
+
+                            switch (atom_stereo0D[i].type)
+                            {
 
                             case INCHI_StereoType_Tetrahedral:
                                 a1 = atom_stereo0D[i].central_atom;
-                                if (atom_stereo0D[i].parity && ( AT_NUM_BONDS( atom[a1] ) == 3 || AT_NUM_BONDS( atom[a1] ) == 4 ))
+                                if (atom_stereo0D[i].parity && (AT_NUM_BONDS(atom[a1]) == 3 || AT_NUM_BONDS(atom[a1]) == 4))
                                 {
                                     int ii, kk = 0;
-                                    if (AT_NUM_BONDS( atom[a1] ) == 3)
+                                    if (AT_NUM_BONDS(atom[a1]) == 3)
                                         atom_stereo0D[i].neighbor[kk++] = a1;
-                                    for (ii = 0; ii < AT_NUM_BONDS( atom[a1] ); ii++)
+                                    for (ii = 0; ii < AT_NUM_BONDS(atom[a1]); ii++)
                                         atom_stereo0D[i].neighbor[kk++] = atom[a1].neighbor[ii];
                                 }
 
@@ -1468,8 +1474,8 @@ int InchiToInpAtom( INCHI_IOSTREAM *inp_file,
 #define MAX_CHAIN_LEN 20
                                 a1 = atom_stereo0D[i].neighbor[1];
                                 a2 = atom_stereo0D[i].neighbor[2];
-                                p1 = is_in_the_list( atom[a1].neighbor, (AT_NUMB) a2, AT_NUM_BONDS( atom[a1] ) );
-                                p2 = is_in_the_list( atom[a2].neighbor, (AT_NUMB) a1, AT_NUM_BONDS( atom[a2] ) );
+                                p1 = is_in_the_list(atom[a1].neighbor, (AT_NUMB)a2, AT_NUM_BONDS(atom[a1]));
+                                p2 = is_in_the_list(atom[a2].neighbor, (AT_NUMB)a1, AT_NUM_BONDS(atom[a2]));
                                 if (!p1 || !p2)
                                 {
                                     atom_stereo0D[i].type = INCHI_StereoType_None;
@@ -1477,7 +1483,7 @@ int InchiToInpAtom( INCHI_IOSTREAM *inp_file,
                                     atom_stereo0D[i].neighbor[0] =
                                         atom_stereo0D[i].neighbor[3] = -1;
                                     *err |= 64; /* Error in cumulene stereo */
-                                    TREAT_ERR( *err, 0, "0D stereobond not recognized" );
+                                    TREAT_ERR(*err, 0, "0D stereobond not recognized");
                                     break;
                                 }
 
@@ -1486,20 +1492,20 @@ int InchiToInpAtom( INCHI_IOSTREAM *inp_file,
                                 sb_ord_from_a1 = p1 - atom[a1].neighbor;
                                 sb_ord_from_a2 = p2 - atom[a2].neighbor;
 
-                                if (AT_NUM_BONDS( atom[a1] ) == 2 &&
-                                      atom[a1].bond_type[0] + atom[a1].bond_type[1] == 2 * INCHI_BOND_TYPE_DOUBLE &&
-                                      0 == inchi_NUMH2( atom, a1 ) &&
-                                      ( AT_NUM_BONDS( atom[a2] ) != 2 ||
-                                          atom[a2].bond_type[0] + atom[a2].bond_type[1] != 2 * INCHI_BOND_TYPE_DOUBLE ))
+                                if (AT_NUM_BONDS(atom[a1]) == 2 &&
+                                    atom[a1].bond_type[0] + atom[a1].bond_type[1] == 2 * INCHI_BOND_TYPE_DOUBLE &&
+                                    0 == inchi_NUMH2(atom, a1) &&
+                                    (AT_NUM_BONDS(atom[a2]) != 2 ||
+                                        atom[a2].bond_type[0] + atom[a2].bond_type[1] != 2 * INCHI_BOND_TYPE_DOUBLE))
                                 {
                                     bEnd2 = 1; /* a2 is the end-atom, a1 is middle atom */
                                 }
 
-                                if (AT_NUM_BONDS( atom[a2] ) == 2 &&
-                                      atom[a2].bond_type[0] + atom[a2].bond_type[1] == 2 * INCHI_BOND_TYPE_DOUBLE &&
-                                      0 == inchi_NUMH2( atom, a2 ) &&
-                                      ( AT_NUM_BONDS( atom[a1] ) != 2 ||
-                                          atom[a1].bond_type[0] + atom[a1].bond_type[1] != 2 * INCHI_BOND_TYPE_DOUBLE ))
+                                if (AT_NUM_BONDS(atom[a2]) == 2 &&
+                                    atom[a2].bond_type[0] + atom[a2].bond_type[1] == 2 * INCHI_BOND_TYPE_DOUBLE &&
+                                    0 == inchi_NUMH2(atom, a2) &&
+                                    (AT_NUM_BONDS(atom[a1]) != 2 ||
+                                        atom[a1].bond_type[0] + atom[a1].bond_type[1] != 2 * INCHI_BOND_TYPE_DOUBLE))
                                 {
                                     bEnd1 = 1; /* a1 is the end-atom, a2 is middle atom */
                                 }
@@ -1531,10 +1537,10 @@ int InchiToInpAtom( INCHI_IOSTREAM *inp_file,
 
                                         prev = cur;
                                         cur = next;
-                                            /* follow double bond path && avoid going back */
-                                        if (AT_NUM_BONDS( atom[cur] ) == 2 &&
-                                             atom[cur].bond_type[0] + atom[cur].bond_type[1] == 2 * INCHI_BOND_TYPE_DOUBLE &&
-                                             0 == inchi_NUMH2( atom, cur ))
+                                        /* follow double bond path && avoid going back */
+                                        if (AT_NUM_BONDS(atom[cur]) == 2 &&
+                                            atom[cur].bond_type[0] + atom[cur].bond_type[1] == 2 * INCHI_BOND_TYPE_DOUBLE &&
+                                            0 == inchi_NUMH2(atom, cur))
                                         {
                                             next = atom[cur].neighbor[atom[cur].neighbor[0] == prev];
                                             chain[len++] = next;
@@ -1545,7 +1551,7 @@ int InchiToInpAtom( INCHI_IOSTREAM *inp_file,
                                         }
                                     }
                                     if (len > 2 &&
-                                        ( p2 = is_in_the_list( atom[cur].neighbor, (AT_NUMB) prev, AT_NUM_BONDS( atom[cur] ) ) ))
+                                        (p2 = is_in_the_list(atom[cur].neighbor, (AT_NUMB)prev, AT_NUM_BONDS(atom[cur]))))
                                     {
                                         sb_ord_from_a2 = p2 - atom[cur].neighbor;
                                         a2 = cur;
@@ -1573,7 +1579,7 @@ int InchiToInpAtom( INCHI_IOSTREAM *inp_file,
                                         atom_stereo0D[i].neighbor[0] =
                                             atom_stereo0D[i].neighbor[3] = -1;
                                         *err |= 64; /* Error in cumulene stereo */
-                                        TREAT_ERR( *err, 0, "Cumulene stereo not recognized (0D)" );
+                                        TREAT_ERR(*err, 0, "Cumulene stereo not recognized (0D)");
                                     }
 #undef MAX_CHAIN_LEN
                                 }
@@ -1589,8 +1595,8 @@ int InchiToInpAtom( INCHI_IOSTREAM *inp_file,
                                 }
 
                                 if (atom_stereo0D[i].type != INCHI_StereoType_None &&
-                                     sb_ord_from_a1 >= 0 && sb_ord_from_a2 >= 0 &&
-                                     ATOM_PARITY_WELL_DEF( SB_PARITY_2( atom_stereo0D[i].parity ) ))
+                                    sb_ord_from_a1 >= 0 && sb_ord_from_a2 >= 0 &&
+                                    ATOM_PARITY_WELL_DEF(SB_PARITY_2(atom_stereo0D[i].parity)))
                                 {
                                     /* Detected well-defined disconnected stereo
                                      * locate first non-metal neighbors */
@@ -1602,12 +1608,12 @@ int InchiToInpAtom( INCHI_IOSTREAM *inp_file,
                                         a = k ? atom_stereo0D[i].neighbor[2] : atom_stereo0D[i].neighbor[1];
                                         sb_ord = k ? sb_ord_from_a2 : sb_ord_from_a1;
                                         min_neigh = num_atoms;
-                                        for (n = j = 0; j < AT_NUM_BONDS( atom[a] ); j++)
+                                        for (n = j = 0; j < AT_NUM_BONDS(atom[a]); j++)
                                         {
                                             cur_neigh = atom[a].neighbor[j];
-                                            if (j != sb_ord && !IS_METAL_ATOM( atom, cur_neigh ))
+                                            if (j != sb_ord && !IS_METAL_ATOM(atom, cur_neigh))
                                             {
-                                                min_neigh = inchi_min( cur_neigh, min_neigh );
+                                                min_neigh = inchi_min(cur_neigh, min_neigh);
                                             }
                                         }
                                         if (min_neigh < num_atoms)
@@ -1616,87 +1622,89 @@ int InchiToInpAtom( INCHI_IOSTREAM *inp_file,
                                         }
                                         else
                                         {
-                                            TREAT_ERR( *err, 0, "Cannot find non-metal stereobond neighor (0D)" );
+                                            TREAT_ERR(*err, 0, "Cannot find non-metal stereobond neighor (0D)");
                                         }
                                     }
                                 }
 
                                 break;
+                            }
                         }
+                        /* end of 0D parities extraction */
+    /*exit_cycle:;*/
                     }
-                    /* end of 0D parities extraction */
-/*exit_cycle:;*/
-                }
 
-                /* Transfer atom_stereo0D[] to atom[] */
-                if (len_stereo0D)
-                {
-                    Extract0DParities( atom, num_atoms, atom_stereo0D, len_stereo0D,
-                        pStrErr, err, vABParityUnknown );
-                }
+                    /* Transfer atom_stereo0D[] to atom[] */
+                    if (len_stereo0D)
+                    {
+                        Extract0DParities(atom, num_atoms, atom_stereo0D, len_stereo0D,
+                            pStrErr, err, vABParityUnknown);
+                    }
 
-                if (pInpAtomFlags)
-                {
-                    /* save chirality flag */
-                    *pInpAtomFlags |= InpAtomFlags;
+                    if (pInpAtomFlags)
+                    {
+                        /* save chirality flag */
+                        *pInpAtomFlags |= InpAtomFlags;
+                    }
                 }
-            }
-            else if (atom)
-            {
-                inchi_free( atom );
-                atom = NULL;
-            }
+                else if (atom)
+                {
+                    inchi_free(atom);
+                    atom = NULL;
+                }
 
 #if ( FIX_READ_AUX_MEM_LEAK == 1 )
-            /* 2005-08-04 avoid memory leak */
-            if (atom_stereo0D) /* && !(stereo0D && *stereo0D == atom_stereo0D) ) */
-            {
-                FreeInchi_Stereo0D( &atom_stereo0D );
-            }
+                /* 2005-08-04 avoid memory leak */
+                if (atom_stereo0D) /* && !(stereo0D && *stereo0D == atom_stereo0D) ) */
+                {
+                    FreeInchi_Stereo0D(&atom_stereo0D);
+                }
 #endif
 
-            if (szCoord)
-            {
-                *szCoord = pszCoord;
-                pszCoord = NULL;
-            }
-            else if (pszCoord)
-            {
-                inchi_free( pszCoord );
-                pszCoord = NULL;
-            }
+                if (szCoord)
+                {
+                    *szCoord = pszCoord;
+                    pszCoord = NULL;
+                }
+                else if (pszCoord)
+                {
+                    inchi_free(pszCoord);
+                    pszCoord = NULL;
+                }
 
-            goto bypass_end_of_INChI_plain;
-            /*return num_atoms;*/
+                goto bypass_end_of_INChI_plain;
+                /*return num_atoms;*/
         }
     }    /* while ( 0 < (res = inchi_ios_getsTab( szLine, sizeof(szLine)-1, inp_file, &ir.bTooLongLine ) ) )  */
 
     /* End of structure reading cycle */
-    if (atom_stereo0D)
-        FreeInchi_Stereo0D( &atom_stereo0D );
-    if (res <= 0)
-    {
-        if (*err == INCHI_INP_ERROR_ERR)
+        if (atom_stereo0D)
+            FreeInchi_Stereo0D(&atom_stereo0D);
+        if (res <= 0)
         {
-            return num_atoms;
+            if (*err == INCHI_INP_ERROR_ERR)
+            {
+                return num_atoms;
+            }
+            *err = INCHI_INP_EOF_ERR;
+
+            return INCHI_INP_EOF_RET; /* no more data */
         }
-        *err = INCHI_INP_EOF_ERR;
 
-        return INCHI_INP_EOF_RET; /* no more data */
-    }
+    bypass_end_of_INChI_plain:
+        /* Cleanup */
+        if (num_atoms == INCHI_INP_ERROR_RET && atom_stereo0D)
+        {
+            FreeInchi_Stereo0D(&atom_stereo0D);
+        }
+        while (ir.bTooLongLine &&
+            0 < inchi_ios_getsTab1(szLine, sizeof(szLine) - 1, inp_file, &ir.bTooLongLine))
+        {
+            ;
+        }
 
-bypass_end_of_INChI_plain:
-    /* Cleanup */
-    if (num_atoms == INCHI_INP_ERROR_RET && atom_stereo0D)
-    {
-        FreeInchi_Stereo0D( &atom_stereo0D );
+        free(szLine); /* djb-rwth: deallocating memory; C++ STL dynamic memory strategies should be considered */
     }
-    while (ir.bTooLongLine &&
-            0 < inchi_ios_getsTab1( szLine, sizeof( szLine ) - 1, inp_file, &ir.bTooLongLine ))
-    {
-        ;
-    }
-
     return num_atoms;
 #undef AT_NUM_BONDS
 #undef AT_NUMB

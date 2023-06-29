@@ -1344,7 +1344,10 @@ int NormalizeAndCompare( CANON_GLOBALS *pCG,
             MergeZzInHillFormula(strbuf);
             if (strbuf->nUsedLength>len0+1)
             {
-                pStruct->pOneINChI[iRevrInChI]->szHillFormula = (char *) realloc(pStruct->pOneINChI[iRevrInChI]->szHillFormula, strbuf->nUsedLength+1);
+                char* ctmp; /* djb-rwth: supplementary variable */
+                ctmp = (char *) realloc(pStruct->pOneINChI[iRevrInChI]->szHillFormula, (long long)strbuf->nUsedLength+1); /* djb-rwth: cast operator added */
+                if (ctmp != NULL) /* djb-rwth: NULL pointer must not be assigned to pStruct->pOneINChI[iRevrInChI]->szHillFormula */
+                    pStruct->pOneINChI[iRevrInChI]->szHillFormula = ctmp;
             }
             strcpy(pStruct->pOneINChI[iRevrInChI]->szHillFormula, strbuf->pStr);
             inchi_strbuf_close(strbuf);
@@ -2118,7 +2121,7 @@ int MoveChargeToRemoveCenerpoints( BN_STRUCT *pBNS,
                     for (j = 0; j < numMobileChargeNeigh; j++)
                     {
                         neigh = at2[i].neighbor[(int) MobileChargeNeigh[j]];
-                        pEdgeMinus = pBNS->edge + ( pVA[neigh].nCMinusGroupEdge - 1 );
+                        pEdgeMinus = pBNS->edge + ( (long long)pVA[neigh].nCMinusGroupEdge - 1 ); /* djb-rwth: cast operator added */
                         v1m = pEdgeMinus->neighbor1;
                         v2m = pEdgeMinus->neighbor12 ^ v1m;
                         pv1m = pBNS->vert + v1m;
@@ -2295,7 +2298,7 @@ int MakeSingleBondsMetal2ChargedHeteroat( BN_STRUCT *pBNS,
     }
 
     /* restore the initial structures */
-    memcpy( at2, at, ( num_at + num_deleted_H ) * sizeof( at2[0] ) );
+    memcpy( at2, at, ( (long long)num_at + (long long)num_deleted_H ) * sizeof( at2[0] ) ); /* djb-rwth: cast operators added */
 
     if (nNumEdgesToFix && pFixedEdges)
     {
@@ -2777,8 +2780,8 @@ int RunBnsRestore1( CANON_GLOBALS *pCG,
         goto exit_function;
     }
 
-    if (!at2 && !( at2 = (inp_ATOM *) inchi_malloc( ( num_at + num_deleted_H ) * sizeof( at2[0] ) ) ) ||
-         !at3 && !( at3 = (inp_ATOM *) inchi_malloc( ( num_at + num_deleted_H ) * sizeof( at3[0] ) ) ))
+    if (!at2 && !( at2 = (inp_ATOM *) inchi_malloc( ( (long long)num_at + (long long)num_deleted_H ) * sizeof( at2[0] ) ) ) ||
+         !at3 && !( at3 = (inp_ATOM *) inchi_malloc( ( (long long)num_at + (long long)num_deleted_H ) * sizeof( at3[0] ) ) )) /* djb-rwth: cast operators added */
     {
         return RI_ERR_ALLOC;
     }
@@ -2820,7 +2823,7 @@ int RunBnsRestore1( CANON_GLOBALS *pCG,
     }
 #ifdef _DEBUG
     /* debug only */
-    memcpy( at2, at, ( pStruct->num_atoms + pStruct->num_deleted_H ) * sizeof( at2[0] ) );
+    memcpy( at2, at, ( (long long)pStruct->num_atoms + (long long)pStruct->num_deleted_H ) * sizeof( at2[0] ) ); /* djb-rwth: cast operators added */
     pStruct->at = at2;
     ret2 = CopyBnsToAtom( pStruct, pBNS, pVA, pTCGroups, 1 );
     pStruct->at = at;
@@ -2849,7 +2852,7 @@ int RunBnsRestore1( CANON_GLOBALS *pCG,
     }
 #ifdef _DEBUG
     /* debug only */
-    memcpy( at2, at, ( pStruct->num_atoms + pStruct->num_deleted_H ) * sizeof( at2[0] ) );
+    memcpy( at2, at, ( (long long)pStruct->num_atoms + (long long)pStruct->num_deleted_H ) * sizeof( at2[0] ) ); /* djb-rwth: cast operators added */
     pStruct->at = at2;
     ret2 = CopyBnsToAtom( pStruct, pBNS, pVA, pTCGroups, 1 );
     pStruct->at = at;
@@ -2873,7 +2876,7 @@ int RunBnsRestore1( CANON_GLOBALS *pCG,
     }
 #ifdef _DEBUG
     /* debug only */
-    memcpy( at2, at, ( pStruct->num_atoms + pStruct->num_deleted_H ) * sizeof( at2[0] ) );
+    memcpy( at2, at, ( (long long)pStruct->num_atoms + (long long)pStruct->num_deleted_H ) * sizeof( at2[0] ) ); /* djb-rwth: cast operators added */
     pStruct->at = at2;
     ret2 = CopyBnsToAtom( pStruct, pBNS, pVA, pTCGroups, 1 );
     pStruct->at = at;
@@ -2909,7 +2912,7 @@ int RunBnsRestore1( CANON_GLOBALS *pCG,
     }
 #ifdef _DEBUG
     /* debug only */
-    memcpy( at2, at, ( pStruct->num_atoms + pStruct->num_deleted_H ) * sizeof( at2[0] ) );
+    memcpy( at2, at, ( (long long)pStruct->num_atoms + (long long)pStruct->num_deleted_H ) * sizeof( at2[0] ) ); /* djb-rwth: cast operators added */
     pStruct->at = at2;
     ret2 = CopyBnsToAtom( pStruct, pBNS, pVA, pTCGroups, 1 );
     pStruct->at = at;
@@ -2932,7 +2935,7 @@ int RunBnsRestore1( CANON_GLOBALS *pCG,
     /**************************************************************/
 #ifdef _DEBUG
     /* debug only */
-    memcpy( at2, at, ( pStruct->num_atoms + pStruct->num_deleted_H ) * sizeof( at2[0] ) );
+    memcpy( at2, at, ( (long long)pStruct->num_atoms + (long long)pStruct->num_deleted_H ) * sizeof( at2[0] ) ); /* djb-rwth: cast operators added */
     pStruct->at = at2;
     ret2 = CopyBnsToAtom( pStruct, pBNS, pVA, pTCGroups, 1 );
     pStruct->at = at;
@@ -2957,7 +2960,7 @@ int RunBnsRestore1( CANON_GLOBALS *pCG,
 
 #ifdef _DEBUG
     /* debug only */
-    memcpy( at2, at, ( pStruct->num_atoms + pStruct->num_deleted_H ) * sizeof( at2[0] ) );
+    memcpy( at2, at, ( (long long)pStruct->num_atoms + (long long)pStruct->num_deleted_H ) * sizeof( at2[0] ) ); /* djb-rwth: cast operators added */
     pStruct->at = at2;
     ret2 = CopyBnsToAtom( pStruct, pBNS, pVA, pTCGroups, 1 );
     pStruct->at = at;
@@ -3231,13 +3234,13 @@ int RestoreAtomMakeBNS( INCHI_CLOCK *ic, CANON_GLOBALS *pCG,
     if (num_at == 1)
     {
         /* single atom -- no bonds to restore */
-        inp_ATOM *at2 = (inp_ATOM *) inchi_malloc( sizeof( at2[0] )*( pStruct->num_atoms + pStruct->num_deleted_H ) );
-        inp_ATOM *at3 = (inp_ATOM *) inchi_malloc( sizeof( at3[0] )*( pStruct->num_atoms + pStruct->num_deleted_H ) );
+        inp_ATOM *at2 = (inp_ATOM *) inchi_malloc( sizeof( at2[0] )*( (long long)pStruct->num_atoms + (long long)pStruct->num_deleted_H ) ); /* djb-rwth: cast operators added */
+        inp_ATOM *at3 = (inp_ATOM *) inchi_malloc( sizeof( at3[0] )*( (long long)pStruct->num_atoms + (long long)pStruct->num_deleted_H ) ); /* djb-rwth: cast operators added */
         pStruct->at2 = at2;
         at[0].charge = pInChI[0]->nTotalCharge;
         if (at2)
         {
-            memcpy( at2, at, sizeof( at2[0] )*( pStruct->num_atoms + pStruct->num_deleted_H ) );
+            memcpy( at2, at, sizeof( at2[0] )*( (long long)pStruct->num_atoms + (long long)pStruct->num_deleted_H ) ); /* djb-rwth: cast operators added */
         }
         if (!at2 || !at3)
         {
@@ -3441,7 +3444,7 @@ repeat_for_new_metals:
     {  /* create the final structure in pStruct->at2 */
         inp_ATOM *at_tmp = pStruct->at;
         pStruct->at = pStruct->at2;
-        memcpy( pStruct->at, at_tmp, sizeof( pStruct->at[0] )*( pStruct->num_atoms + pStruct->num_deleted_H ) );
+        memcpy( pStruct->at, at_tmp, sizeof( pStruct->at[0] )*( (long long)pStruct->num_atoms + (long long)pStruct->num_deleted_H ) ); /* djb-rwth: cast operators added */
         ret2 = CopyBnsToAtom( pStruct, pBNS, pVA, pTCGroups, 1 );
         pStruct->at2 = pStruct->at;
         pStruct->at = at_tmp;
