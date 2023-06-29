@@ -77,7 +77,7 @@ int inchi_vfprintf( FILE* f, const char* lpszFormat, va_list argList );
 ****************************************************************************/
 void inchi_ios_init( INCHI_IOSTREAM* ios, int io_type, FILE *f )
 {
-    memset( ios, 0, sizeof( *ios ) );
+    memset( ios, 0, sizeof( *ios ) ); /* djb-rwth: memset_s C11/Annex K variant? */
     switch (io_type)
     {
         case INCHI_IOS_TYPE_FILE:
@@ -98,9 +98,9 @@ void inchi_ios_init( INCHI_IOSTREAM* ios, int io_type, FILE *f )
 ****************************************************************************/
 int inchi_ios_create_copy( INCHI_IOSTREAM* ios, INCHI_IOSTREAM* ios0 )
 {
-    if (ios) /* djb-rwth: correcting the dereferencing NULL pointer */
+    if (ios) /* djb-rwth: fixing a NULL pointer dereference */
     {
-        memset( ios, 0, sizeof( *ios ) );
+        memset( ios, 0, sizeof( *ios ) ); /* djb-rwth: memset_s C11/Annex K variant? */
         ios->type = ios0->type;
 
         if (ios->type == INCHI_IOS_TYPE_STRING)
@@ -470,7 +470,7 @@ int inchi_ios_getsTab1( char *szLine,
 ****************************************************************************/
 int inchi_ios_print( INCHI_IOSTREAM * ios, const char* lpszFormat, ... )
 {
-    int ret = 0, ret2 = 0;
+    int ret = 0, ret2 = 0, buflen;
     va_list argList;
 
     if (!ios)
@@ -499,7 +499,7 @@ int inchi_ios_print( INCHI_IOSTREAM * ios, const char* lpszFormat, ... )
                     {
                         if (ios->s.nUsedLength > 0)
                         {
-                            memcpy( new_str, ios->s.pStr, sizeof( new_str[0] )* ios->s.nUsedLength );
+                            memcpy_s( new_str, sizeof (new_str)* (ios->s.nUsedLength), ios->s.pStr, sizeof( new_str[0] )* ios->s.nUsedLength ); /* djb-rwth: function replaced with its safe C11 variant */
                         }
                         inchi_free( ios->s.pStr );
                     }
@@ -513,7 +513,8 @@ int inchi_ios_print( INCHI_IOSTREAM * ios, const char* lpszFormat, ... )
             }
             /* output */
             my_va_start( argList, lpszFormat );
-            ret = vsprintf( ios->s.pStr + ios->s.nUsedLength, lpszFormat, argList );
+            buflen = _vscprintf(lpszFormat, argList) + 1; /* djb-rwth: include terminating '\0' */ 
+            ret = vsprintf_s( ios->s.pStr + ios->s.nUsedLength, buflen, lpszFormat, argList ); /* djb-rwth: function replaced with its safe C11 variant */
             va_end( argList );
             if (ret >= 0)
             {
@@ -598,6 +599,7 @@ int inchi_ios_print_nodisplay( INCHI_IOSTREAM * ios,
                                const char* lpszFormat,
                                ... )
 {
+    int buflen;
     va_list argList;
 
     if (!ios)
@@ -625,7 +627,7 @@ int inchi_ios_print_nodisplay( INCHI_IOSTREAM * ios,
                     {
                         if (ios->s.nUsedLength > 0)
                         {
-                            memcpy( new_str, ios->s.pStr, sizeof( new_str[0] )*ios->s.nUsedLength );
+                            memcpy_s( new_str, sizeof(new_str)*(ios->s.nUsedLength), ios->s.pStr, sizeof(new_str[0]) * ios->s.nUsedLength); /* djb-rwth: function replaced with its safe C11 variant */
                         }
                         inchi_free( ios->s.pStr );
                     }
@@ -639,7 +641,8 @@ int inchi_ios_print_nodisplay( INCHI_IOSTREAM * ios,
             }
             /* output */
             my_va_start( argList, lpszFormat );
-            ret = vsprintf( ios->s.pStr + ios->s.nUsedLength, lpszFormat, argList );
+            buflen = _vscprintf(lpszFormat, argList) + 1;
+            ret = vsprintf_s( ios->s.pStr + ios->s.nUsedLength, buflen, lpszFormat, argList ); /* djb-rwth: function replaced with its safe C11 variant */
             va_end( argList );
             if (ret >= 0)
             {
@@ -683,7 +686,7 @@ int inchi_ios_flush_not_displayed( INCHI_IOSTREAM * ios )
         return -1;
     }
 
-    strcpy( obuf, ios->s.pStr );
+    strcpy_s( obuf, sizeof obuf, ios->s.pStr ); /* djb-rwth: function replaced with its safe C11 variant */
     ios->s.nUsedLength = 0;
     ret = inchi_ios_print( ios, "%s", obuf );
     inchi_free( obuf );
@@ -697,7 +700,7 @@ int inchi_ios_flush_not_displayed( INCHI_IOSTREAM * ios )
 ****************************************************************************/
 int inchi_ios_eprint( INCHI_IOSTREAM * ios, const char* lpszFormat, ... )
 {
-    int ret = 0, ret2 = 0;
+    int ret = 0, ret2 = 0, buflen;
     va_list argList;
 
     if (!ios)
@@ -729,7 +732,7 @@ int inchi_ios_eprint( INCHI_IOSTREAM * ios, const char* lpszFormat, ... )
                     {
                         if (ios->s.nUsedLength > 0)
                         {
-                            memcpy( new_str, ios->s.pStr, sizeof( new_str[0] )* ios->s.nUsedLength );
+                            memcpy_s( new_str, sizeof(new_str)*(ios->s.nUsedLength), ios->s.pStr, sizeof( new_str[0] )* ios->s.nUsedLength ); /* djb-rwth: function replaced with its safe C11 variant */
                         }
                         inchi_free( ios->s.pStr );
                     }
@@ -744,7 +747,8 @@ int inchi_ios_eprint( INCHI_IOSTREAM * ios, const char* lpszFormat, ... )
 
             /* output */
             my_va_start( argList, lpszFormat );
-            ret = vsprintf( ios->s.pStr + ios->s.nUsedLength, lpszFormat, argList );
+            buflen = _vscprintf(lpszFormat, argList) + 1;
+            ret = vsprintf_s( ios->s.pStr + ios->s.nUsedLength, buflen, lpszFormat, argList ); /* djb-rwth: function replaced with its safe C11 variant */
             va_end( argList );
             if (ret >= 0)
             {
@@ -832,7 +836,7 @@ int inchi_vfprintf( FILE* f, const char* lpszFormat, va_list argList )
             {
                 /*  output is longer than the console line */
                 /* Fixed bug: (CONSOLE_LINE_LEN-4) --> (CONSOLE_LINE_LEN-4-1) 11-22-08 IPl */
-                strcpy(szLine + CONSOLE_LINE_LEN - 5, "...\r");
+                strcpy_s(szLine + CONSOLE_LINE_LEN - 5, sizeof (szLine) + CONSOLE_LINE_LEN, "...\r"); /* djb-rwth: function replaced with its safe C11 variant */
             }
 
             fputs(szLine, f);
@@ -870,8 +874,8 @@ int inchi_print_nodisplay( FILE* f, const char* lpszFormat, ... )
     }
 
     my_va_start( argList, lpszFormat );
-    ret = vfprintf( fi, lpszFormat, argList );
-
+    ret = vfprintf_s( fi, lpszFormat, argList ); /* djb-rwth: function replaced with its safe C11 variant */
+    va_end(argList); /* djb-rwth: avoiding argList memory leak */
     return ret;
 }
 
@@ -899,7 +903,7 @@ int inchi_fgetsLfTab( char *szLine, int len, FILE *f )
     while (!length);
     if (bTooLongLine)
     {
-        while (p = inchi_fgetsTab( szSkip, sizeof( szSkip ) - 1, f ))
+        while ((p = inchi_fgetsTab( szSkip, sizeof( szSkip ) - 1, f ))) /* djb-rwth: ignoring LLVM warning: function returning value */
         {
             if (strchr( szSkip, '\n' ))
                 break;
@@ -994,7 +998,7 @@ char* inchi_fgetsLf( char* line, int line_len, INCHI_IOSTREAM* inp_stream )
     {
         /* Read from file */
         finp = inp_stream->f;
-        memset( line, 0, line_len );
+        memset( line, 0, line_len ); /* djb-rwth: memset_s C11/Annex K variant? */
         if (NULL != ( p = fgets( line, line_len, finp ) ) &&
              NULL == strchr( p, '\n' ))
         {
@@ -1009,7 +1013,7 @@ char* inchi_fgetsLf( char* line, int line_len, INCHI_IOSTREAM* inp_stream )
     else if (inp_stream->type == INCHI_IOS_TYPE_STRING)
     {
         /* Read from supplied string representing Molfile */
-        memset( line, 0, line_len );
+        memset( line, 0, line_len ); /* djb-rwth: memset_s C11/Annex K variant? */
         if (NULL != ( p = inchi_sgets( line, line_len, inp_stream ) ) &&
              NULL == strchr( p, '\n' ))
         {
@@ -1028,7 +1032,7 @@ char* inchi_fgetsLf( char* line, int line_len, INCHI_IOSTREAM* inp_stream )
 
     if (p)
     {
-        if (q = strchr( line, '\r' ))
+        if ((q = strchr( line, '\r' ))) /* djb-rwth: addressing LLVM warning */
         {
             /*  fix CR CR LF line terminator. */
             q[0] = '\n';
@@ -1195,7 +1199,7 @@ int GetMaxPrintfLength( const char *lpszFormat, va_list argList )
 
         /* now should be on specifier */
         
-        /* djb-rwth: return values needed for va_arg */
+        /* djb-rwth: return values needed for va_arg; djb-rwth: ignoring LLVM warnings: function returning value */
         int ivarg;
         double dvarg;
         void* ivvarg;
@@ -1207,12 +1211,12 @@ int GetMaxPrintfLength( const char *lpszFormat, va_list argList )
             case 'c':
             case 'C':
                 nItemLen = 2;
-                ivarg = va_arg( argList, int ); /* djb-rwth: int return value */
+                ivarg = va_arg( argList, int ); /* djb-rwth: int return value; ignoring LLVM warning */
                 break;
             case 'c' | FORCE_ANSI:
             case 'C' | FORCE_ANSI:
                 nItemLen = 2;
-                ivarg = va_arg( argList, int ); /* djb-rwth: int return value */
+                ivarg = va_arg( argList, int ); /* djb-rwth: int return value; ignoring LLVM warning */
                 break;
             case 'c' | FORCE_UNICODE:
             case 'C' | FORCE_UNICODE:
@@ -1265,7 +1269,7 @@ int GetMaxPrintfLength( const char *lpszFormat, va_list argList )
                 case 'x':
                 case 'X':
                 case 'o':
-                    ivarg = va_arg( argList, int ); /* djb-rwth: int return value */
+                    ivarg = va_arg( argList, int ); /* djb-rwth: int return value; ignoring LLVM warning */
                     nItemLen = 32;
                     nItemLen = inchi_max( nItemLen, nWidth + nPrecision );
                     break;
@@ -1274,20 +1278,20 @@ int GetMaxPrintfLength( const char *lpszFormat, va_list argList )
                 case 'f':
                 case 'g':
                 case 'G':
-                    dvarg = va_arg( argList, double ); /* djb-rwth: double return value */
+                    dvarg = va_arg( argList, double ); /* djb-rwth: double return value; ignoring LLVM warning */
                     nItemLen = 32;
                     nItemLen = inchi_max( nItemLen, nWidth + nPrecision );
                     break;
 
                 case 'p':
-                    ivvarg = va_arg( argList, void* ); /* djb-rwth: void* return value */
+                    ivvarg = va_arg( argList, void* ); /* djb-rwth: void* return value; ignoring LLVM warning */
                     nItemLen = 32;
                     nItemLen = inchi_max( nItemLen, nWidth + nPrecision );
                     break;
 
                /* no output */
                 case 'n':
-                    ipvarg = va_arg( argList, int* ); /* djb-rwth: int* return value */
+                    ipvarg = va_arg( argList, int* ); /* djb-rwth: int* return value; ignoring LLVM warning */
                     break;
 
                 default:
@@ -1361,7 +1365,7 @@ char *inchi_sgets( char *s, int n, INCHI_IOSTREAM* ios )
 int inchi_strbuf_init( INCHI_IOS_STRING *buf, int start_size, int incr_size )
 {
     char *new_str = NULL;
-    memset( buf, 0, sizeof( *buf ) );
+    memset( buf, 0, sizeof( *buf ) ); /* djb-rwth: memset_s C11/Annex K variant? */
 
     if (start_size <= 0)
     {
@@ -1421,7 +1425,7 @@ void inchi_strbuf_close( INCHI_IOS_STRING *buf )
         inchi_free( buf->pStr );
     }
 
-    memset( buf, 0, sizeof( *buf ) );
+    memset( buf, 0, sizeof( *buf ) ); /* djb-rwth: memset_s C11/Annex K variant? */
 }
 
 
@@ -1479,7 +1483,7 @@ int inchi_strbuf_update( INCHI_IOS_STRING *buf, int new_addition_size )
         {
             if (buf->nUsedLength > 0)
             {
-                memcpy( new_str, buf->pStr, sizeof( new_str[0] )* buf->nUsedLength );
+                memcpy_s( new_str, sizeof(new_str)*buf->nUsedLength, buf->pStr, sizeof( new_str[0] )* buf->nUsedLength ); /* djb-rwth: memset_s C11/Annex K variant? */
             }
             inchi_free( buf->pStr );
         }
@@ -1497,7 +1501,7 @@ int inchi_strbuf_update( INCHI_IOS_STRING *buf, int new_addition_size )
 ****************************************************************************/
 int inchi_strbuf_printf( INCHI_IOS_STRING *buf, const char* lpszFormat, ... )
 {
-    int ret = 0, max_len;
+    int ret = 0, max_len, buflen;
     va_list argList;
 
     if (!buf)
@@ -1516,7 +1520,8 @@ int inchi_strbuf_printf( INCHI_IOS_STRING *buf, const char* lpszFormat, ... )
     inchi_strbuf_update( buf, max_len );
 
     my_va_start( argList, lpszFormat );
-    ret = vsprintf( buf->pStr + buf->nUsedLength, lpszFormat, argList );
+    buflen = _vscprintf(lpszFormat, argList) + 1;
+    ret = vsprintf_s( buf->pStr + buf->nUsedLength, buflen, lpszFormat, argList ); /* djb-rwth: function replaced with its safe C11 variant */
     va_end( argList );
     if (ret >= 0)
     {
@@ -1536,7 +1541,7 @@ int inchi_strbuf_printf_from( INCHI_IOS_STRING *buf,
                               int npos,
                               const char* lpszFormat, ... )
 {
-    int ret = 0, max_len;
+    int ret = 0, max_len, buflen;
     va_list argList;
 
     if (!buf)
@@ -1557,7 +1562,8 @@ int inchi_strbuf_printf_from( INCHI_IOS_STRING *buf,
     inchi_strbuf_update( buf, max_len );
 
     my_va_start( argList, lpszFormat );
-    ret = vsprintf( buf->pStr + npos, lpszFormat, argList );
+    buflen = _vscprintf(lpszFormat, argList) + 1;
+    ret = vsprintf_s( buf->pStr + npos, buflen, lpszFormat, argList ); /* djb-rwth: function replaced with its safe C11 variant */
     va_end( argList );
     if (ret >= 0)
     {
@@ -1674,7 +1680,7 @@ int _inchi_trace(char* format, ...)
     TCHAR buffer[32767];
     char buffer[32767];
     */
-
+    int buflen, ret;
     /* djb-rwth: stack size was too large so heap has to be used */
     char* buffer;
     buffer = (char*)malloc(32767);
@@ -1685,14 +1691,18 @@ int _inchi_trace(char* format, ...)
         va_list argptr;
         va_start(argptr, format);
         /*wvsprintf(buffer, format, argptr);*/
-        vsprintf(buffer, format, argptr);
+        buflen = _vscprintf(format, argptr) + 1;
+        ret = vsprintf_s(buffer, buflen, format, argptr); /* djb-rwth: function replaced with its safe C11 variant */
         va_end(argptr);
         OutputDebugString(buffer);
-        return 1;
         free(buffer); /* djb-rwth: deallocating memory; C++ STL dynamic memory strategies should be considered */
+        return ret;
     }
     else
+    {
+        free(buffer); /* djb-rwth: deallocating memory; C++ STL dynamic memory strategies should be considered */
         return 0;
+    }
 }
 #else
 int _inchi_trace( char *format, ... )

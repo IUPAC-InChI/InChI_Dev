@@ -151,11 +151,11 @@ int Extract0DParities( inp_ATOM *at,
             parityNM = ( stereo0D[i0D].parity & SB_PARITY_FLAG ) >> SB_PARITY_SHFT;
 
             if (parity == INCHI_PARITY_NONE ||
-                 parity != INCHI_PARITY_ODD && parity != INCHI_PARITY_EVEN &&
-                 parity != INCHI_PARITY_UNKNOWN && parity != INCHI_PARITY_UNDEFINED)
+                 (parity != INCHI_PARITY_ODD && parity != INCHI_PARITY_EVEN &&
+                 parity != INCHI_PARITY_UNKNOWN && parity != INCHI_PARITY_UNDEFINED)) /* djb-rwth: addressing LLVM warning */
             {
                 char szTemp[16];
-                sprintf( szTemp, "#%d", i0D + 1 );
+                sprintf_s( szTemp, sizeof(szTemp), "#%d", i0D + 1 ); /* djb-rwth: function replaced with its safe C11 variant */
                 TREAT_ERR( *err, 0, "Wrong 0D stereo descriptor(s):" );
                 TREAT_ERR( *err, 0, szTemp );
                 continue; /* warning */
@@ -164,15 +164,15 @@ int Extract0DParities( inp_ATOM *at,
             type = stereo0D[i0D].type;
             a2 = stereo0D[i0D].central_atom; /* central atom or -1 */
             j = -1;
-            len = 0;
+            /* djb-rwth: removing redundant code */
             sb_ord_from_i1 = sb_ord_from_i2 = sn_ord_from_i1 = sn_ord_from_i2 = -1;
             i1n = i2n = i1 = i2 = MAX_ATOMS + 1;
 
             if (( type == INCHI_StereoType_Tetrahedral ||
-                type == INCHI_StereoType_Allene ) &&
-                  0 <= a2 && a2 < nNumAtoms ||
-                  type == INCHI_StereoType_DoubleBond &&
-                  a2 == NO_ATOM)
+                ((type == INCHI_StereoType_Allene ) &&
+                  0 <= a2 && a2 < nNumAtoms)) ||
+                  (type == INCHI_StereoType_DoubleBond &&
+                  a2 == NO_ATOM)) /* djb-rwth: addressing LLVM warning */
             {
                 /* test the quadruplet */
                 for (j = 0, k_prev = -1; j < 4; j++, k_prev = k)
@@ -295,7 +295,7 @@ int Extract0DParities( inp_ATOM *at,
             if (j != 4)
             {
                 char szTemp[16];
-                sprintf( szTemp, "#%d", i0D + 1 );
+                sprintf_s( szTemp, sizeof(szTemp), "#%d", i0D + 1 ); /* djb-rwth: function replaced with its safe C11 variant */
                 TREAT_ERR( *err, 0, "Wrong 0D stereo descriptor(s):" );
                 TREAT_ERR( *err, 0, szTemp );
                 continue; /* error */
@@ -451,7 +451,7 @@ char* FindToken( INCHI_IOSTREAM *inp_file,
         if (( q = strrchr( p, '/' ) ) && ( q + lToken > szLine + *res ))
         {
             *res -= q - szLine; /* res = the length of the szLine to be left in */
-            memmove( szLine, q, (long long)*res + 1 ); /* djb-rwth: cast operator added */
+            memmove_s( szLine, sizeof(szLine) + (long long)(*res) + 1, q, (long long)*res + 1); /* djb-rwth: cast operator added; function replaced with its safe C11 variant */
         }
         else
         {
@@ -498,14 +498,14 @@ char *LoadLine( INCHI_IOSTREAM *inp_file,
         if (pos)
         {
             *res -= pos;
-            memmove( szLine, p, (long long)*res + 1 ); /* djb-rwth: cast operator added */
+            memmove_s( szLine, sizeof(szLine) + (long long)(*res) + 1, p, (long long)*res + 1); /* djb-rwth: cast operator added */
             p = szLine;
             if (*s)
             {
                 *s -= pos;
             }
 
-            pos = 0;
+            /* djb-rwth: removing redundant code */
         }
 
         res2 = inchi_ios_getsTab1( szLine + *res,
@@ -553,9 +553,9 @@ int InchiToInpAtom( INCHI_IOSTREAM *inp_file,
                      int *err,
                      char *pStrErr )
 {
-    int      num_atoms = 0, bFindNext = 0, bItemIsOver;
+    int      num_atoms = 0, bItemIsOver; /* djb-rwth: removing redundant variables */
     int      i, k, k2, res, bond_type, bond_stereo1, bond_stereo2, bond_char, neigh, bond_parity, bond_parityNM;
-    int      res2, bTooLongLine2, hk;
+    /* djb-rwth: removing redundant variables */
     char     *szLine, *p, *q, *s, parity; /* djb-rwth: szLine is now a pointer */
     int      b2D = 0, b3D = 0, b23D, nNumBonds = 0, bNonZeroXYZ, bNonMetal;
     int      len_stereo0D = 0, max_len_stereo0D = 0;
@@ -584,36 +584,37 @@ int InchiToInpAtom( INCHI_IOSTREAM *inp_file,
 
         if (!lenStructHdrPlnAuxStart)
         {
-            lenStructHdrPlnAuxStart = sprintf(sStructHdrPlnAuxStart, "AuxInfo=");
+            lenStructHdrPlnAuxStart = sprintf_s(sStructHdrPlnAuxStart, sizeof(sStructHdrPlnAuxStart), "AuxInfo="); /* djb-rwth: function replaced with its safe C11 variant */
         }
 
         if (at)
         {
             if (*at && max_num_at)
-                memset(*at, 0, max_num_at * sizeof(**at));
+                memset(*at, 0, max_num_at * sizeof(**at)); /* djb-rwth: memset_s C11/Annex K variant? */
             if (szCoord && *szCoord)
             {
                 inchi_free(*szCoord);
                 *szCoord = NULL;
             }
         }
-        else
-        {
-            bFindNext = 1;
-        }
+        /* djb-rwth: removing redundant code */
 
         ir.bHeaderRead = ir.bErrorMsg = ir.bRestoreInfo = 0;
         *num_dimensions = *num_bonds = 0;
 
 
         if (nInputType != INPUT_INCHI_PLAIN)
+        {
+            inchi_free(szLine); /* djb-rwth: avoiding memory leak */
             return num_atoms;
+        }
+            
 
         /*
             Extract reversibility info from plain text INChI format
         */
 
-        ir.bHeaderRead = hk = 0;
+        ir.bHeaderRead = 0; /* djb-rwth: removing redundant code */
         while (0 < (res = inchi_ios_getsTab(szLine, sizeof(szLine) - 1, inp_file, &ir.bTooLongLine)))
         {
 
@@ -689,7 +690,7 @@ int InchiToInpAtom( INCHI_IOSTREAM *inp_file,
                 {
                     /* atoms block started */
                     i = 0;
-                    res2 = bTooLongLine2 = -1;
+                    /* djb-rwth: removing redundant code */
                     bItemIsOver = (s = strchr(p, '/')) || !ir.bTooLongLine;
                     while (1)
                     {
@@ -731,7 +732,7 @@ int InchiToInpAtom( INCHI_IOSTREAM *inp_file,
                                 }
                                 else
                                 {
-                                    memset(*at, 0, max_num_at * sizeof(**at));
+                                    memset(*at, 0, max_num_at * sizeof(**at)); /* djb-rwth: memset_s C11/Annex K variant? */
                                     atom = *at;
                                 }
                             }
@@ -878,7 +879,7 @@ int InchiToInpAtom( INCHI_IOSTREAM *inp_file,
                         i++;
                     }
 
-                    if (!bItemIsOver || i != num_atoms || s && p != s)
+                    if (!bItemIsOver || i != num_atoms || (s && p != s)) /* djb-rwth: addressing LLVM warning */
                     {
                         num_atoms = INCHI_INP_ERROR_RET; /* error */
                         *err = INCHI_INP_ERROR_ERR;
@@ -911,7 +912,7 @@ int InchiToInpAtom( INCHI_IOSTREAM *inp_file,
 
                     i = 1;
 
-                    res2 = bTooLongLine2 = -1;
+                    /* djb-rwth: removing redundant code */
 
                     bItemIsOver = (s = strchr(p, '/')) || !ir.bTooLongLine;
 
@@ -929,7 +930,7 @@ int InchiToInpAtom( INCHI_IOSTREAM *inp_file,
                         p = LoadLine(inp_file, &ir.bTooLongLine, &bItemIsOver, &s,
                             szLine, sizeof(szLine), INCHI_LINE_ADD, p, &res);
 
-                        if (i >= num_atoms || s && p >= s)
+                        if (i >= num_atoms || (s && p >= s)) /* djb-rwth: addressing LLVM warning */
                         {
                             break; /* end of bonds (plain) */
                         }
@@ -1118,7 +1119,7 @@ int InchiToInpAtom( INCHI_IOSTREAM *inp_file,
                                     goto bypass_end_of_INChI_plain;
                                 }
 
-                                memcpy(new_atom_stereo0D, atom_stereo0D, len_stereo0D * sizeof(*atom_stereo0D));
+                                memcpy_s(new_atom_stereo0D, sizeof(*atom_stereo0D)*(len_stereo0D) + 1, atom_stereo0D, len_stereo0D * sizeof(*atom_stereo0D)); /* djb-rwth: function replaced with its safe C11 variant */
                                 FreeInchi_Stereo0D(&atom_stereo0D);
                                 atom_stereo0D = new_atom_stereo0D;
                                 max_len_stereo0D += num_atoms;
@@ -1137,7 +1138,7 @@ int InchiToInpAtom( INCHI_IOSTREAM *inp_file,
                         }
                 }
 
-                    if (!bItemIsOver || i != num_atoms || s && p != s)
+                    if (!bItemIsOver || i != num_atoms || (s && p != s)) /* djb-rwth: addressing LLVM warning */
                     {
                         num_atoms = INCHI_INP_ERROR_RET; /* error */
                         *err = INCHI_INP_ERROR_ERR;
@@ -1167,9 +1168,9 @@ int InchiToInpAtom( INCHI_IOSTREAM *inp_file,
                 else
                 {
                     /* Coordinates block started */
-                    if (pszCoord = (MOL_COORD*)inchi_malloc(inchi_max(num_atoms, 1) * sizeof(MOL_COORD)))
+                    if ((pszCoord = (MOL_COORD*)inchi_malloc(inchi_max(num_atoms, 1) * sizeof(MOL_COORD)))) /* djb-rwth: addressing LLVM warning */
                     {
-                        memset(pszCoord, ' ', inchi_max(num_atoms, 1) * sizeof(MOL_COORD));
+                        memset(pszCoord, ' ', inchi_max(num_atoms, 1) * sizeof(MOL_COORD)); /* djb-rwth: memset_s C11/Annex K variant? */
                     }
                     else
                     {
@@ -1180,7 +1181,7 @@ int InchiToInpAtom( INCHI_IOSTREAM *inp_file,
                     }
 
                     i = 0;
-                    res2 = bTooLongLine2 = -1;
+                    /* djb-rwth: removing redundant code */
                     bItemIsOver = (s = strchr(p, '/')) || !ir.bTooLongLine;
 
                     while (i < num_atoms)
@@ -1189,7 +1190,7 @@ int InchiToInpAtom( INCHI_IOSTREAM *inp_file,
                         p = LoadLine(inp_file, &ir.bTooLongLine, &bItemIsOver, &s,
                             szLine, sizeof(szLine), INCHI_LINE_ADD, p, &res);
 
-                        if (i >= num_atoms || s && p >= s)
+                        if (i >= num_atoms || (s && p >= s)) /* djb-rwth: addressing LLVM warning */
                         {
                             break; /* end of bonds (plain) */
                         }
@@ -1230,7 +1231,7 @@ int InchiToInpAtom( INCHI_IOSTREAM *inp_file,
                                     bNonZeroXYZ = fabs(xyz) > MIN_BOND_LENGTH;
                                     if (q != NULL)
                                     {
-                                        memcpy(pszCoord[i] + LEN_COORD * (long long)k, p, q - p); /* djb-rwth: cast operator added */
+                                        memcpy_s(pszCoord[i] + LEN_COORD * (long long)k, sizeof(pszCoord[i]) + q - p + 1, p, q - p); /* djb-rwth: cast operator added; function replaced with its safe C11 variant */
                                         if (*q == ',')
                                             q++;
                                         p = q;
@@ -1267,15 +1268,17 @@ int InchiToInpAtom( INCHI_IOSTREAM *inp_file,
                             num_atoms = INCHI_INP_ERROR_RET; /* error in input data: atoms, bonds & coord must be present together */
                             *err = INCHI_INP_ERROR_ERR;
                             TREAT_ERR(*err, 0, "Wrong atom coordinates data");
+                            inchi_free(pszCoord); /* djb-rwth: avoiding memory leak */
                             goto bypass_end_of_INChI_plain;
                         }
                     }
 
-                    if (!bItemIsOver || s && p != s || i != num_atoms)
+                    if (!bItemIsOver || (s && p != s) || i != num_atoms) /* djb-rwth: addressing LLVM warning */
                     {
                         num_atoms = INCHI_INP_ERROR_RET; /* error */
                         *err = INCHI_INP_ERROR_ERR;
                         TREAT_ERR(*err, 0, "Wrong number of coordinates");
+                        inchi_free(pszCoord); /* djb-rwth: avoiding memory leak */
                         goto bypass_end_of_INChI_plain;
                     }
                 } /* end of coordinates */
@@ -1285,7 +1288,7 @@ int InchiToInpAtom( INCHI_IOSTREAM *inp_file,
                 */
 
                 b23D = b2D | b3D;
-                b2D = b3D = 0;
+                /* djb-rwth: removing redundant code */
                 if (at)
                 {
                     if (!*at)
@@ -1304,7 +1307,7 @@ int InchiToInpAtom( INCHI_IOSTREAM *inp_file,
                                 int num_bond_type[MAX_INPUT_BOND_TYPE - MIN_INPUT_BOND_TYPE + 1];
                                 int bHasMetalNeighbor = 0;
 
-                                memset(num_bond_type, 0, sizeof(num_bond_type));
+                                memset(num_bond_type, 0, sizeof(num_bond_type)); /* djb-rwth: memset_s C11/Annex K variant? */
 
                                 valence = AT_BONDS_VAL(atom, a1); /*  save atom valence if available */
                                 AT_BONDS_VAL(atom, a1) = 0;
@@ -1601,14 +1604,14 @@ int InchiToInpAtom( INCHI_IOSTREAM *inp_file,
                                     /* Detected well-defined disconnected stereo
                                      * locate first non-metal neighbors */
 
-                                    int    a, n, j, /* k,*/ sb_ord, cur_neigh, min_neigh;
+                                    int    a, j, /* k,*/ sb_ord, cur_neigh, min_neigh; /* djb-rwth: removing redundant variables */
 
                                     for (k = 0; k < 2; k++)
                                     {
                                         a = k ? atom_stereo0D[i].neighbor[2] : atom_stereo0D[i].neighbor[1];
                                         sb_ord = k ? sb_ord_from_a2 : sb_ord_from_a1;
                                         min_neigh = num_atoms;
-                                        for (n = j = 0; j < AT_NUM_BONDS(atom[a]); j++)
+                                        for (j = 0; j < AT_NUM_BONDS(atom[a]); j++) /* djb-rwth: removing redundant code */
                                         {
                                             cur_neigh = atom[a].neighbor[j];
                                             if (j != sb_ord && !IS_METAL_ATOM(atom, cur_neigh))
@@ -1760,7 +1763,7 @@ void find_and_interpret_structure_header( char *szLine,
         /* has label name */
 
         /*p ++;*/
-        if (q = strchr( p, '=' ))
+        if ((q = strchr( p, '=' ))) /* djb-rwth: addressing LLVM warning */
         {
 
             /* '=' separates label name from the value */
@@ -1782,17 +1785,17 @@ void find_and_interpret_structure_header( char *szLine,
                 {
                     mystrncpy( pSdfValue, p, len );
                 }
-                p = q;
+                /* djb-rwth: removing redundant code */
             }
         }
-        else if (q = strstr( p, sStructHdrPlnNoLblVal ))
+        else if ((q = strstr( p, sStructHdrPlnNoLblVal ))) /* djb-rwth: addressing LLVM warning */
         {
             len = inchi_min( q - p + 1, MAX_SDF_HEADER - 1 );
             if (pSdfLabel)
             {
                 mystrncpy( pSdfLabel, p, len );
             }
-            p = q + 1;
+            /* djb-rwth: removing redundant code */
         }
     }
 

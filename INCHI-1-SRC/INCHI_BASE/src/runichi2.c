@@ -167,7 +167,7 @@ int GetOneStructure( INCHI_CLOCK    *ic,
                 {
                     if (struct_fptrs->len_fptr)
                     {
-                        memcpy( new_fptr, struct_fptrs->fptr, struct_fptrs->len_fptr * sizeof( new_fptr[0] ) );
+                        memcpy_s( new_fptr, sizeof(new_fptr[0]) * (struct_fptrs->len_fptr) + 1, struct_fptrs->fptr, struct_fptrs->len_fptr * sizeof(new_fptr[0])); /* djb-rwth: function replaced with its safe C11 variant */
                     }
                     inchi_free( struct_fptrs->fptr );
                 }
@@ -419,7 +419,7 @@ int ReadTheStructure( struct tagINCHI_CLOCK *ic,
         InpAtomFlags |= FLAG_SET_INP_LARGE_MOLS;
     }
 
-    memset( sd, 0, sizeof( *sd ) );
+    memset( sd, 0, sizeof( *sd ) ); /* djb-rwth: memset_s C11/Annex K variant? */
 
     switch (ip->nInputType)
     {
@@ -445,11 +445,11 @@ int ReadTheStructure( struct tagINCHI_CLOCK *ic,
                          ']' == q[0] &&
                          !q[1])
                     {
-                        sprintf( p + 1, "%d]", n + 1 );
+                        sprintf_s( p + 1, sizeof(p) + 1, "%d]", n + 1 ); /* djb-rwth: function replaced with its safe C11 variant */
                     }
                     else
                     {
-                        strcat( ip->pSdfValue, " [+1]" );
+                        strcat_s( ip->pSdfValue, sizeof(ip->pSdfValue)*2 + 1, " [+1]" ); /* djb-rwth: function replaced with its safe C11 variant */
                     }
                 }
 
@@ -473,7 +473,7 @@ int ReadTheStructure( struct tagINCHI_CLOCK *ic,
                                                       &InpAtomFlags,
                                                       &sd->nStructReadError,
                                                       sd->pStrErrStruct,
-                                                      ip->bNoWarnings);
+                                                      ip->bNoWarnings); /* djb-rwth: ignoring LLVM warning: variable used to store function return value */
 
 
 
@@ -515,7 +515,7 @@ int ReadTheStructure( struct tagINCHI_CLOCK *ic,
                 {
                     InpAtomFlags = FLAG_INP_AT_NONCHIRAL; /* forced by the user */
                 }
-                else if (( InpAtomFlags & FLAG_INP_AT_CHIRAL ) && ( InpAtomFlags && FLAG_INP_AT_NONCHIRAL ))
+                else if (( InpAtomFlags & FLAG_INP_AT_CHIRAL ) && ( InpAtomFlags & FLAG_INP_AT_NONCHIRAL )) /* djb-rwth: correcting &&->& for bitwise calculation? */
                 {
                     InpAtomFlags &= ~FLAG_INP_AT_NONCHIRAL;
                 }
@@ -597,11 +597,11 @@ int ReadTheStructure( struct tagINCHI_CLOCK *ic,
                          ']' == q[0] &&
                          !q[1])
                     {
-                        sprintf( p + 1, "%d]", n + 1 );
+                        sprintf_s( p + 1, sizeof(p) + 1, "%d]", n + 1 ); /* djb-rwth: function replaced with its safe C11 variant */
                     }
                     else
                     {
-                        strcat( ip->pSdfValue, " [+1]" );
+                        strcat_s( ip->pSdfValue, sizeof(ip->pSdfValue)*2 + 1, " [+1]"); /* djb-rwth: function replaced with its safe C11 variant */
                     }
                 }
 
@@ -626,7 +626,7 @@ int ReadTheStructure( struct tagINCHI_CLOCK *ic,
                                          (unsigned long *) &ip->lMolfileNumber,
                                          &InpAtomFlags,
                                          &sd->nStructReadError,
-                                         sd->pStrErrStruct );
+                                         sd->pStrErrStruct ); /* djb-rwth: ignoring LLVM warning: variable used to store function return value */
 
                 /*if ( !ip->bGetSdfileId || ip->lSdfId == 999999LU) ip->lSdfId = 0;*/
                 if (inp_file->type == INCHI_IOS_TYPE_FILE && inp_file->f)
@@ -649,7 +649,7 @@ int ReadTheStructure( struct tagINCHI_CLOCK *ic,
                 {
                     InpAtomFlags = FLAG_INP_AT_NONCHIRAL; /* forced by the user */
                 }
-                else if (( InpAtomFlags & FLAG_INP_AT_CHIRAL ) && ( InpAtomFlags && FLAG_INP_AT_NONCHIRAL ))
+                else if (( InpAtomFlags & FLAG_INP_AT_CHIRAL ) && ( InpAtomFlags & FLAG_INP_AT_NONCHIRAL )) /* djb-rwth: correcting &&->& for bitwise calculation? */
                 {
                     InpAtomFlags &= ~FLAG_INP_AT_NONCHIRAL;
                 }
@@ -1159,9 +1159,9 @@ int InchiToOrigAtom( INCHI_IOSTREAM *inp_molfile,
                 /*  switch at_new <--> orig_at_data->at; */
                 if (orig_at_data->num_inp_atoms)
                 {
-                    memcpy( orig_at_data->at,
+                    memcpy_s( orig_at_data->at, sizeof(orig_at_data->at[0])*(orig_at_data->num_inp_atoms) + 1, 
                             at_old,
-                            orig_at_data->num_inp_atoms * sizeof( orig_at_data->at[0] ) );
+                            orig_at_data->num_inp_atoms * sizeof( orig_at_data->at[0] ) ); /* djb-rwth: function replaced with its safe C11 variant */
                     /*  adjust numbering in the newly read structure */
                     for (i = 0; i < num_inp_atoms_new; i++)
                     {
@@ -1173,9 +1173,9 @@ int InchiToOrigAtom( INCHI_IOSTREAM *inp_molfile,
                     }
                     if (orig_at_data->szCoord && szCoordOld)
                     {
-                        memcpy( orig_at_data->szCoord,
+                        memcpy_s( orig_at_data->szCoord, sizeof(MOL_COORD)*(orig_at_data->num_inp_atoms) + 1,
                                 szCoordOld,
-                                orig_at_data->num_inp_atoms * sizeof( MOL_COORD ) );
+                                orig_at_data->num_inp_atoms * sizeof( MOL_COORD ) ); /* djb-rwth: function replaced with its safe C11 variant */
                     }
                 }
                 if (at_old)
@@ -1189,14 +1189,14 @@ int InchiToOrigAtom( INCHI_IOSTREAM *inp_molfile,
                     szCoordOld = NULL;
                 }
                 /*  copy newly read structure */
-                memcpy( orig_at_data->at + orig_at_data->num_inp_atoms,
+                memcpy_s( orig_at_data->at + orig_at_data->num_inp_atoms, sizeof(orig_at_data->at[0])*num_inp_atoms_new + 1,
                         at_new,
-                        num_inp_atoms_new * sizeof( orig_at_data->at[0] ) );
+                        num_inp_atoms_new * sizeof( orig_at_data->at[0] ) ); /* djb-rwth: function replaced with its safe C11 variant */
                 if (orig_at_data->szCoord && szCoordNew)
                 {
-                    memcpy( orig_at_data->szCoord + orig_at_data->num_inp_atoms,
+                    memcpy_s( orig_at_data->szCoord + orig_at_data->num_inp_atoms, sizeof(MOL_COORD)*num_inp_atoms_new + 1,
                             szCoordNew,
-                            num_inp_atoms_new * sizeof( MOL_COORD ) );
+                            num_inp_atoms_new * sizeof( MOL_COORD ) ); /* djb-rwth: function replaced with its safe C11 variant */
                 }
                 /*  add other things */
                 orig_at_data->num_inp_atoms += num_inp_atoms_new;
@@ -1387,10 +1387,10 @@ int extract_orig_nums_from_auxinfo_string(char *saux, int *orig)
     p += 3;
     q = p;
 
-    while (k = inchi_strtol(p, &q, 10))
+    while ((k = inchi_strtol(p, &q, 10))) /* djb-rwth: addressing LLVM warning */
     {
         orig[cano_num++] = k/* - 1*/; /* 1-based numbers */
-        if (c = UCINT *q && c != '/')
+        if ((c = UCINT *q) && c != '/') /* djb-rwth: addressing LLVM warning */
         {
             p = q + 1;
         }
@@ -1423,8 +1423,8 @@ int extract_nonstereo_eq_classes_from_auxinfo_string( char *saux,
     /* Note that all atom and class numbers here are 1-based */
 
     *nclasses = 0;
-    memset(eclass, -1, ((long long)nat+1) * sizeof(int)); /* djb-rwth: cast operator added */
-    memset(eclass_by_origs, -1, ((long long)nat+1) * sizeof(int)); /* djb-rwth: cast operator added */
+    memset(eclass, -1, ((long long)nat+1) * sizeof(int)); /* djb-rwth: cast operator added; memset_s C11/Annex K variant? */
+    memset(eclass_by_origs, -1, ((long long)nat+1) * sizeof(int)); /* djb-rwth: cast operator added; memset_s C11/Annex K variant? */
 
     p = strstr(saux, "/E:");
     if (!p)
@@ -1435,7 +1435,7 @@ int extract_nonstereo_eq_classes_from_auxinfo_string( char *saux,
 
     p += 3;
     q = p;
-    while (k = (AT_NUMB)inchi_strtol(p + 1, &q, 10))
+    while ((k = (AT_NUMB)inchi_strtol(p + 1, &q, 10))) /* djb-rwth: addressing LLVM warning */
     {
         c = UCINT *q;
         if (c == '/')
@@ -1496,24 +1496,24 @@ int  POSEContext_Init(POSEContext *context,
     char *sz = NULL;
     int ret = _IS_OKAY, res = 0, i;
 
-    memset(context, 0, sizeof(*context));
+    memset(context, 0, sizeof(*context)); /* djb-rwth: memset_s C11/Annex K variant? */
 
     if (!sd)
     {
-        memset(&context->sd, 0, sizeof(context->sd));
+        memset(&context->sd, 0, sizeof(context->sd)); /* djb-rwth: memset_s C11/Annex K variant? */
     }
     else
     {
-        memcpy(&context->sd, sd, sizeof(context->sd));
+        memcpy_s(&context->sd, sizeof(context->sd) + 1, sd, sizeof(context->sd)); /* djb-rwth: function replaced with its safe C11 variant */
     }
 
     if (!ip)
     {
-        memset(&context->ip, 0, sizeof(context->ip));
+        memset(&context->ip, 0, sizeof(context->ip)); /* djb-rwth: memset_s C11/Annex K variant? */
     }
     else
     {
-        memcpy(&context->ip, ip, sizeof(context->ip));
+        memcpy_s(&context->ip, sizeof(context->ip) + 1, ip, sizeof(context->ip));  /* djb-rwth: function replaced with its safe C11 variant */
         for (i = 0; i < MAX_NUM_PATHS; i++)
         {
             if (ip->path[i])
@@ -1524,7 +1524,7 @@ int  POSEContext_Init(POSEContext *context,
                     ret = _IS_ERROR;
                     goto exit_function;
                 }
-                strcpy(sz, context->ip.path[i]);
+                strcpy_s(sz, sizeof(sz) + strlen(context->ip.path[i]) + 1, context->ip.path[i]); /* djb-rwth: function replaced with its safe C11 variant */
                 context->ip.path[i] = sz;
             }
         }
@@ -1532,7 +1532,7 @@ int  POSEContext_Init(POSEContext *context,
 
     if (strlen(szTitle))
     {
-        strcpy(context->szTitle, szTitle);
+        strcpy_s(context->szTitle, sizeof(context->szTitle) + strlen(szTitle) + 1, szTitle); /* djb-rwth: function replaced with its safe C11 variant */
     }
     else
     {
@@ -1573,7 +1573,7 @@ int  POSEContext_Init(POSEContext *context,
 
     if (orig_inp_data)
     {
-        memset(context->orig_inp_data, 0, sizeof(*context->orig_inp_data));
+        memset(context->orig_inp_data, 0, sizeof(*context->orig_inp_data)); /* djb-rwth: memset_s C11/Annex K variant? */
         res = OrigAtData_Duplicate(context->orig_inp_data, orig_inp_data);
         if (res)
         {
@@ -1584,7 +1584,7 @@ int  POSEContext_Init(POSEContext *context,
 
     if (prep_inp_data)
     {
-        memset(context->prep_inp_data, 0, 2 * sizeof(*context->prep_inp_data));
+        memset(context->prep_inp_data, 0, 2 * sizeof(*context->prep_inp_data)); /* djb-rwth: memset_s C11/Annex K variant? */
         res = OrigAtData_Duplicate(context->prep_inp_data, prep_inp_data);
         if (res)
         {
@@ -1914,7 +1914,7 @@ int  OAD_Polymer_PrepareFoldCRUEdits( ORIG_ATOM_DATA *orig_at_data,
             ret = _IS_ERROR;
             goto exit_function;
         }
-        memset(all_bkb_orig, 0, ((long long)orig_at_data->num_inp_bonds + 1) * sizeof(int)); /* djb-rwth: cast operator added */
+        memset(all_bkb_orig, 0, ((long long)orig_at_data->num_inp_bonds + 1) * sizeof(int)); /* djb-rwth: cast operator added; memset_s C11/Annex K variant? */
         ret = extract_all_backbone_bonds_from_inchi_string(sinchi, &n_all_bkb_orig, orig, all_bkb_orig);
         if (ret != _IS_OKAY && ret != _IS_WARNING)
         {
@@ -1997,13 +1997,13 @@ int  OAD_Polymer_PrepareFoldCRUEdits( ORIG_ATOM_DATA *orig_at_data,
         {
             inchi_free(all_bkb_orig);
         }
-
-        /* djb-rwth: deallocating memory; C++ STL dynamic memory strategies should be considered */
-        free(ec);
-        free(ec_cano);
-        free(at_stereo_mark_orig);
-        free(xc);
     }
+
+    /* djb-rwth: deallocating memory; C++ STL dynamic memory strategies should be considered */
+    inchi_free(ec);
+    inchi_free(ec_cano);
+    inchi_free(at_stereo_mark_orig);
+    inchi_free(xc);
 
     return ret;
 }
@@ -2077,14 +2077,14 @@ void DiylFrag_MakeSignature(DiylFrag *pfrag,
                             int *xc,            /* xclasses (molecule-wide)         */
                             int *cnt )          /* temp storage: counts of xclasses */
 {
-    int i, k, nxc_frag;
+    int i, k, nxc_frag; /* djb-rwth: ignoring LLVM warning: variable used to store function return value */
     
     inchi_strbuf_printf(&pfrag->sig, "%-d,%-d,%-d{", pfrag->na, xc[pfrag->end1], xc[pfrag->end2]);
     for (i = 0; i < pfrag->na; i++)
     {
         pfrag->xclist[i] = xc[pfrag->alist[i]];
     }  
-    nxc_frag = count_colors_in_sequence(pfrag->xclist, pfrag->na, nxc+1, cnt);
+    nxc_frag = count_colors_in_sequence(pfrag->xclist, pfrag->na, nxc+1, cnt); /* djb-rwth: ignoring LLVM warning: variable used to store function return value */
     for (k = 0; k < nxc; k++)
     {
         if (cnt[k] > 0)
@@ -2343,9 +2343,10 @@ int analyze_CRU_folding(ORIG_ATOM_DATA *orig_at_data,
 
     ITRACE_("\n* Found %-d times foldable unit of %-d fragments\n* First repeating sub-unit formed by %-d-fragment backbone : ",
             n_fold, n_frags, n_frags_in_repeating_subunit);
-    for (k = 0; k < n_frags_in_repeating_subunit; k++)
+    
+    for (k = 0; k < n_frags_in_repeating_subunit && frag[k]; k++) /* djb-rwth: fixing a NULL pointer dereference */
     {
-        if (frag[k]->end1==frag[k]->end2)
+        if (frag[k]->end1 == frag[k]->end2)
         {
             ITRACE_("-{%-d}-", frag[k]->end1, frag[k]->end2);
         }
@@ -2354,6 +2355,7 @@ int analyze_CRU_folding(ORIG_ATOM_DATA *orig_at_data,
             ITRACE_("-{%-d...%-d}-", frag[k]->end1, frag[k]->end2);
         }
     }
+
     ITRACE_("\n");
     ITRACE_("* Backbone pattern for %-d fragments that may be removed :  ", n_frags - n_frags_in_repeating_subunit);
     for (k = n_frags_in_repeating_subunit; k < n_frags; k++)
@@ -2381,23 +2383,29 @@ int analyze_CRU_folding(ORIG_ATOM_DATA *orig_at_data,
     /* Break bond from the subunit to the next fragment and replace an original 
        bond to "right" cap with bond from the subunit "right" atom  
     */
-    subunit_last_atom        = frag[n_frags_in_repeating_subunit - 1]->end2;
-    next_subunit_first_atom  = frag[n_frags_in_repeating_subunit]->end1;
-            
-    fail = 0;
-    fail += IntArray_Append(ed->del_bond, subunit_last_atom);
-    fail += IntArray_Append(ed->del_bond, next_subunit_first_atom);
 
-    fail += IntArray_Append(ed->mod_bond, u->end_atom2);
-    fail += IntArray_Append(ed->mod_bond, u->cap2);
-    fail += IntArray_Append(ed->mod_bond, subunit_last_atom);
-    fail += IntArray_Append(ed->mod_bond, u->cap2);
-
-    if (fail)
+    /*djb-rwth: the whole block had to be rewritten to fix NULL pointer dereference */
+    if (frag[n_frags_in_repeating_subunit])
     {
-        ret = _IS_ERROR;
-        goto exit_function;
+        subunit_last_atom        = frag[n_frags_in_repeating_subunit - 1]->end2;
+        next_subunit_first_atom  = frag[n_frags_in_repeating_subunit]->end1;
+
+        fail = 0;
+        fail += IntArray_Append(ed->del_bond, subunit_last_atom);
+        fail += IntArray_Append(ed->del_bond, next_subunit_first_atom);
+
+        fail += IntArray_Append(ed->mod_bond, u->end_atom2);
+        fail += IntArray_Append(ed->mod_bond, u->cap2);
+        fail += IntArray_Append(ed->mod_bond, subunit_last_atom);
+        fail += IntArray_Append(ed->mod_bond, u->cap2);
+
+        if (fail)
+        {
+            ret = _IS_ERROR;
+            goto exit_function;
+        }
     }
+            
     /*	Now collect all backbone atoms to be deleted (we will then delete the
     associated side chains also, but no need to reveal them at the moment)	*/
 
@@ -2458,7 +2466,7 @@ exit_function:
 int count_colors_in_sequence( int *color, int n, int maxcol, int *counts)
 {
     int i, ncol=0;
-    memset(counts, 0, maxcol * sizeof(int)); 
+    memset(counts, 0, maxcol * sizeof(int)); /* djb-rwth: memset_s C11/Annex K variant? */
     for (i = 0; i<n; i++) 
     {
         int colori = color[i];
@@ -2655,7 +2663,7 @@ int  OAD_Polymer_PrepareFrameShiftEdits( ORIG_ATOM_DATA *orig_at_data,
             ModSCenter_Init(&scinfo[2], orig_at_data->at, end1 - 1);
             ModSCenter_Init(&scinfo[3], orig_at_data->at, end2 - 1);
 
-            fail = 0;
+            /* djb-rwth: removing redundant code */
             if (!bIsSameBond(old_end1, cap1, end1, cap1))
             {
                 /* Modify bond: (old_end1-cap1) --> (end1-cap1) */
@@ -2706,6 +2714,7 @@ int  OAD_Polymer_PrepareFrameShiftEdits( ORIG_ATOM_DATA *orig_at_data,
 
         }
 
+        /* djb-rwth: n_flip and ModSCenter_IsChanged function completely redundant? -- discussion required */
         if (orig_at_data->num_dimensions)
         {
             /* Check if we must flip stereocenter configuration */
@@ -2826,10 +2835,11 @@ void ModSCenter_DelFrom(ModSCenterInfo *scinfo, int idel)
 /****************************************************************************
  Check if stereo configuration of modifiable stereo center changed
 ****************************************************************************/
+/* djb-rwth: n_flip and ModSCenter_IsChanged function completely redundant? -- discussion required */
 int ModSCenter_IsChanged(ModSCenterInfo *scinfo, inp_ATOM *at)
 {
     int i, ns, base1=-1, base2=-1, new_base2=-1, n_changed=0;
-    double a[3], b[3], new_b[3], z[3], new_z[3], zz;
+    double a[3], b[3], new_b[3], z[3], new_z[3], zz; /* djb-rwth: ignoring LLVM warning: variable used to store function return value */
 
     if (scinfo->n_stereo < 1)
     {
@@ -2886,7 +2896,7 @@ int ModSCenter_IsChanged(ModSCenterInfo *scinfo, inp_ATOM *at)
 
     cross_prod3(a, b, z);
     cross_prod3(a, new_b, new_z);
-    zz = dot_prod3(z, new_z);
+    zz = dot_prod3(z, new_z); /* djb-rwth: ignoring LLVM warning: variable used to store function return value */
 
     return -1;
 }

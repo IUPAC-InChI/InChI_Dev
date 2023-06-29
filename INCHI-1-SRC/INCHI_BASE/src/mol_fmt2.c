@@ -64,7 +64,7 @@ int MolfileStrnread( char* dest, char* source, int len, char **first_space )
 
     if (len > 0)
     {
-        strncpy( dest, source, len );
+        strncpy_s( dest, sizeof(dest) + 1 + len, source, len ); /* djb-rwth: function replaced with its safe C11 variant */
     }
     dest[len] = '\0';
 
@@ -430,9 +430,9 @@ int MolfileSaveCopy( INCHI_IOSTREAM *inp_file,
             {
                 int len;
                 lrtrim( line, &len );
-                len = sprintf( szNumber, "#%ld%s", num, len ? "/" : "" );
+                len = sprintf_s( szNumber, sizeof(szNumber) + 1, "#%ld%s", num, len ? "/" : "" ); /* djb-rwth: function replaced with its safe C11 variant */
                 mystrncpy( line + len, line, sizeof( line ) - len - 1 );
-                memcpy( line, szNumber, len );
+                memcpy_s( line, sizeof(line) + 1 + len, szNumber, len ); /* djb-rwth: function replaced with its safe C11 variant */
             }
 
             if (!strchr( line, '\n' ))

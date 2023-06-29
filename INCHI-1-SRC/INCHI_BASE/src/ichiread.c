@@ -542,13 +542,13 @@ void getInchiStateReadErr( int stat, char *szMsg )
     {
         ;
     }
-    sprintf( szMsg,
+    sprintf_s( szMsg, sizeof(irErrMsg) + 1,
 #if ( FIX_DALKE_BUGS == 1 )
              "%s%.100s",
 #else
              "%s%s",
 #endif
-             irErrMsg[i].msg, bRecMet ? ", Reconnected layer" : "" );
+             irErrMsg[i].msg, bRecMet ? ", Reconnected layer" : "" ); /* djb-rwth: function replaced with its safe C11 variant */
 }
 
 
@@ -644,7 +644,7 @@ int ReadWriteInChI( INCHI_CLOCK *ic,
     INPUT_PARMS ip_cur, *ip;
     STRUCT_DATA sd_cur, *sd;
 
-    int  pState, bStereoType;
+    int  pState; /* djb-rwth: removing redundant variables */
     int  bReqProtonsForEachComponent = 0;
     int  bReqSplitOutputInChI = 0;
     SEGM_LINE Line;
@@ -696,9 +696,9 @@ int ReadWriteInChI( INCHI_CLOCK *ic,
             pRealOut = pTmpOut;
     }
 
-    memset( szMessage, 0, sizeof( szMessage ) );
-    memset( &OneInput, 0, sizeof( OneInput ) );
-    memset( pLine, 0, sizeof( pLine[0] ) );
+    memset( szMessage, 0, sizeof( szMessage ) ); /* djb-rwth: memset_s C11/Annex K variant? */
+    memset( &OneInput, 0, sizeof( OneInput ) ); /* djb-rwth: memset_s C11/Annex K variant? */
+    memset( pLine, 0, sizeof( pLine[0] ) ); /* djb-rwth: memset_s C11/Annex K variant? */
     if (szMsg)
         szMsg[0] = '\0';
 
@@ -721,9 +721,9 @@ int ReadWriteInChI( INCHI_CLOCK *ic,
             }
         }
 
-        memset( &OneInput, 0, sizeof( OneInput ) );
-        memset( pncFlags, 0, sizeof( *pncFlags ) );
-        bStereoType = 0;
+        memset( &OneInput, 0, sizeof( OneInput ) ); /* djb-rwth: memset_s C11/Annex K variant? */
+        memset( pncFlags, 0, sizeof( *pncFlags ) ); /* djb-rwth: memset_s C11/Annex K variant? */
+        /* djb-rwth: removing redundant code */
         ip_cur = *ip_inp;
         ip = &ip_cur;
         sd_cur = *sd_inp;
@@ -759,13 +759,13 @@ int ReadWriteInChI( INCHI_CLOCK *ic,
             /* polymer stuff added */
             if (pInp->type == INCHI_IOS_TYPE_STRING)
             {
-                int res;
+                int res; /* djb-rwth: ignoring LLVM warning: variable used to store function return value */
 
                 if (ip_inp->lMolfileNumber)
                     /* get here from inchi-1 main emulation mode */
                     num_inp = ip_inp->lMolfileNumber - 1;
 
-                res = DetectAndExposePolymerInternals( pInp );
+                res = DetectAndExposePolymerInternals( pInp ); /* djb-rwth: ignoring LLVM warning: variable used to store function return value */
                 /* proceed silently for now, errs mist be uncovered further on conversion */
             }
         }
@@ -915,7 +915,7 @@ int ReadWriteInChI( INCHI_CLOCK *ic,
                 }
                 if (strHdr && strHdr[0])
                 {
-                    strncpy( ip->szSdfDataHeader, strHdr, sizeof( ip->szSdfDataHeader ) );
+                    strncpy_s( ip->szSdfDataHeader, sizeof(ip->szSdfDataHeader) + 1, strHdr, sizeof( ip->szSdfDataHeader ) ); /* djb-rwth: function replaced with its safe C11 variant */
                     ip->szSdfDataHeader[sizeof( ip->szSdfDataHeader ) - 1] = '\0';
                     ip->pSdfLabel = NULL;
                     ip->pSdfValue = ip->szSdfDataHeader;
@@ -928,9 +928,9 @@ int ReadWriteInChI( INCHI_CLOCK *ic,
             }
 
 #if ( FIX_DALKE_BUGS == 1 )
-            sprintf( szMessage, "%ld: %.400s", num_inp, strHdr ? strHdr : "" );
+            sprintf_s( szMessage, sizeof(szMessage) + 1, "%ld: %.400s", num_inp, strHdr ? strHdr : "" ); /* djb-rwth: function replaced with its safe C11 variant */
 #else
-            sprintf( szMessage, "%ld: %s", num_inp, strHdr ? strHdr : "" );
+            sprintf_s( szMessage, sizeof(szMessage) + 1, "%ld: %s", num_inp, strHdr ? strHdr : "" ); /* djb-rwth: function replaced with its safe C11 variant */
 #endif
 #endif
 
@@ -1209,9 +1209,9 @@ int OutputInChIAsRequested( struct tagCANON_GLOBALS *pCG,
                             long                    num_inp,
                             unsigned char           save_opt_bits )
 {
-    int      j, k, k1, k2, ret2 = 0, iINChI, iINChI1, iINChI2;
-    PINChI2 *pINChI[INCHI_NUM];
-    PINChI_Aux2 *pINChI_Aux[INCHI_NUM];
+    int      j, k, k1, k2, ret2 = 0, iINChI, iINChI1; /* djb-rwth: removing redundant variables */
+    PINChI2 *pINChI[INCHI_NUM], *newPTR1;
+    PINChI_Aux2 *pINChI_Aux[INCHI_NUM], *newPTR2;
     int bReqNonTaut;
     int bHasSomeReconnected;
 
@@ -1227,7 +1227,7 @@ int OutputInChIAsRequested( struct tagCANON_GLOBALS *pCG,
 
     INCHI_IOS_STRING temp_string_container;
     INCHI_IOS_STRING *strbuf = &temp_string_container;
-    memset( strbuf, 0, sizeof( *strbuf ) );
+    memset( strbuf, 0, sizeof( *strbuf ) ); /* djb-rwth: memset_s C11/Annex K variant? */
 
     if (0 >= inchi_strbuf_init( strbuf, INCHI_STRBUF_INITIAL_SIZE, INCHI_STRBUF_SIZE_INCREMENT ))
     {
@@ -1237,27 +1237,86 @@ int OutputInChIAsRequested( struct tagCANON_GLOBALS *pCG,
 
     nRet1 = 0;
     k1 = k2 = 0;
-    memset( pncFlags, 0, sizeof( *pncFlags ) );
-    memset( pINChI, 0, sizeof( pINChI ) );
-    memset( pINChI_Aux, 0, sizeof( pINChI_Aux ) );
+    memset( pncFlags, 0, sizeof( *pncFlags ) ); /* djb-rwth: memset_s C11/Annex K variant? */
+    memset( pINChI, 0, sizeof( pINChI ) ); /* djb-rwth: memset_s C11/Annex K variant? */
+    memset( pINChI_Aux, 0, sizeof( pINChI_Aux ) ); /* djb-rwth: memset_s C11/Annex K variant? */
 
     *ip = *ip_inp;
     *sd = *sd_inp;
     bHasSomeReconnected = 0;
     bSortPrintINChIFlags = 0;
-    nNumOutputComponents = 0;
+    /* djb-rwth: removing redundant code */
     bReqNonTaut = ( 0 != ( ip->nMode & REQ_MODE_BASIC ) );
     bReqSplitOutputInChI = ( 0 != ( ip->bReadInChIOptions & READ_INCHI_SPLIT_OUTPUT ) );
 
     INCHI_HEAPCHK
 
-        if (num_components[INCHI_BAS])
-        {
-            MYREALLOC2( PINChI2, PINChI_Aux2, pINChI[INCHI_BAS], pINChI_Aux[INCHI_BAS], num_components[INCHI_BAS], (long long)num_components[INCHI_BAS], k1 ); /* djb-rwth: cast operator added */
-        }
+    if (num_components[INCHI_BAS])
+    {
+        /* djb-rwth: MYREALLOC2( PINChI2, PINChI_Aux2, pINChI[INCHI_BAS], pINChI_Aux[INCHI_BAS], num_components[INCHI_BAS], (long long)num_components[INCHI_BAS], k1 ); has been replaced and the whole block rewritten to address memory leaks and reading from freed memory locations */
+
+        do {
+            if ((num_components[INCHI_BAS]) <= ((long long)num_components[INCHI_BAS])) 
+            {
+                newPTR1 = (PINChI2*)inchi_calloc(((long long)num_components[INCHI_BAS]) + 1, sizeof(PINChI2));
+                newPTR2 = (PINChI_Aux2*)inchi_calloc(((long long)num_components[INCHI_BAS]) + 1, sizeof(PINChI_Aux2));
+                if (newPTR1 && newPTR2) {
+                    if ((pINChI[INCHI_BAS]) && (num_components[INCHI_BAS]) > 0)
+                        memcpy_s(newPTR1, sizeof(PINChI2) * (num_components[INCHI_BAS]) + 1, (pINChI[INCHI_BAS]), (num_components[INCHI_BAS]) * sizeof(PINChI2));
+                    if ((pINChI_Aux[INCHI_BAS]) && (num_components[INCHI_BAS]) > 0)
+                        memcpy_s(newPTR2, sizeof(PINChI_Aux2) * (num_components[INCHI_BAS]) + 1, (pINChI_Aux[INCHI_BAS]), (num_components[INCHI_BAS]) * sizeof(PINChI_Aux2));
+                    if (pINChI[INCHI_BAS])
+                        inchi_free(pINChI[INCHI_BAS]);
+                    if (pINChI_Aux[INCHI_BAS])
+                        inchi_free(pINChI_Aux[INCHI_BAS]);
+                    pINChI[INCHI_BAS] = newPTR1;
+                    pINChI_Aux[INCHI_BAS] = newPTR2;
+                    num_components[INCHI_BAS] = (long long)num_components[INCHI_BAS];
+                    k1 = 0;
+                }
+                else 
+                {
+                    inchi_free(newPTR1);
+                    inchi_free(newPTR2);
+                    k1 = 1;
+                }
+            }
+            else { k1 = 0; }
+        } while (0);
+    }
+
     if (num_components[INCHI_REC])
     {
-        MYREALLOC2( PINChI2, PINChI_Aux2, pINChI[INCHI_REC], pINChI_Aux[INCHI_REC], num_components[INCHI_REC], (long long)num_components[INCHI_REC], k2 ); /* djb-rwth: cast operator added */
+        /* djb-rwth: MYREALLOC2( PINChI2, PINChI_Aux2, pINChI[INCHI_REC], pINChI_Aux[INCHI_REC], num_components[INCHI_REC], (long long)num_components[INCHI_REC], k2 ); has been replaced and the whole block rewritten to address memory leaks and reading from freed memory locations */
+
+        do {
+            if ((num_components[INCHI_REC]) <= ((long long)num_components[INCHI_REC])) 
+            {
+                newPTR1 = (PINChI2*)inchi_calloc(((long long)num_components[INCHI_REC]) + 1, sizeof(PINChI2));
+                newPTR2 = (PINChI_Aux2*)inchi_calloc(((long long)num_components[INCHI_REC]) + 1, sizeof(PINChI_Aux2));
+                if (newPTR1 && newPTR2) {
+                    if ((pINChI[INCHI_REC]) && (num_components[INCHI_REC]) > 0)
+                        memcpy_s(newPTR1, sizeof(PINChI2) * (num_components[INCHI_REC]) + 1, (pINChI[INCHI_REC]), (num_components[INCHI_REC]) * sizeof(PINChI2));
+                    if ((pINChI_Aux[INCHI_REC]) && (num_components[INCHI_REC]) > 0)
+                        memcpy_s(newPTR2, sizeof(PINChI_Aux2) * (num_components[INCHI_REC]) + 1, (pINChI_Aux[INCHI_REC]), (num_components[INCHI_REC]) * sizeof(PINChI_Aux2));
+                    if (pINChI[INCHI_REC])
+                        inchi_free(pINChI[INCHI_REC]);
+                    if (pINChI_Aux[INCHI_REC])
+                        inchi_free(pINChI_Aux[INCHI_REC]);
+                    pINChI[INCHI_REC] = newPTR1;
+                    pINChI_Aux[INCHI_REC] = newPTR2;
+                    num_components[INCHI_REC] = (long long)num_components[INCHI_REC];
+                    k2 = 0;
+                }
+                else 
+                {
+                    inchi_free(newPTR1);
+                    inchi_free(newPTR2);
+                    k2 = 1;
+                }
+            }
+            else { k2 = 0; }
+        } while (0);
     }
 
 
@@ -1265,6 +1324,11 @@ int OutputInChIAsRequested( struct tagCANON_GLOBALS *pCG,
 
         if (k1 || k2 /*|| !pStr*/)
         {
+            /* djb-rwth: avoiding memory leak */
+            free(pINChI[INCHI_BAS]);
+            free(pINChI_Aux[INCHI_BAS]);
+            free(pINChI[INCHI_REC]);
+            free(pINChI_Aux[INCHI_REC]);
             ret2 = RI_ERR_ALLOC;
             goto exit_error;
         }
@@ -1281,18 +1345,28 @@ int OutputInChIAsRequested( struct tagCANON_GLOBALS *pCG,
     {
         for (j = 0; j < TAUT_NUM; j++)
         {
-            if (bReqNonTaut || j != TAUT_NON && OneInput->pInpInChI[iINChI][j])
+            if (bReqNonTaut || (j != TAUT_NON && OneInput->pInpInChI[iINChI][j])) /* djb-rwth: addressing LLVM warning */
             {
                 for (k = 0; k < num_components[iINChI]; k++)
                 {
                     /* allocate InChI & AuxInfo */
                     if (!( pINChI[iINChI][k][j] = (INChI *) inchi_calloc( 1, sizeof( INChI ) ) ))
                     {
+                        /* djb-rwth: avoiding memory leak */
+                        free(pINChI[INCHI_BAS]);
+                        free(pINChI_Aux[INCHI_BAS]);
+                        free(pINChI[INCHI_REC]);
+                        free(pINChI_Aux[INCHI_REC]);
                         ret2 = RI_ERR_ALLOC;
                         goto exit_error;
                     }
                     if (!( pINChI_Aux[iINChI][k][j] = (INChI_Aux *) inchi_calloc( 1, sizeof( INChI_Aux ) ) ))
                     {
+                        /* djb-rwth: avoiding memory leak */
+                        free(pINChI[INCHI_BAS]);
+                        free(pINChI_Aux[INCHI_BAS]);
+                        free(pINChI[INCHI_REC]);
+                        free(pINChI_Aux[INCHI_REC]);
                         ret2 = RI_ERR_ALLOC;
                         goto exit_error;
                     }
@@ -1302,7 +1376,7 @@ int OutputInChIAsRequested( struct tagCANON_GLOBALS *pCG,
 
                         /* copy InChI */
                         *pINChI[iINChI][k][j] = OneInput->pInpInChI[iINChI][j][k];
-                        memset( &OneInput->pInpInChI[iINChI][j][k], 0, sizeof( OneInput->pInpInChI[iINChI][j][k] ) );
+                        memset( &OneInput->pInpInChI[iINChI][j][k], 0, sizeof( OneInput->pInpInChI[iINChI][j][k] ) ); /* djb-rwth: memset_s C11/Annex K variant? */
                         INCHI_HEAPCHK
                             /* take care of protons in AuxInfo */
 
@@ -1317,9 +1391,9 @@ int OutputInChIAsRequested( struct tagCANON_GLOBALS *pCG,
                                 }
                                 INCHI_HEAPCHK
                             }
-                            else if (!k && nModeProtonIsoExchgH[iINChI] == MODE_PIXH_ADD_TO_FIRST ||
-                                      k + 1 == OneInput->nNumComponents[iINChI][j] &&
-                                      nModeProtonIsoExchgH[iINChI] == MODE_PIXH_ADD_A_PIXH_COMPONENT)
+                            else if ((!k && nModeProtonIsoExchgH[iINChI] == MODE_PIXH_ADD_TO_FIRST) ||
+                                      (k + 1 == OneInput->nNumComponents[iINChI][j] &&
+                                      nModeProtonIsoExchgH[iINChI] == MODE_PIXH_ADD_A_PIXH_COMPONENT)) /* djb-rwth: addressing LLVM warnings */
                             {
                                 /* add protons and exchangeable isotopic H to the first component's AuxInfo */
                                 pINChI_Aux[iINChI][k][j]->nNumRemovedProtons = OneInput->nNumProtons[iINChI][j].nNumRemovedProtons;
@@ -1374,13 +1448,13 @@ int OutputInChIAsRequested( struct tagCANON_GLOBALS *pCG,
         if (bHasSomeReconnected)
         {
             iINChI1 = INCHI_REC; /* only reconnected */
-            iINChI2 = INCHI_NUM;
+            /* djb-rwth: removing redundant code */
             sd->num_components[INCHI_BAS] = sd->num_components[INCHI_REC];
         }
         else
         {
             iINChI1 = 0;         /* only disconnected */
-            iINChI2 = iINChI1 + 1;
+            /* djb-rwth: removing redundant code */
         }
         sd->num_components[INCHI_REC] = 0;  /* treat reconnected as connected */
         nNumOutputComponents = sd->num_components[INCHI_BAS];
@@ -1388,7 +1462,7 @@ int OutputInChIAsRequested( struct tagCANON_GLOBALS *pCG,
     else
     {
         iINChI1 = 0;
-        iINChI2 = INCHI_NUM;
+        /* djb-rwth: removing redundant code */
         nNumOutputComponents = 1;
     }
 
@@ -1412,8 +1486,8 @@ int OutputInChIAsRequested( struct tagCANON_GLOBALS *pCG,
                     /*  find where the current processed structure is located */
                     int cur_is_in_non_taut = ( pINChI[iINChI][k][TAUT_NON] && pINChI[iINChI][k][TAUT_NON]->nNumberOfAtoms > 0 );
                     int cur_is_in_taut = ( pINChI[iINChI][k][TAUT_YES] && pINChI[iINChI][k][TAUT_YES]->nNumberOfAtoms > 0 );
-                    int cur_is_non_taut = cur_is_in_non_taut && 0 == pINChI[iINChI][k][TAUT_NON]->lenTautomer ||
-                        cur_is_in_taut && 0 == pINChI[iINChI][k][TAUT_YES]->lenTautomer;
+                    int cur_is_non_taut = (cur_is_in_non_taut && 0 == pINChI[iINChI][k][TAUT_NON]->lenTautomer) ||
+                        (cur_is_in_taut && 0 == pINChI[iINChI][k][TAUT_YES]->lenTautomer); /* djb-rwth: addressing LLVM warnings */
                     int cur_is_taut = cur_is_in_taut && 0 < pINChI[iINChI][k][TAUT_YES]->lenTautomer;
                     if (cur_is_non_taut + cur_is_taut)
                     {
@@ -1447,8 +1521,8 @@ int OutputInChIAsRequested( struct tagCANON_GLOBALS *pCG,
                         /*  find where the current processed structure is located */
                         int cur_is_in_non_taut = ( pINChI[iINChI][k][TAUT_NON] && pINChI[iINChI][k][TAUT_NON]->nNumberOfAtoms > 0 );
                         int cur_is_in_taut = ( pINChI[iINChI][k][TAUT_YES] && pINChI[iINChI][k][TAUT_YES]->nNumberOfAtoms > 0 );
-                        int cur_is_non_taut = cur_is_in_non_taut && 0 == pINChI[iINChI][k][TAUT_NON]->lenTautomer ||
-                            cur_is_in_taut && 0 == pINChI[iINChI][k][TAUT_YES]->lenTautomer;
+                        int cur_is_non_taut = (cur_is_in_non_taut && 0 == pINChI[iINChI][k][TAUT_NON]->lenTautomer) ||
+                            (cur_is_in_taut && 0 == pINChI[iINChI][k][TAUT_YES]->lenTautomer); /* djb-rwth: addressing LLVM warnings */
                         int cur_is_taut = cur_is_in_taut && 0 < pINChI[iINChI][k][TAUT_YES]->lenTautomer;
                         if (cur_is_non_taut + cur_is_taut)
                         {
@@ -1472,8 +1546,8 @@ int OutputInChIAsRequested( struct tagCANON_GLOBALS *pCG,
             PINChI_Aux2 *pInChI_Aux_2[INCHI_NUM];
             INChI *pInChI_1[1][2];
             INChI_Aux *pInChI_Aux_1[1][2];
-            memset( pInChI_2, 0, sizeof( pInChI_2 ) );
-            memset( pInChI_Aux_2, 0, sizeof( pInChI_Aux_2 ) );
+            memset( pInChI_2, 0, sizeof( pInChI_2 ) ); /* djb-rwth: memset_s C11/Annex K variant? */
+            memset( pInChI_Aux_2, 0, sizeof( pInChI_Aux_2 ) ); /* djb-rwth: memset_s C11/Annex K variant? */
             for (j = 0; j < TAUT_NUM; j++)
             {
                 pInChI_1[0][j] = pINChI[iINChI1][k1][j];
@@ -1567,7 +1641,7 @@ int GetNumNeighborsFromInchi( INChI *pInChI, AT_NUMB nAtNumber )
     nNumH = 0; /* number of terminal neighbors H */
     num_atoms = 0; /* djb-rwth: initialisation with pInChI below */
     
-    if (pInChI) /* djb-rwth: correcting the dereferencing NULL pointer */
+    if (pInChI) /* djb-rwth: fixing a NULL pointer dereference */
     {
         num_atoms = pInChI->nNumberOfAtoms;
         /* from RestoreAtomConnectionsSetStereo() */
@@ -1618,7 +1692,7 @@ int GetNumNeighborsFromInchi( INChI *pInChI, AT_NUMB nAtNumber )
         }
     }
     /* count hydrogen neighbors */
-    if (pInChI && pInChI->nNum_H) /* djb-rwth: condition added for correcting the dereferencing NULL pointer */
+    if (pInChI && pInChI->nNum_H) /* djb-rwth: condition added for fixing a NULL pointer dereference */
     {
         nNumH = pInChI->nNum_H[nAtNumber];
     }
@@ -1716,8 +1790,8 @@ int bInpInchiComponentExists( InpInChI  *pOneInput,
                               int       bMobileH,
                               int       k )
 {
-    if (INCHI_BAS != iInChI   && iInChI != INCHI_REC ||
-         TAUT_NON != bMobileH && TAUT_YES != bMobileH || k < 0)
+    if ((INCHI_BAS != iInChI && iInChI != INCHI_REC) ||
+         (TAUT_NON != bMobileH && TAUT_YES != bMobileH) || k < 0) /* djb-rwth: addressing LLVM warnings */
     {
         return 0;
     }
@@ -1735,8 +1809,8 @@ int bInpInchiComponentDeleted( InpInChI *pOneInput,
                                int      bMobileH,
                                int      k )
 {
-    if (INCHI_BAS != iInChI   && iInChI != INCHI_REC ||
-         TAUT_NON != bMobileH && TAUT_YES != bMobileH || k < 0)
+    if ((INCHI_BAS != iInChI && iInChI != INCHI_REC) ||
+         (TAUT_NON != bMobileH && TAUT_YES != bMobileH) || k < 0) /* djb-rwth: addressing LLVM warnings */
     {
         return 0;
     }
@@ -1755,8 +1829,8 @@ int bRevInchiComponentExists( StrFromINChI  *pStruct,
                               int           k )
 {
     if (!pStruct || /*!pStruct->at2 ||*/ !pStruct->num_atoms ||
-         INCHI_BAS != iInChI   && iInChI != INCHI_REC ||
-         TAUT_NON != bMobileH && TAUT_YES != bMobileH || k < 0)
+         (INCHI_BAS != iInChI && iInChI != INCHI_REC) ||
+         (TAUT_NON != bMobileH && TAUT_YES != bMobileH) || k < 0) /* djb-rwth: addressing LLVM warnings */
     {
         return 0;
     }
@@ -1776,8 +1850,8 @@ int bRevInchiComponentDeleted( StrFromINChI *pStruct,
                                int          k )
 {
     if (!pStruct || /*!pStruct->at2 ||*/ !pStruct->num_atoms ||
-         INCHI_BAS != iInChI   && iInChI != INCHI_REC ||
-         TAUT_NON != bMobileH && TAUT_YES != bMobileH || k < 0)
+         (INCHI_BAS != iInChI && iInChI != INCHI_REC) ||
+         (TAUT_NON != bMobileH && TAUT_YES != bMobileH) || k < 0) /* djb-rwth: addressing LLVM warnings */
     {
         return 0;
     }
@@ -1913,7 +1987,7 @@ int bInChIHasReconnectedMetal( INChI *pInChI )
         {
             if (is_el_a_metal( (int) pInChI->nAtom[i] ))
             {
-                if (pInChI->nNumberOfAtoms > 1 || pInChI->nNum_H && pInChI->nNum_H[0])
+                if (pInChI->nNumberOfAtoms > 1 || (pInChI->nNum_H && pInChI->nNum_H[0])) /* djb-rwth: addressing LLVM warning */
                 {
                     return 1;
                 }
@@ -2012,7 +2086,7 @@ int SetProtonsAndXchgIsoH( int       bInChI2Structure,
             {
                 OneInput->nNumProtons[iINChI][TAUT_YES].nNumRemovedIsotopicH[k1] = 0;
             }
-            bAvailableProtonsTotal = 0;
+            /* djb-rwth: removing redundant code */
         }
         /* remove unneeded data: Fixed-H InChI; no protons data exist for Fixed-H */
         if (!bReqNonTaut && OneInput->nNumComponents[iINChI][TAUT_NON])
@@ -2047,12 +2121,12 @@ int SetProtonsAndXchgIsoH( int       bInChI2Structure,
         }
 #endif
         /* add one more component containing only /p and /i/h */
-        if (nModeProtonIsoExchgH[iINChI] == MODE_PIXH_ADD_A_PIXH_COMPONENT &&
-             OneInput->nNumComponents[iINChI][TAUT_YES] ||
+        if ((nModeProtonIsoExchgH[iINChI] == MODE_PIXH_ADD_A_PIXH_COMPONENT &&
+             OneInput->nNumComponents[iINChI][TAUT_YES]) ||
              /* always add one deleted component if no non-taut InChI is available */
-             bInChI2Structure && !bAvailableProtonsForEachComponent &&
+             (bInChI2Structure && !bAvailableProtonsForEachComponent &&
              !OneInput->nNumComponents[iINChI][TAUT_NON] &&
-             OneInput->nNumComponents[iINChI][TAUT_YES])
+             OneInput->nNumComponents[iINChI][TAUT_YES])) /* djb-rwth: addressing LLVM warnings */
         {
             int nPrevLen, nLen = 0;
             j = TAUT_YES;
@@ -2070,7 +2144,7 @@ int SetProtonsAndXchgIsoH( int       bInChI2Structure,
                     ret2 = RI_ERR_ALLOC;
                     goto exit_error;
                 }
-                memcpy( pInChI, OneInput->pInpInChI[iINChI][j], nLen * sizeof( *pInChI ) );
+                memcpy_s( pInChI, sizeof(*pInChI)*nLen + 1, OneInput->pInpInChI[iINChI][j], nLen * sizeof( *pInChI ) ); /* djb-rwth: function replaced with its safe C11 variant */
                 inchi_free( OneInput->pInpInChI[iINChI][j] );
                 OneInput->pInpInChI[iINChI][j] = pInChI;
             }
@@ -2079,7 +2153,7 @@ int SetProtonsAndXchgIsoH( int       bInChI2Structure,
             for (k = nLen; k < nPrevLen; k++)
             {
                 Free_INChI_Members( &OneInput->pInpInChI[iINChI][j][k] );
-                memset( &OneInput->pInpInChI[iINChI][j][k], 0, sizeof( OneInput->pInpInChI[iINChI][j][k] ) );
+                memset( &OneInput->pInpInChI[iINChI][j][k], 0, sizeof( OneInput->pInpInChI[iINChI][j][k] ) ); /* djb-rwth: memset_s C11/Annex K variant? */
             }
             /* mark the last component as a proton */
             if (0 >( ret2 = nFillOutProtonMobileH( OneInput->pInpInChI[iINChI][j] + nLen ) ))
@@ -2271,7 +2345,7 @@ int InChILine2Data( INCHI_IOSTREAM  *pInp,
                     OAD_Polymer     **ppolymer,
                     OAD_V3000       **pv3000 )
 {
-    int iINChI, i, j, k, m, len1, len2, ret2 = 0, retAux = 0, stateAux = 0;
+    int iINChI, i, j, k, m, len1, len2, ret2 = 0, retAux = 0, stateAux = 0; /* djb-rwth: ignoring LLVM warning: variable used to store function return value */
     int ret, tot_charge[INCHI_NUM][TAUT_NUM];
     int i1, i2, i3;
     int kc;
@@ -2294,7 +2368,7 @@ int InChILine2Data( INCHI_IOSTREAM  *pInp,
     }
 #endif
 
-    memset( num_elem, 0, sizeof( num_elem ) );
+    memset( num_elem, 0, sizeof( num_elem ) ); /* djb-rwth: memset_s C11/Annex K variant? */
 
     ret = ReadInChILine( pInp, pLine, pStr, pState, pInpInChI, 
                          nNumComponents, nNumProtons, s, bStdFormat,
@@ -2331,7 +2405,7 @@ int InChILine2Data( INCHI_IOSTREAM  *pInp,
          nNumComponents[INCHI_BAS][TAUT_YES]
          + nNumComponents[INCHI_BAS][TAUT_NON] && bReadCoord)
     {
-        retAux = ReadInChICoord( pInp, pLine, &stateAux, pInpInChI, nNumComponents );
+        retAux = ReadInChICoord( pInp, pLine, &stateAux, pInpInChI, nNumComponents ); /* djb-rwth: ignoring LLVM warning: variable used to store function return value */
     }
 
     if (( ret == RI_ERR_EOL || ret == RI_ERR_EOF ) &&
@@ -2404,7 +2478,7 @@ int InChILine2Data( INCHI_IOSTREAM  *pInp,
                             goto exit_function;
                         }
                         /**** add single atom nConnTable if it is missing ****/
-                        if (!pInChI->nConnTable)
+                        if (!pInChI->nConnTable && pInpInChI[iINChI][TAUT_YES]) /* djb-rwth: fixing a NULL pointer dereference */
                         {
                             AT_NUMB *pCT;
                             int      lenCT;
@@ -2417,7 +2491,7 @@ int InChILine2Data( INCHI_IOSTREAM  *pInp,
                                     ret2 = RI_ERR_ALLOC;
                                     goto exit_function;
                                 }
-                                memcpy( pInChI->nConnTable, pCT, lenCT * sizeof( pInChI->nConnTable[0] ) );
+                                memcpy_s( pInChI->nConnTable, sizeof(pInChI->nConnTable[0])*lenCT + 1, pCT, lenCT * sizeof( pInChI->nConnTable[0] ) ); /* djb-rwth: function replaced with its safe C11 variant */
                                 pInChI->lenConnTable = lenCT;
                             }
                             else
@@ -2455,7 +2529,7 @@ int InChILine2Data( INCHI_IOSTREAM  *pInp,
                             }
                             else
                             */
-                            if (!pInChI->nTotalCharge && k < nNumComponents[iINChI][TAUT_YES])
+                            if (!pInChI->nTotalCharge && k < nNumComponents[iINChI][TAUT_YES] && pInpInChI[iINChI][TAUT_YES]) /* djb-rwth: fixing a NULL pointer dereference */
                             {
                                 INChI *pAltInChI = &pInpInChI[iINChI][TAUT_YES][k]; /* Mobile H InChI */
                                 if (pAltInChI->nTotalCharge && pAltInChI->nTotalCharge != NO_VALUE_INT)
@@ -2498,7 +2572,7 @@ int InChILine2Data( INCHI_IOSTREAM  *pInp,
                                 XYZ_COORD *pxyz = (XYZ_COORD *) inchi_calloc( pInChI->nNumberOfAtoms, sizeof( pxyz[0] ) );
                                 if (pxyz)
                                 {
-                                    memcpy( pxyz, pInChI->IsotopicTGroup, pInChI->nNumberOfAtoms * sizeof( pxyz[0] ) );
+                                    memcpy_s( pxyz, sizeof(pxyz[0])*(pInChI->nNumberOfAtoms) + 1, pInChI->IsotopicTGroup, pInChI->nNumberOfAtoms * sizeof(pxyz[0])); /* djb-rwth: function replaced with its safe C11 variant */
                                     pAltInChI->IsotopicTGroup = (INChI_IsotopicTGroup *) pxyz;
                                 }
                                 else
@@ -2529,7 +2603,7 @@ int InChILine2Data( INCHI_IOSTREAM  *pInp,
                                 ( pInChI->StereoIsotopic &&
                                   pInChI->StereoIsotopic->nNumberOfStereoCenters
                                   + pInChI->StereoIsotopic->nNumberOfStereoBonds ) ||
-                                pInChI_Alt && pInChI_Alt->nNumberOfIsotopicAtoms;
+                                (pInChI_Alt && pInChI_Alt->nNumberOfIsotopicAtoms); /* djb-rwth: addressing LLVM warning */
 
                             /* non-isotopic Mobile H => isotopic Mobile H */
                             if (bIso)
@@ -2538,8 +2612,8 @@ int InChILine2Data( INCHI_IOSTREAM  *pInp,
                                     ( !pInChI->StereoIsotopic || !pInChI->StereoIsotopic->t_parity ))
                                 {
                                     if (0 > ( ret2 = CopySegment( pInChI, pInChI, CPY_SP3, 1, 0 ) ) ||
-                                        ( !pInChI->StereoIsotopic->nCompInv2Abs || NO_VALUE_INT == pInChI->StereoIsotopic->nCompInv2Abs ) &&
-                                         0 > ( ret2 = CopySegment( pInChI, pInChI, CPY_SP3_M, 1, 0 ) ))
+                                        (( !pInChI->StereoIsotopic->nCompInv2Abs || NO_VALUE_INT == pInChI->StereoIsotopic->nCompInv2Abs ) &&
+                                         0 > ( ret2 = CopySegment( pInChI, pInChI, CPY_SP3_M, 1, 0 ) ))) /* djb-rwth: addressing LLVM warning */
                                     {
                                         goto exit_function;
                                     }
@@ -2636,7 +2710,7 @@ int InChILine2Data( INCHI_IOSTREAM  *pInp,
                                                     ( pInChI->StereoIsotopic &&
                                                       pInChI->StereoIsotopic->nNumberOfStereoCenters
                                                       + pInChI->StereoIsotopic->nNumberOfStereoBonds ) ||
-                                                    pInChI_Alt && pInChI_Alt->nNumberOfIsotopicAtoms;
+                                                    (pInChI_Alt && pInChI_Alt->nNumberOfIsotopicAtoms); /* djb-rwth: addressing LLVM warning */
                                                 if (bIso)
                                                 {
                                                     if (!pInChI_Alt->StereoIsotopic &&  /* create zero/NULL-initialized pInChI_Alt->StereoIsotopic */
@@ -2688,7 +2762,7 @@ int InChILine2Data( INCHI_IOSTREAM  *pInp,
                                 ( pInChI->StereoIsotopic &&
                                   pInChI->StereoIsotopic->nNumberOfStereoCenters
                                   + pInChI->StereoIsotopic->nNumberOfStereoBonds ) ||
-                                pInChI_Alt && pInChI_Alt->nNumberOfIsotopicAtoms;
+                                (pInChI_Alt && pInChI_Alt->nNumberOfIsotopicAtoms); /* djb-rwth: addressing LLVM warning */
                             /* non-isotopic Fixed H => isotopic Fixed H */
                             if (bIso)
                             {
@@ -2790,11 +2864,11 @@ int InChILine2Data( INCHI_IOSTREAM  *pInp,
                                 ( pInChI->StereoIsotopic &&
                                   pInChI->StereoIsotopic->nNumberOfStereoCenters
                                   + pInChI->StereoIsotopic->nNumberOfStereoBonds ) ||
-                                pAltInChI && (
+                                (pAltInChI && (
                                     pAltInChI->nNumberOfIsotopicAtoms ||
                                     ( pAltInChI->StereoIsotopic &&
                                       pAltInChI->StereoIsotopic->nNumberOfStereoCenters
-                                      + pAltInChI->StereoIsotopic->nNumberOfStereoBonds ) );
+                                      + pAltInChI->StereoIsotopic->nNumberOfStereoBonds ) )); /* djb-rwth: addressing LLVM warning */
                             int bNo_InChI_t = ( !pInChI->Stereo || !pInChI->Stereo->t_parity );
                             int bNo_InChI_m = ( !pInChI->Stereo || NO_VALUE_INT == pInChI->Stereo->nCompInv2Abs );
 
@@ -2817,8 +2891,8 @@ int InChILine2Data( INCHI_IOSTREAM  *pInp,
                                 /* copy stereo anyway ... */
 #endif
                                 if (0 > ( ret2 = CopySegment( pInChI, pAltInChI, CPY_SP3, 0, 0 ) ) ||
-                                    ( !pInChI->Stereo->nCompInv2Abs || NO_VALUE_INT == pInChI->Stereo->nCompInv2Abs ) &&
-                                     0 > ( ret2 = CopySegment( pInChI, pAltInChI, CPY_SP3_M, 0, 0 ) ))
+                                    (( !pInChI->Stereo->nCompInv2Abs || NO_VALUE_INT == pInChI->Stereo->nCompInv2Abs ) &&
+                                     0 > ( ret2 = CopySegment( pInChI, pAltInChI, CPY_SP3_M, 0, 0 ) ))) /* djb-rwth: addressing LLVM warning */
                                 {
                                     goto exit_function;
                                 }
@@ -2877,9 +2951,9 @@ int InChILine2Data( INCHI_IOSTREAM  *pInp,
                                             if (bIso)
                                             {
                                                 /* create two zero/NULL-initialized isotopic stereo if they do not exist */
-                                                if (!pInChI->StereoIsotopic && 0 > ( ret2 = CopySegment( pInChI, pAltInChI, CPY_SP3_M, 1, -1 ) )
+                                                if ((!pInChI->StereoIsotopic && 0 > ( ret2 = CopySegment( pInChI, pAltInChI, CPY_SP3_M, 1, -1 ) ))
                                                      /* -- the following will be created later, in TAUT_YES part of the code -- */
-                                                     || !pAltInChI->StereoIsotopic && 0 > ( ret2 = CopySegment( pAltInChI, pAltInChI, CPY_SP3_M, 1, -1 ) ))
+                                                     || (!pAltInChI->StereoIsotopic && 0 > ( ret2 = CopySegment( pAltInChI, pAltInChI, CPY_SP3_M, 1, -1 ) ))) /* djb-rwth: addressing LLVM warnings */
                                                 {
                                                     goto exit_function;
                                                 }
@@ -2987,8 +3061,8 @@ int InChILine2Data( INCHI_IOSTREAM  *pInp,
                                     /* !FH_IsoStereo */
                                     /* copy sp3 iso stereo MI->FI (/t) and, if FH nCompInv2Abs (/m) is missing, copy it, too, MI->FI */
                                     if (0 > ( ret2 = CopySegment( pInChI, pAltInChI, CPY_SP3, 1, 1 ) ) ||
-                                        ( !pInChI->StereoIsotopic->nCompInv2Abs || NO_VALUE_INT == pInChI->StereoIsotopic->nCompInv2Abs ) &&
-                                         0 > ( ret2 = CopySegment( pInChI, pAltInChI, CPY_SP3_M, 1, 1 ) ))
+                                        (( !pInChI->StereoIsotopic->nCompInv2Abs || NO_VALUE_INT == pInChI->StereoIsotopic->nCompInv2Abs ) &&
+                                         0 > ( ret2 = CopySegment( pInChI, pAltInChI, CPY_SP3_M, 1, 1 ) ))) /* djb-rwth: addressing LLVM warning */
                                     {
                                         goto exit_function;
                                     }
@@ -3056,8 +3130,8 @@ int InChILine2Data( INCHI_IOSTREAM  *pInp,
 
                                     /* added 05-09-2006: copy sp3 FH=>FH_Iso */
                                     if (0 > ( ret2 = CopySegment( pInChI, pInChI, CPY_SP3, 1, 0 ) ) ||
-                                        ( !pInChI->StereoIsotopic->nCompInv2Abs || NO_VALUE_INT == pInChI->StereoIsotopic->nCompInv2Abs ) &&
-                                         0 > ( ret2 = CopySegment( pInChI, pInChI, CPY_SP3_M, 1, 0 ) ))
+                                        (( !pInChI->StereoIsotopic->nCompInv2Abs || NO_VALUE_INT == pInChI->StereoIsotopic->nCompInv2Abs ) &&
+                                         0 > ( ret2 = CopySegment( pInChI, pInChI, CPY_SP3_M, 1, 0 ) ))) /* djb-rwth: addressing LLVM warning */
                                     {
                                         goto exit_function;
                                     }
@@ -3170,8 +3244,8 @@ int InChILine2Data( INCHI_IOSTREAM  *pInp,
                             }
                         }
                         /* added 02-07-2006 */
-                        if (pInChI->Stereo && pInChI->Stereo->nCompInv2Abs == NO_VALUE_INT ||
-                             pInChI->StereoIsotopic && pInChI->StereoIsotopic->nCompInv2Abs == NO_VALUE_INT)
+                        if ((pInChI->Stereo && pInChI->Stereo->nCompInv2Abs == NO_VALUE_INT) ||
+                             (pInChI->StereoIsotopic && pInChI->StereoIsotopic->nCompInv2Abs == NO_VALUE_INT)) /* djb-rwth: addressing LLVM warnings */
                         {
                             ret2 = RI_ERR_PROGR;
                             goto exit_function;
@@ -3266,7 +3340,7 @@ int InChILine2Data( INCHI_IOSTREAM  *pInp,
                 int nTotRemovedProtons, nTotRemovedIsotopicH[NUM_H_ISOTOPES], bExists[TAUT_NUM];
                 INChI *pInChI[TAUT_NUM];
                 nTotRemovedProtons = 0;
-                memset( nTotRemovedIsotopicH, 0, sizeof( nTotRemovedIsotopicH ) );
+                memset( nTotRemovedIsotopicH, 0, sizeof( nTotRemovedIsotopicH ) ); /* djb-rwth: memset_s C11/Annex K variant? */
                 len2 = inchi_max( nNumComponents[iINChI][TAUT_YES], nNumComponents[iINChI][TAUT_NON] );
 
                 for (k = 0; k < len2; k++)
@@ -3451,7 +3525,7 @@ int InChILine2Data( INCHI_IOSTREAM  *pInp,
                     ret2 = RI_ERR_ALLOC;
                     goto exit_function;
                 }
-                memcpy( pInChI, pInpInChI[iINChI][j], len1 * sizeof( pInChI[0] ) );
+                memcpy_s( pInChI, sizeof(pInChI[0])*len1 + 1, pInpInChI[iINChI][j], len1 * sizeof( pInChI[0] ) ); /* djb-rwth: function replaced with its safe C11 variant */
                 inchi_free( pInpInChI[iINChI][j] );
                 pInpInChI[iINChI][j] = pInChI;
                 nNumComponents[iINChI][j] = len2;
@@ -3746,7 +3820,7 @@ int CopyAtomNumbers( INChI  *pInChI_To,
         return RI_ERR_PROGR;
     }
 
-    memcpy( pTo, pFrom, pInChI_To->nNumberOfAtoms * sizeof( pTo[0] ) );
+    memcpy_s( pTo, sizeof(pTo[0])*(pInChI_To->nNumberOfAtoms) + 1, pFrom, pInChI_To->nNumberOfAtoms * sizeof( pTo[0] ) ); /* djb-rwth: function replaced with its safe C11 variant */
 
     return 1;
 }
@@ -3862,7 +3936,7 @@ int ParseAuxSegmentNumbers( const char  *str,               /* AuxInfo string   
             if_cnd = true;
         }
 
-        if (if_cnd && ( t = strchr((char *)mult_type, *q)) && q + 1 == pEnd) /* djb-rwth: bool if_cnd applied */
+        if (if_cnd && ( t = strchr((char *)mult_type, *q)) && q + 1 == pEnd) /* djb-rwth: bool if_cnd applied; ignoring LLVM warning: variable used to store function return value */
         {
             /* Process the abbreviation */
             pInChI_From = NULL;
@@ -3917,8 +3991,8 @@ int ParseAuxSegmentNumbers( const char  *str,               /* AuxInfo string   
                                     ret = 1; /*RI_ERR_SYNTAX;*/
                                     goto exit_function;
                                 case 1:
-                                    pInChI_From = pInChI;
-                                    bIso_From = 0;
+                                    pInChI_From = pInChI; /* djb-rwth: ignoring LLVM warning: value used */
+                                    bIso_From = 0; /* djb-rwth: ignoring LLVM warning: value used */
                                 default:
                                     ret = RI_ERR_PROGR;
                                     goto exit_function;
@@ -3959,7 +4033,7 @@ int ParseAuxSegmentNumbers( const char  *str,               /* AuxInfo string   
         else
         {
             mpy_component = 1;
-            p = pStart;
+            p = pStart; /* djb-rwth: ignoring LLVM warning: value used */
             pNumb = pInChI->nPossibleLocationsOfIsotopicH;
             if (!pNumb)
             {
@@ -4391,6 +4465,7 @@ int ParseAuxSegmentReverseXYZ( const char   *str,
     }
     if (i != nLenXYZ || *p)
     {
+        inchi_free(pXYZ); /* djb-rwth: fixing a NULL pointer dereference */
         return RI_ERR_SYNTAX;
     }
     *ppXYZ = pXYZ;
@@ -4408,7 +4483,7 @@ int AddAuxSegmentCoord( int         nRet,
                         INChI       *pInpInChI[INCHI_NUM][TAUT_NUM],
                         int         nNumComponents[INCHI_NUM][TAUT_NUM] )
 {
-    int iINChI, j, k, n, m, numAt[TAUT_NUM], num_at, nNumMissingNumbers = 0, ret = 0;
+    int iINChI, j, k, n, m, numAt[TAUT_NUM], num_at, ret = 0; /* djb-rwth: removing redundant variables */
     INChI *pInChI = NULL;
     INChI *pAltInChI = NULL;
     XYZ_COORD *pxyz;
@@ -4421,15 +4496,17 @@ int AddAuxSegmentCoord( int         nRet,
     {
         for (j = TAUT_YES; TAUT_NON <= j; j--)   /* for FixedH and MobileH ... */
         {
-            for (k = 0; k < nNumComponents[iINChI][j]; k++)  /* for each component ... */
+            if (pInpInChI[iINChI][j]) /* djb-rwth: fixing a NULL pointer dereference */
             {
-                int   jj = ALT_TAUT( j );
-                pInChI = pInpInChI[iINChI][j] + k;
-                pAltInChI = ( k < nNumComponents[iINChI][jj] ) ? pInpInChI[iINChI][jj] + k : NULL;
-                numAt[j] = ( !pInChI->bDeleted ) ? pInChI->nNumberOfAtoms : 0;
-                numAt[jj] = ( pAltInChI && !pAltInChI->bDeleted ) ? pAltInChI->nNumberOfAtoms : 0;
-                switch (j)
+                for (k = 0; k < nNumComponents[iINChI][j]; k++)  /* for each component ... */
                 {
+                    int   jj = ALT_TAUT(j);
+                    pInChI = pInpInChI[iINChI][j] + k;
+                    pAltInChI = (k < nNumComponents[iINChI][jj]) ? pInpInChI[iINChI][jj] + k : NULL;
+                    numAt[j] = (!pInChI->bDeleted) ? pInChI->nNumberOfAtoms : 0;
+                    numAt[jj] = (pAltInChI && !pAltInChI->bDeleted) ? pAltInChI->nNumberOfAtoms : 0;
+                    switch (j)
+                    {
                     case TAUT_YES:
                         if (!numAt[j])
                         {
@@ -4437,7 +4514,7 @@ int AddAuxSegmentCoord( int         nRet,
                         }
                         if (!pInChI->nPossibleLocationsOfIsotopicH)
                         {
-                            nNumMissingNumbers++;
+                            /* djb-rwth: removing redundant code */
                             break;
                         }
                         if (!pInChI->nPossibleLocationsOfIsotopicH[0])
@@ -4445,7 +4522,7 @@ int AddAuxSegmentCoord( int         nRet,
                             if (pInChI->nPossibleLocationsOfIsotopicH[numAt[j]])
                             {
                                 /* copy from non-isotopic (2nd half of the at. numbers array) to the isotopic (1st half) */
-                                ret = CopyAtomNumbers( pInChI, 1, pInChI, 0 );
+                                ret = CopyAtomNumbers(pInChI, 1, pInChI, 0);
                                 if (ret < 0)
                                 {
                                     goto exit_function;
@@ -4453,9 +4530,9 @@ int AddAuxSegmentCoord( int         nRet,
                             }
                             else
                             {
-                                inchi_free( pInChI->nPossibleLocationsOfIsotopicH );
+                                inchi_free(pInChI->nPossibleLocationsOfIsotopicH);
                                 pInChI->nPossibleLocationsOfIsotopicH = NULL;
-                                nNumMissingNumbers++;
+                                /* djb-rwth: removing redundant code */
                             }
                         }
                         break;
@@ -4468,14 +4545,14 @@ int AddAuxSegmentCoord( int         nRet,
                         if (!pInChI->nPossibleLocationsOfIsotopicH)
                         {
                             /* trying to get numbers from Mobile-H component */
-                            if (!numAt[jj] || !( pAltInChI->nPossibleLocationsOfIsotopicH ))
+                            if (!numAt[jj] || !(pAltInChI->nPossibleLocationsOfIsotopicH))
                             {
-                                nNumMissingNumbers++;
+                                /* djb-rwth: removing redundant code */
                                 break;
                             }
                             if (pAltInChI->nPossibleLocationsOfIsotopicH[0])
                             {
-                                ret = CopyAtomNumbers( pInChI, 1, pAltInChI, 1 );
+                                ret = CopyAtomNumbers(pInChI, 1, pAltInChI, 1);
                                 if (ret < 0)
                                 {
                                     goto exit_function;
@@ -4484,7 +4561,7 @@ int AddAuxSegmentCoord( int         nRet,
                             else
                                 if (pAltInChI->nPossibleLocationsOfIsotopicH[numAt[jj]])
                                 {
-                                    ret = CopyAtomNumbers( pInChI, 1, pAltInChI, 0 );
+                                    ret = CopyAtomNumbers(pInChI, 1, pAltInChI, 0);
                                     if (ret < 0)
                                     {
                                         goto exit_function;
@@ -4503,7 +4580,7 @@ int AddAuxSegmentCoord( int         nRet,
                             if (pInChI->nPossibleLocationsOfIsotopicH[numAt[j]])
                             {
                                 /* copy from non-isotopic to isotopic */
-                                ret = CopyAtomNumbers( pInChI, 1, pInChI, 0 );
+                                ret = CopyAtomNumbers(pInChI, 1, pInChI, 0);
                                 if (ret < 0)
                                 {
                                     goto exit_function;
@@ -4511,12 +4588,13 @@ int AddAuxSegmentCoord( int         nRet,
                             }
                             else
                             {
-                                inchi_free( pInChI->nPossibleLocationsOfIsotopicH );
+                                inchi_free(pInChI->nPossibleLocationsOfIsotopicH);
                                 pInChI->nPossibleLocationsOfIsotopicH = NULL;
-                                nNumMissingNumbers++;
+                                /* djb-rwth: removing redundant code */
                             }
                         }
                         break;
+                    }
                 }
             }
         }
@@ -4595,7 +4673,7 @@ int ReadInChICoord( INCHI_IOSTREAM  *pInp,
                     int             nNumComponents[INCHI_NUM][TAUT_NUM] )
 {
     int     c;
-    int     fst;
+    /* djb-rwth: removing redundant variables */
     int     ret = RI_ERR_ALLOC;
     int     bMobileH = TAUT_YES;
     int     bReconn = INCHI_BAS;
@@ -4626,7 +4704,7 @@ int ReadInChICoord( INCHI_IOSTREAM  *pInp,
         pLine->len = 0;
         goto exit_error;
     }
-    if (pLine->len == 0 || c != SEG_END && c != RI_ERR_EOF && !INCHI_INP_EOL( c ))
+    if (pLine->len == 0 || (c != SEG_END && c != RI_ERR_EOF && !INCHI_INP_EOL( c ))) /* djb-rwth: addressing LLVM warning */
     {
         *pState = -1;
         pLine->len = 0;
@@ -4685,7 +4763,7 @@ int ReadInChICoord( INCHI_IOSTREAM  *pInp,
                 ret = RI_ERR_EOL; /* end of line */
                 break;
             }
-            fst = UCINT pLine->str[0];
+            /* djb-rwth: removing redundant code */
         }
 
         /* Process the seqment */
@@ -4929,7 +5007,7 @@ int ReadInChILine( INCHI_IOSTREAM   *pInp,
                    OAD_Polymer **ppPolymer,
                    OAD_V3000 **ppV3000 )
 {
-    int   c, fst, ret = RI_ERR_ALLOC, len;
+    int   c, ret = RI_ERR_ALLOC, len; /* djb-rwth: removing redundant variables */
     int   bMobileH = TAUT_YES, bReconn = INCHI_BAS;
     const char szToken[] = INCHI_TOKEN;
     char *p;
@@ -4964,14 +5042,14 @@ next_line:
             c = nGetInChISegment( pInp, pLine, szToken );
         INCHI_HEAPCHK
     }
-    if (pLine->str && (c == RI_ERR_EOF && !pLine->len && !pLine->str[0])) /* djb-rwth: correcting the dereferencing NULL pointer */
+    if (pLine->str && (c == RI_ERR_EOF && !pLine->len && !pLine->str[0])) /* djb-rwth: fixing a NULL pointer dereference */
         {
             ret = c;
             goto exit_function;
         }
     INCHI_HEAPCHK
 
-        if (pLine->str && (pLine->len == 0 || c != SEG_END && c != RI_ERR_EOF || !( p = strstr( pLine->str, "InChI=1" ) ))) /* djb-rwth: correcting the dereferencing NULL pointer */
+        if (pLine->str && (pLine->len == 0 || (c != SEG_END && c != RI_ERR_EOF) || !( p = strstr( pLine->str, "InChI=1" ) ))) /* djb-rwth: fixing a NULL pointer dereference; addressing LLVM warning; ignoring LLVM warning: value used */
         {
             if (pLine->str && pLine->str == strstr( pLine->str, "Structure" ))
             {
@@ -4982,7 +5060,7 @@ next_line:
                 }
                 *pStr = pLine->str;
                 /* bypass to the end of the 'Structure nnn' line */
-                memset( pLine, 0, sizeof( pLine[0] ) );
+                memset( pLine, 0, sizeof( pLine[0] ) ); /* djb-rwth: memset_s C11/Annex K variant? */
                 while (c && !INCHI_INP_EOL( c ))
                 {
                     c = getInChIChar( pInp );
@@ -5001,7 +5079,7 @@ next_line:
 
 
     /* Check if got a standard InChI */
-    if (pLine->str && ( pLine->len == len_std_prefix ) && ( pLine->str[len_std_prefix - 1] == 'S' )) /* djb-rwth: correcting the dereferencing NULL pointer */
+    if (pLine->str && ( pLine->len == len_std_prefix ) && ( pLine->str[len_std_prefix - 1] == 'S' )) /* djb-rwth: fixing a NULL pointer dereference */
     {
         *bStdFormat = 1;
     }
@@ -5056,7 +5134,7 @@ next_line:
                 {
                     /* not a valid SaveOpt which must be of two chars */
                     *input_has_save_opt = 0;
-                    let1 = let2 = '\0';
+                    /* djb-rwth: removing redundant code */
                 }
                 else
                 {
@@ -5111,8 +5189,7 @@ next_line:
                 ret = RI_ERR_EOL; /* end of line */
                 break;
             }
-            if(pLine->str) /* djb-rwth: correcting the dereferencing NULL pointer */
-                fst = UCINT pLine->str[0];
+            /* djb-rwth: removing redundant code */
 
             /*
             if ( fst == 'z' )
@@ -5205,7 +5282,7 @@ next_line:
                         len = (int) strlen( pLine->str );
                         if (len > 1)
                         {
-                            memmove( pLine->str, pLine->str + 1, len );
+                            memmove_s( pLine->str, (long long)len + 1, pLine->str + 1, len ); /* djb-rwth: function replaced with its safe C11 variant */
                         }
                         else
                         {
@@ -5265,7 +5342,7 @@ next_line:
                         len = (int) strlen( pLine->str );
                         if (len > 1)
                         {
-                            memmove( pLine->str, pLine->str + 1, len );
+                            memmove_s( pLine->str, (long long)len + 1, pLine->str + 1, len ); /* djb-rwth: function replaced with its safe C11 variant */
                         }
                         else
                         {
@@ -5340,7 +5417,7 @@ next_line:
                         len = (int) strlen( pLine->str );
                         if (len > 1)
                         {
-                            memmove( pLine->str, pLine->str + 1, len );
+                            memmove_s( pLine->str, (long long)len + 1, pLine->str + 1, len ); /* djb-rwth: function replaced with its safe C11 variant */
                         }
                         else
                         {
@@ -5398,7 +5475,7 @@ next_line:
                         len = (int) strlen( pLine->str );
                         if (len > 1)
                         {
-                            memmove( pLine->str, pLine->str + 1, len );
+                            memmove_s( pLine->str, (long long)len + 1, pLine->str + 1, len ); /* djb-rwth: function replaced with its safe C11 variant */
                         }
                         else
                         {
@@ -5464,7 +5541,7 @@ int ParseSegmentIsoExchgH( const char   *str,
         return RI_ERR_PROGR; /* program error */
     }
 
-    if (!( pEnd = strchr( pStart, ';' ) ))
+    if (!(strchr( pStart, ';' ) )) /* djb-rwth: removing redundant code */
     {
         pEnd = pStart + strlen( pStart );
     }
@@ -5589,7 +5666,7 @@ int ParseSegmentPerm( const char *str,
         return RI_ERR_PROGR; /* program error */
     }
 
-    if (!( pEnd = strchr( pStart, ';' ) ))
+    if (!(strchr( pStart, ';' ) )) /* djb-rwth: removing redundant code */
     {
         pEnd = pStart + strlen( pStart );
     }
@@ -5607,7 +5684,7 @@ int ParseSegmentPerm( const char *str,
             goto exit_function;
         }
         pPermStart = pStart + 1;
-        memset( &tmp, 0, sizeof( tmp ) );  /* initialization 2006-03 */
+        memset( &tmp, 0, sizeof( tmp ) );  /* initialization 2006-03 */ /* djb-rwth: memset_s C11/Annex K variant? */
         if (!( pPermEnd = strchr( pPermStart, ')' ) ) || pPermEnd == pPermStart)
         {
             ret = RI_ERR_SYNTAX;
@@ -5729,8 +5806,8 @@ int ParseSegmentIsoAtoms( const char *str,
     iComponent = 0;
     nNumComponents = ppnNumComponents[bMobileH];
 
-    if (!( bMobileH == TAUT_YES && state == IST_MOBILE_H_ISO_ATOMS ||
-           bMobileH == TAUT_NON && state == IST_FIXED_H_ISO_ATOMS ))
+    if (!( (bMobileH == TAUT_YES && state == IST_MOBILE_H_ISO_ATOMS) ||
+           (bMobileH == TAUT_NON && state == IST_FIXED_H_ISO_ATOMS) )) /* djb-rwth: addressing LLVM warnings */
     {
         return RI_ERR_PROGR; /* program error */
     }
@@ -5779,7 +5856,7 @@ int ParseSegmentIsoAtoms( const char *str,
                 if_cnd = true;
             }
 
-            if ( if_cnd && ( t = strchr((char *)mult_type, *q)) && q + 1 == pEnd) /* djb-rwth: bool if_cnd applied */
+            if ( if_cnd && ( t = strchr((char *)mult_type, *q)) && q + 1 == pEnd) /* djb-rwth: bool if_cnd applied; ignoring LLVM warning: variable used to store function return value */
             {
                 /* process the abbreviation */
                 ret = 0;
@@ -5913,7 +5990,7 @@ one_more_time:
                     ret = RI_ERR_SYNTAX; /* syntax error */
                     goto exit_function;
                 }
-                memset( &isoAtom, 0, sizeof( isoAtom ) );
+                memset( &isoAtom, 0, sizeof( isoAtom ) ); /* djb-rwth: memset_s C11/Annex K variant? */
                 isoAtom.nAtomNumber = nAtom1;
                 isoAtom.nIsoDifference = (NUM_H) inchi_strtol( p, &q, 10 ); /* alway in abc */
                 if (p == q)
@@ -5952,7 +6029,7 @@ one_more_time:
                         p = q;
                     }
                 }
-                if (p > pEnd || !isoAtom.nIsoDifference && !isoAtom.nNum_T && !isoAtom.nNum_D && !isoAtom.nNum_H)
+                if (p > pEnd || (!isoAtom.nIsoDifference && !isoAtom.nNum_T && !isoAtom.nNum_D && !isoAtom.nNum_H)) /* djb-rwth: addressing LLVM warning */
                 {
                     ret = RI_ERR_SYNTAX; /* syntax error */
                     goto exit_function;
@@ -5980,12 +6057,12 @@ one_more_time:
                 p = q;
                 if (!nAtom1 ||
                     nAtom1 > pInChI[iComponent].nNumberOfAtoms ||
-                    !(r = strchr( (char*)parity_type, *p )))
+                    !(r = strchr( (char*)parity_type, *p ))) /* djb-rwth: ignoring LLVM warning: variable used to store function return value */
                 {
                     ret = RI_ERR_SYNTAX; /* syntax error */
                     goto exit_function;
                 }
-                memset( &isoAtom, 0, sizeof( isoAtom ) );
+                memset( &isoAtom, 0, sizeof( isoAtom ) ); /* djb-rwth: memset_s C11/Annex K variant? */
                 isoAtom.nAtomNumber = nAtom1;
                 if (p[0] == '+' && isdigit( UCINT p[1] ))
                 {
@@ -6153,11 +6230,11 @@ int ParseSegmentSp3s( const char *str,
     }
 
     pStart = (char  *) str + 1;
-    iComponent = 0;
+    /* djb-rwth: removing redundant code */
     nNumComponents = ppnNumComponents[bMobileH];
 
     /*if ( !(pEnd = strchr( pStart, ';' )) )*/ /* 2007-09-25 DT */
-    if (!( pEnd = strchr( pStart, '/' ) ))
+    if (!(strchr( pStart, '/' ) )) /* djb-rwth: removing redundant variables/code */
     {
         pEnd = pStart + strlen( pStart );
     }
@@ -6192,10 +6269,10 @@ int ParseSegmentSp3s( const char *str,
                 goto exit_function;
             }
             /* allocate empty sp3 stereo */
-            if (!pStereo[0]->t_parity &&
-                 !( pStereo[0]->t_parity = (S_CHAR *) inchi_calloc( (long long)len + 1, sizeof( pStereo[0]->b_parity[0] ) ) ) ||
-                 !pStereo[0]->nNumber &&
-                 !( pStereo[0]->nNumber = (AT_NUMB *) inchi_calloc( (long long)len + 1, sizeof( pStereo[0]->nNumber[0] ) ) )) /* djb-rwth: cast operators added */
+            if ((!pStereo[0]->t_parity &&
+                 !( pStereo[0]->t_parity = (S_CHAR *) inchi_calloc( (long long)len + 1, sizeof( pStereo[0]->b_parity[0] ) ) )) ||
+                 (!pStereo[0]->nNumber &&
+                 !( pStereo[0]->nNumber = (AT_NUMB *) inchi_calloc( (long long)len + 1, sizeof( pStereo[0]->nNumber[0] ) ) ))) /* djb-rwth: cast operators added; addressing LLVM warnings */
             {
                 /* cleanup */
                 if (pStereo[0]->t_parity)
@@ -6295,7 +6372,7 @@ int ParseSegmentSp3m( const char *str,
         /* /m is missing: check whether we have to inherit /m from a preceding stereo layer */
         INChI_Stereo *pStereoFrom, *pStereoTo;
         INChI        *pInChIFrom;
-        int          nNumCopied = 0, bMobileHFrom = -1, bIsoFrom = -1;
+        int          bMobileHFrom = -1, bIsoFrom = -1; /* djb-rwth: removing redundant variables */
         if (bMobileH && !bIso)
         {
             return 0; /* Main non-isotopic cannot inherit: it has no preceding layer */
@@ -6341,7 +6418,7 @@ int ParseSegmentSp3m( const char *str,
         if (!bIsSp3LayerNotEmpty( pInpInChI, bMobileHFrom, bIsoFrom, ppnNumComponents[/*bMobileH*/ bMobileHFrom] ))
         {
             /* nothing to copy; check whether it should have inherited from a preceding layer */
-            if (!bMobileHFrom && bIsoFrom || bMobileHFrom && !bIsoFrom)
+            if ((!bMobileHFrom && bIsoFrom) || (bMobileHFrom && !bIsoFrom)) /* djb-rwth: addressing LLVM warnings */
             {
                 /* MI or F inherit stereo from M */
                 bMobileHFrom = TAUT_YES;
@@ -6369,7 +6446,7 @@ int ParseSegmentSp3m( const char *str,
                 if (pStereoFrom && pStereoTo)
                 {
                     pStereoTo->nCompInv2Abs = pStereoFrom->nCompInv2Abs;
-                    nNumCopied++;
+                    /* djb-rwth: removing redundant code */
                 }
             }
         }
@@ -6380,7 +6457,7 @@ int ParseSegmentSp3m( const char *str,
     iComponent = 0;
 
     /*if ( !(pEnd = strchr( pStart, ';' )) )*/ /* 2007-09-25 DT */
-    if (!( pEnd = strchr( pStart, '/' ) ))
+    if (!( strchr( pStart, '/' ) )) /* djb-rwth: removing redundant code */
     {
         pEnd = pStart + strlen( pStart );
     }
@@ -6415,10 +6492,10 @@ int ParseSegmentSp3m( const char *str,
             }
 #endif
             /* allocate empty sp3 stereo */
-            if (!pStereo[0]->t_parity &&
-                 !( pStereo[0]->t_parity = (S_CHAR *) inchi_calloc( (long long)len + 1, sizeof( pStereo[0]->b_parity[0] ) ) ) ||
-                 !pStereo[0]->nNumber &&
-                 !( pStereo[0]->nNumber = (AT_NUMB *) inchi_calloc( (long long)len + 1, sizeof( pStereo[0]->nNumber[0] ) ) )) /* djb-rwth: cast operators added */
+            if ((!pStereo[0]->t_parity &&
+                 !( pStereo[0]->t_parity = (S_CHAR *) inchi_calloc( (long long)len + 1, sizeof( pStereo[0]->b_parity[0] ) ) )) ||
+                 (!pStereo[0]->nNumber &&
+                 !( pStereo[0]->nNumber = (AT_NUMB *) inchi_calloc( (long long)len + 1, sizeof( pStereo[0]->nNumber[0] ) ) ))) /* djb-rwth: cast operators added; addressing LLVM warnings */
             {
                 /* cleanup */
                 if (pStereo[0]->t_parity)
@@ -6503,7 +6580,7 @@ int ParseSegmentSp3( const char *str,			/* input; string of segment starting wit
     const char parity_type[] = "-+u?";
     const char *p, *q, *t, *pStart, *pEnd, *r;
     AT_NUMB nAtom1;
-    int mpy_component, val;
+    int mpy_component = 0, val;
     int nNumComponents, iComponent, len, iAtom;
     int atomParity;
     int ret = 0, retf = 0;
@@ -6556,7 +6633,7 @@ int ParseSegmentSp3( const char *str,			/* input; string of segment starting wit
         }
 
         /* Abbreviation? */
-        if (if_cnd && ( t = strchr((char *)mult_type, *q)) && q + 1 == pEnd) /* djb-rwth: if_cnd applied */
+        if (if_cnd && ( t = strchr((char *)mult_type, *q)) && q + 1 == pEnd) /* djb-rwth: if_cnd applied; ignoring LLVM warning: variable used */
         {
             /* Process abbrebiation */
             retf = SegmentSp3ProcessAbbreviation( &mpy_component, iComponent, nNumComponents,
@@ -6636,7 +6713,7 @@ int ParseSegmentSp3( const char *str,			/* input; string of segment starting wit
                 p = q + 1;
                 if ( !nAtom1 ||
                      nAtom1 > pInChI[iComponent].nNumberOfAtoms ||
-                     !(r = strchr((char *)parity_type, *q)))
+                     !(r = strchr((char *)parity_type, *q))) /* djb-rwth: ignoring LLVM warning: variable used to store function return value */
                 {
                     ret = RI_ERR_SYNTAX; 
                     goto exit_function;
@@ -6845,7 +6922,7 @@ int ParseSegmentSp2( const char *str,
         }
 
 
-        if (if_cnd && (t = strchr((char*)mult_type, *q)) && q + 1 == pEnd) /* djb-rwth: bool if_cnd applied */
+        if (if_cnd && (t = strchr((char*)mult_type, *q)) && q + 1 == pEnd) /* djb-rwth: bool if_cnd applied; ignoring LLVM warning: variable used to store function return value */
         {
             /* process the abbreviation */
             ret = 0;
@@ -7098,7 +7175,7 @@ int ParseSegmentSp2( const char *str,
                 if (!nAtom1 || !nAtom2 ||
                      nAtom1 <= nAtom2 ||
                      nAtom1 > pInChI[iComponent].nNumberOfAtoms ||
-                    !(r = strchr((char *)parity_type, *q)))
+                    !(r = strchr((char *)parity_type, *q))) /* djb-rwth: ignoring LLVM warning: variable used to store function return value */
                 {
                     ret = RI_ERR_SYNTAX; /* syntax error */
                     goto exit_function;
@@ -7195,8 +7272,8 @@ int ParseSegmentSp2( const char *str,
 
                 if (iBond &&
                      !( pStereo[0]->nBondAtom1[iBond - 1] < nAtom1 ||
-                        pStereo[0]->nBondAtom1[iBond - 1] == nAtom1 &&
-                        pStereo[0]->nBondAtom2[iBond - 1] < nAtom2 ))
+                        (pStereo[0]->nBondAtom1[iBond - 1] == nAtom1 &&
+                        pStereo[0]->nBondAtom2[iBond - 1] < nAtom2 ))) /* djb-rwth: addressing LLVM warning */
                 {
                     ret = RI_ERR_SYNTAX; /* syntax error: wrong bond order */
                     goto exit_function;
@@ -7242,8 +7319,8 @@ int ParseSegmentSp2( const char *str,
 
                 if (iBond &&
                      !( pStereo[0]->nBondAtom1[iBond - 1] < nAtom1 ||
-                        pStereo[0]->nBondAtom1[iBond - 1] == nAtom1 &&
-                        pStereo[0]->nBondAtom2[iBond - 1] < nAtom2 ))
+                        (pStereo[0]->nBondAtom1[iBond - 1] == nAtom1 &&
+                        pStereo[0]->nBondAtom2[iBond - 1] < nAtom2 ))) /* djb-rwth: addressing LLVM warning */
                 {
                     ret = RI_ERR_SYNTAX; /* syntax error: wrong bond order */
                     goto exit_function;
@@ -7415,7 +7492,7 @@ int ParseSegmentPolymer( const char  *str,
     /* Count units */
     pd->n = 1;
     p = (char  *) str + 1;
-    while (p = strchr( p, ';' ))
+    while ((p = strchr( p, ';' ))) /* djb-rwth: addressing LLVM warning */
     {
         p++;
         pd->n++;
@@ -7576,7 +7653,7 @@ int ParseSegmentPolymer( const char  *str,
             /* Structure-based representn, read crossing bonds information */
             const int nothing = 0, endgroups = 1, stars = 2, stars_ring = 3, stars_bond = 4, stars_atom = 5;
             int have = nothing;
-            int res, ib, err = 0;
+            int res, ib, err = 0; /* djb-rwth: ignoring LLVM warning: variable used to store function return value */
             INT_ARRAY numlist;
 
             if (IntArray_Alloc( &numlist, 4 ))
@@ -7617,122 +7694,125 @@ int ParseSegmentPolymer( const char  *str,
             }
             p = p0;
 
-            unit->cyclizable = CLOSING_SRU_NOT_APPLICABLE;
-            if (have == endgroups)
+            if (unit) /* djb-rwth: fixing a NULL pointer dereference */
             {
-                /* Read end groups notation */
-                p = ParseSegmentReadDelimitedNumbers( p, pEnd, &numlist, dash, comma, &res );
-                if (res == 1 && numlist.used == 2)
+                unit->cyclizable = CLOSING_SRU_NOT_APPLICABLE;
+                if (have == endgroups)
                 {
-                    p = ParseSegmentReadDelimitedNumbers( p, pEnd, &numlist, dash, rt_par, &res );
-                }
-                if (res == 1 && numlist.used == 4)
-                {
-                    pStart = p + 1;
-                    unit->nb = 2;
-                    unit->blist = (int *) inchi_calloc( 2 * (long long)unit->nb, sizeof( int ) ); /* djb-rwth: cast operator added */
-                    if (!unit->blist)
+                    /* Read end groups notation */
+                    p = ParseSegmentReadDelimitedNumbers(p, pEnd, &numlist, dash, comma, &res);
+                    if (res == 1 && numlist.used == 2)
                     {
-                        ret = RI_ERR_ALLOC; IntArray_Free( &numlist ); goto exit_function;
+                        p = ParseSegmentReadDelimitedNumbers(p, pEnd, &numlist, dash, rt_par, &res);
                     }
-                    unit->blist[0] = numlist.item[0];    unit->blist[1] = numlist.item[1];
-                    unit->blist[2] = numlist.item[2];    unit->blist[3] = numlist.item[3];
-                    unit->cap1 = numlist.item[0]; /* just for GAF check belows */
-                    unit->cap2 = numlist.item[2];
-                    IntArray_Free( &numlist );
-                    continue;
-                }
-            }
-            else if (have == stars_ring ||
-                      have == stars_bond ||
-                      have == stars_atom)
-            {
-                /* Read star atoms - frame shiftable bonds notation */
-                IntArray_Reset( &numlist );
-                p = ParseSegmentReadDelimitedNumbers( p, pEnd, &numlist, comma, dash, &res );
-                if (res != 1 || numlist.used != 2)
-                {
-                    ret = RI_ERR_SYNTAX; IntArray_Free( &numlist ); goto exit_function;
-                }
-                /* OK, we got star atom numbers */
-                if (have == stars_ring)
-                {
-                    p = ParseSegmentReadDelimitedNumbers( p, pEnd, &numlist, comma, rt_par, &res );
-                    if (res != 1 || numlist.used < 4)
+                    if (res == 1 && numlist.used == 4)
                     {
-                        ret = RI_ERR_SYNTAX;
-                        IntArray_Free( &numlist );
-                        goto exit_function;
-                    }
-                    unit->cyclizable = CLOSING_SRU_RING;
-                    unit->nbkbonds = ( numlist.used - 2 ) / 2;
-                }
-                else if (have == stars_bond)
-                {
-                    p = ParseSegmentReadDelimitedNumbers( p, pEnd, &numlist, dot, rt_par, &res );
-                    if (res != 1 || numlist.used < 4)
-                    {
-                        ret = RI_ERR_SYNTAX;
-                        IntArray_Free( &numlist );
-                        goto exit_function;
-                    }
-                    unit->cyclizable = CLOSING_SRU_HIGHER_ORDER_BOND;
-                    unit->nbkbonds = 1;
-                }
-                else if (have == stars_atom)
-                {
-                    int num = inchi_strtol(  ++p,  &p, 10 );
-#if ( ( CHECK_STRTOL_ATNUMB==1 ) || ( FIX_GAF_2019_2==1 ) )
-                    if (num>na_total || num<0)
-                    {
+                        pStart = p + 1;
+                        unit->nb = 2;
+                        unit->blist = (int*)inchi_calloc(2 * (long long)unit->nb, sizeof(int)); /* djb-rwth: cast operator added */
+                        if (!unit->blist)
+                        {
+                            ret = RI_ERR_ALLOC; IntArray_Free(&numlist); goto exit_function;
+                        }
+                        unit->blist[0] = numlist.item[0];    unit->blist[1] = numlist.item[1];
+                        unit->blist[2] = numlist.item[2];    unit->blist[3] = numlist.item[3];
+                        unit->cap1 = numlist.item[0]; /* just for GAF check belows */
+                        unit->cap2 = numlist.item[2];
                         IntArray_Free(&numlist);
-                        ret = RI_ERR_SYNTAX;
-                        goto exit_function;
+                        continue;
                     }
-#endif
-                    if (*p != rt_par)
-                    {
-                        ret = RI_ERR_SYNTAX;
-                        IntArray_Free( &numlist );
-                        goto exit_function;
-                    }
-                    IntArray_Append( &numlist, num );
-                    unit->cyclizable = CLOSING_SRU_DIRADICAL;
-                    unit->nbkbonds = 1;
                 }
-            }
-            else
-            {
-                ret = RI_ERR_SYNTAX;  IntArray_Free( &numlist );  goto exit_function;
-            }
-
-            unit->cap1 = numlist.item[0];
-            unit->cap2 = numlist.item[1];
-
-            if (unit->bkbonds)
-            {
-                imat_free(unit->maxbkbonds, unit->bkbonds);
-                unit->bkbonds = NULL;
-            }
-            unit->maxbkbonds = inchi_max( unit->maxbkbonds, unit->nbkbonds );
-            err = imat_new( unit->maxbkbonds, 2, &( unit->bkbonds ) );
-            for (ib = 0; ib < unit->nbkbonds; ib++)
-            {
-                unit->bkbonds[ib][0] = numlist.item[ib * 2 + 2];
-                if (numlist.used != 3)
+                else if (have == stars_ring ||
+                    have == stars_bond ||
+                    have == stars_atom)
                 {
-                    unit->bkbonds[ib][1] = numlist.item[ib * 2 + 3];
+                    /* Read star atoms - frame shiftable bonds notation */
+                    IntArray_Reset(&numlist);
+                    p = ParseSegmentReadDelimitedNumbers(p, pEnd, &numlist, comma, dash, &res);
+                    if (res != 1 || numlist.used != 2)
+                    {
+                        ret = RI_ERR_SYNTAX; IntArray_Free(&numlist); goto exit_function;
+                    }
+                    /* OK, we got star atom numbers */
+                    if (have == stars_ring)
+                    {
+                        p = ParseSegmentReadDelimitedNumbers(p, pEnd, &numlist, comma, rt_par, &res);
+                        if (res != 1 || numlist.used < 4)
+                        {
+                            ret = RI_ERR_SYNTAX;
+                            IntArray_Free(&numlist);
+                            goto exit_function;
+                        }
+                        unit->cyclizable = CLOSING_SRU_RING;
+                        unit->nbkbonds = (numlist.used - 2) / 2;
+                    }
+                    else if (have == stars_bond)
+                    {
+                        p = ParseSegmentReadDelimitedNumbers(p, pEnd, &numlist, dot, rt_par, &res);
+                        if (res != 1 || numlist.used < 4)
+                        {
+                            ret = RI_ERR_SYNTAX;
+                            IntArray_Free(&numlist);
+                            goto exit_function;
+                        }
+                        unit->cyclizable = CLOSING_SRU_HIGHER_ORDER_BOND;
+                        unit->nbkbonds = 1;
+                    }
+                    else if (have == stars_atom)
+                    {
+                        int num = inchi_strtol(++p, &p, 10);
+#if ( ( CHECK_STRTOL_ATNUMB==1 ) || ( FIX_GAF_2019_2==1 ) )
+                        if (num > na_total || num < 0)
+                        {
+                            IntArray_Free(&numlist);
+                            ret = RI_ERR_SYNTAX;
+                            goto exit_function;
+                        }
+#endif
+                        if (*p != rt_par)
+                        {
+                            ret = RI_ERR_SYNTAX;
+                            IntArray_Free(&numlist);
+                            goto exit_function;
+                        }
+                        IntArray_Append(&numlist, num);
+                        unit->cyclizable = CLOSING_SRU_DIRADICAL;
+                        unit->nbkbonds = 1;
+                    }
                 }
                 else
                 {
-                    unit->bkbonds[ib][1] = unit->bkbonds[ib][0];
+                    ret = RI_ERR_SYNTAX;  IntArray_Free(&numlist);  goto exit_function;
                 }
-            }
-            if (unit->nbkbonds > 0)
-            {
-                /*unit->cyclizable = 1;*/
+
                 unit->cap1 = numlist.item[0];
                 unit->cap2 = numlist.item[1];
+
+                if (unit->bkbonds)
+                {
+                    imat_free(unit->maxbkbonds, unit->bkbonds);
+                    unit->bkbonds = NULL;
+                }
+                unit->maxbkbonds = inchi_max(unit->maxbkbonds, unit->nbkbonds);
+                err = imat_new(unit->maxbkbonds, 2, &(unit->bkbonds)); /* djb-rwth: ignoring LLVM warning: variable used to store function return value */
+                for (ib = 0; ib < unit->nbkbonds; ib++)
+                {
+                    unit->bkbonds[ib][0] = numlist.item[ib * 2 + 2];
+                    if (numlist.used != 3)
+                    {
+                        unit->bkbonds[ib][1] = numlist.item[ib * 2 + 3];
+                    }
+                    else
+                    {
+                        unit->bkbonds[ib][1] = unit->bkbonds[ib][0];
+                    }
+                }
+                if (unit->nbkbonds > 0)
+                {
+                    /*unit->cyclizable = 1;*/
+                    unit->cap1 = numlist.item[0];
+                    unit->cap2 = numlist.item[1];
+                }
             }
 
             pStart = p + 1;
@@ -7940,7 +8020,7 @@ int ParseSegmentCharge( const char  *str,
         }
 
 
-        if (if_cnd && (t = strchr((char*)mult_type, *q)) && q + 1 == pEnd) /* djb-rwth: bool if_cnd applied */
+        if (if_cnd && (t = strchr((char*)mult_type, *q)) && q + 1 == pEnd) /* djb-rwth: bool if_cnd applied; ignoring LLVM warning: variable used to store function return value */
         {
             /* process the abbreviation */
 
@@ -8095,10 +8175,10 @@ int ParseSegmentMobileH( const char *str,
 
     int i, mpy_component, num_H, num_Minus, val, num_Atoms, numCtAtoms, tg_alloc_len, len, len2;
     int num_H_component, num_H_formula, num_taut_H_component, num_H_InChI, ret2;
-    int nNumComponents, iComponent, nNumBonds, lenTautomer, tg_pos_Tautomer, iTGroup;
+    int nNumComponents, iComponent, lenTautomer, tg_pos_Tautomer, iTGroup; /* djb-rwth: removing redundant variables */
     const char *p, *q, *h, *t, *p1, *pTaut, *pStart, *pEnd;
     AT_NUMB curAtom, nxtAtom;
-    int  num_open, state, ret, nAltMobileH = ALT_TAUT( bMobileH );
+    int  state, ret, nAltMobileH = ALT_TAUT( bMobileH ); /* djb-rwth: removing redundant variables */
     INChI *pInChI = pInpInChI[bMobileH];
     INChI *pAltInChI = pInpInChI[nAltMobileH];
     int  base = 10;
@@ -8134,7 +8214,7 @@ int ParseSegmentMobileH( const char *str,
         /* copy immobile H from Mobile-H layer to Fixed-H layer */
         if (bMobileH == TAUT_NON && i < pnNumComponents[nAltMobileH])
         {
-            memcpy( pInChI[i].nNum_H, pAltInChI[i].nNum_H, ( (long long)len - 1 ) * sizeof( pInChI[0].nNum_H[0] ) ); /* djb-rwth: cast operator added */
+            memcpy_s( pInChI[i].nNum_H, sizeof(pInChI[0].nNum_H[0])*((long long)len - 1) + 1, pAltInChI[i].nNum_H, ( (long long)len - 1 ) * sizeof( pInChI[0].nNum_H[0] ) ); /* djb-rwth: cast operator added; function replaced with its safe C11 variant */
         }
     }
 
@@ -8184,10 +8264,10 @@ int ParseSegmentMobileH( const char *str,
         }
         pStart = p;
         /* Pass 1.1 parse a component */
-        num_open = 0;
-        state = '\0';   /* initial state */
-        nNumBonds = 0;
-        curAtom = 0;
+        /* djb-rwth: removing redundant code */
+        /* djb-rwth: removing redundant code */
+        /* djb-rwth: removing redundant code */
+        curAtom = 0; /* djb-rwth: ignoring LLVM warning: value used */
         numCtAtoms = pInChI[iComponent].nNumberOfAtoms;
         if (bMobileH == TAUT_NON && iComponent < pnNumComponents[nAltMobileH])
         {
@@ -8263,7 +8343,7 @@ int ParseSegmentMobileH( const char *str,
                         }
                         if (len > 1)
                         {
-                            memcpy(pInChI[iComponent + i].nAtom, pAltInChI[iComponent + i].nAtom, ((long long)len - 1) * sizeof(pInChI[0].nAtom[0])); /* djb-rwth: cast operator added */
+                            memcpy_s(pInChI[iComponent + i].nAtom, sizeof(pInChI[0].nAtom[0])*((long long)len - 1) + 1, pAltInChI[iComponent + i].nAtom, ((long long)len - 1) * sizeof(pInChI[0].nAtom[0])); /* djb-rwth: cast operator added; function replaced with its safe C11 variant */
                         }
                         /* correct number of atoms including bridging H */
                         pInChI[iComponent + i].nNumberOfAtoms = pAltInChI[iComponent + i].nNumberOfAtoms;
@@ -8286,7 +8366,7 @@ int ParseSegmentMobileH( const char *str,
                     ret = RI_ERR_SYNTAX; /* syntax error */
                     goto exit_function;
                 }
-                if (curAtom = nxtAtom = (int) inchi_strtol( p, &q, base ))
+                if ((curAtom = nxtAtom = (int) inchi_strtol( p, &q, base ))) /* djb-rwth: addressing LLVM warning */
                 {
                     p = q;
                     if (isupper( UCINT *p ))
@@ -8453,13 +8533,13 @@ int ParseSegmentMobileH( const char *str,
         INCHI_HEAPCHK
             /* ) -> (, H, N, [-, N,], AtNum,... AtNum) */
             lenTautomer = 0;
-        if (p = t)
+        if ((p = t)) /* djb-rwth: addressing LLVM warning */
         {
             if (*pbAbc == 1)
             {
                 /* tautomeric groups: pass 1 */
                 iTGroup = 0;
-                state = ')';  /* init as if the prev. t-group just ended */
+                state = ')';  /* init as if the prev. t-group just ended */ /* djb-rwth: ignoring LLVM warning: value used */
                 num_Atoms = 0;
                 /* Tautomeric info storage */
                 /* NumGroups; ((NumAt+2, NumH, Num(-), At1..AtNumAt),...); {INCHI_T_NUM_MOVABLE = 2} */
@@ -8566,7 +8646,7 @@ int ParseSegmentMobileH( const char *str,
                         pInChI[iComponent].nTautomer[lenTautomer++] = val;
                         p = q;
                     }
-                    if (!num_Atoms || p < pEnd && !isdigit( UCINT *p ))
+                    if (!num_Atoms || (p < pEnd && !isdigit( UCINT *p ))) /* djb-rwth: addressing LLVM warning */
                     {
                         ret = RI_ERR_PROGR; /* wrong tautomer array length */
                         goto exit_function;
@@ -8798,15 +8878,15 @@ int ParseSegmentMobileH( const char *str,
                 goto exit_function;
             }
 #endif
-            memcpy( nNum_H( iComponent + i ), nNum_H( iComponent ), pInChI[iComponent + i].nNumberOfAtoms * sizeof( nNum_H( 0 )[0] ) );
+            memcpy_s( nNum_H( iComponent + i ), ((long long)pInChI[iComponent + i].nNumberOfAtoms)*sizeof(nNum_H(0)[0]) + 1, nNum_H( iComponent ), ((long long)pInChI[iComponent + i].nNumberOfAtoms) * sizeof( nNum_H( 0 )[0] ) ); /* djb-rwth: function replaced with its safe C11 variant */
             /*
             memcpy( pInChI[iComponent+i].nNum_H, pInChI[iComponent].nNum_H,
             pInChI[iComponent+i].nNumberOfAtoms * sizeof(pInChI[0].nNum_H[0]) );
             */
             if (pInChI[iComponent + i].nTautomer && pInChI[iComponent].nTautomer && pInChI[iComponent].lenTautomer)
             {
-                memcpy( pInChI[iComponent + i].nTautomer, pInChI[iComponent].nTautomer,
-                        pInChI[iComponent].lenTautomer * sizeof( pInChI[0].nTautomer[0] ) );
+                memcpy_s( pInChI[iComponent + i].nTautomer, ((long long)pInChI[iComponent].lenTautomer)*sizeof(pInChI[0].nTautomer[0]) + 1, pInChI[iComponent].nTautomer,
+                        pInChI[iComponent].lenTautomer * sizeof( pInChI[0].nTautomer[0] ) ); /* djb-rwth: function replaced with its safe C11 variant */
                 pInChI[iComponent + i].lenTautomer = pInChI[iComponent].lenTautomer;
             }
             /* check num_H in components */
@@ -8870,7 +8950,7 @@ int ParseSegmentConnections( const char *str,
 #define LAST_AT_LEN 256
     /* Pass 1: count bonds and find actual numbers of  atom */
     int i, j, k, m, c, mpy_component;
-    int nNumComponents, iComponent, nNumAtoms, nNumBonds, lenConnTable, iBond;
+    int nNumComponents, iComponent, nNumAtoms, nNumBonds, lenConnTable; /* djb-rwth: removing redundant variables */
     const char *p, *q, *pStart, *pEnd;
     AT_NUMB last_atom[LAST_AT_LEN], curAtom, maxAtom;
     int  num_open, state, ret, base;
@@ -8882,6 +8962,7 @@ int ParseSegmentConnections( const char *str,
 
     *nb_total = 0;
     iComponent = 0;
+    LB.pBond = NULL; /* djb-rwth: initialization required to avoid garbage values */
     if (str[0] != 'c')
     {
         if (!pInChI && !*pnNumComponents)
@@ -8919,18 +9000,21 @@ int ParseSegmentConnections( const char *str,
             for (i = 0; i < nNumComponents; i++)
             {
                 /* allocate 1 atom connection table */
-                if (pInChI[i].nConnTable)
+                if (pInChI) /* djb-rwth: fixing a NULL pointer dereference */
                 {
-                    inchi_free( pInChI[i].nConnTable );
+                    if (pInChI[i].nConnTable)
+                    {
+                        inchi_free(pInChI[i].nConnTable);
+                    }
+                    pInChI[i].nConnTable = (AT_NUMB*)inchi_calloc((long long)lenConnTable + 1, sizeof(pInChI[0].nConnTable[0])); /* djb-rwth: cast operator added */
+                    if (!pInChI[i].nConnTable)
+                    {
+                        ret = RI_ERR_ALLOC; /* allocation failure */
+                        goto exit_function;
+                    }
+                    pInChI[i].nConnTable[0] = 1;
+                    pInChI[i].lenConnTable = lenConnTable;
                 }
-                pInChI[i].nConnTable = (AT_NUMB *) inchi_calloc( (long long)lenConnTable + 1, sizeof( pInChI[0].nConnTable[0] ) ); /* djb-rwth: cast operator added */
-                if (!pInChI[i].nConnTable)
-                {
-                    ret = RI_ERR_ALLOC; /* allocation failure */
-                    goto exit_function;
-                }
-                pInChI[i].nConnTable[0] = 1;
-                pInChI[i].lenConnTable = lenConnTable;
             }
         }
         return 0;
@@ -8948,7 +9032,7 @@ int ParseSegmentConnections( const char *str,
         goto exit_function;
     }
 #endif
-    memset( pLB, 0, sizeof( pLB[0] ) );
+    memset( pLB, 0, sizeof( pLB[0] ) ); /* djb-rwth: memset_s C11/Annex K variant? */
 
     while (1)
     {
@@ -8993,11 +9077,11 @@ int ParseSegmentConnections( const char *str,
         pStart = p;
         /* Pass 1.1 parse a component */
         num_open = 0;
-        memset( last_atom, 0, sizeof( last_atom ) );
+        memset( last_atom, 0, sizeof( last_atom ) ); /* djb-rwth: memset_s C11/Annex K variant? */
         state = '\0';   /* initial state */
         maxAtom = 0;
         nNumBonds = 0;
-        curAtom = 0;
+        /* djb-rwth: removing redundant code */
         if (p < pEnd && *pbAbc == -1)
         {
             /* check if compressed InChI */
@@ -9153,7 +9237,7 @@ int ParseSegmentConnections( const char *str,
                     ret = RI_ERR_ALLOC; /* allocation failure */
                     goto exit_function;
                 }
-                memcpy( nAtomTmp, pInChI[iComponent + i].nAtom, sizeof( nAtomTmp[0] )*j );
+                memcpy_s( nAtomTmp, sizeof(nAtomTmp[0])* j + 1, pInChI[iComponent + i].nAtom, sizeof( nAtomTmp[0] )*j ); /* djb-rwth: function replaced with its safe C11 variant */
                 while (j < nNumAtoms)
                 {
                     nAtomTmp[j++] = EL_NUMBER_H; /* bridging H */
@@ -9195,9 +9279,9 @@ int ParseSegmentConnections( const char *str,
 
         /* Pass 1.2 parse a component and extract the bonds */
         num_open = 0;
-        memset( last_atom, 0, sizeof( last_atom ) );
+        memset( last_atom, 0, sizeof( last_atom ) ); /* djb-rwth: memset_s C11/Annex K variant? */
         state = '\0';   /* initial state */
-        iBond = 0;
+        /* djb-rwth: removing redundant code */
         p = pStart;
         pLB->len = 0;
 
@@ -9217,7 +9301,7 @@ int ParseSegmentConnections( const char *str,
                 if (isupper( UCINT *p ))
                 {
                     curAtom = (AT_NUMB) inchi_strtol( p, &q, base );
-                    if (ret = AddLinkedBond( last_atom[num_open], curAtom, (AT_NUMB) nNumAtoms, pLB ))
+                    if ((ret = AddLinkedBond( last_atom[num_open], curAtom, (AT_NUMB) nNumAtoms, pLB ))) /* djb-rwth: addressing LLVM warning */
                     {
                         goto exit_function;
                     }
@@ -9227,9 +9311,9 @@ int ParseSegmentConnections( const char *str,
                         while (p < pEnd && *p == '-')
                         {
                             p++;
-                            if (curAtom = (AT_NUMB) inchi_strtol( p, &q, base ))
+                            if ((curAtom = (AT_NUMB) inchi_strtol( p, &q, base ))) /* djb-rwth: addressing LLVM warning */
                             {
-                                if (ret = AddLinkedBond( last_atom[num_open], curAtom, (AT_NUMB) nNumAtoms, pLB ))
+                                if ((ret = AddLinkedBond( last_atom[num_open], curAtom, (AT_NUMB) nNumAtoms, pLB ))) /* djb-rwth: addressing LLVM warning */
                                 {
                                     goto exit_function;
                                 }
@@ -9250,9 +9334,9 @@ int ParseSegmentConnections( const char *str,
                             p = q;
                             while (num_neigh-- && p < pEnd)
                             {
-                                if (curAtom = (AT_NUMB) inchi_strtol( p, &q, base ))
+                                if ((curAtom = (AT_NUMB) inchi_strtol( p, &q, base ))) /* djb-rwth: addressing LLVM warning */
                                 {
-                                    if (ret = AddLinkedBond( last_atom[num_open], curAtom, (AT_NUMB) nNumAtoms, pLB ))
+                                    if ((ret = AddLinkedBond( last_atom[num_open], curAtom, (AT_NUMB) nNumAtoms, pLB ))) /* djb-rwth: addressing LLVM warning */
                                     {
                                         goto exit_function;
                                     }
@@ -9308,7 +9392,7 @@ int ParseSegmentConnections( const char *str,
                                     state = 'N';
                                     break;
                                 case '(':
-                                    if (ret = AddLinkedBond( last_atom[num_open], curAtom, (AT_NUMB) nNumAtoms, pLB ))
+                                    if ((ret = AddLinkedBond( last_atom[num_open], curAtom, (AT_NUMB) nNumAtoms, pLB ))) /* djb-rwth: addressing LLVM warning */
                                     {
                                         goto exit_function;
                                     }
@@ -9327,7 +9411,7 @@ int ParseSegmentConnections( const char *str,
                                         ret = RI_ERR_SYNTAX; /* syntax error */
                                         goto exit_function;
                                     }
-                                    if (ret = AddLinkedBond( last_atom[--num_open], curAtom, (AT_NUMB) nNumAtoms, pLB ))
+                                    if ((ret = AddLinkedBond( last_atom[--num_open], curAtom, (AT_NUMB) nNumAtoms, pLB ))) /* djb-rwth: addressing LLVM warning */
                                     {
                                         goto exit_function;
                                     }
@@ -9341,7 +9425,7 @@ int ParseSegmentConnections( const char *str,
                                         ret = RI_ERR_SYNTAX; /* syntax error */
                                         goto exit_function;
                                     }
-                                    if (ret = AddLinkedBond( last_atom[num_open - 1], curAtom, (AT_NUMB) nNumAtoms, pLB ))
+                                    if ((ret = AddLinkedBond( last_atom[num_open - 1], curAtom, (AT_NUMB) nNumAtoms, pLB ))) /* djb-rwth: addressing LLVM warning */
                                     {
                                         goto exit_function;
                                     }
@@ -9349,7 +9433,7 @@ int ParseSegmentConnections( const char *str,
                                     state = 'N';
                                     break;
                                 case '-':
-                                    if (ret = AddLinkedBond( last_atom[num_open], curAtom, (AT_NUMB) nNumAtoms, pLB ))
+                                    if ((ret = AddLinkedBond( last_atom[num_open], curAtom, (AT_NUMB) nNumAtoms, pLB ))) /* djb-rwth: addressing LLVM warning */
                                     {
                                         goto exit_function;
                                     }
@@ -9384,7 +9468,7 @@ int ParseSegmentConnections( const char *str,
                     goto exit_function;
                 }
 
-                if (j = pLB->pBond[i + 1].prev)
+                if ((j = pLB->pBond[i + 1].prev)) /* djb-rwth: addressing LLVM warning */
                 {
                     while (k < MAXVAL)
                     {
@@ -9460,7 +9544,7 @@ int ParseSegmentConnections( const char *str,
                 ret = RI_ERR_PROGR;
                 goto exit_function;
             }
-            memcpy( pInChI[iComponent + i].nConnTable, pInChI[iComponent].nConnTable, lenConnTable * sizeof( pInChI[0].nConnTable[0] ) );
+            memcpy_s( pInChI[iComponent + i].nConnTable, sizeof(pInChI[0].nConnTable[0])*lenConnTable + 1, pInChI[iComponent].nConnTable, lenConnTable * sizeof( pInChI[0].nConnTable[0] ) ); /* djb-rwth: function replaced with its safe C11 variant */
         }
         /* prepare for the next connection table */
         iComponent += i;
@@ -9500,7 +9584,7 @@ int nFillOutProtonMobileH( INChI *pInChI )
     {
         return RI_ERR_ALLOC; /* alloc failure */
     }
-    strcpy( pInChI->szHillFormula, "H" );
+    strcpy_s( pInChI->szHillFormula, sizeof(pInChI->szHillFormula) + 1, "H" ); /* djb-rwth: function replaced with its safe C11 variant */
     pInChI->nNumberOfAtoms = 1;
 
     /* atoms */
@@ -9562,8 +9646,8 @@ int nProtonCopyIsotopicInfo( INChI *pInChI_to, INChI *pInChI_from )
             return RI_ERR_ALLOC;
         }
         pInChI_to->nNumberOfIsotopicAtoms = pInChI_from->nNumberOfIsotopicAtoms;
-        memcpy( pInChI_to->IsotopicAtom, pInChI_from->IsotopicAtom,
-                pInChI_from->nNumberOfIsotopicAtoms * sizeof( pInChI_to->IsotopicAtom[0] ) );
+        memcpy_s( pInChI_to->IsotopicAtom, sizeof(pInChI_to->IsotopicAtom[0])*(pInChI_from->nNumberOfIsotopicAtoms) + 1, pInChI_from->IsotopicAtom,
+                pInChI_from->nNumberOfIsotopicAtoms * sizeof( pInChI_to->IsotopicAtom[0] ) ); /* djb-rwth: function replaced with its safe C11 variant */
     }
     else
     {
@@ -9709,9 +9793,9 @@ int ParseSegmentFormula( const char *str,
                         {
                             inchi_free( pInpInChI[bMobileH][i].nAtom );
                         }
-                        if (pInpInChI[bMobileH][i].nAtom = (U_CHAR *) inchi_malloc( ( (long long)len + 1 ) * sizeof( pInpInChI[0][0].nAtom[0] ) )) /* djb-rwth: cast operator added */
+                        if ((pInpInChI[bMobileH][i].nAtom = (U_CHAR *) inchi_malloc( ( (long long)len + 1 ) * sizeof( pInpInChI[0][0].nAtom[0] ) ))) /* djb-rwth: cast operator added; addressing LLVM warning */
                         {
-                            memcpy( pInpInChI[bMobileH][i].nAtom, pInpInChI[nAltMobileH][i].nAtom, len );
+                            memcpy_s( pInpInChI[bMobileH][i].nAtom, (long long)len + 1, pInpInChI[nAltMobileH][i].nAtom, len ); /* djb-rwth: function replaced with its safe C11 variant */
                             pInpInChI[bMobileH][i].nAtom[len] = 0;
                         }
                         else
@@ -9724,9 +9808,9 @@ int ParseSegmentFormula( const char *str,
                         {
                             inchi_free( pInpInChI[bMobileH][i].szHillFormula );
                         }
-                        if (pInpInChI[bMobileH][i].szHillFormula = (char *) inchi_malloc( inchi_max( len, 2 ) ))
+                        if ((pInpInChI[bMobileH][i].szHillFormula = (char *) inchi_malloc( inchi_max( len, 2 ) ))) /* djb-rwth: addressing LLVM warning */
                         {
-                            memcpy( pInpInChI[bMobileH][i].szHillFormula, pInpInChI[nAltMobileH][i].szHillFormula, len );
+                            memcpy_s( pInpInChI[bMobileH][i].szHillFormula, (long long)len + 1, pInpInChI[nAltMobileH][i].szHillFormula, len); /* djb-rwth: function replaced with its safe C11 variant */
                         }
                         else
                         {
@@ -9801,7 +9885,7 @@ int ParseSegmentFormula( const char *str,
         if (iComponent + mpy_component > MAX_ATOMS)
         {
 #if ( FIX_GAF_2019_1==1 )
-            nNumComponents = 0;
+            nNumComponents = 0; /* djb-rwth: ignoring LLVM warning: value used */
 #endif
             return RI_ERR_SYNTAX; /* syntax error */
         }
@@ -9818,14 +9902,14 @@ int ParseSegmentFormula( const char *str,
                 inchi_free( pInChI[iComponent + i].szHillFormula );
             }
             pInChI[iComponent + i].szHillFormula = (char*) inchi_malloc( inchi_max( (long long)len, 1 ) + 1 ); /* djb-rwth: cast operator added */
-            memcpy( pInChI[iComponent].szHillFormula, p, len );
+            memcpy_s( pInChI[iComponent].szHillFormula, (long long)len + 1, p, len ); /* djb-rwth: function replaced with its safe C11 variant */
             pInChI[iComponent + i].szHillFormula[len] = '\0';
             if (!i)
             {
                 /* Pass 2.1 Parse formula and count atoms except H */
                 nNumAtoms = 0;
                 nNumH = 0;
-                nNumAtomsAndH = 0;
+                /* djb-rwth: removing redundant code */
                 e = pInChI[iComponent].szHillFormula;
                 while (*e)
                 {
@@ -9952,7 +10036,7 @@ int ParseSegmentFormula( const char *str,
             else
             {
                 /* Copy duplicated formula */
-                strcpy( pInChI[iComponent + i].szHillFormula, pInChI[iComponent].szHillFormula );
+                strcpy_s( pInChI[iComponent + i].szHillFormula, sizeof(pInChI[iComponent].szHillFormula) + 1, pInChI[iComponent].szHillFormula ); /* djb-rwth: function replaced with its safe C11 variant */
                 /* Copy atoms in the duplicated formula */
                 pInChI[iComponent + i].nNumberOfAtoms = nNumAtoms;
                 if (pInChI[iComponent + i].nAtom)
@@ -9964,7 +10048,7 @@ int ParseSegmentFormula( const char *str,
                 {
                     return RI_ERR_ALLOC; /* failed allocation */
                 }
-                memcpy( pInChI[iComponent + i].nAtom, pInChI[iComponent].nAtom, (long long)nNumAtoms + 1 ); /* djb-rwth: cast operator added */
+                memcpy_s( pInChI[iComponent + i].nAtom, (long long)nNumAtoms + 2, pInChI[iComponent].nAtom, (long long)nNumAtoms + 1 ); /* djb-rwth: cast operator added; function replaced with its safe C11 variant */
             }
         }
         iComponent += i;
@@ -10001,7 +10085,7 @@ int ParseSegmentFormula( const char *str,
                     {
                         return RI_ERR_ALLOC;
                     }
-                    memcpy( nAtom, pInpInChI[nAltMobileH][i].nAtom, len * sizeof( nAtom[0] ) );
+                    memcpy_s( nAtom, sizeof(nAtom[0])*len + 1, pInpInChI[nAltMobileH][i].nAtom, len * sizeof( nAtom[0] ) ); /* djb-rwth: function replaced with its safe C11 variant */
                     nAtom[len] = 0;
                     if (pInpInChI[bMobileH][i].nAtom)
                     {
@@ -10049,9 +10133,9 @@ int CopySegment( INChI *pInChITo,
                 }
 #endif
                 if (bIsotopicFrom < 0 ||
-                     stereoFrom->b_parity &&
+                     (stereoFrom->b_parity &&
                      stereoFrom->nBondAtom1 &&
-                     stereoFrom->nBondAtom2)
+                     stereoFrom->nBondAtom2)) /* djb-rwth: addressing LLVM warning */
                 {
 
                     len = ( bIsotopicFrom < 0 ) ? 0 : stereoFrom->nNumberOfStereoBonds;
@@ -10106,9 +10190,9 @@ int CopySegment( INChI *pInChITo,
                             goto exit_function;
                         }
 #endif
-                        memcpy( pstereoTo[0]->b_parity, stereoFrom->b_parity, ( (long long)len + 1 ) * sizeof( pstereoTo[0]->b_parity[0] ) ); /* djb-rwth: cast operator added */
-                        memcpy( pstereoTo[0]->nBondAtom1, stereoFrom->nBondAtom1, ( (long long)len + 1 ) * sizeof( pstereoTo[0]->nBondAtom1[0] ) ); /* djb-rwth: cast operator added */
-                        memcpy( pstereoTo[0]->nBondAtom2, stereoFrom->nBondAtom2, ( (long long)len + 1 ) * sizeof( pstereoTo[0]->nBondAtom2[0] ) ); /* djb-rwth: cast operator added */
+                        memcpy_s( pstereoTo[0]->b_parity, sizeof(pstereoTo[0]->b_parity[0])*((long long)len + 1) + 1, stereoFrom->b_parity, ( (long long)len + 1 ) * sizeof( pstereoTo[0]->b_parity[0] ) ); /* djb-rwth: cast operator added; function replaced with its safe C11 variant */
+                        memcpy_s( pstereoTo[0]->nBondAtom1, sizeof(pstereoTo[0]->nBondAtom1[0])*((long long)len + 1) + 1, stereoFrom->nBondAtom1, ( (long long)len + 1 ) * sizeof( pstereoTo[0]->nBondAtom1[0] ) ); /* djb-rwth: cast operator added; function replaced with its safe C11 variant */
+                        memcpy_s( pstereoTo[0]->nBondAtom2, sizeof(pstereoTo[0]->nBondAtom2[0])*((long long)len + 1) + 1, stereoFrom->nBondAtom2, ((long long)len + 1) * sizeof(pstereoTo[0]->nBondAtom2[0])); /* djb-rwth: cast operator added; function replaced with its safe C11 variant */
                     }
                     pstereoTo[0]->nNumberOfStereoBonds = len;
 
@@ -10124,8 +10208,8 @@ int CopySegment( INChI *pInChITo,
                 if (SegmentType == CPY_SP3)
                 {
                     if (bIsotopicFrom < 0 ||
-                         stereoFrom->t_parity &&
-                         stereoFrom->nNumber)
+                         (stereoFrom->t_parity &&
+                         stereoFrom->nNumber)) /* djb-rwth: addressing LLVM warning */
                     {
 
                         len = ( bIsotopicFrom < 0 ) ? 0 : stereoFrom->nNumberOfStereoCenters;
@@ -10164,8 +10248,8 @@ int CopySegment( INChI *pInChITo,
                         /* copy stereo */
                         if (bIsotopicFrom >= 0 && len)
                         {
-                            memcpy( pstereoTo[0]->t_parity, stereoFrom->t_parity, ( (long long)len + 1 ) * sizeof( pstereoTo[0]->t_parity[0] ) ); /* djb-rwth: cast operator added */
-                            memcpy( pstereoTo[0]->nNumber, stereoFrom->nNumber, ( (long long)len + 1 ) * sizeof( pstereoTo[0]->nNumber[0] ) ); /* djb-rwth: cast operator added */
+                            memcpy_s( pstereoTo[0]->t_parity, sizeof(pstereoTo[0]->t_parity[0])*((long long)len + 1) + 1, stereoFrom->t_parity, ((long long)len + 1) * sizeof(pstereoTo[0]->t_parity[0])); /* djb-rwth: cast operator added; function replaced with its safe C11 variant */
+                            memcpy_s( pstereoTo[0]->nNumber, sizeof(pstereoTo[0]->nNumber[0])*((long long)len + 1) + 1, stereoFrom->nNumber, ( (long long)len + 1 ) * sizeof( pstereoTo[0]->nNumber[0] ) ); /* djb-rwth: cast operator added; function replaced with its safe C11 variant */
                         }
                         pstereoTo[0]->nNumberOfStereoCenters = len;
                         return len + 1;
@@ -10220,7 +10304,7 @@ int CopySegment( INChI *pInChITo,
                                 ret = RI_ERR_SYNTAX; /* stereo already exists */
                                 goto exit_function;
                             }
-                            if (stereoFrom) /* djb-rwth: correcting the dereferencing NULL pointer */
+                            if (stereoFrom) /* djb-rwth: fixing a NULL pointer dereference */
                                 pstereoTo[0]->bTrivialInv = stereoFrom->bTrivialInv;
                             if (bIsotopicFrom < 0)
                             {
@@ -10270,7 +10354,7 @@ int CopySegment( INChI *pInChITo,
             }
             if (bIsotopicFrom >= 0 && len)
             {
-                memcpy( *pIsotopicAtomTo, IsotopicAtomFrom, ( (long long)len + 1 ) * sizeof( **pIsotopicAtomTo ) ); /* djb-rwth: cast operator added */
+                memcpy_s( *pIsotopicAtomTo, sizeof(**pIsotopicAtomTo)*((long long)len + 1) + 1, IsotopicAtomFrom, ( (long long)len + 1 ) * sizeof( **pIsotopicAtomTo ) ); /* djb-rwth: cast operator added; function replaced with its safe C11 variant */
             }
             pInChITo->nNumberOfIsotopicAtoms = len;
             return len + 1;
@@ -10368,7 +10452,7 @@ int AddInChIChar( INCHI_IOSTREAM *pInp,
                 {
                     if (Line->len > 0 && Line->str)
                     {
-                        memcpy( str, Line->str, sizeof( str[0] ) * Line->len );
+                        memcpy_s( str, sizeof(str[0])*(Line->len) + 1, Line->str, sizeof(str[0]) * Line->len); /* djb-rwth: function replaced with its safe C11 variant */
                         Line->len_alloc += SEGM_LINE_ADD;
                         inchi_free( Line->str );
                         INCHI_HEAPCHK
@@ -10469,7 +10553,7 @@ int AddLinkedBond( AT_NUMB at1,
         }
         if (pLB->pBond && pLB->len)
         {
-            memcpy( pBond, pLB->pBond, pLB->len * sizeof( pBond[0] ) );
+            memcpy_s( pBond, sizeof(pBond[0]) * (pLB->len) + 1, pLB->pBond, pLB->len * sizeof(pBond[0])); /* djb-rwth: function replaced with its safe C11 variant */
         }
         if (pLB->pBond)
             inchi_free( pLB->pBond );
@@ -10479,7 +10563,7 @@ int AddLinkedBond( AT_NUMB at1,
     if (!pLB->len)
     {
         pLB->len = num_at + 1;
-        memset( pLB->pBond, 0, ( (long long)num_at + 1 ) * sizeof( pLB->pBond[0] ) ); /* djb-rwth: cast operator added */
+        memset( pLB->pBond, 0, ( (long long)num_at + 1 ) * sizeof( pLB->pBond[0] ) ); /* djb-rwth: cast operator added; memset_s C11/Annex K variant? */
     }
 
     prev = pLB->pBond[at1].prev; /* position of the last neighbor of at1 in the pLB->pBond */
@@ -10671,7 +10755,7 @@ void TreatErrorsInReadInChIString( int            nReadStatus,
         char szHdrSimulation[128];
         char szMsg2[1024];
         ( *num_inp )++;
-        sprintf( szHdrSimulation, "Structure: %ld", *num_inp );
+        sprintf_s( szHdrSimulation, sizeof(szHdrSimulation) + 1, "Structure: %ld", *num_inp ); /* djb-rwth: function replaced with its safe C11 variant */
         getInchiStateReadErr( pState, szMsg2 );
 
 #ifdef TARGET_EXE_STANDALONE
@@ -11024,7 +11108,7 @@ int ConvertInChI2Struct( ICHICONST INPUT_PARMS   *ip_inp,
         }
     }
 
-    memset( pStruct, 0, sizeof( pStruct ) );
+    memset( pStruct, 0, sizeof( pStruct ) ); /* djb-rwth: memset_s C11/Annex K variant? */
 
     SetUpSrm( &srm );    /* structure restore parms */
 
@@ -11251,8 +11335,8 @@ int ConvertInChI2Struct( ICHICONST INPUT_PARMS   *ip_inp,
                 len = nMessageLen - ( int )sizeof( szMetal );
             }
             shift = nInitLenMessage + ( int )sizeof( szMetal ) - 1;
-            memmove( szMessage + shift, szMessage + nInitLenMessage, ( (long long)len - nInitLenMessage ) * sizeof( szMessage[0] ) ); /* djb-rwth: cast operator added */
-            memcpy( szMessage + nInitLenMessage, szMetal, sizeof( szMetal ) - sizeof( szMessage[0] ) );
+            memmove_s( szMessage + shift, sizeof(szMessage[0])*((long long)len - nInitLenMessage) + 1, szMessage + nInitLenMessage, ((long long)len - nInitLenMessage) * sizeof(szMessage[0])); /* djb-rwth: cast operator added; function replaced with its safe C11 variant */
+            memcpy_s( szMessage + nInitLenMessage, sizeof(szMetal) - sizeof(szMessage[0]) + 1, szMetal, sizeof(szMetal) - sizeof(szMessage[0])); /* djb-rwth: function replaced with its safe C11 variant */
             szMessage[shift + len - nInitLenMessage] = '\0';
         }
 
@@ -11290,10 +11374,10 @@ dealloc:
         }
         else
         {
-            int iRec, iMob, iComp, nComp, len;
+            int iRec, iMob, iComp, nComp, len; /* djb-rwth: ignoring LLVM warning: variable used to store function return value */
             char szTemp[128];
             AddOneMsg( szMessage, (int) strlen( szMessage ), nMessageLen, "*Conversion failed on component(s)", "; " );
-            len = (int) strlen( szMessage );
+            len = (int) strlen( szMessage ); /* djb-rwth: ignoring LLVM warning: variable used to store function return value */
             for (iRec = 0; iRec < INCHI_NUM; iRec++)
             {
                 for (iMob = bHasSomeFixedH ? TAUT_NON : TAUT_YES; iMob < TAUT_NUM; iMob++)
@@ -11308,7 +11392,7 @@ dealloc:
                         if (pStruct[iRec][iMob][iComp].nError)
                         {
                             char *szFormula = pOneInput->pInpInChI[iRec][iMob][iComp].szHillFormula;
-                            sprintf( szTemp,
+                            sprintf_s( szTemp, sizeof(szTemp) + 1, 
 #if ( FIX_DALKE_BUGS == 1 )
                                      " %s%s%d(%.96s)",
 #else
@@ -11316,7 +11400,7 @@ dealloc:
 #endif
                                      !bHasSomeReconnected ? "" : iRec ? "R" : "D",
                                      !bHasSomeFixedH ? "" : iMob ? "M" : "F",
-                                     iComp + 1, szFormula ? szFormula : "???" );
+                                     iComp + 1, szFormula ? szFormula : "???" ); /* djb-rwth: function replaced with its safe C11 variant */
                             AddOneMsg( szMessage, (int) strlen( szMessage ), nMessageLen, szTemp, NULL );
                         }
                     }
@@ -11334,7 +11418,7 @@ dealloc:
         int len = inchi_min( (int) strlen( szMessage ), nMsgLen - 1 );
         if (len > 0)
         {
-            memcpy( szMsg, szMessage, len );
+            memcpy_s( szMsg, (long long)len + 1, szMessage, len ); /* djb-rwth: function replaced with its safe C11 variant */
             szMsg[len] = '\0';
         }
         else
@@ -11365,7 +11449,7 @@ dealloc:
 
     INCHI_HEAPCHK
 
-        ulProcessingTime += InchiTimeElapsed( ic, pulTStart );
+        ulProcessingTime += InchiTimeElapsed( ic, pulTStart ); /* djb-rwth: ignoring LLVM warning: variable used to store function return value */
 
     return ret;
 }
@@ -11392,7 +11476,7 @@ int DetectAndExposePolymerInternals( INCHI_IOSTREAM *is )
     }
 
     /* Remove but save a tail (AuxInfo, InChIKey, etc.) if any */
-    strcpy( s, is->s.pStr );
+    strcpy_s( s, sizeof(s) + 1, is->s.pStr ); /* djb-rwth: function replaced with its safe C11 variant */
     for (i = 0; i < slength; i++)
     {
         if (isspace( UCINT s[i] ))
@@ -11405,7 +11489,7 @@ int DetectAndExposePolymerInternals( INCHI_IOSTREAM *is )
     {
         s2 = (char *) inchi_calloc( (long long)slength - (long long)i2 + 2, sizeof( char ) ); /* djb-rwth: cast operators added */
         if (!s2) goto endf;
-        strcpy( s2, s + i2 );
+        strcpy_s( s2, sizeof(s2) + 1, s + i2 ); /* djb-rwth: function replaced with its safe C11 variant */
         s[i2] = '\0';
     }
 
@@ -11551,7 +11635,7 @@ int DetectAndExposePolymerInternals( INCHI_IOSTREAM *is )
         ret = -2;
         goto endf;
     }
-    memcpy( tmpstr, pz, zlen );
+    memcpy_s( tmpstr, (long long)zlen + 1, pz, zlen ); /* djb-rwth: function replaced with its safe C11 variant */
 
     ret = DetectHiddenPolymerStuff( tmpstr, zlen, &ninsert, insert_pos, lead_pos, &nstars );
     if (ret)
@@ -11604,7 +11688,7 @@ int DetectAndExposePolymerInternals( INCHI_IOSTREAM *is )
                 ret = -2;
                 goto endf;
             }
-            memcpy( tmpstr, pz2, zlen );
+            memcpy_s( tmpstr, (long long)zlen + 1, pz2, zlen); /* djb-rwth: function replaced with its safe C11 variant */
 
             nstars = 0;
             ret = DetectHiddenPolymerStuff( tmpstr, zlen, &ninsert, insert_pos, lead_pos, &nstars );
@@ -11633,13 +11717,13 @@ int DetectAndExposePolymerInternals( INCHI_IOSTREAM *is )
         {
             if (kinsert == 0 || prev_layer_symbol == 'r')
             {
-                sprintf( tmpstr, ".%dZz", nstars );
+                sprintf_s( tmpstr, sizeof(tmpstr) + 1, ".%dZz", nstars); /* djb-rwth: function replaced with its safe C11 variant */
                 star0 = nheavy + 1;            /* reset star numbers pool */
                 prev_layer_symbol = '0';    /* avoid printing ';' also */
             }
             else
             {
-                sprintf( tmpstr, "%d,%d-", star0, star0 + 1 );
+                sprintf_s( tmpstr, sizeof(tmpstr) + 1, "%d,%d-", star0, star0 + 1 ); /* djb-rwth: function replaced with its safe C11 variant */
                 star0 += 2;
             }
             kinsert++;
@@ -11679,7 +11763,7 @@ int DetectAndExposePolymerInternals( INCHI_IOSTREAM *is )
             {
                 if (s[i - 1] != 'f' && s[i - 2] != '/')
                 {
-                    sprintf( tmpstr, ".%dZz", nstars );
+                    sprintf_s( tmpstr, sizeof(tmpstr) + 1, ".%dZz", nstars ); /* djb-rwth: function replaced with its safe C11 variant */
                     for (j = 0; j < (int) strlen( tmpstr ); j++)
                     {
                         edited_s[nc] = tmpstr[j];
@@ -11811,12 +11895,12 @@ static int SegmentSp3CreateEmpty( const char *str,
             }
         }
         /* allocate empty sp3 stereo */
-        if (!pStereo[0]->b_parity &&
-             !( pStereo[0]->b_parity = (S_CHAR *) inchi_calloc( (long long)len0 + 1, sizeof( pStereo[0]->b_parity[0] ) ) ) ||
-             !pStereo[0]->nBondAtom1 &&
-             !( pStereo[0]->nBondAtom1 = (AT_NUMB *) inchi_calloc( (long long)len0 + 1, sizeof( pStereo[0]->nBondAtom1[0] ) ) ) ||
-             !pStereo[0]->nBondAtom2 &&
-             !( pStereo[0]->nBondAtom2 = (AT_NUMB *) inchi_calloc( (long long)len0 + 1, sizeof( pStereo[0]->nBondAtom2[0] ) ) )) /* djb-rwth: cast operator added */
+        if ((!pStereo[0]->b_parity &&
+             !( pStereo[0]->b_parity = (S_CHAR *) inchi_calloc( (long long)len0 + 1, sizeof( pStereo[0]->b_parity[0] ) ) )) ||
+             (!pStereo[0]->nBondAtom1 &&
+             !( pStereo[0]->nBondAtom1 = (AT_NUMB *) inchi_calloc( (long long)len0 + 1, sizeof( pStereo[0]->nBondAtom1[0] ) ) )) ||
+             (!pStereo[0]->nBondAtom2 &&
+             !( pStereo[0]->nBondAtom2 = (AT_NUMB *) inchi_calloc( (long long)len0 + 1, sizeof( pStereo[0]->nBondAtom2[0] ) ) ))) /* djb-rwth: cast operator added; addressing LLVM warnings */
         {
             /* cleanup */
             if (pStereo[0]->b_parity)
@@ -12155,12 +12239,12 @@ int extract_from_inchi_string(char *sinchi, InpInChI *OneInput)
     INCHI_IOSTREAM tmpinputstream;
     INCHI_IOSTREAM *pInp = &tmpinputstream;
     INCHI_MODE nMode = 0;
-    nMode |= (REQ_MODE_BASIC | REQ_MODE_TAUT | REQ_MODE_STEREO | REQ_MODE_ISO_STEREO | REQ_MODE_ISO);
+    /* djb-rwth: removing redundant code */
 
     nMode = (INCHI_MODE)530462;
 
-    memset(OneInput, 0, sizeof(*OneInput));
-    memset(pLine, 0, sizeof(pLine[0]));
+    memset(OneInput, 0, sizeof(*OneInput)); /* djb-rwth: memset_s C11/Annex K variant? */
+    memset(pLine, 0, sizeof(pLine[0])); /* djb-rwth: memset_s C11/Annex K variant? */
     OneInput->polymer = NULL;    /* v. 1.05 added */
     OneInput->v3000 = NULL;
     inchi_ios_init(pInp, INCHI_IOS_TYPE_STRING, NULL);
@@ -12233,7 +12317,7 @@ int extract_stereo_info_from_inchi_string(char *sinchi,
     int  icomponent, i, bReconn = 0, bMobileH = 1, at_offset_component = 0;
 
     /* 0 is INCHI_PARITY_NONE */
-    memset(at_stereo_mark_orig, 0, ((long long)nat+1) * sizeof(int)); /* djb-rwth: cast operator added */
+    memset(at_stereo_mark_orig, 0, ((long long)nat+1) * sizeof(int)); /* djb-rwth: cast operator added; memset_s C11/Annex K variant? */
 
     ret = extract_from_inchi_string(sinchi, &OneInput);
     if (ret == _IS_ERROR || ret == _IS_FATAL)

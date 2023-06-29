@@ -253,7 +253,7 @@ typedef struct OAD_AtProps
     int erank;              /* rank of element; 2 - C, >2 - rank of heteroatom in chain,    */
                             /* O > S > Se > Te > N ...., Rule 4                             */
     int ring_erank;         /* 0 - not ring or just carbocycle,
-                            /* >2 - rank of senior heteroatom in this cycle                 */
+                               >2 - rank of senior heteroatom in this cycle                 */
                             /* according to Rule 2 ( N > O >... )                           */
     int ring_num;
     int ring_size;          /* 0 or ring system size                                        */

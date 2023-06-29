@@ -380,8 +380,8 @@ extern "C" {
                                            int *num_components,
                                            ORIG_ATOM_DATA *orig_inp_data,
                                            ORIG_ATOM_DATA *prep_inp_data,
-                                           COMP_ATOM_DATA composite_norm_data[TAUT_NUM],
-                                           int bCompareComponents );
+                                           COMP_ATOM_DATA composite_norm_data[TAUT_NUM+1],
+                                           int bCompareComponents ); /* djb-rwth: matching composite_norm_data bounds */
 
     int OutputINChIPlainError( INCHI_IOSTREAM *out_file,
                                char *pErrorText,

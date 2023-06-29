@@ -237,9 +237,7 @@ int ProcessOneStructure( INCHI_CLOCK            *ic,
     ORIG_STRUCT *pOrigStruct = NULL;
     int err, ret1 = 0;
 
-#if ( RING2CHAIN == 1 || UNDERIVATIZE == 1 )
-    int /*ret1=0,*/ret2 = 0;
-#endif
+    /* djb-rwth: removing redundant code */
 
     /*    1. Preliminary work */
 
@@ -252,8 +250,8 @@ int ProcessOneStructure( INCHI_CLOCK            *ic,
 
     sd->bUserQuitComponent = 0;
     sd->bUserQuitComponentDisplay = 0;
-    memset( composite_norm_data, 0, sizeof( composite_norm_data ) );
-    memset( pncFlags, 0, sizeof( *pncFlags ) );
+    memset( composite_norm_data, 0, sizeof( composite_norm_data ) ); /* djb-rwth: memset_s C11/Annex K variant? */
+    memset( pncFlags, 0, sizeof( *pncFlags ) ); /* djb-rwth: memset_s C11/Annex K variant? */
 
         
     /* For experimental purposes only */
@@ -308,7 +306,7 @@ int ProcessOneStructure( INCHI_CLOCK            *ic,
 
 
     pOrigStruct = &OrigStruct;
-    memset( pOrigStruct, 0, sizeof( *pOrigStruct ) );
+    memset( pOrigStruct, 0, sizeof( *pOrigStruct ) ); /* djb-rwth: memset_s C11/Annex K variant? */
 
     OrigAtData_StoreNativeInput( pCG, &nRet, sd,  ip,  orig_inp_data, pOrigStruct );
 
@@ -431,7 +429,7 @@ int ProcessOneStructure( INCHI_CLOCK            *ic,
                                    sd->bTautFlags, sd->bTautFlagsDone,
                                    pncFlags, num_inp,
                                    pINChI, pINChI_Aux,
-                                   &bSortPrintINChIFlags, save_opt_bits );
+                                   &bSortPrintINChIFlags, save_opt_bits ); /* djb-rwth: ignoring LLVM warning: variable used to store function return value */
     }
 
 
@@ -487,7 +485,7 @@ int DoOneStructureEarlyPreprocessing( INCHI_CLOCK *ic,
 {
 
 #if ( RING2CHAIN == 1 || UNDERIVATIZE == 1 )
-    int ret1 = 0, ret2 = 0, nRet = 0;
+    int ret1 = 0, ret2 = 0; /* djb-rwth: removing redundant variables */
 #endif
 
 #if ( REMOVE_ION_PAIRS_ORIG_STRU == 1 )
@@ -524,7 +522,7 @@ int DoOneStructureEarlyPreprocessing( INCHI_CLOCK *ic,
         AddErrorMessage( sd->pStrErrStruct, "Ring to chain error" );
         sd->nStructReadError = 99;
         sd->nErrorType = _IS_ERROR;
-        nRet = _IS_ERROR;
+        /* djb-rwth: removing redundant code */
         TreatErrorsInReadTheStructure( sd, ip, LOG_MASK_ALL,
                                        inp_file, log_file,
                                        out_file, prb_file,
@@ -559,7 +557,7 @@ int OrigAtData_SaveMolfile( ORIG_ATOM_DATA  *orig_inp_data,
     else
     {
         char szNumber[256];
-        sprintf( szNumber, "Structure #%ld. %s%s%s%s", num_inp, SDF_LBL_VAL( ip->pSdfLabel, ip->pSdfValue ) );
+        sprintf_s( szNumber, sizeof(szNumber) + 1, "Structure #%ld. %s%s%s%s", num_inp, SDF_LBL_VAL(ip->pSdfLabel, ip->pSdfValue)); /* djb-rwth: function replaced with its safe C11 variant */
 
         ret = OrigAtData_WriteToSDfile( orig_inp_data, out_file, szNumber, NULL,
                                         ( sd->bChiralFlag&FLAG_INP_AT_CHIRAL ) ? 1 : 0,
@@ -873,15 +871,15 @@ int CreateOneStructureINChI( CANON_GLOBALS          *pCG,
     inp_norm_data[TAUT_NON] = &InpNormAtData;
     inp_norm_data[TAUT_YES] = &InpNormTautData;
 
-    memset( inp_cur_data, 0, sizeof( *inp_cur_data ) );
-    memset( inp_norm_data[TAUT_NON], 0, sizeof( *inp_norm_data[0] ) );
-    memset( inp_norm_data[TAUT_YES], 0, sizeof( *inp_norm_data[0] ) );
+    memset( inp_cur_data, 0, sizeof( *inp_cur_data ) ); /* djb-rwth: memset_s C11/Annex K variant? */
+    memset( inp_norm_data[TAUT_NON], 0, sizeof( *inp_norm_data[0] ) ); /* djb-rwth: memset_s C11/Annex K variant? */
+    memset( inp_norm_data[TAUT_YES], 0, sizeof( *inp_norm_data[0] ) ); /* djb-rwth: memset_s C11/Annex K variant? */
 
     {
         /*#ifndef COMPILE_ANSI_ONLY*/
-        memset( composite_norm_data + TAUT_NON, 0, sizeof( composite_norm_data[0] ) );
-        memset( composite_norm_data + TAUT_YES, 0, sizeof( composite_norm_data[0] ) );
-        memset( composite_norm_data + TAUT_INI, 0, sizeof( composite_norm_data[0] ) );
+        memset( composite_norm_data + TAUT_NON, 0, sizeof( composite_norm_data[0] ) ); /* djb-rwth: memset_s C11/Annex K variant? */
+        memset( composite_norm_data + TAUT_YES, 0, sizeof( composite_norm_data[0] ) ); /* djb-rwth: memset_s C11/Annex K variant? */
+        memset( composite_norm_data + TAUT_INI, 0, sizeof( composite_norm_data[0] ) ); /* djb-rwth: memset_s C11/Annex K variant? */
     }   /*#endif*/
 
     if (ip->bAllowEmptyStructure && !orig_inp_data->at && !orig_inp_data->num_inp_atoms)
@@ -903,6 +901,7 @@ int CreateOneStructureINChI( CANON_GLOBALS          *pCG,
         AddErrorMessage( sd->pStrErrStruct, "Fatal undetermined program error" );
         sd->nStructReadError = 97;
         nRet = sd->nErrorType = _IS_FATAL;
+        inchi_free(all_inp_norm_data); /* djb-rwth: avoiding memory leak */
         goto exit_function;
     }
 
@@ -1030,6 +1029,7 @@ int CreateOneStructureINChI( CANON_GLOBALS          *pCG,
                     inp_file, log_file, orig_inp_data, num_inp,
                     -1, bShowStructure, bINCHI_LIB_Flag ))
                 {
+                    inchi_free(all_inp_norm_data); /* djb-rwth: avoiding memory leak */
                     goto exit_function;
                 }
             }
@@ -1128,6 +1128,7 @@ int CreateOneStructureINChI( CANON_GLOBALS          *pCG,
                 bShowStructure,
                 bINCHI_LIB_Flag ))
             {
+                inchi_free(all_inp_norm_data); /* djb-rwth: avoiding memory leak */
                 goto exit_function;
             }
         }
@@ -1136,13 +1137,41 @@ int CreateOneStructureINChI( CANON_GLOBALS          *pCG,
 
     /* allocate pINChI[iINChI] and pINChI_Aux2[iINChI] -- arrays of pointers to INChI and INChI_Aux */
     /* assign values to sd->num_components[]                                                  */
-    MYREALLOC2( PINChI2, PINChI_Aux2, pINChI2[iINChI], pINChI_Aux2[iINChI], sd->num_components[iINChI], (long long)cur_prep_inp_data->num_components, k ); /* djb-rwth: cast operators added */
+    
+    /* djb-rwth: MYREALLOC2 has been replaced and the whole block rewritten to address memory leaks and reading from freed memory locations */
+    do {
+        if( (sd->num_components[iINChI]) <= ((long long)cur_prep_inp_data->num_components) ) {
+            PINChI2* newPTR1 = (PINChI2*)inchi_calloc( ((long long)cur_prep_inp_data->num_components)+1, sizeof(PINChI2) );
+            PINChI_Aux2* newPTR2 = (PINChI_Aux2*)inchi_calloc( ((long long)cur_prep_inp_data->num_components)+1, sizeof(PINChI_Aux2) );
+            if ( newPTR1 && newPTR2 ) {
+                if ( (pINChI2[iINChI]) && (sd->num_components[iINChI]) > 0 )
+                    memcpy_s( newPTR1, sizeof(PINChI2)*(sd->num_components[iINChI]) + 1, pINChI2[iINChI], (sd->num_components[iINChI]) * sizeof(PINChI2) );
+                if ((pINChI_Aux2[iINChI]) && (sd->num_components[iINChI]) > 0)
+                    memcpy_s(newPTR2, sizeof(PINChI_Aux2) * (sd->num_components[iINChI])+1, pINChI_Aux2[iINChI], (sd->num_components[iINChI]) * sizeof(PINChI_Aux2));
+                if (pINChI2[iINChI])
+                    inchi_free(pINChI2[iINChI]);
+                if (pINChI_Aux2[iINChI])
+                    inchi_free(pINChI_Aux2[iINChI]);
+                pINChI2[iINChI] = newPTR1;
+                pINChI_Aux2[iINChI] = newPTR2;
+                sd->num_components[iINChI] = cur_prep_inp_data->num_components;
+                k = 0;
+            }
+            else {
+                inchi_free(newPTR1);
+                inchi_free(newPTR2);
+                k = 1;
+            }
+        }
+        else { k = 0; }
+    } while (0);
 
     if (k)
     {
         AddErrorMessage( sd->pStrErrStruct, "Cannot allocate output data. Terminating" );
         sd->nStructReadError = 99;
         sd->nErrorType = _IS_FATAL;
+        inchi_free(all_inp_norm_data); /* djb-rwth: avoiding memory leak */
         goto exit_function;
     }
 
@@ -1172,11 +1201,11 @@ int CreateOneStructureINChI( CANON_GLOBALS          *pCG,
 #ifndef TARGET_LIB_FOR_WINCHI  /* { */
 #if ( bREUSE_INCHI == 1 )
 
-        if (iINChI == INCHI_REC &&
+        if ((iINChI == INCHI_REC &&
              /*( !ip->bDisplay &&
                !ip->bDisplayCompositeResults && */
-               !( ip->bCompareComponents & CMP_COMPONENTS ) ||
-               sd->bUserQuitComponentDisplay)
+               !( ip->bCompareComponents & CMP_COMPONENTS )) ||
+               sd->bUserQuitComponentDisplay) /* djb-rwth: addressing LLVM warning */
         {
             /* Reconnected structure (06-20-2005: added "&& !ip->bDisplayCompositeResults" to display composite structure) */
             int m = iINChI - 1;
@@ -1190,8 +1219,8 @@ int CreateOneStructureINChI( CANON_GLOBALS          *pCG,
                     /* Yes, we have already done this */
                     if (!n++)
                     {
-                        memcpy( pINChI + i, pINChI2[m] + j, sizeof( pINChI[0] ) );
-                        memcpy( pINChI_Aux + i, pINChI_Aux2[m] + j, sizeof( pINChI_Aux[0] ) );
+                        memcpy_s( pINChI + i, sizeof(pINChI[0]) + 1, pINChI2[m] + j, sizeof(pINChI[0])); /* djb-rwth: function replaced with its safe C11 variant */
+                        memcpy_s( pINChI_Aux + i, sizeof(pINChI_Aux[0]) + 1, pINChI_Aux2[m] + j, sizeof(pINChI_Aux[0])); /* djb-rwth: function replaced with its safe C11 variant */
                         for (k = 0; k < TAUT_NUM; k++)
                         {
                             if (pINChI[i][k])
@@ -1238,6 +1267,7 @@ int CreateOneStructureINChI( CANON_GLOBALS          *pCG,
                 AddErrorMessage( sd->pStrErrStruct, "Cannot distinguish components" );
                 sd->nStructReadError = 99;
                 sd->nErrorType = _IS_ERROR;
+                inchi_free(all_inp_norm_data); /* djb-rwth: avoiding memory leak */
                 goto exit_function;
             }
         }
@@ -1278,22 +1308,23 @@ int CreateOneStructureINChI( CANON_GLOBALS          *pCG,
         }
 #endif
 
-        /*#ifndef COMPILE_ANSI_ONLY  /* { */
+        /*#ifndef COMPILE_ANSI_ONLY  
+        { */
 
         /*  b) Display the extracted original component structure */
         if (ip->bDisplay && inp_cur_data->at && !sd->bUserQuitComponentDisplay)
         {
             if (cur_prep_inp_data->num_components == 1)
             {
-                sprintf( szTitle, "%sInput Structure #%ld.%s%s%s%s%s",
+                sprintf_s( szTitle, 256, "%sInput Structure #%ld.%s%s%s%s%s",
                                   bStructurePreprocessed ? "Preprocessed " : "",
-                                  num_inp, SDF_LBL_VAL( ip->pSdfLabel, ip->pSdfValue ), iINChI ? " (Reconnected)" : "" );
+                                  num_inp, SDF_LBL_VAL( ip->pSdfLabel, ip->pSdfValue ), iINChI ? " (Reconnected)" : "" ); /* djb-rwth: function replaced with its safe C11 variant */
             }
             else
             {
-                sprintf( szTitle, "Component #%d of %d, Input Structure #%ld.%s%s%s%s%s",
+                sprintf_s( szTitle, 256, "Component #%d of %d, Input Structure #%ld.%s%s%s%s%s",
                                   i + 1, cur_prep_inp_data->num_components,
-                                  num_inp, SDF_LBL_VAL( ip->pSdfLabel, ip->pSdfValue ), iINChI ? " (Reconnected)" : "" );
+                                  num_inp, SDF_LBL_VAL( ip->pSdfLabel, ip->pSdfValue ), iINChI ? " (Reconnected)" : "" ); /* djb-rwth: function replaced with its safe C11 variant */
             }
 
 #if defined (TARGET_EXE_STANDALONE) && defined(_WIN32)
@@ -1436,21 +1467,21 @@ int CreateOneStructureINChI( CANON_GLOBALS          *pCG,
                             /*  Added number of components, added another format for a single component case - DCh */
                             if (cur_prep_inp_data->num_components > 1)
                             {
-                                sprintf( szTitle, "%s Component #%d of %d, Structure #%ld%s%s.%s%s%s%s%s",
+                                sprintf_s( szTitle, 256, "%s Component #%d of %d, Structure #%ld%s%s.%s%s%s%s%s",
                                               bFixedBondsTaut ? "Preprocessed" : "Result for",
                                               i + 1, cur_prep_inp_data->num_components, num_inp,
                                               bDisplayTaut == 1 ? ", mobile H" : bDisplayTaut == 0 ? ", fixed H" : "",
                                               bIsotopic ? ", isotopic" : "",
-                                              SDF_LBL_VAL( ip->pSdfLabel, ip->pSdfValue ), iINChI ? " (Reconnected)" : "" );
+                                              SDF_LBL_VAL( ip->pSdfLabel, ip->pSdfValue ), iINChI ? " (Reconnected)" : "" ); /* djb-rwth: function replaced with its safe C11 variant */
                             }
                             else
                             {
-                                sprintf( szTitle, "%s Structure #%ld%s%s.%s%s%s%s%s",
+                                sprintf_s( szTitle, 256, "%s Structure #%ld%s%s.%s%s%s%s%s",
                                               bFixedBondsTaut ? "Preprocessed" : "Result for",
                                               num_inp,
                                               bDisplayTaut == 1 ? ", mobile H" : bDisplayTaut == 0 ? ", fixed H" : "",
                                               bIsotopic ? ", isotopic" : "",
-                                              SDF_LBL_VAL( ip->pSdfLabel, ip->pSdfValue ), iINChI ? " (Reconnected)" : "" );
+                                              SDF_LBL_VAL( ip->pSdfLabel, ip->pSdfValue ), iINChI ? " (Reconnected)" : "" ); /* djb-rwth: function replaced with its safe C11 variant */
                             }
 
 #if defined (TARGET_EXE_STANDALONE) && defined(_WIN32)
@@ -1497,7 +1528,7 @@ int CreateOneStructureINChI( CANON_GLOBALS          *pCG,
                                                             &ip->dp,
                                                             ip->nMode, szTitle );
                                 }
-                                if (sd->bUserQuitComponentDisplay = (err_display == ESC_KEY ))
+                                if ((sd->bUserQuitComponentDisplay = (err_display == ESC_KEY ))) /* djb-rwth: addressing LLVM warning */
                                 {
                                     break;
                                 }
@@ -1596,7 +1627,7 @@ int CreateOneStructureINChI( CANON_GLOBALS          *pCG,
                     if (inp_norm_data[j]->bExists)
                     {
                         all_inp_norm_data[i][j] = *inp_norm_data[j];
-                        memset( inp_norm_data[j], 0, sizeof( *inp_norm_data[0] ) );
+                        memset( inp_norm_data[j], 0, sizeof( *inp_norm_data[0] ) ); /* djb-rwth: memset_s C11/Annex K variant? */
                     }
                 }
             }
@@ -1737,8 +1768,8 @@ int CreateOneComponentINChI( CANON_GLOBALS      *pCG,
         int nAllocMode = nAM1 | nAM2; /* djb-rwth: original sequence of bit-wise operations had to be rewritten */
 
 
-        if (k == TAUT_NON && ( ip->nMode & REQ_MODE_BASIC ) ||
-             k == TAUT_YES && ( ip->nMode & REQ_MODE_TAUT ))
+        if ((k == TAUT_NON && ( ip->nMode & REQ_MODE_BASIC )) ||
+             (k == TAUT_YES && ( ip->nMode & REQ_MODE_TAUT ))) /* djb-rwth: addressing LLVM warning */
         {
             /*  alloc INChI and INChI_Aux */
             cur_INChI[k] = Alloc_INChI( inp_cur_data->at,
@@ -1897,8 +1928,8 @@ int CreateOneComponentINChI( CANON_GLOBALS      *pCG,
         int cur_is_in_taut = ( pINChI[i][TAUT_YES] &&
                                    pINChI[i][TAUT_YES]->nNumberOfAtoms > 0 );
 
-        int cur_is_non_taut = cur_is_in_non_taut && 0 == pINChI[i][TAUT_NON]->lenTautomer ||
-            cur_is_in_taut && 0 == pINChI[i][TAUT_YES]->lenTautomer;
+        int cur_is_non_taut = (cur_is_in_non_taut && 0 == pINChI[i][TAUT_NON]->lenTautomer) ||
+            (cur_is_in_taut && 0 == pINChI[i][TAUT_YES]->lenTautomer); /* djb-rwth: addressing LLVM warnings */
         int cur_is_taut = cur_is_in_taut && 0 < pINChI[i][TAUT_YES]->lenTautomer;
 
         /*
@@ -1918,8 +1949,8 @@ int CreateOneComponentINChI( CANON_GLOBALS      *pCG,
             {
                 int bIsotopic = ( pINChI[i][j]->nNumberOfIsotopicAtoms ||
                                   pINChI[i][j]->nNumberOfIsotopicTGroups ||
-                                  pINChI[i][j]->nPossibleLocationsOfIsotopicH && pINChI[i][j]->nPossibleLocationsOfIsotopicH[0] > 1 );
-                if (pINChI_Aux[i][j] && (j == TAUT_YES)) /* djb-rwth: correcting the dereferencing NULL pointer */
+                                  (pINChI[i][j]->nPossibleLocationsOfIsotopicH && pINChI[i][j]->nPossibleLocationsOfIsotopicH[0] > 1) ); /* djb-rwth: addressing LLVM warning */
+                if (pINChI_Aux[i][j] && (j == TAUT_YES)) /* djb-rwth: fixing a NULL pointer dereference */
                 {
                     bIsotopic |= ( 0 < pINChI_Aux[i][j]->nNumRemovedIsotopicH[0] +
                                       pINChI_Aux[i][j]->nNumRemovedIsotopicH[1] +
@@ -2012,7 +2043,7 @@ int ProcessOneStructureEx( struct tagINCHI_CLOCK    *ic,
                                     inp_file, log_file, out_file, prb_file,
                                     orig_inp_data, prep_inp_data,
                                     num_inp, strbuf, save_opt_bits,
-                                    &sinchi_noedits, &saux_noedits);
+                                    &sinchi_noedits, &saux_noedits); /* djb-rwth: ignoring LLVM warning: variable used to store function return value */
 
     /* CALCULATE INCHI */
     
@@ -2119,7 +2150,7 @@ int PreprocessPolymerCRUData(	struct tagINCHI_CLOCK    *ic,
 
                 if (orig_inp_data->polymer->treat == POLYMERS_MODERN)
                 {
-                    int n_done, n_todo = 0, n_poly_zz = 0;
+                    int n_done, n_todo = 0, n_poly_zz = 0; /* djb-rwth: ignoring LLVM warning: variable used */
 
                     /*  First, get InChI and AuxInfo for the unedited original input
                     (actually, we are interested in AuxInfo for original structure;
@@ -2192,7 +2223,7 @@ int PreprocessPolymerCRUData(	struct tagINCHI_CLOCK    *ic,
                         /* else */
                         {
                             /* Proceed with CRU fold */
-                            n_done = 0;
+                            n_done = 0; /* djb-rwth: ignoring LLVM warning: variable used */
                             n_todo = ed_fold->del_atom->used + ed_fold->del_bond->used + ed_fold->new_bond->used + ed_fold->mod_bond->used;
                             ed_fold->del_side_chains = 1;
                             OAD_StructureEdits_DebugPrint(ed_fold);
@@ -2200,7 +2231,7 @@ int PreprocessPolymerCRUData(	struct tagINCHI_CLOCK    *ic,
                             {
                                 /* Edit the original input data */
                                 ed_fold->del_side_chains = 1;
-                                n_done = OAD_StructureEdits_Apply(sd, ip, orig_inp_data, ed_fold, &ret);
+                                n_done = OAD_StructureEdits_Apply(sd, ip, orig_inp_data, ed_fold, &ret); /* djb-rwth: ignoring LLVM warning: variable used to store function return value */
                                 if (ret == _IS_FATAL || ret == _IS_ERROR)
                                 {
                                     ret = _IS_WARNING;
@@ -2271,7 +2302,7 @@ frame_shift:        ;
                         else
                         {
                             /* OK, proceed with frame shift */
-                            n_done = 0;
+                            n_done = 0; /* djb-rwth: ignoring LLVM warning: variable used */
                             n_todo = ed_fs->del_atom->used +
                                      ed_fs->del_bond->used + ed_fs->new_bond->used + ed_fs->mod_bond->used +
                                      ed_fs->mod_coord->used;
@@ -2279,7 +2310,7 @@ frame_shift:        ;
                             if (n_todo)
                             {
                                 /* Edit the original input data according to frame shift info */
-                                n_done = OAD_StructureEdits_Apply(sd, ip, orig_inp_data, ed_fs, &ret);
+                                n_done = OAD_StructureEdits_Apply(sd, ip, orig_inp_data, ed_fs, &ret); /* djb-rwth: ignoring LLVM warning: variable used to store function return value */
                                 if (ret == _IS_FATAL || ret == _IS_ERROR)
                                 {
                                     ret = _IS_WARNING;
@@ -2546,15 +2577,15 @@ int OAD_StructureEdits_Apply( STRUCT_DATA *sd,
             /* Atom to keep; copy it */ 
             new_at0 = new_at + nacc;
             ++nacc;
-            memcpy(new_at0, orig_at_data->at + i, sizeof(new_at[0]) );
+            memcpy_s(new_at0, sizeof(new_at[0]) + 1, orig_at_data->at + i, sizeof(new_at[0])); /* djb-rwth: function replaced with its safe C11 variant */
             /* Correct its own number(s) */
             new_at0->orig_at_number = new_num + 1;
             
             /* Correct its nbr number(s) */
             valen = new_at0->valence;
-            memcpy(nbr0, new_at0->neighbor, valen*sizeof(AT_NUMB));
-            memcpy(btype0, new_at0->bond_type, valen);
-            memset(new_at0->neighbor, 0, valen);
+            memcpy_s(nbr0, sizeof(AT_NUMB)*valen + 1, new_at0->neighbor, valen*sizeof(AT_NUMB)); /* djb-rwth: function replaced with its safe C11 variant */
+            memcpy_s(btype0, sizeof(btype0) + valen + 1, new_at0->bond_type, valen);
+            memset(new_at0->neighbor, 0, valen); /* djb-rwth: memset_s C11/Annex K variant? */
             for (m = 0, macc=0; m < valen; m++)
             {
                 int num2 = nbr0[m];
@@ -2603,12 +2634,12 @@ int OAD_StructureEdits_Apply( STRUCT_DATA *sd,
             {
                 OAD_PolymerUnit* u = p->units[iu];
                 int new_na, new_nb, new_bb;
-                memset(ibuf, 0, n_max_stored * sizeof(ibuf[0]));
+                memset(ibuf, 0, n_max_stored * sizeof(ibuf[0])); /* djb-rwth: memset_s C11/Annex K variant? */
                 if (u)
                 {
                     if (u->alist)
                     {
-                        memcpy(ibuf, u->alist, u->na*sizeof(ibuf[0]));
+                        memcpy_s(ibuf, sizeof(ibuf[0])*(u->na) + 1, u->alist, u->na * sizeof(ibuf[0])); /* djb-rwth: memset_s C11/Annex K variant? */
                         new_na = set_renumbered_or_delete(u->alist, ibuf, u->na, at_renum, 1);
                         if (new_na == -1)
                         {
@@ -2619,7 +2650,7 @@ int OAD_StructureEdits_Apply( STRUCT_DATA *sd,
                     }
                     if (u->blist)
                     {
-                        memcpy(ibuf, u->blist, 2*(long long)u->nb * sizeof(int)); /* djb-rwth: cast operator added */
+                        memcpy_s(ibuf, sizeof(int)*(2*(long long)(u->nb)) + 1, u->blist, 2*(long long)u->nb * sizeof(int)); /* djb-rwth: cast operator added */
                         new_nb = set_renumbered_or_delete(u->blist, ibuf, 2*u->nb, at_renum, 1);
                         new_nb /= 2;
                         if (new_nb == -1)
@@ -2639,8 +2670,8 @@ int OAD_StructureEdits_Apply( STRUCT_DATA *sd,
                             int bnd[2];
                             bnd[0] = u->bkbonds[b][0];
                             bnd[1] = u->bkbonds[b][1];
-                            memcpy(ibuf, bnd, 2 * sizeof(ibuf[0]));
-                            memset(u->bkbonds[b], 0, 2 * sizeof(u->bkbonds[0][0]));
+                            memcpy_s(ibuf, sizeof(ibuf[0])*2 + 1, bnd, 2 * sizeof(ibuf[0])); /* djb-rwth: function replaced with its safe C11 variant */
+                            memset(u->bkbonds[b], 0, 2 * sizeof(u->bkbonds[0][0])); /* djb-rwth: memset_s C11/Annex K variant? */
                             new_bb = set_renumbered_or_delete(bnd, ibuf, 2, at_renum, 1);
                             if (new_bb == -1)
                             {
@@ -2662,10 +2693,13 @@ int OAD_StructureEdits_Apply( STRUCT_DATA *sd,
                         u->nbkbonds = new_nbkbonds;
                     }
 
-                    u->cap1 = u->blist[0];
-                    u->end_atom1 = u->blist[1];
-                    u->cap2 = u->blist[2];
-                    u->end_atom2 = u->blist[3];
+                    if (u->blist) /* djb-rwth: fixing a NULL pointer dereference */
+                    {
+                        u->cap1 = u->blist[0];
+                        u->end_atom1 = u->blist[1];
+                        u->cap2 = u->blist[2];
+                        u->end_atom2 = u->blist[3];
+                    }
                     if (u->cap1 < 1 || u->cap2 < 1 || u->end_atom1 < 1 || u->end_atom2 < 1)
                     {
                         *ret = _IS_ERROR;
@@ -2712,8 +2746,8 @@ int set_renumbered_or_delete( int *number,	/* numbers to correct */
                               int base)
 {
     int i, new_nelems;
-    memcpy(buf, number, nelems*sizeof(int));
-    memset(number, 0, nelems * sizeof(int));
+    memcpy_s(buf, sizeof(int)*nelems + 1, number, nelems*sizeof(int)); /* djb-rwth: function replaced with its safe C11 variant */
+    memset(number, 0, nelems * sizeof(int)); /* djb-rwth: memset_s C11/Annex K variant? */
     for (i = 0, new_nelems = 0; i < nelems; i++)
     {
         int new_num = renum[ buf[i]-base ] + base;
@@ -2850,7 +2884,7 @@ int ValidateAndPreparePolymerAndPseudoatoms( struct tagINCHI_CLOCK *ic,
                           sd->nErrorCode, sd->pStrErrStruct, num_inp,
                           SDF_LBL_VAL( ip->pSdfLabel, ip->pSdfValue ) );
         res = _IS_ERROR;
-        if (orig_inp_data) /* djb-rwth: correcting the dereferencing NULL pointer */
+        if (orig_inp_data) /* djb-rwth: fixing a NULL pointer dereference */
             orig_inp_data->num_inp_atoms = -1;
         goto exit_function;
     }
@@ -3086,7 +3120,7 @@ int mark_atoms_to_delete_or_renumber( ORIG_ATOM_DATA *orig_at_data,
 {
     int i, j;
     int fail=0, ret = 0;
-    int *atnums = NULL;
+    size_t *atnums = NULL; /* djb-rwth: needs to be size_t type */
     size_t max_atoms = orig_at_data->num_inp_atoms;
 
     /* NB:	new/old ORIG_ATOM_DATA atom numbers are 0-based (==orig_number-1) 
@@ -3103,7 +3137,7 @@ int mark_atoms_to_delete_or_renumber( ORIG_ATOM_DATA *orig_at_data,
         (i.e., delete a whole connected component(s) comprising original atoms)
         */
         int natnums = 0;
-        atnums = (int *)inchi_calloc(max_atoms, sizeof(size_t)); /* djb-rwth: size_t type used for max_atoms to fit the definition of inchi_calloc  */
+        atnums = (size_t *)inchi_calloc(max_atoms, sizeof(size_t)); /* djb-rwth: size_t type used for max_atoms to fit the definition of inchi_calloc  */
         if (!atnums)
         {
             return _IS_ERROR;
@@ -3121,8 +3155,8 @@ int mark_atoms_to_delete_or_renumber( ORIG_ATOM_DATA *orig_at_data,
             {
                 atnums[j] = orig_at_data->at[j].orig_at_number; /*j+1;*/
             }
-            sg = subgraf_new(orig_at_data, max_atoms, atnums);
-            memset(atnums, 0, max_atoms * sizeof(int));
+            sg = subgraf_new(orig_at_data, max_atoms, (int*)atnums);
+            memset(atnums, 0, max_atoms * sizeof(int)); /* djb-rwth: memset_s C11/Annex K variant? */
             if (!sg)
             {
                 ret = _IS_ERROR;
@@ -3136,7 +3170,7 @@ int mark_atoms_to_delete_or_renumber( ORIG_ATOM_DATA *orig_at_data,
             }
             spf->start = iatom;
             spf->nseen = 0;
-            natnums = subgraf_pathfinder_collect_all(spf, 0, NULL, atnums);
+            natnums = subgraf_pathfinder_collect_all(spf, 0, NULL, (int*)atnums);
             if (natnums)
             {
                 for (j = 0; j < natnums; j++)

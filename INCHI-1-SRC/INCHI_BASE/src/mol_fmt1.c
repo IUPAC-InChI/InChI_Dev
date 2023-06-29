@@ -152,12 +152,12 @@ MOL_FMT_DATA* ReadMolfile( INCHI_IOSTREAM *inp_file,
     */
     if (mfdata)
     {
-        int nzz = 0;
+        int nzz = 0; /* djb-rwth: ignoring LLVM warning: variable used to store function return value */
         int pseudos_allowed = (treat_NPZz == 1) || (treat_polymers != POLYMERS_NO);		
         nzz = MolfileTreatPseudoElementAtoms( &mfdata->ctab,
                                               pseudos_allowed,
                                               err,
-                                              pStrErr );
+                                              pStrErr ); /* djb-rwth: ignoring LLVM warning: variable used to store function return value */
     }
 
     return mfdata;
@@ -188,7 +188,7 @@ MOL_FMT_DATA * MolfileReadDataLines( INCHI_IOSTREAM *inp_file,
         should_read_all = 1;
     }
 
-    retcode = 0;
+    /* djb-rwth: removing redundant code */
     *err = 0;
 
     if (should_read_all)
@@ -209,8 +209,8 @@ MOL_FMT_DATA * MolfileReadDataLines( INCHI_IOSTREAM *inp_file,
     {
         pHdr = OnlyHeaderBlock;
         pCtab = OnlyCTab ? OnlyCTab : &ctab;
-        memset( pHdr, 0, sizeof( MOL_FMT_HEADER_BLOCK ) );
-        memset( pCtab, 0, sizeof( MOL_FMT_CTAB ) );
+        memset( pHdr, 0, sizeof( MOL_FMT_HEADER_BLOCK ) ); /* djb-rwth: memset_s C11/Annex K variant? */
+        memset( pCtab, 0, sizeof( MOL_FMT_CTAB ) ); /* djb-rwth: memset_s C11/Annex K variant? */
     }
 
     pCtab->bonds = NULL;
@@ -394,7 +394,7 @@ MOL_FMT_DATA * MolfileReadDataLines( INCHI_IOSTREAM *inp_file,
         int i;
         for (i = 0; i < pCtab->n_atoms; i++)
         {
-            if (pCtab->atoms) /* djb-rwth: correcting the dereferencing NULL pointer */
+            if (pCtab->atoms) /* djb-rwth: fixing a NULL pointer dereference */
             {
                 if (pCtab->atoms[i].valence > MAXVAL)
                 {
@@ -408,7 +408,7 @@ MOL_FMT_DATA * MolfileReadDataLines( INCHI_IOSTREAM *inp_file,
         /* Do not eat H isotopes other than [H,D,T] */
         for (i = 0; i < pCtab->n_atoms; i++)
         {
-            if (pCtab->atoms) /* djb-rwth: correcting the dereferencing NULL pointer */
+            if (pCtab->atoms) /* djb-rwth: fixing a NULL pointer dereference */
             {
                 int dmass = pCtab->atoms[i].mass_difference;
                 if ((!strcmp(pCtab->atoms[i].symbol, "H") && dmass != 0 && dmass != 1 && dmass != 2 && dmass != 127) ||
@@ -460,7 +460,7 @@ int MolfileReadHeaderLines( MOL_FMT_HEADER_BLOCK *hdr,
 /* Header Block */
 
     char line[MOL_FMT_INPLINELEN]; /* + cr +lf +zero termination + reserve */
-    int  err = 0, len;
+    int  err = 0, len; /* djb-rwth: ignoring LLVM warning: variable used to store function return value */
     const int  line_len = sizeof( line );
     char *p;
 
@@ -489,7 +489,7 @@ int MolfileReadHeaderLines( MOL_FMT_HEADER_BLOCK *hdr,
     len = MolfileReadField( hdr->molname,
                             sizeof( hdr->molname ) - 1,
                             MOL_FMT_STRING_DATA,
-                            &p );
+                            &p ); /* djb-rwth: ignoring LLVM warning: variable used to store function return value */
 
     /* Header line #2 */
     p = inchi_fgetsLf( line, line_len, inp_file );
@@ -515,30 +515,30 @@ int MolfileReadHeaderLines( MOL_FMT_HEADER_BLOCK *hdr,
     len = MolfileReadField( hdr->user_initls,
                             sizeof( hdr->user_initls ) - 1,
                             MOL_FMT_STRING_DATA,
-                            &p );
+                            &p ); /* djb-rwth: ignoring LLVM warning: variable used to store function return value */
     len = MolfileReadField( hdr->prog_name,
                             sizeof( hdr->prog_name ) - 1,
                             MOL_FMT_STRING_DATA,
-                            &p );
+                            &p ); /* djb-rwth: ignoring LLVM warning: variable used to store function return value */
 
     /*------------ Relax strictness -----------------------*/
-    len = MolfileReadField( &hdr->month, 2, MOL_FMT_CHAR_INT_DATA, &p );
-    len = MolfileReadField( &hdr->day, 2, MOL_FMT_CHAR_INT_DATA, &p );
-    len = MolfileReadField( &hdr->year, 2, MOL_FMT_CHAR_INT_DATA, &p );
-    len = MolfileReadField( &hdr->hour, 2, MOL_FMT_CHAR_INT_DATA, &p );
-    len = MolfileReadField( &hdr->minute, 2, MOL_FMT_CHAR_INT_DATA, &p );
-    len = MolfileReadField( hdr->dim_code, sizeof( hdr->dim_code ) - 1, MOL_FMT_STRING_DATA, &p );
-    len = MolfileReadField( &hdr->scaling_factor1, 2, MOL_FMT_SHORT_INT_DATA, &p );
-    len = MolfileReadField( &hdr->scaling_factor2, 10, MOL_FMT_DOUBLE_DATA, &p );
-    len = MolfileReadField( &hdr->energy, 12, MOL_FMT_DOUBLE_DATA, &p );
-    len = MolfileReadField( &hdr->internal_regno, 6, MOL_FMT_LONG_INT_DATA, &p );
+    len = MolfileReadField( &hdr->month, 2, MOL_FMT_CHAR_INT_DATA, &p ); /* djb-rwth: ignoring LLVM warning: variable used to store function return value */
+    len = MolfileReadField( &hdr->day, 2, MOL_FMT_CHAR_INT_DATA, &p ); /* djb-rwth: ignoring LLVM warning: variable used to store function return value */
+    len = MolfileReadField( &hdr->year, 2, MOL_FMT_CHAR_INT_DATA, &p ); /* djb-rwth: ignoring LLVM warning: variable used to store function return value */
+    len = MolfileReadField( &hdr->hour, 2, MOL_FMT_CHAR_INT_DATA, &p ); /* djb-rwth: ignoring LLVM warning: variable used to store function return value */
+    len = MolfileReadField( &hdr->minute, 2, MOL_FMT_CHAR_INT_DATA, &p ); /* djb-rwth: ignoring LLVM warning: variable used to store function return value */
+    len = MolfileReadField( hdr->dim_code, sizeof( hdr->dim_code ) - 1, MOL_FMT_STRING_DATA, &p ); /* djb-rwth: ignoring LLVM warning: variable used to store function return value */
+    len = MolfileReadField( &hdr->scaling_factor1, 2, MOL_FMT_SHORT_INT_DATA, &p ); /* djb-rwth: ignoring LLVM warning: variable used to store function return value */
+    len = MolfileReadField( &hdr->scaling_factor2, 10, MOL_FMT_DOUBLE_DATA, &p ); /* djb-rwth: ignoring LLVM warning: variable used to store function return value */
+    len = MolfileReadField( &hdr->energy, 12, MOL_FMT_DOUBLE_DATA, &p ); /* djb-rwth: ignoring LLVM warning: variable used to store function return value */
+    len = MolfileReadField( &hdr->internal_regno, 6, MOL_FMT_LONG_INT_DATA, &p ); /* djb-rwth: ignoring LLVM warning: variable used to store function return value */
 
     /* Save the whole line 2 */
     p = line;
     len = MolfileReadField( hdr->line2,
                             sizeof( hdr->line2 ) - 1,
                             MOL_FMT_STRING_DATA,
-                            &p );
+                            &p ); /* djb-rwth: ignoring LLVM warning: variable used to store function return value */
 
     /* Header line #3: comment */
     p = inchi_fgetsLf( line, line_len, inp_file );
@@ -559,7 +559,7 @@ int MolfileReadHeaderLines( MOL_FMT_HEADER_BLOCK *hdr,
     len = MolfileReadField( hdr->comment,
                             sizeof( hdr->comment ) - 1,
                             MOL_FMT_STRING_DATA,
-                            &p );
+                            &p ); /* djb-rwth: ignoring LLVM warning: variable used to store function return value */
 
 err_fin:
 
@@ -577,7 +577,7 @@ int MolfileReadCountsLine( MOL_FMT_CTAB* ctab,
     char *p;
     char line[MOL_FMT_INPLINELEN];
     const int line_len = sizeof( line );
-    int   err = 0, len;
+    int   err = 0, len; /* djb-rwth: ignoring LLVM warning: variable used to store function return value */
 
     p = inchi_fgetsLf( line, line_len, inp_file );
 
@@ -632,7 +632,7 @@ int MolfileReadCountsLine( MOL_FMT_CTAB* ctab,
     len = MolfileReadField( ctab->version_string,
                             sizeof( ctab->version_string ) - 1,
                             MOL_FMT_STRING_DATA,
-                            &p );
+                            &p ); /* djb-rwth: ignoring LLVM warning: variable used to store function return value */
 
     /* Allocate additional space if V3000 */
     if (!strcmp( ctab->version_string, "V3000" ))
@@ -1078,11 +1078,11 @@ int MolfileReadPropBlock( MOL_FMT_CTAB* ctab,
                 }
                 if (strlen( p ) < sizeof( ctab->atoms[0].symbol ))
                 {
-                    strcpy( atom->symbol, p );
+                    strcpy_s( atom->symbol, sizeof(atom->symbol) + sizeof(p) + 1, p); /* djb-rwth: function replaced with its safe C11 variant */
                 }
                 else
                 {
-                    strcpy( atom->symbol, "???" );
+                    strcpy_s( atom->symbol, sizeof(atom->symbol) + 1, "???" ); /* djb-rwth: function replaced with its safe C11 variant */
                 }
                 atom->atom_aliased_flag++;
             }
@@ -1333,7 +1333,7 @@ int MolfileReadPropBlock( MOL_FMT_CTAB* ctab,
                 if (1 /* !ctab->atoms[atoms[j]-1].atom_aliased_flag */)
                 {
                     char *at = ctab->atoms[atoms[j] - 1].symbol;
-                    if (at[1] || at[0] != 'D' && at[0] != 'T')
+                    if (at[1] || (at[0] != 'D' && at[0] != 'T')) /* djb-rwth: addressing LLVM warning */
                     {  /*  D & T cannot have ISO */
                         /*  need atomic weight to calculate isotope difference. 7-14-00 DCh. */
 
@@ -1439,13 +1439,13 @@ int MolfileReadSgroupOfPolymer( MOL_FMT_CTAB* ctab,
     char  stmp[4], stmplong[81];
     S_SHORT sg_nums[8], sg_num = -1, sg_atoms[15], sg_bonds[15], tmp;
     int q, fail = 0, len;
-    int debug_polymers = 0;
+    /* djb-rwth: removing redundant variables */
 #if ( DEBUG_POLYMERS == 1 )
     debug_polymers = 1;
 #elif  ( DEBUG_POLYMERS == 2 )
     debug_polymers = 2;
 #endif
-    debug_polymers = 0;
+    /* djb-rwth: removing redundant code */
 
     /* Check for possible lead codes */
 
@@ -1829,7 +1829,7 @@ int MolfileReadSgroupOfPolymer( MOL_FMT_CTAB* ctab,
         if (!fail)
         {
             lrtrim( stmplong, &len );
-            strcpy( ctab->sgroups.group[index]->smt, stmplong );
+            strcpy_s( ctab->sgroups.group[index]->smt, sizeof(ctab->sgroups.group[index]->smt) + 2, stmplong); /* djb-rwth: function replaced with its safe C11 variant */
         }
         if (fail)
         {

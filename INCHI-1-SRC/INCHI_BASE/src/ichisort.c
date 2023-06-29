@@ -423,7 +423,7 @@ void insertions_sort_NeighListBySymmAndCanonRank( NEIGH_LIST base,
         for (j = ( i = pk ) + 1;
              j > base &&    /*  always j > i */
              ( 0 > ( diff = (int) nSymmRank[(int) *i] - (int) nSymmRank[(int) *j] ) ||
-             !diff && nCanonRank[(int) *i] < nCanonRank[(int) *j] );
+             (!diff && nCanonRank[(int) *i] < nCanonRank[(int) *j]) ); /* djb-rwth: addressing LLVM warning */
              j = i, i--)
         {
             tmp = *i;
@@ -705,7 +705,8 @@ NEIGH_LIST *CreateNeighListFromLinearCT( AT_NUMB *LinearCT, int nLenCT, int num_
     {
         goto exit_function;
     }
-    if (!( valence = (S_CHAR*) inchi_calloc( (long long)num_atoms + 1, sizeof( valence[0] ) ) )) /* djb-rwth: cast operator added */
+    valence = (S_CHAR*)inchi_calloc((long long)num_atoms + 1, sizeof(valence[0]));
+    if (!valence) /* djb-rwth: cast operator added */
     {
         goto exit_function;
     }
@@ -731,9 +732,11 @@ NEIGH_LIST *CreateNeighListFromLinearCT( AT_NUMB *LinearCT, int nLenCT, int num_
         goto exit_function;
     }
     length = num_bonds + num_atoms + 1;
-    if (pp = (NEIGH_LIST *) inchi_calloc( ( (long long)num_atoms + 1 ), sizeof( NEIGH_LIST ) )) /* djb-rwth: cast operator added */
+    pp = (NEIGH_LIST*)inchi_calloc(((long long)num_atoms + 1), sizeof(NEIGH_LIST));
+    pAtList = (AT_NUMB*)inchi_malloc(length * sizeof(*pAtList));
+    if (pp) /* djb-rwth: cast operator added; addressing LLVM warning */
     {
-        if (pAtList = (AT_NUMB *) inchi_malloc( length * sizeof( *pAtList ) ))
+        if (pAtList) /* djb-rwth: addressing LLVM warning */
         {
             /*  Create empty connection table */
             for (i = 1, length = 0; i <= num_atoms; i++)
@@ -785,7 +788,7 @@ exit_function:
         }
     }
 
-    return pp;
+    return pp; /* djb-rwth: ignoring LLVM warning: since a pointer is returned, memory should be freed in a function which calls *CreateNeighListFromLinearCT */
 }
 
 
@@ -852,7 +855,8 @@ NEIGH_LIST *CreateNeighList( int num_atoms,
             length += num_t_groups;
         }
         length++; /*  +1 to save number of neighbors */
-        if (pAtList = (AT_NUMB *) inchi_malloc( length * sizeof( *pAtList ) ))
+        pAtList = (AT_NUMB*)inchi_malloc(length * sizeof(*pAtList));
+        if (pAtList) /* djb-rwth: addressing LLVM warning */
         {
             if (!bDoubleBondSquare)
             {
@@ -918,7 +922,7 @@ NEIGH_LIST *CreateNeighList( int num_atoms,
         }
     }
 
-    return pp;
+    return pp; /* djb-rwth: ignoring LLVM warning: since a pointer is returned, memory should be freed in a function which calls *CreateNeighList */
 }
 
 
@@ -971,8 +975,8 @@ int BreakAllTies( CANON_GLOBALS *pCG,
 
     if (nNewRank && nNewAtomNumber)
     {
-        memcpy( nNewAtomNumber, nPrevAtomNumber, num_atoms * sizeof( nNewAtomNumber[0] ) );
-        memcpy( nNewRank, nPrevRank, num_atoms * sizeof( nNewRank[0] ) );
+        memcpy_s( nNewAtomNumber, sizeof(nNewAtomNumber[0])*num_atoms + 1, nPrevAtomNumber, num_atoms * sizeof(nNewAtomNumber[0])); /* djb-rwth: function replaced with its safe C11 variant */
+        memcpy_s( nNewRank, sizeof(nNewRank[0])*num_atoms + 1, nPrevRank, num_atoms * sizeof(nNewRank[0])); /* djb-rwth: function replaced with its safe C11 variant */
 
         for (i = 1, nRet = 0; i < num_atoms; i++)
         {

@@ -81,12 +81,12 @@ const char *ErrMsg( int nErrorCode )
         default:
             if (nErrorCode > CT_UNKNOWN_ERR)
             {
-                sprintf( szErrMsg, "No description(%d)", nErrorCode );
+                sprintf_s( szErrMsg, sizeof(szErrMsg), "No description(%d)", nErrorCode );
                 p = szErrMsg;
             }
             else
             {
-                sprintf( szErrMsg, "UNKNOWN_ERR(%d)", CT_UNKNOWN_ERR - nErrorCode );
+                sprintf_s( szErrMsg, sizeof(szErrMsg), "UNKNOWN_ERR(%d)", CT_UNKNOWN_ERR - nErrorCode );
                 p = szErrMsg;
             }
             break;
@@ -128,11 +128,11 @@ int AddErrorMessage( char *all_messages, const char *new_message )
         {
             if (all_messages[len_all - 1] != ':')
             {
-                strcat( all_messages, ";" );
+                strcat_s(all_messages, STR_ERR_LEN, ";"); /* djb-rwth: function replaced with its safe C11 variant -- maximum buffer size used STR_ERR_LEN */
             }
-            strcat( all_messages, " " );
+            strcat_s( all_messages, STR_ERR_LEN, " "); /* djb-rwth: function replaced with its safe C11 variant -- maximum buffer size used STR_ERR_LEN */
         }
-        strcat( all_messages, new_message );
+        strcat_s( all_messages, STR_ERR_LEN, new_message); /* djb-rwth: function replaced with its safe C11 variant -- maximum buffer size used STR_ERR_LEN */
         return 1;
     }
 
@@ -143,7 +143,7 @@ int AddErrorMessage( char *all_messages, const char *new_message )
     }
     if (len_all + 3 < STR_ERR_LEN)
     {
-        strcat( all_messages, "..." );
+        strcat_s( all_messages, STR_ERR_LEN, "..." ); /* djb-rwth: function replaced with its safe C11 variant -- maximum buffer size used STR_ERR_LEN */
     }
 
     return 0;
@@ -159,12 +159,12 @@ int already_have_this_message( char *prev_messages, const char *new_message )
 
     if (p)
     {
-        have = ( p == prev_messages || *( p - 1 ) == ' ' && ( *( p - 2 ) == ';' || *( p - 2 ) == ':' ) );
+        have = ( p == prev_messages || (*( p - 1 ) == ' ' && ( *( p - 2 ) == ';' || *( p - 2 ) == ':' )) ); /* djb-rwth: addressing LLVM warning */
         if (have)
         {
             int len_prev = (int) strlen( prev_messages );
             int len = (int) strlen( new_message );
-            have = ( p + len == prev_messages + len_prev || p[len] == ';' && p[len + 1] == ' ' || p[len - 1] == ':' && p[len] == ' ' );
+            have = ( p + len == prev_messages + len_prev || (p[len] == ';' && p[len + 1] == ' ') || (p[len - 1] == ':' && p[len] == ' ') ); /* djb-rwth: addressing LLVM warning */
         }
     }
 

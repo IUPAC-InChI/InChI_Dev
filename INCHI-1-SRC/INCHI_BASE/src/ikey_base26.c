@@ -1154,7 +1154,7 @@ static const char d26[][3] =
     Also tabulate 26 base-26 chars.
 */
 
-static const char* const c26 = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+/* djb-rwth: removing redundant variables */
 
 
 /****************************************************************************
@@ -1304,10 +1304,10 @@ void get_xtra_hash_major_hex( const unsigned char *a, char* szXtra )
 #else
     c = a[start_byte] & 0x7f;  /* 0111 1111  */
 #endif
-    j = sprintf( szXtra, "%02x", c );
+    j = sprintf_s( szXtra, sizeof(szXtra) + sizeof(c) + 1, "%02x", c); /* djb-rwth: function replaced with its safe C11 variant */
     for (i = start_byte + 1; i < 32; i++)
     {
-        j += sprintf( szXtra + j, "%02x", a[i] );
+        j += sprintf_s( szXtra + j, sizeof(szXtra) + sizeof(a) + 1, "%02x", a[i]); /* djb-rwth: function replaced with its safe C11 variant */
     }
 }
 
@@ -1325,9 +1325,9 @@ void get_xtra_hash_minor_hex( const unsigned char *a, char* szXtra )
 #else
     c = a[start_byte] & 0x07;  /* 0000 0111  */
 #endif
-    j = sprintf( szXtra, "%02x", c );
+    j = sprintf_s( szXtra, sizeof(szXtra) + sizeof(c) + 1, "%02x", c ); /* djb-rwth: function replaced with its safe C11 variant */
     for (i = start_byte + 1; i < 32; i++)
     {
-        j += sprintf( szXtra + j, "%02x", a[i] );
+        j += sprintf_s( szXtra + j, sizeof(szXtra) + sizeof(a) + 1, "%02x", a[i]); /* djb-rwth: function replaced with its safe C11 variant */
     }
 }

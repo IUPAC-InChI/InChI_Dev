@@ -38,6 +38,7 @@
 
 
 #include <windows.h>
+#include "../../../INCHI_BASE/src/inpdef.h" /* djb-rwth: necessary header file */
 
 
 

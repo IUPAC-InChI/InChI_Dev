@@ -146,7 +146,7 @@ double get_z_coord( inp_ATOM* at,
     double z = at[neigh].z - at[cur_atom].z;
     int    bFlat;
 
-    if (bFlat = ( fabs( z ) < ZERO_LENGTH ))
+    if ((bFlat = ( fabs( z ) < ZERO_LENGTH ))) /* djb-rwth: addressing LLVM warning */
     {
         int i;
         for (i = 0; i < at[cur_atom].valence; i++)
@@ -207,7 +207,7 @@ double get_z_coord( inp_ATOM* at,
     return z;
 }
 
-
+/* djb-rwth: all mathematical functions have to be rewritten as the function arguments are arrays of various dimensions */
 /****************************************************************************/
 double len3( const double c[] )
 {
@@ -395,7 +395,7 @@ int Get2DTetrahedralAmbiguity( CANON_GLOBALS *pCG,
     /* 2010-02-10  added 'volatile': workaround ensuring proper behavior for gcc 32-bit */
     /* cml-enabled compiles at >=O1 for SID484922 and alike (both lin&win had problems) */
     int  nNumNeigh = MAX_NUM_STEREO_ATOM_NEIGH - ( bAddExplicitNeighbor != 0 );
-    int  i, num_Up, num_Dn, bPrev_Up, cur_len_Up, cur_first_Up, len_Up, first_Up;
+    int  i, num_Up, num_Dn, bPrev_Up, cur_len_Up, cur_first_Up, len_Up, first_Up = 0; /* djb-rwth: initialisation required to avoid garbage values */
     int  ret = 0;
 
     for (i = 0, num_Up = num_Dn = 0; i < nNumNeigh; i++)
@@ -821,8 +821,8 @@ int Get2DTetrahedralAmbiguity( CANON_GLOBALS *pCG,
                         dAlpha = dBondDirection[nBondOrder[( first_Up + 2 ) % nNumNeigh]] -
                             dBondDirection[nBondOrder[( first_Up + 1 ) % nNumNeigh]];
                         dAlpha = fabs( dAlpha );
-                        if (dAngle < 2.0 * ZERO_ANGLE && dAlpha > vMinAngle ||
-                             dAlpha < 2.0 * ZERO_ANGLE && dAngle > vMinAngle)
+                        if ((dAngle < 2.0 * ZERO_ANGLE && dAlpha > vMinAngle) ||
+                             (dAlpha < 2.0 * ZERO_ANGLE && dAngle > vMinAngle)) /* djb-rwth: addressing LLVM warnings */
                         {
                             ret = ( T2D_OKAY | T2D_WARN );
                         }
@@ -1131,15 +1131,15 @@ double triple_prod_and_min_abs_sine( double at_coord[][3], double *min_sine )
         return triple_prod( at_coord[0], at_coord[1], at_coord[2], NULL );
     }
 
-    prod = triple_prod( at_coord[0], at_coord[1], at_coord[2], &sine_value );
+    prod = triple_prod( at_coord[0], at_coord[1], at_coord[2], &sine_value ); /* djb-rwth: ignoring LLVM warning: variable used to store function return value */
     sine_value = fabs( sine_value );
     min_sine_value = inchi_min( min_sine_value, sine_value );
 
-    prod = triple_prod( at_coord[1], at_coord[2], at_coord[0], &sine_value );
+    prod = triple_prod( at_coord[1], at_coord[2], at_coord[0], &sine_value ); /* djb-rwth: ignoring LLVM warning: variable used to store function return value */
     sine_value = fabs( sine_value );
     min_sine_value = inchi_min( min_sine_value, sine_value );
 
-    prod = triple_prod( at_coord[2], at_coord[0], at_coord[1], &sine_value );
+    prod = triple_prod( at_coord[2], at_coord[0], at_coord[1], &sine_value ); /* djb-rwth: ignoring LLVM warning: variable used to store function return value */
     sine_value = fabs( sine_value );
     min_sine_value = inchi_min( min_sine_value, sine_value );
 
@@ -1155,9 +1155,9 @@ double triple_prod_and_min_abs_sine( double at_coord[][3], double *min_sine )
 int are_3_vect_in_one_plane( double at_coord[][3], double min_sine )
 {
     double actual_min_sine;
-    double prod;
+    double prod; /* djb-rwth: ignoring LLVM warning: variable used to store function return value */
 
-    prod = triple_prod_and_min_abs_sine( at_coord, &actual_min_sine );
+    prod = triple_prod_and_min_abs_sine( at_coord, &actual_min_sine ); /* djb-rwth: ignoring LLVM warning: variable used to store function return value */
 
     return actual_min_sine <= min_sine;
 }
@@ -1169,7 +1169,7 @@ int are_3_vect_in_one_plane( double at_coord[][3], double min_sine )
 int are_4at_in_one_plane( double at_coord[][3], double min_sine )
 {
     double actual_min_sine, min_actual_min_sine;
-    double coord[3][3], prod;
+    double coord[3][3], prod; /* djb-rwth: ignoring LLVM warning: variable used to store function return value */
     int i, k, j;
     for (k = 0; k < 4; k++)
     {
@@ -1182,7 +1182,7 @@ int are_4at_in_one_plane( double at_coord[][3], double min_sine )
             }
         }
 
-        prod = triple_prod_and_min_abs_sine( coord, &actual_min_sine );
+        prod = triple_prod_and_min_abs_sine( coord, &actual_min_sine ); /* djb-rwth: ignoring LLVM warning: variable used to store function return value */
         if (!k || actual_min_sine < min_actual_min_sine)
         {
             min_actual_min_sine = actual_min_sine;
@@ -1397,8 +1397,8 @@ int bInpAtomHasRequirdNeigh( inp_ATOM *at,
         return 0;
     }
 
-    if (NumDbleBonds && NumDbleBonds > num_mult ||
-         !NumDbleBonds && at[cur_at].valence != num_1s)
+    if ((NumDbleBonds && NumDbleBonds > num_mult) ||
+         (!NumDbleBonds && at[cur_at].valence != num_1s)) /* djb-rwth: addressing LLVM warning */
     {
         return 0;
     }
@@ -1629,8 +1629,8 @@ int bIsSuitableHeteroInpAtom( inp_ATOM  *at )
                     }
                     break;        /* not found */
                 case 3: /* N */
-                    if (1 == at->valence && 1 == num_H ||
-                         2 == at->valence && 0 == num_H)
+                    if ((1 == at->valence && 1 == num_H) ||
+                         (2 == at->valence && 0 == num_H)) /* djb-rwth: addressing LLVM warnings */
                     {
                         return 1; /* =N- or =NH */
                     }
@@ -1680,7 +1680,7 @@ int bIsOxide( inp_ATOM  *at, int cur_at )
 
 /****************************************************************************
  used for atoms adjacent to stereogenic bonds only
- /****************************************************************************/
+ ****************************************************************************/
 int bCanAtomBeTerminalAllene( char *elname, S_CHAR charge, S_CHAR radical )
 {
     static const char   szElem[][3] = { "C\000", "Si", "Ge", };
@@ -1917,7 +1917,7 @@ int FixSb0DParities( inp_ATOM *at,
             if (bWrong_z_dir1 || bWrong_z_dir2)
             {
                 double r12[3], zi1[3], zi2[3], abs_r12, abs_zi2;
-                int    at_i1, at_i2, j;
+                int    at_i1, at_i2, j; /* djb-rwth: ignoring LLVM warning: variables used */
                 S_CHAR   z_dir[3];
                 r12[0] = at[at_2].x - at[at_1].x;
                 r12[1] = at[at_2].y - at[at_1].y;
@@ -1930,8 +1930,8 @@ int FixSb0DParities( inp_ATOM *at,
                 /* make r12[] point to the atom with 'good' z_dir[] */
                 if (bWrong_z_dir1)
                 {
-                    at_i1 = at_2; /* has good z_dir2[] */
-                    at_i2 = at_1; /* has bad  z_dir1[] */
+                    at_i1 = at_2; /* has good z_dir2[] */ /* djb-rwth: ignoring LLVM warning: variable used */
+                    at_i2 = at_1; /* has bad  z_dir1[] */ /* djb-rwth: ignoring LLVM warning: variable used */
                     zi1[0] = z_dir2[0];
                     zi1[1] = z_dir2[1];
                     zi1[2] = z_dir2[2];
@@ -1939,8 +1939,8 @@ int FixSb0DParities( inp_ATOM *at,
                 }
                 else
                 {
-                    at_i1 = at_1; /* has good z_dir1[] */
-                    at_i2 = at_2; /* has bad  z_dir2[] */
+                    at_i1 = at_1; /* has good z_dir1[] */ /* djb-rwth: ignoring LLVM warning: variable used */
+                    at_i2 = at_2; /* has bad  z_dir2[] */ /* djb-rwth: ignoring LLVM warning: variable used */
                     zi1[0] = z_dir1[0];
                     zi1[1] = z_dir1[1];
                     zi1[2] = z_dir1[2];
@@ -1956,11 +1956,11 @@ int FixSb0DParities( inp_ATOM *at,
                 }
                 if (bWrong_z_dir1)
                 {
-                    memcpy( z_dir1, z_dir, sizeof( z_dir ) );
+                    memcpy_s( z_dir1, 2*sizeof(z_dir) + 1, z_dir, sizeof( z_dir ) ); /* djb-rwth: function replaced with its safe C11 variant */
                 }
                 else
                 {
-                    memcpy( z_dir2, z_dir, sizeof( z_dir ) );
+                    memcpy_s( z_dir2, 2*sizeof(z_dir) + 1, z_dir, sizeof( z_dir ) ); /* djb-rwth: function replaced with its safe C11 variant */
                 }
             }
         }
@@ -2107,7 +2107,7 @@ int half_stereo_bond_parity( inp_ATOM *at,
 {
     double at_coord[MAX_NUM_STEREO_BOND_NEIGH][3], c, s, tmp[3], tmp1, tmp2, min_tmp, max_tmp, z;
     double temp[3], pnt[3][3];
-    int j, k, p0, p1, p2, next, bValence3 = 0, num_z, nType, num_either_single, num_either_double;
+    int j, k, p0, p1, p2, next, bValence3 = 0, num_z, nType, num_either_single; /* djb-rwth: ignoring LLVM warning: variable used in switch statement; removing redundant variables */
     int nNumExplictAttachments;
     int bond_parity = AB_PARITY_UNDF;
     int    num_H = 0, num_iH, num_eH = 0, num_nH = 0 /* = num_iso_H[0] */;
@@ -2172,7 +2172,7 @@ int half_stereo_bond_parity( inp_ATOM *at,
 
     /*  locate explicit hydrogen atoms */
     /*  (at_removed_H are sorted in ascending isotopic H mass order, non-isotopic first) */
-    memset( num_iso_H, 0, sizeof( num_iso_H ) );
+    memset( num_iso_H, 0, sizeof( num_iso_H ) ); /* djb-rwth: memset_s C11/Annex K variant? */
     if (at_removed_H && num_removed_H > 0)
     {
         for (j = 0; j < num_removed_H; j++)
@@ -2200,10 +2200,7 @@ int half_stereo_bond_parity( inp_ATOM *at,
             goto exit_function;
         }
     }
-    else
-    {
-        num_iH = num_H;
-    }
+    /* djb-rwth: removing redundant code */
     /*  at this point num_iH = number of implicit non-isotopic and isotopic H atoms */
     if (at[cur_at].valence + num_eH < MIN_NUM_STEREO_BOND_NEIGH)
     {
@@ -2220,8 +2217,8 @@ int half_stereo_bond_parity( inp_ATOM *at,
      * This makes sense only in case chem. valence = 4. In case of chem. valence = 3, do not check.
      */
     if (at[cur_at].valence + num_eH == MIN_NUM_STEREO_BOND_NEIGH && !bValence3 &&
-         !(/*(a)*/ 1 == num_nH && !num_iso_H[0] ||
-             /*(b)*/ 1 == num_H && !num_eH )
+         !(/*(a)*/ (1 == num_nH && !num_iso_H[0]) ||
+             /*(b)*/ (1 == num_H && !num_eH )) /* djb-rwth: addressing LLVM warnings */
        )
     {
         goto exit_function;
@@ -2229,7 +2226,7 @@ int half_stereo_bond_parity( inp_ATOM *at,
     }
 
     /*  store neighbors coordinates */
-    num_z = num_either_single = num_either_double = 0;
+    num_z = num_either_single = 0; /* djb-rwth: ignoring LLVM warning: variable used for switch statement; removing redundant code */
     for (k = nNumExplictAttachments = 0; k < 2; k++)
     {
         switch (k)
@@ -2682,7 +2679,7 @@ int can_be_a_stereo_bond_with_isotopic_H( inp_ATOM *at,
                 {
                     num_wrong_bonds_1++;
 #if ( ONE_BAD_SB_NEIGHBOR == 1 )
-                    if (num_wrong_bonds_1 > 1 || num_wrong_bonds_1 && 2 >= at[cur_at].valence)
+                    if (num_wrong_bonds_1 > 1 || (num_wrong_bonds_1 && 2 >= at[cur_at].valence)) /* djb-rwth: addressing LLVM warning */
                     {
                         return 0; /* wrong bond type */
                     }
@@ -2755,7 +2752,7 @@ int can_be_a_stereo_bond_with_isotopic_H( inp_ATOM *at,
                         {
                             num_wrong_bonds_2++;
 #if ( ONE_BAD_SB_NEIGHBOR == 1 )
-                            if (num_wrong_bonds_1 > 1 || num_wrong_bonds_1 && 2 >= at[cur_at].valence)
+                            if (num_wrong_bonds_1 > 1 || (num_wrong_bonds_1 && 2 >= at[cur_at].valence)) /* djb-rwth: addressing LLVM warning */
                             {
                                 break; /* wrong bond type */
                             }
@@ -2774,8 +2771,8 @@ int can_be_a_stereo_bond_with_isotopic_H( inp_ATOM *at,
 
 #if ( N_V_STEREOBONDS == 1 )
             if (3 == ( type_N | type_N_next ) &&
-                ( 2 == type_N && !bIsOxide( at, cur_at ) ||
-                    2 == type_N_next && !bIsOxide( at, next_at ) ))
+                ( (2 == type_N && !bIsOxide( at, cur_at )) ||
+                    (2 == type_N_next && !bIsOxide( at, next_at )) )) /* djb-rwth: addressing LLVM warnings */
             {
                 bFound = 0;
             }
@@ -2991,7 +2988,7 @@ int set_stereo_bonds_parity( sp_ATOM *out_at,
                              int bPointedEdgeStereo,
                              int vABParityUnknown )
 {
-    int j, k, next_at_1, i_next_at_1, i_next_at_2, at_2, next_at_2, num_stereo_bonds, bFound, bAllene;
+    int j, k, i_next_at_1, i_next_at_2, at_2, next_at_2, num_stereo_bonds, bFound, bAllene; /* djb-rwth: removing redundant variables */
     int bond_type, num_2s_1, num_alt_1;
     int num_2s_2, num_alt_2;
 #if ( ONE_BAD_SB_NEIGHBOR == 1 )
@@ -3000,7 +2997,7 @@ int set_stereo_bonds_parity( sp_ATOM *out_at,
 #if ( N_V_STEREOBONDS == 1 )
     int n2sh, num_2s_hetero[2], num_2s_hetero_next[2], next_next_at, type_N, type_N_next;
 #endif
-    int num_stored_stereo_bonds, num_stored_isotopic_stereo_bonds;
+    int num_stored_isotopic_stereo_bonds; /* djb-rwth: removing redundant variables/code */
     int chain_length, num_chains, cur_chain_length;
     int all_at_2[MAX_NUM_STEREO_BONDS];
     int all_pos_1[MAX_NUM_STEREO_BONDS], all_pos_2[MAX_NUM_STEREO_BONDS];
@@ -3066,7 +3063,7 @@ int set_stereo_bonds_parity( sp_ATOM *out_at,
         if (bond_type == BOND_ALTERN ||
              bond_type == BOND_DOUBLE)
         {
-            next_at_1 = at_2 = at[at_1].neighbor[i_next_at_1];
+            at_2 = at[at_1].neighbor[i_next_at_1]; /* djb-rwth: removing redundant code */
             next_at_2 = at_1;
         }
         switch (bond_type)
@@ -3119,7 +3116,7 @@ int set_stereo_bonds_parity( sp_ATOM *out_at,
                         if (bAllene /* at the end of the chain atom Y is =Y=, not =Y< or =Y- */ ||
                              !bCanAtomBeTerminalAllene( at[at_2].elname, at[at_2].charge, at[at_2].radical ))
                         {
-                            cur_chain_length = 0;
+                            cur_chain_length = 0; /* djb-rwth: ignoring LLVM warning: value used */
                             continue; /*  ignore: does not fit cumulene description; go to check next at_1 neighbor */
                         }
                         chain_length = cur_chain_length; /*  accept a stereogenic cumulele */
@@ -3221,7 +3218,7 @@ int set_stereo_bonds_parity( sp_ATOM *out_at,
             }
             if (
 #if ( ONE_BAD_SB_NEIGHBOR == 1 )
-                 num_wrong_bonds_2 > 1 || num_wrong_bonds_2 && 2 >= at[at_2].valence ||
+                 num_wrong_bonds_2 > 1 || (num_wrong_bonds_2 && 2 >= at[at_2].valence) || /* djb-rwth: addressing LLVM warning */
 #else
                  j < at[at_2].valence /* "next" has a wrong bond type*/ ||
 #endif
@@ -3243,8 +3240,8 @@ int set_stereo_bonds_parity( sp_ATOM *out_at,
                     }
                     else
 #if ( N_V_STEREOBONDS == 1 )
-                        if ( 3==( type_N | type_N_next ) && ( 2==type_N && !bIsOxide( at, at_1 ) ||
-                             2==type_N_next && !bIsOxide( at, at_2 ) ))
+                        if ( 3==( type_N | type_N_next ) && ( (2==type_N && !bIsOxide( at, at_1 )) ||
+                             (2==type_N_next && !bIsOxide( at, at_2 )) )) /* djb-rwth: addressing LLVM warnings */
                         {
                             bFound = 0;
                         }
@@ -3317,7 +3314,7 @@ int set_stereo_bonds_parity( sp_ATOM *out_at,
         return 0; /*  cannot be more than 1 cumulene chain. */
     }
 #if ( ONE_BAD_SB_NEIGHBOR == 1 )
-    if (num_wrong_bonds_1 > 1 || num_wrong_bonds_1 && 2 >= at[at_1].valence)
+    if (num_wrong_bonds_1 > 1 || (num_wrong_bonds_1 && 2 >= at[at_1].valence)) /* djb-rwth: addressing LLVM warning */
     {
         return 0; /* wrong bond type */
     }
@@ -3361,7 +3358,7 @@ int set_stereo_bonds_parity( sp_ATOM *out_at,
 
     /*  Find possibly stereo bonds and save them */
     num_stored_isotopic_stereo_bonds = 0;
-    num_stored_stereo_bonds = 0;
+    /* djb-rwth: removing redundant code */
     for (k = 0; k < num_stereo_bonds; k++)
     {
 
@@ -3396,8 +3393,8 @@ int set_stereo_bonds_parity( sp_ATOM *out_at,
 
         i_next_at_2 = all_pos_2[k];
         nUnknown = all_unkn[k];
-        memset( z_dir1, 0, sizeof( z_dir1 ) );
-        memset( z_dir2, 0, sizeof( z_dir2 ) );
+        memset( z_dir1, 0, sizeof( z_dir1 ) ); /* djb-rwth: memset_s C11/Annex K variant? */
+        memset( z_dir2, 0, sizeof( z_dir2 ) ); /* djb-rwth: memset_s C11/Annex K variant? */
 
         /********************************************************************************
          * Find atom parities (negative means parity due to H-isotopes only)
@@ -3574,20 +3571,20 @@ int set_stereo_bonds_parity( sp_ATOM *out_at,
                     out_at[at_2].stereo_bond_parity ))
                 {
                     if (!out_at[at_1].parity ||
-                         cur_parity_defined && !ATOM_PARITY_WELL_DEF( abs( out_at[at_1].parity ) ))
+                         (cur_parity_defined && !ATOM_PARITY_WELL_DEF( abs( out_at[at_1].parity )) )) /* djb-rwth: addressing LLVM warning */
                     {
                         out_at[at_1].parity = cur_parity;
-                        memcpy( out_at[at_1].z_dir, z_dir1, sizeof( out_at[0].z_dir ) );
+                        memcpy_s( out_at[at_1].z_dir, sizeof(out_at[at_1]) + 1, z_dir1, sizeof(out_at[0].z_dir)); /* djb-rwth: function replaced with its safe C11 variant */
                     }
                     if (!out_at[at_2].parity ||
-                         next_parity_defined && !ATOM_PARITY_WELL_DEF( abs( out_at[at_2].parity ) ))
+                         (next_parity_defined && !ATOM_PARITY_WELL_DEF( abs( out_at[at_2].parity )) )) /* djb-rwth: addressing LLVM warning */
                     {
                         out_at[at_2].parity = next_parity;
-                        memcpy( out_at[at_2].z_dir, z_dir2, sizeof( out_at[0].z_dir ) );
+                        memcpy_s( out_at[at_2].z_dir, sizeof(out_at[at_2]) + 1, z_dir2, sizeof(out_at[0].z_dir)); /* djb-rwth: function replaced with its safe C11 variant */
                     }
                     out_at[at_1].bAmbiguousStereo |= at[at_1].bAmbiguousStereo;
                     out_at[at_2].bAmbiguousStereo |= at[at_2].bAmbiguousStereo;
-                    num_stored_stereo_bonds++;
+                    /* djb-rwth: removing redundant code */
                 }
             }
         }
@@ -3612,21 +3609,21 @@ int set_stereo_bonds_parity( sp_ATOM *out_at,
                     out_at[at_2].stereo_bond_parity2 ))
                 {
                     if (!out_at[at_1].parity2 ||
-                         cur_parity_defined && !ATOM_PARITY_WELL_DEF( abs( out_at[at_1].parity2 ) ))
+                         (cur_parity_defined && !ATOM_PARITY_WELL_DEF( abs( out_at[at_1].parity2 )) )) /* djb-rwth: addressing LLVM warning */
                     {
                         out_at[at_1].parity2 = cur_parity /*| chain_len_bits*/;
                         if (!out_at[at_1].parity)
                         {
-                            memcpy( out_at[at_1].z_dir, z_dir1, sizeof( out_at[0].z_dir ) );
+                            memcpy_s( out_at[at_1].z_dir, sizeof(out_at[at_1]) + 1, z_dir1, sizeof(out_at[0].z_dir)); /* djb-rwth: function replaced with its safe C11 variant */
                         }
                     }
                     if (!out_at[at_2].parity2 || /* next line changed from abs(out_at[at_2].parity) 2006-03-05 */
-                         next_parity_defined && !ATOM_PARITY_WELL_DEF( abs( out_at[at_2].parity2 ) ))
+                         (next_parity_defined && !ATOM_PARITY_WELL_DEF( abs( out_at[at_2].parity2 )) )) /* djb-rwth: addressing LLVM warning */
                     {
                         out_at[at_2].parity2 = next_parity /*| chain_len_bits*/;
                         if (!out_at[at_2].parity)
                         {
-                            memcpy( out_at[at_2].z_dir, z_dir2, sizeof( out_at[0].z_dir ) );
+                            memcpy_s( out_at[at_2].z_dir, sizeof(out_at[at_2]) + 1, z_dir2, sizeof(out_at[0].z_dir)); /* djb-rwth: function replaced with its safe C11 variant */
                         }
                     }
                     out_at[at_1].bAmbiguousStereo |= at[at_1].bAmbiguousStereo;
@@ -3806,7 +3803,7 @@ int set_stereo_atom_parity( CANON_GLOBALS *pCG,
         AB_PARITY_NONE;
     parity = AB_PARITY_NONE;
 
-    memset( num_explicit_iso_H, 0, sizeof( num_explicit_iso_H ) );
+    memset( num_explicit_iso_H, 0, sizeof( num_explicit_iso_H ) ); /* djb-rwth: memset_s C11/Annex K variant? */
     num_explicit_H = 0;
 
 #if ( NEW_STEREOCENTER_CHECK == 1 )
@@ -4267,7 +4264,7 @@ int set_stereo_atom_parity( CANON_GLOBALS *pCG,
     /*
      *  Check for tetrahedral ambiguity -- leave it out for now
      */
-    if (fabs( triple_product ) > ZERO_FLOAT && ( min_sine > vMinSine || fabs( min_sine ) > ZERO_FLOAT && ( n2DTetrahedralAmbiguity & T2D_OKAY ) ))
+    if (fabs( triple_product ) > ZERO_FLOAT && ( min_sine > vMinSine || (fabs( min_sine ) > ZERO_FLOAT && ( n2DTetrahedralAmbiguity & T2D_OKAY )) )) /* djb-rwth: addressing LLVM warning */
     {
          /* Even => sorted in correct order, Odd=>transposed */
         parity = triple_product > 0.0 ? AB_PARITY_EVEN : AB_PARITY_ODD;
@@ -4468,20 +4465,20 @@ int set_stereo_parity( CANON_GLOBALS *pCG,
     {
         at_output[i].parity = 0;
         at_output[i].parity2 = 0;
-        memset( &at_output[i].stereo_bond_neighbor[0], 0, sizeof( at_output[0].stereo_bond_neighbor ) );
-        memset( &at_output[i].stereo_bond_neighbor2[0], 0, sizeof( at_output[0].stereo_bond_neighbor2 ) );
-        memset( &at_output[i].stereo_bond_ord[0], 0, sizeof( at_output[0].stereo_bond_ord ) );
-        memset( &at_output[i].stereo_bond_ord2[0], 0, sizeof( at_output[0].stereo_bond_ord2 ) );
-        memset( &at_output[i].stereo_bond_z_prod[0], 0, sizeof( at_output[0].stereo_bond_z_prod ) );
-        memset( &at_output[i].stereo_bond_z_prod2[0], 0, sizeof( at_output[0].stereo_bond_z_prod2 ) );
-        memset( &at_output[i].stereo_bond_parity[0], 0, sizeof( at_output[0].stereo_bond_parity ) );
-        memset( &at_output[i].stereo_bond_parity2[0], 0, sizeof( at_output[0].stereo_bond_parity2 ) );
+        memset( &at_output[i].stereo_bond_neighbor[0], 0, sizeof( at_output[0].stereo_bond_neighbor ) ); /* djb-rwth: memset_s C11/Annex K variant? */
+        memset( &at_output[i].stereo_bond_neighbor2[0], 0, sizeof( at_output[0].stereo_bond_neighbor2 ) ); /* djb-rwth: memset_s C11/Annex K variant? */
+        memset( &at_output[i].stereo_bond_ord[0], 0, sizeof( at_output[0].stereo_bond_ord ) ); /* djb-rwth: memset_s C11/Annex K variant? */
+        memset( &at_output[i].stereo_bond_ord2[0], 0, sizeof( at_output[0].stereo_bond_ord2 ) ); /* djb-rwth: memset_s C11/Annex K variant? */
+        memset( &at_output[i].stereo_bond_z_prod[0], 0, sizeof( at_output[0].stereo_bond_z_prod ) ); /* djb-rwth: memset_s C11/Annex K variant? */
+        memset( &at_output[i].stereo_bond_z_prod2[0], 0, sizeof( at_output[0].stereo_bond_z_prod2 ) ); /* djb-rwth: memset_s C11/Annex K variant? */
+        memset( &at_output[i].stereo_bond_parity[0], 0, sizeof( at_output[0].stereo_bond_parity ) ); /* djb-rwth: memset_s C11/Annex K variant? */
+        memset( &at_output[i].stereo_bond_parity2[0], 0, sizeof( at_output[0].stereo_bond_parity2 ) ); /* djb-rwth: memset_s C11/Annex K variant? */
     }
 
     /*  Estimate max numbers of stereo atoms and bonds if isotopic H are added */
     if (nMaxNumStereoAtoms || nMaxNumStereoBonds)
     {
-        for (i = 0, num_stereo = 0; i < num_at; i++)
+        for (i = 0; i < num_at; i++) /* djb-rwth: removing redundant code */
         {
             int num;
             num = can_be_a_stereo_atom_with_isotopic_H( at, i, bPointedEdgeStereo, bStereoAtZz );
@@ -4519,6 +4516,8 @@ int set_stereo_parity( CANON_GLOBALS *pCG,
         cSource = (S_CHAR *) inchi_calloc( sizeof( cSource[0] ), num_at );
         if (!q || !cSource || !nAtomLevel)
         {
+            inchi_free(nAtomLevel); /* djb-rwth: avoiding memory leak */
+            inchi_free(cSource); /* djb-rwth: avoiding memory leak */
             num_3D_stereo_atoms = CT_OUT_OF_RAM;
             goto exit_function;
         }
@@ -4554,7 +4553,7 @@ int set_stereo_parity( CANON_GLOBALS *pCG,
             num_stereo_bonds += ( is_stereo != 0 ); /* added to fix bug reported by Burt Leland - 2009-02-05 DT */
         }
         num_stereo += ( is_stereo != 0 );
-        is_stereo = is_stereo;
+        /* djb-rwth: removing redundant code */
     }
 
     /* Added to fix bug reported by Burt Leland - 2009-02-05 DT */
@@ -4576,7 +4575,7 @@ int set_stereo_parity( CANON_GLOBALS *pCG,
 #if ( MIN_SB_RING_SIZE > 0 )
     if (q)
     {
-        q = QueueDelete( q );
+        q = QueueDelete( q ); /* djb-rwth: ignoring LLVM warning: variable used to store function return value */
     }
     if (nAtomLevel)
     {
@@ -4629,7 +4628,7 @@ int ReconcileAllCmlBondParities( inp_ATOM *at,
     {
         if (at[i].sb_parity[0] && !visited[i] && !( bDisconnected && is_el_a_metal( at[i].el_number ) ))
         {
-            if (ret = ReconcileCmlIncidentBondParities( at, i, -1, visited, bDisconnected ))
+            if ((ret = ReconcileCmlIncidentBondParities( at, i, -1, visited, bDisconnected ))) /* djb-rwth: addressing LLVM warning */
             {
                 break; /* error */
             }
@@ -4777,7 +4776,7 @@ int ReconcileCmlIncidentBondParities( inp_ATOM *at,
                 */
                 at[cur_atom].sb_parity[i] ^= bCurMask;
                 at[nxt_atom].sb_parity[j] ^= bNxtMask;
-                cur_sb_parity ^= 3;
+                /* djb-rwth: removing redundant code */
                 nxt_sb_parity ^= 3;
             }
         }

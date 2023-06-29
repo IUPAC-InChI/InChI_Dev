@@ -237,8 +237,8 @@ void sha2_update( sha2_context *ctx, unsigned char *input, int ilen )
 
     if (left && ilen >= fill)
     {
-        memcpy( (void *) ( ctx->buffer + left ),
-            (void *) input, fill );
+        memcpy_s( (void *) ( ctx->buffer + left ), fill + 1, 
+            (void *) input, fill ); /* djb-rwth: function replaced with its safe C11 variant */
         sha2_process( ctx, ctx->buffer );
         input += fill;
         ilen -= fill;
@@ -254,8 +254,8 @@ void sha2_update( sha2_context *ctx, unsigned char *input, int ilen )
 
     if (ilen > 0)
     {
-        memcpy( (void *) ( ctx->buffer + left ),
-            (void *) input, ilen );
+        memcpy_s( (void *) ( ctx->buffer + left ), ilen + 1,
+            (void *) input, ilen ); /* djb-rwth: function replaced with its safe C11 variant */
     }
 }
 
@@ -349,8 +349,8 @@ void sha2_hmac( unsigned char *key, int keylen,
     unsigned char k_opad[64];
     unsigned char tmpbuf[32];
 
-    memset( k_ipad, 0x36, 64 );
-    memset( k_opad, 0x5C, 64 );
+    memset( k_ipad, 0x36, 64 ); /* djb-rwth: memset_s C11/Annex K variant? */
+    memset( k_opad, 0x5C, 64 ); /* djb-rwth: memset_s C11/Annex K variant? */
 
     for (i = 0; i < keylen; i++)
     {
@@ -370,10 +370,10 @@ void sha2_hmac( unsigned char *key, int keylen,
     sha2_update( &ctx, tmpbuf, 32 );
     sha2_finish( &ctx, output );
 
-    memset( k_ipad, 0, 64 );
-    memset( k_opad, 0, 64 );
-    memset( tmpbuf, 0, 32 );
-    memset( &ctx, 0, sizeof( sha2_context ) );
+    memset( k_ipad, 0, 64 ); /* djb-rwth: memset_s C11/Annex K variant? */
+    memset( k_opad, 0, 64 ); /* djb-rwth: memset_s C11/Annex K variant? */
+    memset( tmpbuf, 0, 32 ); /* djb-rwth: memset_s C11/Annex K variant? */
+    memset( &ctx, 0, sizeof( sha2_context ) ); /* djb-rwth: memset_s C11/Annex K variant? */
 }
 
 #ifdef SELF_TEST

@@ -1185,7 +1185,7 @@ do {\
 #define qzfree(X)   do{if(X){inchi_free(X);(X)=NULL;}}while(0)
 
 /* rellocation */
-
+/* djb-rwth: function replaced with its safe C11 variant; avoiding memory leaks */
 #define MYREALLOC2(PTRTYPE1, PTRTYPE2, PTR1, PTR2, LEN1, LEN2, ERR) \
     do { \
         if( (LEN1) <= (LEN2) ) {\
@@ -1193,9 +1193,9 @@ do {\
             PTRTYPE2 * newPTR2 = (PTRTYPE2 *)inchi_calloc( (LEN2)+1, sizeof(PTRTYPE2) );\
             if ( newPTR1 && newPTR2 ) { \
                 if ( (PTR1) && (LEN1) > 0 ) \
-                    (memcpy) ( newPTR1, (PTR1), (LEN1) * sizeof(PTRTYPE1) ); \
+                    (memcpy_s) ( newPTR1, sizeof(PTRTYPE1)*(LEN1) + 1, (PTR1), (LEN1) * sizeof(PTRTYPE1) ); \
                 if ( (PTR2) && (LEN1) > 0 ) \
-                    (memcpy) ( newPTR2, (PTR2), (LEN1) * sizeof(PTRTYPE2) ); \
+                    (memcpy_s) ( newPTR2, sizeof(PTRTYPE2)*(LEN1) + 1, (PTR2), (LEN1) * sizeof(PTRTYPE2) ); \
                 if ( PTR1 ) \
                     inchi_free(PTR1);  \
                 if ( PTR2 ) \
@@ -1205,6 +1205,8 @@ do {\
                 (LEN1) = (LEN2);  \
                 (ERR)  = 0; \
             } else {        \
+                inchi_free(newPTR1); \
+                inchi_free(newPTR2); \
                 (ERR)  = 1; \
             }               \
         } else { (ERR) = 0; } \

@@ -100,8 +100,8 @@ int MarkRingSystemsInp( inp_ATOM *at, int num_atoms, int start )
     nDfs = 0;
     nTopStackAtom = -1;
     nTopRingStack = -1;
-    memset( nDfsNumber, 0, num_atoms * sizeof( nDfsNumber[0] ) );
-    memset( cNeighNumb, 0, num_atoms * sizeof( cNeighNumb[0] ) );
+    memset( nDfsNumber, 0, num_atoms * sizeof( nDfsNumber[0] ) ); /* djb-rwth: memset_s C11/Annex K variant? */
+    memset( cNeighNumb, 0, num_atoms * sizeof( cNeighNumb[0] ) ); /* djb-rwth: memset_s C11/Annex K variant? */
     /*  push the start atom on the stack */
     nLowNumber[u] = nDfsNumber[u] = ++nDfs;
     nStackAtom[++nTopStackAtom] = (AT_NUMB) u;
@@ -201,8 +201,8 @@ int MarkRingSystemsInp( inp_ATOM *at, int num_atoms, int start )
     nDfs = 0;
     nTopStackAtom = -1;
     nTopRingStack = -1;
-    memset( nDfsNumber, 0, num_atoms * sizeof( nDfsNumber[0] ) );
-    memset( cNeighNumb, 0, num_atoms * sizeof( cNeighNumb[0] ) );
+    memset( nDfsNumber, 0, num_atoms * sizeof( nDfsNumber[0] ) ); /* djb-rwth: memset_s C11/Annex K variant? */
+    memset( cNeighNumb, 0, num_atoms * sizeof( cNeighNumb[0] ) ); /* djb-rwth: memset_s C11/Annex K variant? */
     /*  push the start atom on the stack */
     nLowNumber[u] = nDfsNumber[u] = ++nDfs;
     nStackAtom[++nTopStackAtom] = (AT_NUMB) u;
@@ -745,7 +745,7 @@ int add_inp_ATOM( inp_ATOM *at,
     if (len_cur + len_add > len_at)
         return -1;
     /* copy */
-    memcpy( at + len_cur, add, len_add * sizeof( at[0] ) );
+    memcpy_s( at + len_cur, sizeof(at[0])*len_add + 1, add, len_add * sizeof(at[0])); /* djb-rwth: function replaced with its safe C11 variant */
     /* modify */
     if (len_cur)
     {
@@ -1393,9 +1393,9 @@ int unmark_atoms_cFlags( inp_ATOM *at,
 int is_C_or_S_DB_O( inp_ATOM *at, int i )
 {
     int j, neigh;
-    if (at[i].el_number != EL_NUMBER_C &&
-         at[i].el_number != EL_NUMBER_S ||
-         at[i].charge || at[i].radical)
+    if ((at[i].el_number != EL_NUMBER_C &&
+         at[i].el_number != EL_NUMBER_S) ||
+         at[i].charge || at[i].radical) /* djb-rwth: addressing LLVM warning */
         return 0;
     for (j = 0; j < at[i].valence; j++)
     {
@@ -2320,13 +2320,13 @@ int is_Dansyl( inp_ATOM *at,
                DERIV_AT *da1 )
 {
     int i, a, b, c, d, cj = -1, dj = -1, neigh, k, iS /* S */, iN /* N */;
-    if (( ( at[cur_atom].el_number == EL_NUMBER_O || at[cur_atom].el_number == EL_NUMBER_S || at[cur_atom].el_number == EL_NUMBER_N ) &&
+    if (( (( at[cur_atom].el_number == EL_NUMBER_O || at[cur_atom].el_number == EL_NUMBER_S || at[cur_atom].el_number == EL_NUMBER_N ) &&
           at[cur_atom].valence == 2 && at[cur_atom].num_H == ( at[cur_atom].el_number == EL_NUMBER_N ) &&
-          at[cur_atom].nNumAtInRingSystem == 1 ||
-          at[cur_atom].el_number == EL_NUMBER_N && at[cur_atom].valence == 3 && at[cur_atom].num_H == 0 ) &&
+          at[cur_atom].nNumAtInRingSystem == 1) ||
+          (at[cur_atom].el_number == EL_NUMBER_N && at[cur_atom].valence == 3 && at[cur_atom].num_H == 0) ) &&
          at[cur_atom].valence == at[cur_atom].chem_bonds_valence &&
          at[iS /* S */ = at[cur_atom].neighbor[to_ord]].el_number == EL_NUMBER_S &&
-         at[iS].valence == 4 && at[iS].chem_bonds_valence == 6)
+         at[iS].valence == 4 && at[iS].chem_bonds_valence == 6) /* djb-rwth: addressing LLVM warning */
     {
         /* neighbors of S; 6=1+1+2+2, 1+1+1+3 only. Therefore, we do not need to count (=O) neighbors */
         for (i = 0, a = -1; i < at[iS].valence; i++)
@@ -2603,9 +2603,9 @@ int is_possibly_deriv_neigh( inp_ATOM *at,
     switch (type)
     {
         case DERIV_BRIDGE_O:
-            neigh_from = at[iat].neighbor[!iord]; /* inside precursor */
-                                                  /*neigh_from  iat
-                                                  /*       -> A--O--B -> traversing from A(neigh_from) to B(neigh); may we cut O--B bond? */
+            neigh_from = at[iat].neighbor[!iord]; /* inside precursor
+                                                  neigh_from  iat
+                                                         -> A--O--B -> traversing from A(neigh_from) to B(neigh); may we cut O--B bond? */
                                                   /* do not cut bond "---" in A=Si(IV), B(=O), B=C: Si(IV)-O---B(=O) */
             if (!( is_C_or_S_DB_O( at, neigh ) && is_Si_IV( at, neigh_from ) ) &&
                  !is_C_unsat_not_arom( at, neigh ))
@@ -2621,7 +2621,7 @@ int is_possibly_deriv_neigh( inp_ATOM *at,
 #ifdef DERIV_RO_COX
         case DERIV_RO_COX:
             /*           iord
-            /* -> R-O--[C(=O)-B]; -B: -CH3, C[n]F[2n+1] 0 < n < 4; may we cut O--C bond? */
+            -> R-O--[C(=O)-B]; -B: -CH3, C[n]F[2n+1] 0 < n < 4; may we cut O--C bond? */
             neigh_from = at[iat].neighbor[!iord];
             if (at[neigh_from].el_number == EL_NUMBER_C &&
                  at[iat].el_number == EL_NUMBER_O &&
@@ -2674,7 +2674,7 @@ int get_traversed_deriv_type( inp_ATOM *at,
     int n0, n2, n3;
 #endif
 
-    memset( da1, 0, sizeof( *da1 ) );
+    memset( da1, 0, sizeof( *da1 ) ); /* djb-rwth: memset_s C11/Annex K variant? */
     if (at[k].cFlags & cFlags)
     {
         return 0;
@@ -2726,8 +2726,8 @@ int get_traversed_deriv_type( inp_ATOM *at,
         /* found C==N--O */
         /* traversing from C to O; C(at[neighbor[m]]) has cFlag; N is at[k]; N-O bond is to be broken */
         /* m     !m
-        /* n0 k  n1 n2       n2    n2  n3   n2  n3      n2  n3...
-        /* C==N--O--R; -R: -CH3, -CH2-CH3, -Si(CH3)3, -CH2-C6H5; cut N-O and replace =N- with =O 2013-08-22 DT */
+           n0 k  n1 n2       n2    n2  n3   n2  n3      n2  n3...
+           C==N--O--R; -R: -CH3, -CH2-CH3, -Si(CH3)3, -CH2-C6H5; cut N-O and replace =N- with =O 2013-08-22 DT */
         /* check other neighbors of C: they should be C,H or C,C */
         for (i = 0; i < at[n0].valence; i++)
         {
@@ -2855,11 +2855,11 @@ check_next_derivative:
 #endif  /* DERIV_X_OXIME */
 #ifdef DERIV_DANSYL
     if (at[k].nNumAtInRingSystem == 1 &&
-        ( ( at[k].el_number == EL_NUMBER_O || at[k].el_number == EL_NUMBER_S ) && at[k].valence == 2 ||
-          at[k].el_number == EL_NUMBER_N  &&  at[k].valence == 2 && at[k].num_H == 1 || at[k].valence == 3 && at[k].num_H == 2 ))
+        ( (( at[k].el_number == EL_NUMBER_O || at[k].el_number == EL_NUMBER_S ) && at[k].valence == 2) ||
+          (at[k].el_number == EL_NUMBER_N && at[k].valence == 2 && at[k].num_H == 1) || (at[k].valence == 3 && at[k].num_H == 2) )) /* djb-rwth: addressing LLVM warnings */
     {
         DERIV_AT da2;
-        memset( &da2, 0, sizeof( da2 ) );
+        memset( &da2, 0, sizeof( da2 ) ); /* djb-rwth: memset_s C11/Annex K variant? */
         for (j = 0, n1 = 0; j < at[k].valence; j++)
         {
             if (j == m)
@@ -2911,8 +2911,8 @@ check_next_derivative:
                 {
                     /* the only suspected neighbor */
                     n2 = at[n1].neighbor[j]; /* X */
-                    n0 = 0;
-                    if (n0 = is_CF3_or_linC3F7a( at, n2, n1 ))
+                    n0 = is_CF3_or_linC3F7a(at, n2, n1); /* djb-rwth: addressing LLVM warning */
+                    if (n0) 
                     {
                         n0 = 2 + 3 * n0 + 1; /* (6,9,12 atoms) -C(=O)C[n]F[2n+1]; is_CF3_or_linC3F7a returns n */
                     }
@@ -3097,11 +3097,11 @@ check_next_derivative:
     /* DERIV_RING_O_OUTSIDE_PRECURSOR, DERIV_RING_NH_OUTSIDE_PRECURSOR */
     if (at[k].bCutVertex && /* DD */
          at[k].valence == at[k].chem_bonds_valence &&
-         ( !at[k].num_H || at[k].el_number == EL_NUMBER_C && 1 == at[k].num_H ) &&
+         ( !at[k].num_H || (at[k].el_number == EL_NUMBER_C && 1 == at[k].num_H) ) &&
          !at[k].charge && !at[k].radical &&
-         ( at[k].el_number == EL_NUMBER_C  && at[k].valence + at[k].num_H == 4 ||
-           at[k].el_number == EL_NUMBER_SI && at[k].valence == 4 ||
-           at[k].el_number == EL_NUMBER_B  && at[k].valence == 3 ))
+         ( (at[k].el_number == EL_NUMBER_C  && at[k].valence + at[k].num_H == 4) ||
+           (at[k].el_number == EL_NUMBER_SI && at[k].valence == 4) ||
+           (at[k].el_number == EL_NUMBER_B  && at[k].valence == 3) )) /* djb-rwth: addressing LLVM warning */
     {
 
         /*-->    j \        entering path: ->X--O--DD
@@ -3120,8 +3120,8 @@ check_next_derivative:
         if (( at[j].el_number == EL_NUMBER_O || at[j].el_number == EL_NUMBER_S ) && at[j].valence == 2 &&
              at[j].chem_bonds_valence == at[j].valence &&
              at[j].nNumAtInRingSystem >= 5 &&
-             at[n1 = at[j].neighbor[at[j].neighbor[0] == k]].el_number == EL_NUMBER_C && /* X is C */
-             !at[j].num_H && !at[j].charge && !at[j].radical)
+             at[n1 = at[j].neighbor[at[j].neighbor[0] == k]].el_number == EL_NUMBER_C && /* X is C */ 
+             !at[j].num_H && !at[j].charge && !at[j].radical) /* djb-rwth: ignoring LLVM warning: variable used */
         {
             nBackType1 = DERIV_RING_O_OUTSIDE_PRECURSOR;
             nBlockSystemFrom = at[j].nBlockSystem;
@@ -3131,8 +3131,8 @@ check_next_derivative:
             if (at[j].el_number == EL_NUMBER_N && at[j].valence == 2 &&
                  at[j].chem_bonds_valence == at[j].valence &&
                  at[j].nNumAtInRingSystem >= 5 &&
-                 at[n1 = at[j].neighbor[at[j].neighbor[0] == k]].el_number == EL_NUMBER_C && /* X is C */
-                 1 == at[j].num_H && !at[j].charge && !at[j].radical)
+                 at[n1 = at[j].neighbor[at[j].neighbor[0] == k]].el_number == EL_NUMBER_C && /* X is C */ 
+                 1 == at[j].num_H && !at[j].charge && !at[j].radical) /* djb-rwth: ignoring LLVM warning: variable used */
             {
                 nBackType1 = DERIV_RING_NH_OUTSIDE_PRECURSOR;
                 nBlockSystemFrom = at[j].nBlockSystem;
@@ -3155,8 +3155,8 @@ check_next_derivative:
                     if (( at[j].el_number == EL_NUMBER_O || at[j].el_number == EL_NUMBER_S ) && at[j].valence == 2 &&
                          at[j].chem_bonds_valence == at[j].valence &&
                          at[j].nNumAtInRingSystem >= 5 &&
-                         at[n1 = at[j].neighbor[at[j].neighbor[0] == k]].el_number == EL_NUMBER_C && /* Y is C */
-                         !at[j].num_H && !at[j].charge && !at[j].radical)
+                         at[n1 = at[j].neighbor[at[j].neighbor[0] == k]].el_number == EL_NUMBER_C && /* Y is C */ 
+                         !at[j].num_H && !at[j].charge && !at[j].radical) /* djb-rwth: ignoring LLVM warning: variable used */
                     {
                         bFound = 1;
                         if (nOrdBack2 < 0)
@@ -3173,7 +3173,7 @@ check_next_derivative:
                          at[j].chem_bonds_valence == at[j].valence &&
                          at[j].nNumAtInRingSystem >= 5 &&
                          at[n1 = at[j].neighbor[at[j].neighbor[0] == k]].el_number == EL_NUMBER_C && /* Y is C */
-                         1 == at[j].num_H && !at[j].charge && !at[j].radical)
+                         1 == at[j].num_H && !at[j].charge && !at[j].radical) /* djb-rwth: ignoring LLVM warning: variable used */
                     {
                         bFound = 1;
                         if (nOrdBack2 < 0)
@@ -3243,7 +3243,7 @@ int add_to_da( DERIV_AT *da, DERIV_AT *add )
     if (numAddHiPri && !numDaHiPri)
     {
         /* no harm if already len_da=0 */
-        memset( da, 0, sizeof( *da ) );
+        memset( da, 0, sizeof( *da ) ); /* djb-rwth: memset_s C11/Annex K variant? */
         len_da = 0;
     }
     else
@@ -3270,7 +3270,7 @@ int add_to_da( DERIV_AT *da, DERIV_AT *add )
                     return -2; /* error, should not happen */
                 }
 #if( defined(DERIV_RING_DMOX_DEOX_N) && defined(DERIV_RING_DMOX_DEOX_O) )
-                if (( len_da>1 || j ) && ( add->other_atom || da->other_atom ) || 1 == len_da && add->other_atom != da->other_atom)
+                if ((( len_da>1 || j ) && ( add->other_atom || da->other_atom )) || (1 == len_da && add->other_atom != da->other_atom)) /* djb-rwth: addressing LLVM warning */
                 {
                     return -3; /* other_atom implies single bond to cut */
                 }
@@ -3319,12 +3319,19 @@ int mark_atoms_deriv( inp_ATOM *at,
                       char cFlags,
                       int *pbFound )
 {
-    int i, nFound = 0, ret;
+    int i, nFound = 0, ret, j;
     DERIV_AT da1;
     da1.other_atom = 0; /* djb-rwth: initialisation needed for if conditons */
 #if( defined(DERIV_RING_DMOX_DEOX_N) && defined(DERIV_RING_DMOX_DEOX_O) )
     int      ret2;
     DERIV_AT da2;
+    /* djb-rwth: initialisation needed to avoid garbage values in add_to_da function call */
+    for (j = 0; j < DERIV_AT_LEN; j++)
+    {
+        da->typ[j] = 0;
+        da->ord[j] = '\0';
+        da->num[j] = '\0';
+    }
     da2.other_atom = 0; /* djb-rwth: initialisation needed for if conditons */
 #endif
     if (!( at[start].cFlags & cFlags ))
@@ -3398,10 +3405,10 @@ int mark_atoms_deriv( inp_ATOM *at,
                     }
                     break;
                 case DERIV_AMINE_tN:
-                    n1 = mark_atoms_deriv( at, da, at[start].neighbor[i1 = da1.ord[0]], 0, cFlags, &nFound1 );
+                    n1 = mark_atoms_deriv( at, da, at[start].neighbor[i1 = da1.ord[0]], 0, cFlags, &nFound1 ); /* djb-rwth: ignoring LLVM warning: variable used */
                     if (da1.typ[1])
                     {
-                        n2 = mark_atoms_deriv( at, da, at[start].neighbor[i2 = da1.ord[1]], 0, cFlags, &nFound2 );
+                        n2 = mark_atoms_deriv( at, da, at[start].neighbor[i2 = da1.ord[1]], 0, cFlags, &nFound2 ); /* djb-rwth: ignoring LLVM warning: variable used */
                     }
                     if (0 < n1 && n1 <= MAX_AT_DERIV && !nFound1)
                     {
@@ -3435,11 +3442,11 @@ int mark_atoms_deriv( inp_ATOM *at,
                         {
                             if (!n1)
                             {
-                                n1 = mark_atoms_deriv( at, da, at[start].neighbor[i1 = i], 0, cFlags, &nFound1 );
+                                n1 = mark_atoms_deriv( at, da, at[start].neighbor[i1 = i], 0, cFlags, &nFound1 ); /* djb-rwth: ignoring LLVM warning: variable used */
                             }
                             else
                             {
-                                n2 = mark_atoms_deriv( at, da, at[start].neighbor[i2 = i], 0, cFlags, &nFound2 );
+                                n2 = mark_atoms_deriv( at, da, at[start].neighbor[i2 = i], 0, cFlags, &nFound2 ); /* djb-rwth: ignoring LLVM warning: variable used */
                             }
                         }
                     }
@@ -3471,7 +3478,7 @@ int mark_atoms_deriv( inp_ATOM *at,
             {
                 if (da2.other_atom == start + 1)
                 {
-                    if (i = add_to_da( da + da1.other_atom - 1, &da2 ))
+                    if ((i = add_to_da( da + da1.other_atom - 1, &da2 ))) /* djb-rwth: addressing LLVM warning */
                     {
                         return i;  /* error */
                     }
@@ -3482,7 +3489,7 @@ int mark_atoms_deriv( inp_ATOM *at,
                 }
             }
 #endif
-            if (i = add_to_da( da + start, &da1 ))
+            if ((i = add_to_da( da + start, &da1 ))) /* djb-rwth: addressing LLVM warning */
             {
                 return i;  /* error */
             }
@@ -4062,7 +4069,7 @@ int is_CF3_or_linC3F7( inp_ATOM *at, int start, int ord_prev )
         }
 
         /* treat next C(IV) as a new start atom */
-        if (p = is_in_the_list( at[iC_IV].neighbor, (AT_NUMB) start, at[iC_IV].valence ))
+        if ((p = is_in_the_list( at[iC_IV].neighbor, (AT_NUMB) start, at[iC_IV].valence ))) /* djb-rwth: addressing LLVM warning */
         {
             start = iC_IV;
             ord_prev = p - at[iC_IV].neighbor;
@@ -4123,7 +4130,7 @@ int is_DERIV_RING_O_or_NH_OUTSIDE_PRECURSOR( inp_ATOM *at,
                                              int lenUnderiv2,
                                              BIT_UNDERIV *bitUnderiv )
 {
-    int i, j, k, neigh_at[2], prev_ord[2], neigh, is_B = 0, is_C = 0, n0, n1, n2, n3, n[4] = {0}, nFound; /* djb-rwth: initialisation for n array added */
+    int i, j, k, neigh_at[2], prev_ord[2], neigh, is_B = 0, is_C = 0, n0, n1, n2, n3, n[4] = {0}, nFound, ind1, ind2; /* djb-rwth: adding variables for char -> int conversion of subscripts */
     AT_NUMB *p;
     const char *pUnk;
     char str[16] = { '\0' };
@@ -4167,8 +4174,10 @@ int is_DERIV_RING_O_or_NH_OUTSIDE_PRECURSOR( inp_ATOM *at,
 
     */
     nFound = 0;
-    n0 = at[start].neighbor[da1->ord[0]];
-    n3 = at[start].neighbor[da1->ord[1]];
+    ind1 = da1->ord[0] - '0'; /* djb-rwth: converting char to int for subscript use */
+    ind2 = da1->ord[1] - '0'; /* djb-rwth: converting char to int for subscript use */
+    n0 = at[start].neighbor[ind1];
+    n3 = at[start].neighbor[ind2];
     /* search for i, j, k such that at[at[n1]neighbor[i]].neighbor[k]= at[n2]neighbor[j] */
     for (i = 0; i < at[n0].valence; i++)
     {
@@ -4187,7 +4196,7 @@ int is_DERIV_RING_O_or_NH_OUTSIDE_PRECURSOR( inp_ATOM *at,
             {
                 continue; /* don't go back */
             }
-            if (p = is_in_the_list( at[n3].neighbor, (AT_NUMB) n2, at[n3].valence ))
+            if ((p = is_in_the_list( at[n3].neighbor, (AT_NUMB) n2, at[n3].valence ))) /* djb-rwth: addressing LLVM warning */
             {
                 if (( BOND_SINGLE == at[n1].bond_type[j] || BOND_ALTERN == at[n1].bond_type[j] ) && /* check bond type n1-n2 */
                      BOND_SINGLE == at[n3].bond_type[p - at[n3].neighbor] && /* check bond type n3-n2 */
@@ -4233,26 +4242,26 @@ int is_DERIV_RING_O_or_NH_OUTSIDE_PRECURSOR( inp_ATOM *at,
         {
             if (at[n0].el_number <= at[n3].el_number)
             {
-                strcat( strO, at[n0].elname );
-                strcat( strO, at[n3].elname );
+                strcat_s( strO, sizeof(strO), at[n0].elname ); /* djb-rwth: function replaced with its safe C11 variant */
+                strcat_s( strO, sizeof(strO), at[n3].elname ); /* djb-rwth: function replaced with its safe C11 variant */
             }
             else
             {
-                strcat( strO, at[n3].elname );
-                strcat( strO, at[n0].elname );
+                strcat_s( strO, sizeof(strO), at[n3].elname ); /* djb-rwth: function replaced with its safe C11 variant */
+                strcat_s( strO, sizeof(strO), at[n0].elname ); /* djb-rwth: function replaced with its safe C11 variant */
             }
         }
         else
         {
             if (da1->typ[idrv] == DERIV_RING_O_OUTSIDE_PRECURSOR)
             {
-                strcat( strO, at[n0].elname );
+                strcat_s( strO, sizeof(strO), at[n0].elname ); /* djb-rwth: function replaced with its safe C11 variant */
             }
             else
             {
                 if (da1->typ[idrv + 1] == DERIV_RING_O_OUTSIDE_PRECURSOR)
                 {
-                    strcat( strO, at[n3].elname );
+                    strcat_s( strO, sizeof(strO), at[n3].elname ); /* djb-rwth: function replaced with its safe C11 variant */
                 }
             }
         }
@@ -4263,17 +4272,17 @@ int is_DERIV_RING_O_or_NH_OUTSIDE_PRECURSOR( inp_ATOM *at,
         {
             if (1 == at[n0].num_H && 1 == at[n3].num_H)
             {
-                strcat( strN, "(NH)2" );
+                strcat_s( strN, sizeof(strN), "(NH)2" ); /* djb-rwth: function replaced with its safe C11 variant */
             }
             else
             {
                 if (1 == at[n0].num_H || 1 == at[n3].num_H)
                 {
-                    strcat( strN, "(NH)N" );
+                    strcat_s( strN, sizeof(strN), "(NH)N" ); /* djb-rwth: function replaced with its safe C11 variant */
                 }
                 else
                 {
-                    strcat( strN, "NN" );
+                    strcat_s( strN, sizeof(strN), "NN" ); /* djb-rwth: function replaced with its safe C11 variant */
                 }
             }
         }
@@ -4281,13 +4290,13 @@ int is_DERIV_RING_O_or_NH_OUTSIDE_PRECURSOR( inp_ATOM *at,
         {
             if (da1->typ[idrv] == DERIV_RING_NH_OUTSIDE_PRECURSOR)
             {
-                strcat( strN, 1 == at[n0].num_H ? "(NH)" : "N" );
+                strcat_s( strN, sizeof(strN), 1 == at[n0].num_H ? "(NH)" : "N" ); /* djb-rwth: function replaced with its safe C11 variant */
             }
             else
             {
                 if (da1->typ[idrv + 1] == DERIV_RING_NH_OUTSIDE_PRECURSOR)
                 {
-                    strcat( strN, 1 == at[n3].num_H ? "(NH)" : "N" );
+                    strcat_s( strN, sizeof(strN), 1 == at[n3].num_H ? "(NH)" : "N" ); /* djb-rwth: function replaced with its safe C11 variant */
                 }
             }
         }
@@ -4298,25 +4307,25 @@ int is_DERIV_RING_O_or_NH_OUTSIDE_PRECURSOR( inp_ATOM *at,
         {
 #if( defined(DERIV_RING_O_OUTSIDE_PRECURSOR) && defined(DERIV_RING_NH_OUTSIDE_PRECURSOR) )
             case ( DERIV_RING_O_OUTSIDE_PRECURSOR | DERIV_RING_NH_OUTSIDE_PRECURSOR ):
-                strcat( str, strN );
-                strcat( str, strO ); /* "(NH)O" or "(NH)S" */
+                strcat_s( str, sizeof(str), strN ); /* djb-rwth: function replaced with its safe C11 variant */
+                strcat_s( str, sizeof(str), strO ); /* "(NH)O" or "(NH)S" */ /* djb-rwth: function replaced with its safe C11 variant */
                 break;
 #endif
 #if( defined(DERIV_RING_O_OUTSIDE_PRECURSOR) )
             case ( DERIV_RING_O_OUTSIDE_PRECURSOR ):
-                strcat( str, strO ); /* "OO" or "OS" or "SS" */
+                strcat_s( str, sizeof(str), strO ); /* "OO" or "OS" or "SS" */ /* djb-rwth: function replaced with its safe C11 variant */
                 break;
 #endif
 #if( defined(DERIV_RING_NH_OUTSIDE_PRECURSOR) )
             case ( DERIV_RING_NH_OUTSIDE_PRECURSOR ):
-                strcat( str, strN );
+                strcat_s( str, sizeof(str), strN ); /* djb-rwth: function replaced with its safe C11 variant */
                 break;
 #endif
             default:
-                strcat( str, "???" );
+                strcat_s( str, sizeof(str), "???" ); /* djb-rwth: function replaced with its safe C11 variant */
                 break;
         }
-        strcat( str, "-" );
+        strcat_s( str, sizeof(str), "-" ); /* djb-rwth: function replaced with its safe C11 variant */
     }
     underiv_list_add( szUnderiv, lenUnderiv, str, 0 );
 
@@ -4360,7 +4369,7 @@ int is_DERIV_RING_O_or_NH_OUTSIDE_PRECURSOR( inp_ATOM *at,
         }
     }
 
-    n1 = n2 = 0;
+    n1 = n2 = 0; /* djb-rwth: ignoring LLVM warning: variables used */
     if (is_B && k == 1 && da1->typ[idrv] == DERIV_RING_O_OUTSIDE_PRECURSOR)
     {
         if (0 < ( n1 = is_Me_or_Et( at, neigh_at[0], prev_ord[0] ) )
@@ -4389,7 +4398,7 @@ int is_DERIV_RING_O_or_NH_OUTSIDE_PRECURSOR( inp_ATOM *at,
                 underiv_list_add( szUnderiv, lenUnderiv, "Phe", 0 );
                 if (strN[0])
                 {
-                    if (pUnk = underiv_list_get_last( szUnderiv, ' ' ))
+                    if ((pUnk = underiv_list_get_last( szUnderiv, ' ' ))) /* djb-rwth: addressing LLVM warning */
                     {
                         underiv_list_add( szUnderiv2, lenUnderiv2, pUnk, ' ' );
                         *bitUnderiv |= DERIV_BIT_Unknown;
@@ -4408,7 +4417,7 @@ int is_DERIV_RING_O_or_NH_OUTSIDE_PRECURSOR( inp_ATOM *at,
                 if (n1 != n2)
                 {
                     underiv_list_add( szUnderiv, lenUnderiv, "MeEt", 0 );
-                    if (pUnk = underiv_list_get_last( szUnderiv, ' ' ))
+                    if ((pUnk = underiv_list_get_last( szUnderiv, ' ' ))) /* djb-rwth: addressing LLVM warning */
                     {
                         underiv_list_add( szUnderiv2, lenUnderiv2, pUnk, ' ' );
                         *bitUnderiv |= DERIV_BIT_Unknown;
@@ -4421,7 +4430,7 @@ int is_DERIV_RING_O_or_NH_OUTSIDE_PRECURSOR( inp_ATOM *at,
                         underiv_list_add( szUnderiv, lenUnderiv, n1 == 1 ? "Me2" : "Et2", 0 );
                         if (strN[0] || n1 != 1)
                         {
-                            if (pUnk = underiv_list_get_last( szUnderiv, ' ' ))
+                            if ((pUnk = underiv_list_get_last( szUnderiv, ' ' ))) /* djb-rwth: addressing LLVM warning */
                             {
                                 underiv_list_add( szUnderiv2, lenUnderiv2, pUnk, ' ' );
                                 *bitUnderiv |= DERIV_BIT_Unknown;
@@ -4485,7 +4494,7 @@ int is_deriv_chain2( inp_ATOM *at,
     #endif
     */
     /* reject unexpected unsaturated */
-    if (at[start].charge || at[start].radical || at[start].valence != at[start].chem_bonds_valence
+    if (at[start].charge || at[start].radical || (at[start].valence != at[start].chem_bonds_valence
 #ifdef DERIV_X_OXIME
          && type != DERIV_X_OXIME
 #endif
@@ -4495,7 +4504,7 @@ int is_deriv_chain2( inp_ATOM *at,
 #ifdef DERIV_RING_DMOX_DEOX_N
          && type != DERIV_RING_DMOX_DEOX_N
 #endif
-         )
+         )) /* djb-rwth: addressing LLVM warning */
     {
         return 0;
     }
@@ -4512,7 +4521,7 @@ int is_deriv_chain2( inp_ATOM *at,
     /* eliminate silyl possibility */
     if (type == DERIV_BRIDGE_O || type == DERIV_BRIDGE_NH || type == DERIV_AMINE_tN)
     {
-        if (n1 = is_silyl( at, neigh, prev_ord ))
+        if ((n1 = is_silyl( at, neigh, prev_ord ))) /* djb-rwth: addressing LLVM warning */
         {
             if (at[start].valence != 2 || /* amine ? */
                                           /*at[start].el_number == EL_NUMBER_O && */
@@ -4526,29 +4535,29 @@ int is_deriv_chain2( inp_ATOM *at,
                     switch (type)
                     {
                         case DERIV_BRIDGE_O:
-                            strcat( szPrecur, at[start].elname );
+                            strcat_s( szPrecur, sizeof(szPrecur), at[start].elname ); /* djb-rwth: function replaced with its safe C11 variant */
                             break;
                         case DERIV_BRIDGE_NH:
-                            strcat( szPrecur, "NH" );
+                            strcat_s( szPrecur, sizeof(szPrecur), "NH" ); /* djb-rwth: function replaced with its safe C11 variant */
                             break;
                         case DERIV_AMINE_tN:
-                            strcat( szPrecur, "N" );
+                            strcat_s( szPrecur, sizeof(szPrecur), "N" ); /* djb-rwth: function replaced with its safe C11 variant */
                             break;
                         default:
-                            strcat( szPrecur, "??" );
+                            strcat_s( szPrecur, sizeof(szPrecur), "??" ); /* djb-rwth: function replaced with its safe C11 variant */
                             break;
                     }
-                    strcat( szPrecur, "-" );
+                    strcat_s( szPrecur, sizeof(szPrecur), "-" ); /* djb-rwth: function replaced with its safe C11 variant */
                     switch (n1)
                     {
                         case 1:
-                            strcat( szPrecur, "TMS" );
+                            strcat_s( szPrecur, sizeof(szPrecur), "TMS" ); /* djb-rwth: function replaced with its safe C11 variant */
                             break;
                         case 2:
-                            strcat( szPrecur, "TBDMS" );
+                            strcat_s( szPrecur, sizeof(szPrecur), "TBDMS" ); /* djb-rwth: function replaced with its safe C11 variant */
                             break;
                         default:
-                            strcat( szPrecur, "???" );
+                            strcat_s( szPrecur, sizeof(szPrecur), "???" ); /* djb-rwth: function replaced with its safe C11 variant */
                             break;
                     }
                     underiv_list_add( szUnderiv, lenUnderiv, szPrecur, ' ' );
@@ -4572,7 +4581,7 @@ int is_deriv_chain2( inp_ATOM *at,
     return 0; /* if it is not Sylyl then it is not a derivative */
 #endif
 
-    n1 = n2 = 0;
+    n1 = n2 = 0; /* djb-rwth: ignoring LLVM warning: variables used */
     if (type == DERIV_BRIDGE_O)
     {
         /* check acetyl */
@@ -4934,12 +4943,12 @@ int is_deriv_chain2( inp_ATOM *at,
         if (szUnderiv)
         {
             char szRO[16] = "R";
-            strcat( szRO, at[start].elname );
+            strcat_s( szRO, sizeof(szRO), at[start].elname ); /* djb-rwth: function replaced with its safe C11 variant */
             if (at[start].num_H == 1)
             {
-                strcat( szRO, "H" );
+                strcat_s( szRO, sizeof(szRO), "H" ); /* djb-rwth: function replaced with its safe C11 variant */
             }
-            strcat( szRO, "-Dansyl" );
+            strcat_s( szRO, sizeof(szRO), "-Dansyl" ); /* djb-rwth: function replaced with its safe C11 variant */
             underiv_list_add( szUnderiv, lenUnderiv, szRO, ' ' );
             underiv_list_add( szUnderiv2, lenUnderiv2, pszDerivName[DERIV_ID_Dansyl], ' ' );
             *bitUnderiv |= DERIV_BIT_Dansyl;
@@ -5142,7 +5151,7 @@ int underiv_list_add( char *szUnderivList, int lenUnderivList, const char *szUnd
             {
                 szUnderivList[lenList++] = cDelimiter;
             }
-            memcpy( szUnderivList + lenList, szUnderiv, (long long)lenAdd + 1 ); /* +1 adds zero termination */ /* djb-rwth: cast operator added */
+            memcpy_s( szUnderivList + lenList, sizeof(szUnderivList) + (long long)lenAdd + 1, szUnderiv, (long long)lenAdd + 1); /* +1 adds zero termination */ /* djb-rwth: cast operator added; function replaced with its safe C11 variant */
             return lenList + lenAdd;
         }
     }
@@ -5292,7 +5301,7 @@ int sort_merge_underiv( char *pSdfValue,
             k = strlen( pszUnderiv[i] );
             if (1 < ( num = j - i ))
             {
-                k = sprintf( coeff, "%d", num );
+                k = sprintf_s( coeff, sizeof(coeff), "%d", num ); /* djb-rwth: function replaced with its safe C11 variant */
             }
             if ((long long)n + (long long)k + sizeof( pszUnderivPostfix ) < MAX_SDF_VALUE) /* djb-rwth: cast operators added */
             {
@@ -5858,7 +5867,7 @@ int add_explicit_H( INP_ATOM_DATA *inp_cur_data )
                  m <= NUM_H_ISOTOPES)
             {
                 /* num_H is the total number of all implicit H including isotopic H */
-                if (0 < at[iat].num_H && 0 <= ( num_H = at[iat].num_H - NUM_ISO_H( at, iat ) ) && ( !m && num_H || m && at[iat].num_iso_H[m - 1] ))
+                if (0 < at[iat].num_H && 0 <= ( num_H = at[iat].num_H - NUM_ISO_H( at, iat ) ) && ( (!m && num_H) || (m && at[iat].num_iso_H[m - 1]) )) /* djb-rwth: addressing LLVM warning */
                 { /* number of implicit H > 0 */
                     int val = at[iat].valence;
                     /* set hydrogen atom */
@@ -5893,7 +5902,7 @@ int add_explicit_H( INP_ATOM_DATA *inp_cur_data )
         }
         if (0 < num_added_explicit_H && num_added_explicit_H <= num_removed_H)
         {
-            memcpy( at + num_atoms, at_H, num_added_explicit_H * sizeof( at ) );
+            memcpy_s( at + num_atoms, sizeof(at)*num_added_explicit_H + 1, at_H, num_added_explicit_H * sizeof( at ) ); /* djb-rwth: function replaced with its safe C11 variant */
             inp_cur_data->num_removed_H = 0;
             inp_cur_data->num_at = ( num_atoms += num_added_explicit_H );
         }
@@ -5927,15 +5936,15 @@ int OAD_Edit_Underivatize( struct tagINCHI_CLOCK *ic,
             lenAllocated_ap = num_cuts_to_check;\
         }
 
-    int ret = 0, i, j, k, m, n, num_atoms, num_components, i_component, nFound, num, cur_num_at, len;
+    int ret = 0, i, j, k, m, n, num_atoms, num_components, i_component, nFound, num, cur_num_at, len, ind1, ind2, ind3; /* djb-rwth: adding variables for char -> int conversion of subscripts */
     int num_cuts, num_ring_cuts, num_cut_pieces, num_cuts_to_check;
-    inp_ATOM *at = orig_inp_data->at;
+    inp_ATOM *at = orig_inp_data->at; /* djb-rwth: ignoring LLVM warning: value used */
     INP_ATOM_DATA *inp_cur_data = NULL;
     DERIV_AT      *da = NULL;
     R2C_ATPAIR    *ap = NULL;
     int            lenAllocated_ap = 0;
     int  nTotNumCuts = 0;
-    int  num_removed_H = 0;
+    int  num_removed_H = 0; /* djb-rwth: ignoring LLVM warning: variable used */
 #ifdef FIX_UNDERIV_TO_SDF
     inp_ATOM *at2 = NULL;
 #endif
@@ -5951,7 +5960,7 @@ int OAD_Edit_Underivatize( struct tagINCHI_CLOCK *ic,
     char underivPrefix3[] = "\tDerivBits=";
     char underivPostfix3[] = "";
     char cDerivSeparator = ',';
-    int numUnderiv = 0, numUnderiv2 = 0, numUnderiv3 = 0;
+    int numUnderiv = 0, numUnderiv2 = 0, numUnderiv3 = 0; /* djb-rwth: ignoring LLVM warning: variables used to store function return value */
     BIT_UNDERIV bitUnderivList = 0;
     char szbitUnderivList[16]; /* int32 has at most 32/4=8 hexadecimal digits + 0x prefix + zero termination = 8+2+1=11 */
 #else
@@ -5978,7 +5987,7 @@ int OAD_Edit_Underivatize( struct tagINCHI_CLOCK *ic,
 
     /* Initialize */
     UnMarkDisconnectedComponents( orig_inp_data );
-    num_cuts = 0;
+    /* djb-rwth: removing redundant code */
 
     /* Mark */
     num_components = MarkDisconnectedComponents( orig_inp_data, 0 );
@@ -6020,9 +6029,9 @@ int OAD_Edit_Underivatize( struct tagINCHI_CLOCK *ic,
             {
                 inchi_free( at2 );
             }
-            if (at2 = (inp_ATOM*) inchi_malloc( num_atoms * sizeof( inp_ATOM ) ))
+            if ((at2 = (inp_ATOM*) inchi_malloc( num_atoms * sizeof( inp_ATOM )) )) /* djb-rwth: addressing LLVM warning */
             {
-                memcpy( at2, at, num_atoms * sizeof( inp_ATOM ) );
+                memcpy_s( at2, sizeof(inp_ATOM)*num_atoms + 1, at, num_atoms * sizeof( inp_ATOM ) ); /* djb-rwth: function replaced with its safe C11 variant */
             }
         }
 #endif
@@ -6066,7 +6075,7 @@ int OAD_Edit_Underivatize( struct tagINCHI_CLOCK *ic,
         num_cuts = 0;
         num_cut_pieces = 0;
 
-        for (i = num = 0; i < num_atoms; i++)
+        for (i = num = 0; i < num_atoms; i++) /* djb-rwth: ignoring LLVM warning: variable used */
         {
             /*for ( len = 0; len < MAX_AT_DERIV && da[i].typ[len]; len ++ ) -- bug fixed 2013-11-07 DCh */
             for (len = 0; len < DERIV_AT_LEN && da[i].typ[len]; len++)
@@ -6141,7 +6150,7 @@ int OAD_Edit_Underivatize( struct tagINCHI_CLOCK *ic,
                                 {
                                     if (da[i].num[0] == da[i].num[1])
                                     {
-                                        memset( da + i, 0, sizeof( da[0] ) ); /* don't remove if the two agents are identical */
+                                        memset( da + i, 0, sizeof( da[0] ) ); /* don't remove if the two agents are identical */ /* djb-rwth: memset_s C11/Annex K variant? */
                                         continue;
                                     }
                                     else
@@ -6180,7 +6189,7 @@ int OAD_Edit_Underivatize( struct tagINCHI_CLOCK *ic,
                                             num_cut_pieces += 1;
                                             continue;
                                         case -1:
-                                            memset( da + i, 0, sizeof( da[0] ) );
+                                            memset( da + i, 0, sizeof( da[0] ) ); /* djb-rwth: memset_s C11/Annex K variant? */
                                             break; /* will produce error */
                                     }
                                 }
@@ -6196,7 +6205,8 @@ int OAD_Edit_Underivatize( struct tagINCHI_CLOCK *ic,
                                         }
                                         else
                                         {
-                                            sy0 = is_silyl2( at, at[i].neighbor[da[i].ord[0]], i );
+                                            ind1 = da[i].ord[0] - '0'; /* djb-rwth: converting char to int for subscript use */
+                                            sy0 = is_silyl2( at, at[i].neighbor[ind1], i );
                                         }
                                         if (0 == is_deriv_chain( at, i, num_atoms, da + i, 1, NULL, 0, NULL, 0, NULL ))
                                         {
@@ -6204,9 +6214,10 @@ int OAD_Edit_Underivatize( struct tagINCHI_CLOCK *ic,
                                         }
                                         else
                                         {
-                                            sy1 = is_silyl2( at, at[i].neighbor[da[i].ord[1]], i );
+                                            ind2 = da[i].ord[1] - '0'; /* djb-rwth: converting char to int for subscript use */
+                                            sy1 = is_silyl2( at, at[i].neighbor[ind2], i );
                                         }
-                                        if (sy1 && ( !sy0 || sy1 < sy0 ) || !( sy0 || sy1 ) && da[i].num[0] > da[i].num[1])
+                                        if ((sy1 && ( !sy0 || sy1 < sy0 )) || (!( sy0 || sy1 ) && da[i].num[0] > da[i].num[1])) /* djb-rwth: addressing LLVM warnings */
                                         {
                                             da[i].num[0] = da[i].num[1];
                                             da[i].ord[0] = da[i].ord[1];
@@ -6217,7 +6228,7 @@ int OAD_Edit_Underivatize( struct tagINCHI_CLOCK *ic,
                                         }
                                         else
                                         {
-                                            if (sy0 && ( !sy1 || sy0 < sy1 ) || !( sy0 || sy1 ) && da[i].num[0] < da[i].num[1])
+                                            if ((sy0 && ( !sy1 || sy0 < sy1 )) || (!( sy0 || sy1 ) && da[i].num[0] < da[i].num[1])) /* djb-rwth: addressing LLVM warning */
                                             {
                                                 da[i].typ[1] = 0;
                                                 num_cuts += 1;
@@ -6303,7 +6314,8 @@ int OAD_Edit_Underivatize( struct tagINCHI_CLOCK *ic,
                         }
                         else
                         {
-                            sy[0] = is_silyl2( at, at[i].neighbor[da[i].ord[0]], i );
+                            ind1 = da[i].ord[0] - '0'; /* djb-rwth: converting char to int for subscript use */
+                            sy[0] = is_silyl2( at, at[i].neighbor[ind1], i );
                         }
 
                         if (0 == is_deriv_chain( at, i, num_atoms, da + i, 1, NULL, 0, NULL, 0, NULL ))
@@ -6312,7 +6324,8 @@ int OAD_Edit_Underivatize( struct tagINCHI_CLOCK *ic,
                         }
                         else
                         {
-                            sy[1] = is_silyl2( at, at[i].neighbor[da[i].ord[1]], i );
+                            ind2 = da[i].ord[1] - '0'; /* djb-rwth: converting char to int for subscript use */
+                            sy[1] = is_silyl2( at, at[i].neighbor[ind2], i );
                         }
 
                         if (0 == is_deriv_chain( at, i, num_atoms, da + i, 2, NULL, 0, NULL, 0, NULL ))
@@ -6321,21 +6334,18 @@ int OAD_Edit_Underivatize( struct tagINCHI_CLOCK *ic,
                         }
                         else
                         {
-                            sy[2] = is_silyl2( at, at[i].neighbor[da[i].ord[2]], i );
+                            ind3 = da[i].ord[2] - '0'; /* djb-rwth: converting char to int for subscript use */
+                            sy[2] = is_silyl2( at, at[i].neighbor[ind3], i );
                         }
 
-                        x = ( da[i].num[0] < da[i].num[1] ) ? 0 : 1;
-                        x = ( da[i].num[x] < da[i].num[2] ) ? x : 2; /* min */
-                        z = ( da[i].num[0] < da[i].num[1] ) ? 1 : 0;
-                        z = ( da[i].num[x] < da[i].num[2] ) ? 2 : z; /* max */
-                        y = ( ( x + 1 ) ^ ( z + 1 ) ) - 1;                      /* median */
+                        /* djb-rwth: removing redundant code */
 
-                        x = ( ( sy[0] && ( !sy[1] || sy[0] < sy[1] ) ) || !( sy[0] || sy[1] ) && da[i].num[0] < da[i].num[1] ) ? 0 : 1;
+                        x = ( ( sy[0] && ( !sy[1] || sy[0] < sy[1] ) ) || (!( sy[0] || sy[1] ) && da[i].num[0] < da[i].num[1]) ) ? 0 : 1; /* djb-rwth: addressing LLVM warning */
                         z = !x;
-                        x = ( ( sy[x] && ( !sy[2] || sy[x] < sy[2] ) ) || !( sy[x] || sy[2] ) && da[i].num[x] < da[i].num[2] ) ? x : 2; /* min */
+                        x = ( ( sy[x] && ( !sy[2] || sy[x] < sy[2] ) ) || (!( sy[x] || sy[2] ) && da[i].num[x] < da[i].num[2]) ) ? x : 2; /* min */ /* djb-rwth: addressing LLVM warning */
                                                                                                                                         /*z = (da[i].num[0] < da[i].num[1])? 1 : 0;*/
                                                                                                                                         /*z = (da[i].num[x] < da[i].num[2])? 2 : z;*/ /* max */
-                        z = ( ( sy[x] && ( !sy[2] || sy[x] < sy[2] ) ) || !( sy[x] || sy[2] ) && da[i].num[x] < da[i].num[2] ) ? 2 : z; /* max */
+                        z = ( ( sy[x] && ( !sy[2] || sy[x] < sy[2] ) ) || (!( sy[x] || sy[2] ) && da[i].num[x] < da[i].num[2]) ) ? 2 : z; /* max */ /* djb-rwth: addressing LLVM warning */
                         y = ( ( x + 1 ) ^ ( z + 1 ) ) - 1;                      /* median */
 
                         if (da[i].num[x] == da[i].num[z] && sy[x] == sy[z])
@@ -6349,7 +6359,7 @@ int OAD_Edit_Underivatize( struct tagINCHI_CLOCK *ic,
                         }
                         else
                         {
-                            if (da[i].num[x] == da[i].num[y] && sy[x] == sy[y] || sy[x] && sy[y] && !sy[z])
+                            if ((da[i].num[x] == da[i].num[y] && sy[x] == sy[y]) || (sy[x] && sy[y] && !sy[z])) /* djb-rwth: addressing LLVM warning */
                             {
                                 /* two smallest */
                                 switch (z)
@@ -6489,7 +6499,7 @@ int OAD_Edit_Underivatize( struct tagINCHI_CLOCK *ic,
                             ret = ret_n;
                             goto exit_function;
                         }
-                        if (!ret_i || ret_i && ret_n)
+                        if (!ret_i || (ret_i && ret_n)) /* djb-rwth: addressing LLVM warning */
                         {
                             if (da[i].typ[j1] & DERIV_RING_OUTSIDE_PRECURSOR)
                             {
@@ -6501,13 +6511,13 @@ int OAD_Edit_Underivatize( struct tagINCHI_CLOCK *ic,
                                 num_cuts -= 1;
                             }
                             num_cut_pieces -= 1;
-                            if (ret = remove_deriv_mark( da + i, j1 ))
+                            if ((ret = remove_deriv_mark( da + i, j1 ))) /* djb-rwth: addressing LLVM warning */
                             {
                                 goto exit_function;
                             }
                             nFound++;
                         }
-                        if (!ret_n || ret_i && ret_n)
+                        if (!ret_n || (ret_i && ret_n)) /* djb-rwth: addressing LLVM warning */
                         {
                             if (da[n].typ[k1] & DERIV_RING_OUTSIDE_PRECURSOR)
                             {
@@ -6519,7 +6529,7 @@ int OAD_Edit_Underivatize( struct tagINCHI_CLOCK *ic,
                                 num_cuts -= 1;
                             }
                             num_cut_pieces -= 1;
-                            if (ret = remove_deriv_mark( da + n, k1 ))
+                            if ((ret = remove_deriv_mark( da + n, k1 ))) /* djb-rwth: addressing LLVM warning */
                             {
                                 goto exit_function;
                             }
@@ -6540,7 +6550,7 @@ int OAD_Edit_Underivatize( struct tagINCHI_CLOCK *ic,
                     /* attn: j is changed inside the cycle body */
                     if (da[i].typ[j] & DERIV_DUPLIC)
                     {
-                        if (ret = remove_deriv( da + i, j ))
+                        if ((ret = remove_deriv( da + i, j ))) /* djb-rwth: addressing LLVM warning */
                         {
                             goto exit_function;
                         }
@@ -6639,7 +6649,7 @@ int OAD_Edit_Underivatize( struct tagINCHI_CLOCK *ic,
                     {
                         n = (int) ap[i].at[k];   /* atom inside the derivation attachment */
                         j = 2;             /* number of bonds to cut */
-                        if (i + j > num_cuts_to_check || (int) ap[i + 1].at[0] != n && (int) ap[i + 1].at[1] != n)
+                        if (i + j > num_cuts_to_check || ((int) ap[i + 1].at[0] != n && (int) ap[i + 1].at[1] != n)) /* djb-rwth: addressing LLVM warning */
                         {
                             ret = -3;
                             goto exit_r2c_num; /* wrong atom pair */
@@ -6689,10 +6699,7 @@ int OAD_Edit_Underivatize( struct tagINCHI_CLOCK *ic,
                                     }
                                     comp_num++;
                                 }
-                                else
-                                {
-                                    int stop = 1; /* program error */
-                                }
+                                /* djb-rwth: removing redundant code */
                             }
                             else
                                 /* #endif */
@@ -6761,7 +6768,7 @@ int OAD_Edit_Underivatize( struct tagINCHI_CLOCK *ic,
                 qsort( ap, num_cuts_to_check, sizeof(ap[0]), cmp_r2c_atpair);
                 }
                 */
-                if (ret = mark_deriv_agents( at, da, num_atoms, ap, num_cuts_to_check, &comp_num, &cur_num_at ))
+                if ((ret = mark_deriv_agents( at, da, num_atoms, ap, num_cuts_to_check, &comp_num, &cur_num_at ))) /* djb-rwth: addressing LLVM warning */
                 {
                     goto exit_r2c_num; /* wrong atom pair */
                 }
@@ -6774,7 +6781,7 @@ int OAD_Edit_Underivatize( struct tagINCHI_CLOCK *ic,
                         goto exit_r2c_num;
                     }
                     n = 0;
-                    for (i = j = 0; i < num_atoms; i++)
+                    for (i = j = 0; i < num_atoms; i++) /* djb-rwth: ignoring LLVM warning: variable used */
                     {
                         if (( da[i].typ[0] & DERIV_RING_OUTSIDE_PRECURSOR ) && ( da[i].typ[1] & DERIV_RING_OUTSIDE_PRECURSOR ))
                         {
@@ -6878,7 +6885,7 @@ int OAD_Edit_Underivatize( struct tagINCHI_CLOCK *ic,
                 {
                     n = (int) ap[i].at[k];   /* atom inside the derivation attachment */
                     j = 2;             /* number of bonds to cut */
-                    if (i + j > num_cuts_to_check || (int) ap[i + 1].at[0] != n && (int) ap[i + 1].at[1] != n)
+                    if (i + j > num_cuts_to_check || ((int) ap[i + 1].at[0] != n && (int) ap[i + 1].at[1] != n)) /* djb-rwth: addressing LLVM warning */
                     {
                         ret = -3;
                         goto exit_r2c_num2; /* wrong atom pair */
@@ -6922,7 +6929,7 @@ int OAD_Edit_Underivatize( struct tagINCHI_CLOCK *ic,
             inchi_free( ap );
             ap = NULL;
         }
-        if (ret < 0 || num_cuts_to_check >= 2 && cur_num_at < MIN_AT_LEFT_DERIV) /* -- bug: cur_num_at may include later rejected deriv. agents 2013-11-08 DCh */
+        if (ret < 0 || (num_cuts_to_check >= 2 && cur_num_at < MIN_AT_LEFT_DERIV)) /* -- bug: cur_num_at may include later rejected deriv. agents 2013-11-08 DCh */ /* djb-rwth: addressing LLVM warning */
         {
             goto exit_function; /* unexpected  error or nothing left */
         }
@@ -6931,7 +6938,7 @@ int OAD_Edit_Underivatize( struct tagINCHI_CLOCK *ic,
 
         /* make cuts */
         num_cuts = 0;
-        for (i = num = 0; i < num_atoms; i++)
+        for (i = num = 0; i < num_atoms; i++) /* djb-rwth: ignoring LLVM warning: variable used */
         {
             /*for ( len = 0; len < MAX_AT_DERIV && da[i].typ[len]; len ++ ) -- bug fixed 2013-11-07 DCh */
             for (len = 0; len < DERIV_AT_LEN && da[i].typ[len]; len++)
@@ -6948,13 +6955,13 @@ int OAD_Edit_Underivatize( struct tagINCHI_CLOCK *ic,
                     num_cuts += 1;
                     continue;
                 case 2:
-                    if (( da[i].typ[0] & DERIV_RING_OUTSIDE_PRECURSOR ) && ( da[i].typ[1] & DERIV_RING_OUTSIDE_PRECURSOR ) ||
-                         da[i].typ[0] == DERIV_AMINE_tN && da[i].typ[1] == DERIV_AMINE_tN
+                    if (( (da[i].typ[0] & DERIV_RING_OUTSIDE_PRECURSOR ) && ( da[i].typ[1] & DERIV_RING_OUTSIDE_PRECURSOR )) ||
+                         (da[i].typ[0] == DERIV_AMINE_tN && da[i].typ[1] == DERIV_AMINE_tN)
 #ifdef DERIV_RING2_OUTSIDE_PRECUR
-                         || da[i].typ[0] && da[i].typ[0] == ( da[i].typ[0] & DERIV_RING2_OUTSIDE_PRECUR ) &&
-                         da[i].typ[1] == da[i].typ[0]
+                         || (da[i].typ[0] && da[i].typ[0] == ( da[i].typ[0] & DERIV_RING2_OUTSIDE_PRECUR ) &&
+                         da[i].typ[1] == da[i].typ[0])
 #endif
-                         )
+                         ) /* djb-rwth: addressing LLVM warning */
                     {
                         /* double cut, unconditional */
                         make_single_cut( at, da, i, 1 );
@@ -7081,10 +7088,10 @@ exit_function:
 #if( UNDERIVATIZE_REPORT == 1 )
     if (!ret && nTotNumCuts && pSdfValue && bOutputReport)
     {
-        numUnderiv = sort_merge_underiv( pSdfValue, bOutputSdf, szUnderivList, cDerivSeparator, underivPrefix, underivPostfix );
-        numUnderiv2 = sort_merge_underiv( pSdfValue, bOutputSdf, szUnderivList2, cDerivSeparator, underivPrefix2, underivPostfix2 );
-        sprintf( szbitUnderivList, "0x%0.8X", bitUnderivList );
-        numUnderiv3 = sort_merge_underiv( pSdfValue, bOutputSdf, szbitUnderivList, cDerivSeparator, underivPrefix3, underivPostfix3 );
+        numUnderiv = sort_merge_underiv( pSdfValue, bOutputSdf, szUnderivList, cDerivSeparator, underivPrefix, underivPostfix ); /* djb-rwth: ignoring LLVM warning: variable used to store function return value */
+        numUnderiv2 = sort_merge_underiv( pSdfValue, bOutputSdf, szUnderivList2, cDerivSeparator, underivPrefix2, underivPostfix2 ); /* djb-rwth: ignoring LLVM warning: variable used to store function return value */
+        sprintf_s( szbitUnderivList, sizeof(szbitUnderivList), "0x%0.8X", bitUnderivList ); /* djb-rwth: function replaced with its safe C11 variant */
+        numUnderiv3 = sort_merge_underiv( pSdfValue, bOutputSdf, szbitUnderivList, cDerivSeparator, underivPrefix3, underivPostfix3 ); /* djb-rwth: ignoring LLVM warning: variable used to store function return value */
     }
 #endif
 
@@ -7159,7 +7166,7 @@ int detect_r2c_Zatom( inp_ATOM *at, R2C_AT *da, int iZ )
     }
 
     nRingSystem = at[iZ].nRingSystem;
-    memset( &da1, R2C_EMPTY, sizeof( da1 ) );
+    memset( &da1, R2C_EMPTY, sizeof( da1 ) ); /* djb-rwth: memset_s C11/Annex K variant? */
 
     for (i = 0, num_found = 0; i < at[iZ].valence; i++)
     {
@@ -7339,7 +7346,7 @@ int Ring2Chain( struct tagINCHI_CLOCK *ic,
                 struct tagCANON_GLOBALS *pCG,
                 ORIG_ATOM_DATA *orig_inp_data )
 {
-    int ret = 0, i, j, n, num_atoms, num_components, nFound, num, num_cuts, iZ;
+    int ret = 0, i, j, n, num_atoms, num_components, num, num_cuts, iZ; /* djb-rwth: removing redundant variables */
     inp_ATOM *at = orig_inp_data->at;
     INP_ATOM_DATA *inp_cur_data = NULL;
     R2C_AT        *da = NULL;
@@ -7392,7 +7399,7 @@ int Ring2Chain( struct tagINCHI_CLOCK *ic,
         da = (R2C_AT *) inchi_calloc( num_atoms, sizeof( da[0] ) );
 
         /* detect ring-to-chain possibilities */
-        nFound = 0;
+        /* djb-rwth: removing redundant code */
         for (i = 0, num = 0; i < num_atoms; i++)
         {
             if (at[i].bCutVertex /* type 1 specific*/ && !da[i].type)
@@ -7550,7 +7557,7 @@ void OAD_Edit_MergeComponentsAndRecreateOAD( ORIG_ATOM_DATA *orig_OrigAtomData,
         num_atoms += curr_InpAtomData[i].num_at;
     }
 
-    at = (inp_ATOM *) inchi_calloc( num_atoms, sizeof( at[0] ) );
+    at = (inp_ATOM *) inchi_calloc( num_atoms, sizeof( at[0] ) ); /* djb-rwth: ignoring LLVM warning: possible presence of global variables -- senseless statement */
     cur_num_at = 0;
 
     for (i = 0; i < num_components; i++)
@@ -7642,10 +7649,10 @@ void remove_cut_derivs( int num_atoms,
     /* Remove marked with Tritium disconnected derivative attachments */
     ORIG_ATOM_DATA Orig_inp_data1, *orig_inp_data1;
     INP_ATOM_DATA *inp_cur_data1 = NULL;
-    int i, num_components1, i_component1, num_component_left = 0, cur_num_at = 0;
+    int i, num_components1, i_component1, cur_num_at = 0; /* djb-rwth: removing redundant variables */
 
     orig_inp_data1 = &Orig_inp_data1;
-    memset( orig_inp_data1, 0, sizeof( orig_inp_data1[0] ) );
+    memset( orig_inp_data1, 0, sizeof( orig_inp_data1[0] ) ); /* djb-rwth: memset_s C11/Annex K variant? */
 
     UnMarkRingSystemsInp( at, num_atoms );
     UnMarkOtherIndicators( at, num_atoms );
@@ -7697,7 +7704,7 @@ void remove_cut_derivs( int num_atoms,
     {
         num_atoms += inp_cur_data1[i_component1].num_at;
     }
-    at = (inp_ATOM *) inchi_calloc( num_atoms, sizeof( at[0] ) );
+    at = (inp_ATOM *) inchi_calloc( num_atoms, sizeof( at[0] ) ); /* djb-rwth: ignoring LLVM warning: possible presence of global variables -- senseless statement */
     cur_num_at = 0;
     for (i_component1 = 0; i_component1 < num_components1; i_component1++)
     {
@@ -7710,7 +7717,7 @@ void remove_cut_derivs( int num_atoms,
         }
         cur_num_at = add_inp_ATOM( at, num_atoms, cur_num_at, inp_cur_data1[i_component1].at, inp_cur_data1[i_component1].num_at );
         FreeInpAtomData( inp_cur_data1 + i_component1 ); /* cleanup */
-        num_component_left++;
+        /* djb-rwth: removing redundant code */
     }
 
     /* Replace the component */

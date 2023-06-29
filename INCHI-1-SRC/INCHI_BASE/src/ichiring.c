@@ -262,7 +262,7 @@ int GetMinRingSize( inp_ATOM* atom,
     qInt at_no, next;
     int  iat_no, inext;
 
-    while (qLen = QueueLength( q ))
+    while ((qLen = QueueLength( q ))) /* djb-rwth: addressing LLVM warning */
     {
         /*  traverse the next level (next outer ring) */
         for (i = 0; i < qLen; i++)

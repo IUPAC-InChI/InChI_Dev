@@ -209,9 +209,9 @@ int bIsCenterPointStrict( inp_ATOM *atom, int iat )
     if (atom[iat].valence == atom[iat].chem_bonds_valence)
     {
         int endpoint_valence = get_endpoint_valence( atom[iat].el_number );
-        if (endpoint_valence && ( endpoint_valence > atom[iat].valence && /* added a check for negative charge or H 3-31-03 */
-            ( atom[iat].num_H || atom[iat].charge == -1 ) ||
-            !atom[iat].charge && atom[iat].c_point ))
+        if (endpoint_valence && ( (endpoint_valence > atom[iat].valence && /* added a check for negative charge or H 3-31-03 */
+            ( atom[iat].num_H || atom[iat].charge == -1 )) ||
+            (!atom[iat].charge && atom[iat].c_point) )) /* djb-rwth: addressing LLVM warnings */
         {
             return 1; /*  may appear to be tautomeric or chargable
                           (this increases chem_bonds_valence), should be explored */
@@ -473,7 +473,7 @@ int DFS_FindTautInARing( struct tagCANON_GLOBALS *pCG,
     AT_RANK      nMinLenDfsPath;
     int          j, cur_at, nxt_at, prv_at;
     int          nLenDfsPath, nNumFound, ret;
-    AT_RANK      nRingSystem;
+    /* djb-rwth: removing redundant variables */
     int          nDoNotTouchAtom1 = -1, nDoNotTouchAtom2 = -1;
 
     nLenDfsPath = 0;
@@ -485,7 +485,7 @@ int DFS_FindTautInARing( struct tagCANON_GLOBALS *pCG,
     DfsPath[nLenDfsPath].bond_type = 0;
     DfsPath[nLenDfsPath].bond_pos = -1;
     nDfsPathPos[cur_at] = nLenDfsPath + 1;  /*  mark */
-    nRingSystem = atom[nStartAtom].nRingSystem;
+    /* djb-rwth: removing redundant code */
     nMinLenDfsPath = 0;
     if (nStartAtomNeighbor2 >= 0)
     {
@@ -631,7 +631,7 @@ int DFS_FindTautAltPath( struct tagCANON_GLOBALS *pCG,
     AT_RANK      nMinLenDfsPath;
     int          j, cur_at, nxt_at, prv_at;
     int          nLenDfsPath, nNumFound, ret;
-    AT_RANK      nRingSystem;
+    /* djb-rwth: removing redundant variables */
     int          nDoNotTouchAtom1 = -1, nDoNotTouchAtom2 = -1;
 
     nLenDfsPath = 0;
@@ -643,7 +643,7 @@ int DFS_FindTautAltPath( struct tagCANON_GLOBALS *pCG,
     DfsPath[nLenDfsPath].bond_type = 0;
     DfsPath[nLenDfsPath].bond_pos = -1;  /* initialize index of the bond to the next atom */
     nDfsPathPos[cur_at] = nLenDfsPath + 1;  /*  mark with distance + 1 */
-    nRingSystem = atom[nStartAtom].nRingSystem;
+    /* djb-rwth: removing redundant variables/code */
     nMinLenDfsPath = 0;  /* allow to restart from nStartAtom */
     if (nStartAtomNeighbor2 >= 0)
     {
@@ -690,8 +690,8 @@ int DFS_FindTautAltPath( struct tagCANON_GLOBALS *pCG,
             if (nxt_at == nDoNotTouchAtom1 || /* forbidden */
                 nxt_at == nDoNotTouchAtom2 || /* forbidden */
                 nDfsPathPos[nxt_at] || /* ring closure */
-                nLenDfsPath && nxt_at == (int) DfsPath[nLenDfsPath - 1].at_no /* step backwards */
-                )
+                (nLenDfsPath && nxt_at == (int) DfsPath[nLenDfsPath - 1].at_no) /* step backwards */
+                ) /* djb-rwth: addressing LLVM warning */
             {
                 ; /* ignore nxt_at */
             }
@@ -775,7 +775,7 @@ int are_alt_bonds( U_CHAR *bonds, int len )
     {
         return 0;
     }
-    next_bond = bonds[0] == BOND_SINGLE ? BOND_DOUBLE : bonds[0] == BOND_DOUBLE ? BOND_SINGLE : 0;
+    bonds[0] == BOND_SINGLE ? BOND_DOUBLE : bonds[0] == BOND_DOUBLE ? BOND_SINGLE : 0; /* djb-rwth: removing redundant code; ignoring LLVM warning: possible presence of global variables */
     if (bonds[0] == BOND_TAUTOM)
     {
         bTautBondPresent = BOND_TAUTOM;
@@ -863,10 +863,10 @@ int AddBondsPos( inp_ATOM *atom,
     {
         for (i = 0; i < nNumBondPos; i++)
         {
-            if (BondPos[i].nAtomNumber == BondPosTmp[j].nAtomNumber &&
-                BondPos[i].neighbor_index == BondPosTmp[j].neighbor_index ||
-                BondPos[i].nAtomNumber == BondPosTmp[j + 1].nAtomNumber &&
-                BondPos[i].neighbor_index == BondPosTmp[j + 1].neighbor_index)
+            if ((BondPos[i].nAtomNumber == BondPosTmp[j].nAtomNumber &&
+                BondPos[i].neighbor_index == BondPosTmp[j].neighbor_index) ||
+                (BondPos[i].nAtomNumber == BondPosTmp[j + 1].nAtomNumber &&
+                BondPos[i].neighbor_index == BondPosTmp[j + 1].neighbor_index))  /* djb-rwth: addressing LLVM warnings */
             {
                 break; /*  bond has already been added */
             }
@@ -1019,7 +1019,7 @@ int Check7MembTautRing( struct tagCANON_GLOBALS *pCG,
         }
         else
         {
-            memset( EndPointTmp + nNumEndPointTmp, 0, sizeof( EndPointTmp[0] ) );
+            memset( EndPointTmp + nNumEndPointTmp, 0, sizeof( EndPointTmp[0] ) ); /* djb-rwth: memset_s C11/Annex K variant? */
         }
         EndPointTmp[nNumEndPointTmp].nAtomNumber = endpoint;
         EndPointTmp[nNumEndPointTmp].nGroupNumber = atom[endpoint].endpoint;
@@ -1076,9 +1076,9 @@ int Check7MembTautRing( struct tagCANON_GLOBALS *pCG,
     /* j is a bond type of the last bond to o2_at, the first bond from o1_at is 2-j if j=1 or 2 */
 
     /* single bond at o2_at: it should have a mobile atom, o1_at should not */
-    if (j == BOND_SINGLE && ( !atom[o2_at].endpoint && !eif2.cDonor || !atom[o1_at].endpoint && !eif1.cAcceptor ) ||
+    if ((j == BOND_SINGLE && ( (!atom[o2_at].endpoint && !eif2.cDonor) || (!atom[o1_at].endpoint && !eif1.cAcceptor) )) ||
         /* double bond at o2_at: it should not have a mobile atom, o1_at should */
-        j == BOND_DOUBLE && ( !atom[o2_at].endpoint && !eif2.cAcceptor || !atom[o1_at].endpoint && !eif1.cDonor ))
+        (j == BOND_DOUBLE && ( (!atom[o2_at].endpoint && !eif2.cAcceptor) || (!atom[o1_at].endpoint && !eif1.cDonor) ))) /* djb-rwth: addressing LLVM warnings */
     {
         return 0; /* bond pattern does not fit */
     }
@@ -1088,7 +1088,7 @@ int Check7MembTautRing( struct tagCANON_GLOBALS *pCG,
 
     if (nNumBondPos >= 0 && nNumEndPoint >= 0)
     {
-        if (ret = ( nNumBondPos > *pnNumBondPos ) || ( nNumEndPoint > *pnNumEndPoint ))
+        if ((ret = ( nNumBondPos > *pnNumBondPos ) || ( nNumEndPoint > *pnNumEndPoint ))) /* djb-rwth: addressing LLVM warning */
         {
             *pnNumBondPos = nNumBondPos;
             *pnNumEndPoint = nNumEndPoint;
@@ -1130,7 +1130,7 @@ int Check7MembTautRing( struct tagCANON_GLOBALS *pCG,
 
 /****************************************************************************
   Check if a tautomeric 6-member ring has been found
-/****************************************************************************/
+*****************************************************************************/
 int Check6MembTautRing( struct tagCANON_GLOBALS *pCG,
                         inp_ATOM *atom,
                         DFS_PATH *DfsPath,
@@ -1174,7 +1174,7 @@ int Check6MembTautRing( struct tagCANON_GLOBALS *pCG,
 
     nNumBondPos = *pnNumBondPos;
     nNumEndPoint = *pnNumEndPoint;
-    nNumBondPosTmp = 0;
+    /* djb-rwth: removing redundant code */
     nNumEndPointTmp = 0;
     ret = 0;
     for (ept = 0; ept < 2; ept++) /* djb-rwth: initialisation needed for num array */
@@ -1367,7 +1367,7 @@ int Check6MembTautRing( struct tagCANON_GLOBALS *pCG,
         }
         else
         { /* already an endpoint */ /* **now it is wrong:** no mobile atom/charge at this endpoint */
-            memset( EndPointTmp + nNumEndPointTmp, 0, sizeof( EndPointTmp[0] ) );
+            memset( EndPointTmp + nNumEndPointTmp, 0, sizeof( EndPointTmp[0] ) ); /* djb-rwth: memset_s C11/Annex K variant? */
         }
         EndPointTmp[nNumEndPointTmp].nAtomNumber = endpoint;
         EndPointTmp[nNumEndPointTmp].nGroupNumber = atom[endpoint].endpoint;
@@ -1381,7 +1381,7 @@ int Check6MembTautRing( struct tagCANON_GLOBALS *pCG,
 
     if (nNumBondPos >= 0 && nNumEndPoint >= 0)
     {
-        if (ret = ( nNumBondPos > *pnNumBondPos ) || ( nNumEndPoint > *pnNumEndPoint ))
+        if ((ret = ( nNumBondPos > *pnNumBondPos ) || ( nNumEndPoint > *pnNumEndPoint ))) /* djb-rwth: addressing LLVM warning */
         {
             *pnNumBondPos = nNumBondPos;
             *pnNumEndPoint = nNumEndPoint;
@@ -1466,7 +1466,7 @@ int Check15TautPath( struct tagCANON_GLOBALS *pCG,
 
     nNumBondPos = *pnNumBondPos;
     nNumEndPoint = *pnNumEndPoint;
-    nNumBondPosTmp = 0;
+    /* djb-rwth: removing redundant code */
     nNumEndPointTmp = 0;
     ret = 0;
 
@@ -1608,7 +1608,7 @@ int Check15TautPath( struct tagCANON_GLOBALS *pCG,
         else
         {
             /* already an endpoint */ /* **now it is wrong:** no mobile atom/charge at this endpoint */
-            memset( EndPointTmp + nNumEndPointTmp, 0, sizeof( EndPointTmp[0] ) );
+            memset( EndPointTmp + nNumEndPointTmp, 0, sizeof( EndPointTmp[0] ) ); /* djb-rwth: memset_s C11/Annex K variant? */
         }
         EndPointTmp[nNumEndPointTmp].nAtomNumber = endpoint;
         EndPointTmp[nNumEndPointTmp].nGroupNumber = atom[endpoint].endpoint;
@@ -1622,7 +1622,7 @@ int Check15TautPath( struct tagCANON_GLOBALS *pCG,
 
     if (nNumBondPos >= 0 && nNumEndPoint >= 0)
     {
-        if (ret = ( nNumBondPos > *pnNumBondPos ) || ( nNumEndPoint > *pnNumEndPoint ))
+        if ((ret = ( nNumBondPos > *pnNumBondPos ) || ( nNumEndPoint > *pnNumEndPoint ))) /* djb-rwth: addressing LLVM warning */
         {
             *pnNumBondPos = nNumBondPos;
             *pnNumEndPoint = nNumEndPoint;
@@ -1699,7 +1699,7 @@ int Check5MembTautRing( struct tagCANON_GLOBALS *pCG,
     nNumBondPos = *pnNumBondPos;
     nNumEndPoint = *pnNumEndPoint;
     nNumEndPointTmp = 0;
-    nNumBondPosTmp = 0;
+    /* djb-rwth: removing redundant code */
     ret = 0;
     for (ept = 0; ept < 2; ept++) /* djb-rwth: initialisation needed for num array */
         for (eptn = 0; eptn < T_NUM_NO_ISOTOPIC + T_NUM_ISOTOPIC; eptn++)
@@ -1762,7 +1762,7 @@ int Check5MembTautRing( struct tagCANON_GLOBALS *pCG,
         }
         else
         {
-            memset( EndPointTmp + nNumEndPointTmp, 0, sizeof( EndPointTmp[0] ) );
+            memset( EndPointTmp + nNumEndPointTmp, 0, sizeof( EndPointTmp[0] ) ); /* djb-rwth: memset_s C11/Annex K variant? */
         }
         EndPointTmp[nNumEndPointTmp].nAtomNumber = endpoint;
         EndPointTmp[nNumEndPointTmp].nGroupNumber = atom[endpoint].endpoint;
@@ -1792,9 +1792,9 @@ int Check5MembTautRing( struct tagCANON_GLOBALS *pCG,
     /* i is a bond type of the last bond to at_n1, the first bond from at_n2 is 2-i if i=1 or 2 */
 
     /* single bond at n1_at: it should have a mobile atom, n2_at should not */
-    if (i == BOND_SINGLE && ( !atom[n1_at].endpoint && !eif1.cDonor || !atom[n2_at].endpoint && !eif2.cAcceptor ) ||
+    if ((i == BOND_SINGLE && ( (!atom[n1_at].endpoint && !eif1.cDonor) || (!atom[n2_at].endpoint && !eif2.cAcceptor) )) ||
         /* double bond at n1_at: it should not have a mobile atom, n2_at should */
-        i == BOND_DOUBLE && ( !atom[n1_at].endpoint && !eif1.cAcceptor || !atom[n2_at].endpoint && !eif2.cDonor ))
+        (i == BOND_DOUBLE && ( (!atom[n1_at].endpoint && !eif1.cAcceptor) || (!atom[n2_at].endpoint && !eif2.cDonor) ))) /* djb-rwth: addressing LLVM warnings */
     {
         return 0; /* bond pattern does not fit */
     }
@@ -1804,7 +1804,7 @@ int Check5MembTautRing( struct tagCANON_GLOBALS *pCG,
 
     if (nNumBondPos >= 0 && nNumEndPoint >= 0)
     {
-        if (ret = ( nNumBondPos > *pnNumBondPos ) || ( nNumEndPoint > *pnNumEndPoint ))
+        if ((ret = ( nNumBondPos > *pnNumBondPos ) || ( nNumEndPoint > *pnNumEndPoint ))) /* djb-rwth: addressing LLVM warning */
         {
             *pnNumBondPos = nNumBondPos;
             *pnNumEndPoint = nNumEndPoint;

@@ -74,7 +74,7 @@ int DisplayStructure( struct tagCANON_GLOBALS   *pCG,
 
     if (CreateInfoAtomData( &inf_data, num_at, 1 ))
     {
-        err = 0;
+        /* djb-rwth: removing redundant code */
 
         FillOutInfAtom( pCG, at, &inf_data, num_at, num_removed_H, bAdd_DT_to_num_H,
                         nNumRemovedProtons, nNumRemovedProtonsIsotopic, bIsotopic,
@@ -110,7 +110,7 @@ int DisplayCompositeStructure( struct tagCANON_GLOBALS *pCG,
     INF_ATOM_DATA inf_data;
     int err = -1, ret;
 
-    memset( &inf_data, 0, sizeof( inf_data ) );
+    memset( &inf_data, 0, sizeof( inf_data ) ); /* djb-rwth: memset_s C11/Annex K variant? */
 
     if (CreateInfoAtomData( &inf_data, ( composite_norm_data + bTautomeric )->num_at,
         ( composite_norm_data + bTautomeric )->num_components ))

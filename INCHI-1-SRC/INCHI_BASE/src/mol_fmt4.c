@@ -345,7 +345,7 @@ int SDFileIdentifyLabel( char* inp_line, const char *pSdfLabel )
         ( q = strchr( p, '>' ) ) &&
         ( len = q - p - 1 ) > 0 && len < ( int )sizeof( line ))
     {
-        memcpy( line, p + 1, len );
+        memcpy_s( line, sizeof(line) + len + 1, p + 1, len ); /* djb-rwth: function replaced with its safe C11 variant */
         line[len] = '\0';
 
         for (i = 0; (i < len) && (cnd == 0); i++)
@@ -428,7 +428,7 @@ int NumLists_Alloc( NUM_LISTS *num_lists, int nlists )
 {
     if (num_lists)
     {
-        if (num_lists->lists = (int **) inchi_calloc( nlists, sizeof( int* ) ))
+        if ((num_lists->lists = (int **) inchi_calloc( nlists, sizeof( int* ) ))) /* djb-rwth: addressing LLVM warning */
         {
             num_lists->increment =
                 num_lists->allocated = nlists;
@@ -447,10 +447,10 @@ int NumLists_ReAlloc( NUM_LISTS *num_lists )
         if (num_lists->lists && num_lists->allocated > 0 && num_lists->increment > 0)
         {
             void *p = num_lists->lists;
-            if (num_lists->lists =
-                (int **) inchi_calloc( (long long)num_lists->allocated + (long long)num_lists->increment, sizeof( int * ) )) /* djb-rwth: cast operators added */
+            if ((num_lists->lists =
+                (int **) inchi_calloc( (long long)num_lists->allocated + (long long)num_lists->increment, sizeof( int * ) ))) /* djb-rwth: cast operators added; addressing LLVM warning */
             {
-                memcpy( num_lists->lists, p, num_lists->used * sizeof( num_lists->lists[0] ) );
+                memcpy_s( num_lists->lists, sizeof(num_lists->lists[0])*(num_lists->used) + 1, p, num_lists->used * sizeof(num_lists->lists[0])); /* djb-rwth: function replaced with its safe C11 variant */
                 inchi_free( p );
                 num_lists->allocated += num_lists->increment;
                 return 0; /*  ok */
@@ -492,7 +492,7 @@ void NumLists_Free( NUM_LISTS *num_lists )
         for (i = 0; i < num_lists->used; i++)
             inchi_free( num_lists->lists[i] );
         inchi_free( num_lists->lists );
-        memset( num_lists, 0, sizeof( *num_lists ) );
+        memset( num_lists, 0, sizeof( *num_lists ) ); /* djb-rwth: memset_s C11/Annex K variant? */
     }
 }
 
@@ -506,7 +506,7 @@ void NumLists_Free( NUM_LISTS *num_lists )
 ****************************************************************************/
 int IntArray_Alloc( INT_ARRAY *items, int nitems )
 {
-    if (items->item = (int *) inchi_calloc( nitems, sizeof( int ) ))
+    if ((items->item = (int *) inchi_calloc( nitems, sizeof( int ) ))) /* djb-rwth: addressing LLVM warning */
     {
         items->increment = items->allocated = nitems;
         items->used = 0;
@@ -527,14 +527,15 @@ int IntArray_ReAlloc( INT_ARRAY *items )
         if (items->item && items->allocated > 0 && items->increment > 0)
         {
             void *p = items->item;
-            if (items->item =
-                (int *) inchi_calloc( (long long)items->allocated + (long long)items->increment, sizeof( items->item[0] ) )) /* djb-rwth: cast operators added */
+            if ((items->item =
+                (int *) inchi_calloc( (long long)items->allocated + (long long)items->increment, sizeof( items->item[0] ) ))) /* djb-rwth: cast operators added; addressing LLVM warning */
             {
-                memcpy( items->item, p, items->used * sizeof( items->item[0] ) );
+                memcpy_s( items->item, sizeof(items->item)*(items->used) + 1, p, items->used * sizeof(items->item[0])); /* djb-rwth: function replaced with its safe C11 variant */
                 inchi_free( p );
                 items->allocated += items->increment;
                 return 0;
             }
+            inchi_free(p);
         }
     }
 
@@ -617,7 +618,7 @@ void IntArray_Free( INT_ARRAY *items )
         {
             inchi_free( items->item );
         }
-        memset( items, 0, sizeof( *items ) );
+        memset( items, 0, sizeof( *items ) ); /* djb-rwth: memset_s C11/Annex K variant? */
     }
     return;
 }
@@ -706,10 +707,10 @@ int MolFmtSgroups_ReAlloc( MOL_FMT_SGROUPS *sgroups )
         if (sgroups->group && sgroups->allocated > 0 && sgroups->increment > 0)
         {
             void *p = sgroups->group;
-            if (sgroups->group = (MOL_FMT_SGROUP **) inchi_calloc( (long long)sgroups->allocated + (long long)sgroups->increment,
-                sizeof( sgroups->group[0] ) )) /* djb-rwth: cast operators added */
+            if ((sgroups->group = (MOL_FMT_SGROUP **) inchi_calloc( (long long)sgroups->allocated + (long long)sgroups->increment,
+                sizeof( sgroups->group[0] ) ))) /* djb-rwth: cast operators added; addressing LLVM warning */
             {
-                memcpy( sgroups->group, p, sgroups->used * sizeof( sgroups->group[0] ) );
+                memcpy_s( sgroups->group, sizeof(sgroups->group[0])*(sgroups->used) + 1, p, sgroups->used * sizeof(sgroups->group[0])); /* djb-rwth: function replaced with its safe C11 variant */
                 inchi_free( p );
                 sgroups->allocated += sgroups->increment;
                 return 0; /*  ok */
@@ -736,8 +737,10 @@ int MolFmtSgroups_Append( MOL_FMT_SGROUPS *sgroups, int id, int type )
         if (sgroups->used + 1 > sgroups->allocated)
         {
             /* expand buffer */
-            if (MolFmtSgroups_ReAlloc( sgroups ))
-                return -1; /*  no RAM */
+            if (MolFmtSgroups_ReAlloc(sgroups))
+            {
+                return -1; /*  no RAM */ /* djb-rwth: ignoring LLVM warning: since a pointer is returned, memory should be freed in a function which calls *CreateNeighListFromLinearCT */
+            }
         }
         sgroups->group[sgroups->used++] = sgroup;
 
@@ -769,7 +772,7 @@ void MolFmtSgroups_Free( MOL_FMT_SGROUPS *sgroups )
         /* ITRACE_( "\nAbout to free sgroups->group at %-p\n", sgroups->group ); */
         inchi_free( sgroups->group );
 
-        memset( sgroups, 0, sizeof( MOL_FMT_SGROUPS ) );
+        memset( sgroups, 0, sizeof( MOL_FMT_SGROUPS ) ); /* djb-rwth: memset_s C11/Annex K variant? */
     }
 }
 
@@ -886,10 +889,10 @@ int OrigAtData_WriteToSDfileHeaderAndCountThings( const ORIG_ATOM_DATA *inp_at_d
 
     {
         char strLocName[82];
-        memset( strLocName, 0, sizeof( strLocName ) );
+        memset( strLocName, 0, sizeof( strLocName ) ); /* djb-rwth: memset_s C11/Annex K variant? */
         if (name && *name)
         {
-            strncpy( strLocName, name, 80 );
+            strncpy_s( strLocName, sizeof(strLocName) + 1, name, 80 ); /* djb-rwth: function replaced with its safe C11 variant */
         }
         inchi_ios_print_nodisplay( fcb, "%s\n", strLocName );
     }
@@ -922,10 +925,10 @@ Changed 01/10/2009 to conform CTFile specification (by Symyx request)*/
 
     {   char strLocName[82];
 
-    memset( strLocName, 0, sizeof( strLocName ) );
+    memset( strLocName, 0, sizeof( strLocName ) ); /* djb-rwth: memset_s C11/Annex K variant? */
     if (comment && *comment)
     {
-        strncpy( strLocName, comment, 80 );
+        strncpy_s( strLocName, sizeof(strLocName) + 1, comment, 80 ); /* djb-rwth: function replaced with its safe C11 variant */
     }
     inchi_ios_print_nodisplay( fcb, "%s\n", strLocName );
     }
@@ -940,7 +943,7 @@ Changed 01/10/2009 to conform CTFile specification (by Symyx request)*/
     /*find if we need "M  CHG" and "M  RAD"*/
     for (i = 0; i < num_atoms; i++)
     {
-        if (bAtomNeedsAlias = ALIASED_AT( i ))
+        if ((bAtomNeedsAlias = ALIASED_AT( i ))) /* djb-rwth: addressing LLVM warning */
         {
             /* has isotopic implicit D or T; ignoring pure 1H */
             ( *nNumAliasLines ) += 2 * bAtomNeedsAlias;
@@ -1007,7 +1010,7 @@ int OrigAtData_WriteToSDfileAtomsBlock( const ORIG_ATOM_DATA *inp_at_data,
 {
     int i, ret = 0;
     int bAtomNeedsAlias;
-    int flag_bad_charge = 0, flag_bad_iso = 0;
+    /* djb-rwth: removing redundant variables */
     int num_atoms = inp_at_data->num_inp_atoms;
     const inp_ATOM *at = inp_at_data->at;
     double x, y, z;
@@ -1021,23 +1024,23 @@ int OrigAtData_WriteToSDfileAtomsBlock( const ORIG_ATOM_DATA *inp_at_data,
         int  nIsotopeH = IS_DEUTERIUM( i ) ? 1 : IS_TRITIUM( i ) ? 2 : 0;
         int  bonds_val;
         bAtomNeedsAlias = ALIASED_AT( i );
-        memset( elname, 0, sizeof( elname ) );
+        memset( elname, 0, sizeof( elname ) ); /* djb-rwth: memset_s C11/Annex K variant? */
 
         if (bAtomNeedsAlias)
         {
             /* alias */
-            strcpy( elname, "C" );
+            strcpy_s( elname, sizeof(elname) + 1, "C" ); /* djb-rwth: function replaced with its safe C11 variant */
         }
         else
         {
             /* isotope*/
             if (nIsotopeH)
             {
-                strcpy( elname, bAtomsDT ? ( nIsotopeH == 1 ? "D" : "T" ) : "H" );
+                strcpy_s( elname, sizeof(elname) + 1, bAtomsDT ? ( nIsotopeH == 1 ? "D" : "T" ) : "H" ); /* djb-rwth: function replaced with its safe C11 variant */
             }
             else
             {
-                strncpy( elname, at[i].elname, sizeof( elname ) - 1 );
+                strncpy_s( elname, sizeof(elname) + 1, at[i].elname, sizeof( elname ) - 1 ); /* djb-rwth: function replaced with its safe C11 variant */
                 elname[sizeof(elname) - 1] = 0; /* adding zero termination after strncpy */
             }
             if (!ABNORMAL_CHG( i ) && !ANY_RAD( i ))
@@ -1053,7 +1056,7 @@ int OrigAtData_WriteToSDfileAtomsBlock( const ORIG_ATOM_DATA *inp_at_data,
                     case -2: charge = 6; break;
                     case -3: charge = 7; break;
                     case  0: charge = 0; break;
-                    default: flag_bad_charge = 1; break;
+                    default: break; /* djb-rwth: removing redundant code */
                 }
             }
 
@@ -1072,7 +1075,7 @@ int OrigAtData_WriteToSDfileAtomsBlock( const ORIG_ATOM_DATA *inp_at_data,
         {
             iso = at[i].iso_atw_diff > 0 ? at[i].iso_atw_diff - 1 :
                     at[i].iso_atw_diff < 0 ? at[i].iso_atw_diff :
-                        nIsotopeH ? nIsotopeH : ( flag_bad_iso++, 0 );
+                        nIsotopeH ? nIsotopeH : 0; /* djb-rwth: removing redundant code */
         }
 
         x = at[i].x;
@@ -1136,7 +1139,7 @@ int OrigAtData_WriteToSDfileBondsBlock( const ORIG_ATOM_DATA *inp_at_data,
             if (i < at[i].neighbor[j])
             {
                 unsigned a1, a2;
-                if (k = at[i].bond_stereo[j])
+                if ((k = at[i].bond_stereo[j])) /* djb-rwth: addressing LLVM warning */
                 {
                     /* bond stereo */
                     if (k < 0)
@@ -1193,7 +1196,7 @@ int OrigAtData_WriteToSDfileAdditionalLines( const ORIG_ATOM_DATA *inp_at_data,
     char str_m[66], entry[10];
     int  i, num_m, k, j, ret = 0;
 
-    if (inp_at_data) /* djb-rwth: correcting the dereferencing NULL pointer */
+    if (inp_at_data) /* djb-rwth: fixing a NULL pointer dereference */
     {
         int num_atoms = inp_at_data->num_inp_atoms;
         int is_polymer = inp_at_data && inp_at_data->polymer && inp_at_data->polymer->n > 0 && inp_at_data->valid_polymer;
@@ -1210,7 +1213,7 @@ int OrigAtData_WriteToSDfileAdditionalLines( const ORIG_ATOM_DATA *inp_at_data,
                     int len;
                     inchi_ios_print_nodisplay(fcb, "A  %d\n", i + 1);
                     num_m++;
-                    len = sprintf(str_m, "%s", at[i].elname);
+                    len = sprintf_s(str_m, sizeof(str_m), "%s", at[i].elname); /* djb-rwth: function replaced with its safe C11 variant */
 
                     /* add isotopic H to the alias */
                     for (k = 0; k < NUM_H_ISOTOPES; k++)
@@ -1218,10 +1221,10 @@ int OrigAtData_WriteToSDfileAdditionalLines( const ORIG_ATOM_DATA *inp_at_data,
                         int num_H = at[i].num_iso_H[k] + (k ? 0 : at[i].num_H);
                         if (num_H)
                         {
-                            len += sprintf(str_m + len, "%s", k == 0 ? "H" : k == 1 ? "D" : k == 2 ? "T" : "?");
+                            len += sprintf_s(str_m + len, sizeof(str_m) - (long long)len, "%s", k == 0 ? "H" : k == 1 ? "D" : k == 2 ? "T" : "?"); /* djb-rwth: function replaced with its safe C11 variant */
                             if (num_H != 1)
                             {
-                                len += sprintf(str_m + len, "%d", num_H);
+                                len += sprintf_s(str_m + len, sizeof(str_m) - (long long)len, "%d", num_H); /* djb-rwth: function replaced with its safe C11 variant */
                             }
                         }
                     }
@@ -1229,25 +1232,25 @@ int OrigAtData_WriteToSDfileAdditionalLines( const ORIG_ATOM_DATA *inp_at_data,
                     /* Add charge to the Alias */
                     if (at[i].charge)
                     {
-                        len += sprintf(str_m + len, "%s", at[i].charge > 0 ? "+" : "-");
+                        len += sprintf_s(str_m + len, sizeof(str_m) - (long long)len, "%s", at[i].charge > 0 ? "+" : "-"); /* djb-rwth: function replaced with its safe C11 variant */
                         if (1 < (j = abs(at[i].charge)))
                         {
-                            len += sprintf(str_m + len, "%d", j);
+                            len += sprintf_s(str_m + len, sizeof(str_m) - (long long)len, "%d", j); /* djb-rwth: function replaced with its safe C11 variant */
                         }
                     }
 
                     /* Add radical to the Alias */
                     if (at[i].radical == RADICAL_SINGLET)
                     {
-                        len += sprintf(str_m + len, "%s", ":");
+                        len += sprintf_s(str_m + len, sizeof(str_m) - (long long)len, "%s", ":"); /* djb-rwth: function replaced with its safe C11 variant; ignoring LLVM warning: variable used */
                     }
                     else if (at[i].radical == RADICAL_DOUBLET)
                     {
-                        len += sprintf(str_m + len, "%s", "^");
+                        len += sprintf_s(str_m + len, sizeof(str_m) - (long long)len, "%s", "^"); /* djb-rwth: function replaced with its safe C11 variant; ignoring LLVM warning: variable used */
                     }
                     else if (at[i].radical == RADICAL_TRIPLET)
                     {
-                        len += sprintf(str_m + len, "%s", "^^");
+                        len += sprintf_s(str_m + len, sizeof(str_m) - (long long)len, "%s", "^^"); /* djb-rwth: function replaced with its safe C11 variant; ignoring LLVM warning: variable used */
                     }
                     inchi_ios_print_nodisplay(fcb, "%s\n", str_m);
                     num_m++;
@@ -1270,11 +1273,11 @@ int OrigAtData_WriteToSDfileAdditionalLines( const ORIG_ATOM_DATA *inp_at_data,
             {
                 if (at[i].charge && !ALIASED_AT(i))
                 {
-                    sprintf(entry, " %3d %3d", i + 1, (int)at[i].charge);
-                    strcat(str_m, entry);
+                    sprintf_s(entry, sizeof(entry) + 1, " %3d %3d", i + 1, (int)at[i].charge); /* djb-rwth: function replaced with its safe C11 variant */
+                    strcat_s(str_m, sizeof(str_m), entry); /* djb-rwth: function replaced with its safe C11 variant */
                     num_m++;
                 }
-                if (i == num_atoms - 1 && num_m || num_m == 8)
+                if ((i == num_atoms - 1 && num_m) || num_m == 8) /* djb-rwth: addressing LLVM warning */
                 {
                     inchi_ios_print_nodisplay(fcb, "M  CHG%3d%s\n", num_m, str_m);
                     str_m[0] = 0;
@@ -1298,12 +1301,12 @@ int OrigAtData_WriteToSDfileAdditionalLines( const ORIG_ATOM_DATA *inp_at_data,
                         at[i].radical == RADICAL_TRIPLET) ? at[i].radical : 0;
                     if (radical)
                     {
-                        sprintf(entry, " %3d %3d", i + 1, radical);
-                        strcat(str_m, entry);
+                        sprintf_s(entry, sizeof(entry) + 1, " %3d %3d", i + 1, radical); /* djb-rwth: function replaced with its safe C11 variant */
+                        strcat_s(str_m, sizeof(str_m) + 1, entry); /* djb-rwth: function replaced with its safe C11 variant */
                         num_m++;
                     }
                 }
-                if (i == num_atoms - 1 && num_m || num_m == 8)
+                if ((i == num_atoms - 1 && num_m) || num_m == 8) /* djb-rwth: addressing LLVM warning */
                 {
                     inchi_ios_print_nodisplay(fcb, "M  RAD%3d%s\n", num_m, str_m);
                     str_m[0] = 0;
@@ -1359,12 +1362,12 @@ int OrigAtData_WriteToSDfileAdditionalLines( const ORIG_ATOM_DATA *inp_at_data,
                     }
                     iso += get_atomic_mass_from_elnum(el_num);
 
-                    sprintf(entry, " %3d %3d", i + 1, iso);
-                    strcat(str_m, entry);
+                    sprintf_s(entry, sizeof(entry) + 1, " %3d %3d", i + 1, iso); /* djb-rwth: function replaced with its safe C11 variant */
+                    strcat_s(str_m, sizeof(str_m) + 1, entry); /* djb-rwth: function replaced with its safe C11 variant */
                     num_m++;
                 }
 
-                if (i == num_atoms - 1 && num_m || num_m == 8)
+                if ((i == num_atoms - 1 && num_m) || num_m == 8) /* djb-rwth: addressing LLVM warning */
                 {
                     inchi_ios_print_nodisplay(fcb, "M  ISO%3d%s\n", num_m, str_m);
                     str_m[0] = 0;
@@ -1430,11 +1433,11 @@ int OrigAtData_WriteToSDfilePolymerData( const ORIG_ATOM_DATA *inp_at_data,
         }
     }
     /* SLB */
-    jj = 0;
+    /* djb-rwth: removing redundant code */
     jprev = -1;
     for (j = 0; j < inp_at_data->polymer->n; j++)
     {
-        u = inp_at_data->polymer->units[j];
+        /* djb-rwth: removing redundant code */
         if (j == 8 || j == inp_at_data->polymer->n - 1)
         {
             jj = j + 1;
@@ -1445,14 +1448,14 @@ int OrigAtData_WriteToSDfilePolymerData( const ORIG_ATOM_DATA *inp_at_data,
                 inchi_ios_print_nodisplay( fcb, " %3d %3d", u->id, u->label );
             }
             inchi_ios_print_nodisplay( fcb, "\n" );
-            jj = 0;
+            /* djb-rwth: removing redundant code */
             jprev = j;
         }
     }
 
     /* SST */
     jj = 0;
-    jprev = -1;
+    /* djb-rwth: removing redundant code */
     for (j = 0; j < inp_at_data->polymer->n; j++)
     {
         u = inp_at_data->polymer->units[j];
@@ -1492,7 +1495,7 @@ int OrigAtData_WriteToSDfilePolymerData( const ORIG_ATOM_DATA *inp_at_data,
 
     /* SCN */
     jj = 0;
-    jprev = -1;
+    /* djb-rwth: removing redundant code */
     for (j = 0; j < inp_at_data->polymer->n; j++)
     {
         u = inp_at_data->polymer->units[j];

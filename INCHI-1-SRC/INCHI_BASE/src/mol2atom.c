@@ -115,7 +115,7 @@ int CreateOrigInpDataFromMolfile( INCHI_IOSTREAM *inp_file,
                                   int bNoWarnings )
 {
     int i, j, max_num_at;
-    int num_dimensions_new;
+    int num_dimensions_new = 0; /* djb-rwth: initialisation required to avoid garbage values */
     int num_inp_bonds_new;
     int num_inp_atoms_new;
     int nNumAtoms = 0;
@@ -203,7 +203,7 @@ int CreateOrigInpDataFromMolfile( INCHI_IOSTREAM *inp_file,
                 /*  switch at_new <--> orig_at_data->at; */
                 if (orig_at_data->num_inp_atoms)
                 {
-                    memcpy( orig_at_data->at, at_old, orig_at_data->num_inp_atoms * sizeof( orig_at_data->at[0] ) );
+                    memcpy_s( orig_at_data->at, sizeof(orig_at_data->at[0])*(orig_at_data->num_inp_atoms) + 1, at_old, orig_at_data->num_inp_atoms * sizeof(orig_at_data->at[0])); /* djb-rwth: function replaced with its safe C11 variant */
                     /*  adjust numbering in the newly read structure */
                     for (i = 0; i < num_inp_atoms_new; i++)
                     {
@@ -214,7 +214,7 @@ int CreateOrigInpDataFromMolfile( INCHI_IOSTREAM *inp_file,
                         at_new[i].orig_at_number += orig_at_data->num_inp_atoms; /* 12-19-2003 */
                     }
                     if (orig_at_data->szCoord && szCoordOld)
-                        memcpy( orig_at_data->szCoord, szCoordOld, orig_at_data->num_inp_atoms * sizeof( MOL_COORD ) );
+                        memcpy_s( orig_at_data->szCoord, sizeof(MOL_COORD)*(orig_at_data->num_inp_atoms) + 1, szCoordOld, orig_at_data->num_inp_atoms * sizeof(MOL_COORD)); /* djb-rwth: function replaced with its safe C11 variant */
                 }
                 if (at_old)
                 {
@@ -228,15 +228,15 @@ int CreateOrigInpDataFromMolfile( INCHI_IOSTREAM *inp_file,
                 }
 
                 /*  Copy newly read structure */
-                memcpy( orig_at_data->at + orig_at_data->num_inp_atoms,
+                memcpy_s( orig_at_data->at + orig_at_data->num_inp_atoms, sizeof(orig_at_data->at[0])*num_inp_atoms_new + 1,
                         at_new,
-                        num_inp_atoms_new * sizeof( orig_at_data->at[0] ) );
+                        num_inp_atoms_new * sizeof( orig_at_data->at[0] ) ); /* djb-rwth: function replaced with its safe C11 variant */
 
                 if (orig_at_data->szCoord && szCoordNew)
                 {
-                    memcpy( orig_at_data->szCoord + orig_at_data->num_inp_atoms,
+                    memcpy_s( orig_at_data->szCoord + orig_at_data->num_inp_atoms, sizeof(MOL_COORD)*num_inp_atoms_new + 1, 
                             szCoordNew,
-                            num_inp_atoms_new * sizeof( MOL_COORD ) );
+                            num_inp_atoms_new * sizeof( MOL_COORD ) ); /* djb-rwth: function replaced with its safe C11 variant */
                 }
 
                 /*  Add other things */
@@ -337,7 +337,7 @@ int ReadMolfileToInpAtoms( INCHI_IOSTREAM *inp_file,
         pOnlyHeaderBlock = NULL;
         if (*at && max_num_at)
         {
-            memset( *at, 0, max_num_at * sizeof( inp_ATOM ) );
+            memset( *at, 0, max_num_at * sizeof( inp_ATOM ) ); /* djb-rwth: memset_s C11/Annex K variant? */
         }
         if (szCoord && *szCoord)
         {
@@ -394,7 +394,7 @@ int ReadMolfileToInpAtoms( INCHI_IOSTREAM *inp_file,
         }
         else if (!inchi_stricmp( pSdfLabel, "MolfileIntRegNo" ) && pHdr->internal_regno)
         {
-            sprintf( pSdfValue, "%ld", pHdr->internal_regno );
+            sprintf_s( pSdfValue, sizeof(pSdfValue) + 1 + sizeof(pHdr->internal_regno), "%ld", pHdr->internal_regno); /* djb-rwth: function replaced with its safe C11 variant */
         }
 
         if (!pSdfValue[0])
@@ -706,8 +706,8 @@ inp_ATOM* MakeInpAtomsFromMolfileData( MOL_FMT_DATA* mfdata,
         {
             char szMsg[64];
             *err |= 4; /*  too large number of bonds. Some bonds ignored. */
-            sprintf( szMsg, "Atom '%s' has more than %d bonds",
-                     at[a1].valence >= MAXVAL ? at[a1].elname : at[a2].elname, MAXVAL );
+            sprintf_s( szMsg, sizeof(szMsg) + 1, "Atom '%s' has more than %d bonds",
+                     at[a1].valence >= MAXVAL ? at[a1].elname : at[a2].elname, MAXVAL ); /* djb-rwth: function replaced with its safe C11 variant */
             TREAT_ERR( *err, 0, szMsg );
             continue;
         }
@@ -715,7 +715,7 @@ inp_ATOM* MakeInpAtomsFromMolfileData( MOL_FMT_DATA* mfdata,
         if (bond_type < MIN_INPUT_BOND_TYPE || bond_type > MAX_INPUT_BOND_TYPE)
         {
             char szBondType[16];
-            sprintf( szBondType, "%d", bond_type );
+            sprintf_s( szBondType, sizeof(szBondType), "%d", bond_type ); /* djb-rwth: function replaced with its safe C11 variant */
             bond_type = 1;
             TREAT_ERR( *err, 0, "Unrecognized bond type:" );
             TREAT_ERR( *err, 0, szBondType );
@@ -807,7 +807,7 @@ void calculate_valences( MOL_FMT_DATA* mfdata,
                 continue;
             }
 
-            memset( num_bond_type, 0, sizeof( num_bond_type ) );
+            memset( num_bond_type, 0, sizeof( num_bond_type ) ); /* djb-rwth: memset_s C11/Annex K variant? */
 
             /* valence = at[a1].chem_bonds_valence; */ /*  save atom valence if available */
                                                        /* 2006-08-31: fix for uncharged >N(IV)- in an aromatic ring */
@@ -839,7 +839,7 @@ void calculate_valences( MOL_FMT_DATA* mfdata,
                 at[a1].chem_bonds_valence += ( MIN_INPUT_BOND_TYPE + n1 ) * num_bond_type[n1];
             }
 
-            n2 = 0;
+            n2 = 0; /* djb-rwth: ignoring LLVM warning: value used */
             if (MIN_INPUT_BOND_TYPE <= BOND_TYPE_ALTERN &&
                  BOND_TYPE_ALTERN <= MAX_INPUT_BOND_TYPE &&
                  ( n2 = num_bond_type[BOND_TYPE_ALTERN - MIN_INPUT_BOND_TYPE] ))
@@ -1038,7 +1038,7 @@ void FreeInpAtomData( INP_ATOM_DATA *inp_at_data )
     {
         FreeInpAtom( &inp_at_data->at );
         FreeInpAtom( &inp_at_data->at_fixed_bonds );
-        memset( inp_at_data, 0, sizeof( *inp_at_data ) );
+        memset( inp_at_data, 0, sizeof( *inp_at_data ) ); /* djb-rwth: memset_s C11/Annex K variant? */
     }
 
     return;
@@ -1074,7 +1074,7 @@ void FreeCompAtomData( COMP_ATOM_DATA *inp_at_data )
     {
         inchi_free( inp_at_data->nOffsetAtAndH );
     }
-    memset( inp_at_data, 0, sizeof( *inp_at_data ) );
+    memset( inp_at_data, 0, sizeof( *inp_at_data ) ); /* djb-rwth: memset_s C11/Annex K variant? */
 }
 
 
@@ -1134,7 +1134,7 @@ void FreeInfoAtomData( INF_ATOM_DATA *inf_at_data )
     {
         inchi_free( inf_at_data->pStereoFlags );
     }
-    memset( inf_at_data, 0, sizeof( *inf_at_data ) );
+    memset( inf_at_data, 0, sizeof( *inf_at_data ) ); /* djb-rwth: memset_s C11/Annex K variant? */
 
     return;
 }
@@ -1147,7 +1147,7 @@ int CreateInfoAtomData( INF_ATOM_DATA *inf_at_data,
 {
     FreeInfoAtomData( inf_at_data );
 
-    memset( inf_at_data, 0, sizeof( *inf_at_data ) );
+    memset( inf_at_data, 0, sizeof( *inf_at_data ) ); /* djb-rwth: memset_s C11/Annex K variant? */
 
     if (( inf_at_data->at = CreateInfAtom( num_atoms ) ) &&
         ( num_components <= 1 ||
@@ -1171,7 +1171,7 @@ int AllocateInfoAtomData( INF_ATOM_DATA *inf_at_data,
                           int num_atoms,
                           int num_components )
 {
-    if (inf_at_data->at = CreateInfAtom( num_atoms ))
+    if ((inf_at_data->at = CreateInfAtom( num_atoms ))) /* djb-rwth: addressing LLVM warning */
     {
         if (num_components > 1 &&
              !( inf_at_data->pStereoFlags = (AT_NUMB *) inchi_calloc( (long long)num_components + 1, sizeof( inf_at_data->pStereoFlags[0] ) ) )) /* djb-rwth: cast operator added */
@@ -1194,12 +1194,12 @@ int DuplicateInfoAtomData( INF_ATOM_DATA *inf_at_data_to,
 
     if (AllocateInfoAtomData( inf_at_data_to, inf_at_data_from->num_at, inf_at_data_from->num_components ))
     {
-        memcpy( inf_at_data_to->at, inf_at_data_from->at,
-                inf_at_data_from->num_at * sizeof( inf_at_data_to->at[0] ) );
+        memcpy_s( inf_at_data_to->at, sizeof(inf_at_data_to->at[0])*(inf_at_data_from->num_at) + 1, inf_at_data_from->at,
+                inf_at_data_from->num_at * sizeof( inf_at_data_to->at[0] ) ); /* djb-rwth: function replaced with its safe C11 variant */
         if (inf_at_data_to->pStereoFlags && inf_at_data_from->pStereoFlags)
         {
-            memcpy( inf_at_data_to->pStereoFlags, inf_at_data_from->pStereoFlags,
-                ( (long long)inf_at_data_from->num_components + 1 ) * sizeof( inf_at_data_to->pStereoFlags[0] ) ); /* djb-rwth: cast operator added */
+            memcpy_s( inf_at_data_to->pStereoFlags, sizeof(inf_at_data_to->pStereoFlags)*((long long)inf_at_data_from->num_components + 1) + 1, inf_at_data_from->pStereoFlags,
+                ( (long long)inf_at_data_from->num_components + 1 ) * sizeof( inf_at_data_to->pStereoFlags[0] ) ); /* djb-rwth: cast operator added; function replaced with its safe C11 variant */
         }
         return 1;
     }
@@ -1248,7 +1248,7 @@ void FreeOrigAtData( ORIG_ATOM_DATA *orig_at_data )
     /* v 1.05 */
     FreeExtOrigAtData( orig_at_data->polymer, orig_at_data->v3000 );
 
-    memset( orig_at_data, 0, sizeof( *orig_at_data ) );
+    memset( orig_at_data, 0, sizeof( *orig_at_data ) ); /* djb-rwth: memset_s C11/Annex K variant? */
 
     return;
 }
@@ -1320,7 +1320,7 @@ void FreeExtOrigAtData( OAD_Polymer *pd, OAD_V3000 *v3k )
             inchi_free( v3k->lists_sterac );
             v3k->lists_sterac = NULL;
         }
-        memset( v3k, 0, sizeof( *v3k ) );/**/
+        memset( v3k, 0, sizeof( *v3k ) ); /* djb-rwth: memset_s C11/Annex K variant? */
         inchi_free( v3k );
     }
 
@@ -1356,7 +1356,7 @@ int SetExtOrigAtDataByMolfileExtInput( MOL_FMT_DATA* mfdata,
             TREAT_ERR( err, 9001, "Out of RAM" );
             goto exit_function;
         }
-        memset( ( *ppPolymer )->units, 0, sizeof( *( *ppPolymer )->units ) );
+        memset( ( *ppPolymer )->units, 0, sizeof( *( *ppPolymer )->units ) ); /* djb-rwth: memset_s C11/Annex K variant? */
 
         ( *ppPolymer )->n = nsgroups;
         ( *ppPolymer )->is_in_reconn = 0;
@@ -1379,7 +1379,7 @@ int SetExtOrigAtDataByMolfileExtInput( MOL_FMT_DATA* mfdata,
                 goto exit_function;
             }
 
-            memset( unitk, 0, sizeof( *unitk ) );
+            memset( unitk, 0, sizeof( *unitk ) ); /* djb-rwth: memset_s C11/Annex K variant? */
             unitk->id = groupk->id;
             unitk->type = groupk->type;
             unitk->subtype = groupk->subtype;
@@ -1391,7 +1391,7 @@ int SetExtOrigAtDataByMolfileExtInput( MOL_FMT_DATA* mfdata,
                 unitk->xbr1[q] = groupk->xbr1[q];
                 unitk->xbr2[q] = groupk->xbr2[q];
             }
-            strcpy( unitk->smt, groupk->smt );
+            strcpy_s( unitk->smt, sizeof(unitk->smt) + 1, groupk->smt); /* djb-rwth: function replaced with its safe C11 variant */
             unitk->na = groupk->alist.used;
             unitk->alist = (int *) inchi_calloc( unitk->na, sizeof( int ) );
             if (!unitk->alist)
@@ -1453,7 +1453,7 @@ int SetExtOrigAtDataByMolfileExtInput( MOL_FMT_DATA* mfdata,
             TREAT_ERR( err, 9001, "Out of RAM" );
             goto exit_function;
         }
-        memset( pv, 0, sizeof( *pv ) );
+        memset( pv, 0, sizeof( *pv ) ); /* djb-rwth: memset_s C11/Annex K variant? */
 
 
         pv->n_collections = mpv->n_collections;
@@ -1475,7 +1475,7 @@ int SetExtOrigAtDataByMolfileExtInput( MOL_FMT_DATA* mfdata,
                 TREAT_ERR( err, 9001, "Out of RAM" );
                 goto exit_function;
             }
-            memcpy( pv->atom_index_orig, mpv->atom_index_orig, mfdata->ctab.n_atoms );
+            memcpy_s( pv->atom_index_orig, sizeof(pv->atom_index_orig) + 1, mpv->atom_index_orig, mfdata->ctab.n_atoms); /* djb-rwth: function replaced with its safe C11 variant */
         }
         if (mpv->atom_index_fin)
         {
@@ -1485,7 +1485,7 @@ int SetExtOrigAtDataByMolfileExtInput( MOL_FMT_DATA* mfdata,
                 TREAT_ERR( err, 9001, "Out of RAM" );
                 goto exit_function;
             }
-            memcpy( pv->atom_index_fin, mpv->atom_index_fin, mfdata->ctab.n_atoms );
+            memcpy_s( pv->atom_index_fin, sizeof(pv->atom_index_fin) + 1, mpv->atom_index_fin, mfdata->ctab.n_atoms); /* djb-rwth: function replaced with its safe C11 variant */
         }
         if (mpv->n_haptic_bonds && mpv->haptic_bonds)
         {

@@ -31,6 +31,9 @@
  *
  */
 
+#include "mode.h" /* djb-rwth: necessary header file */
+#include "inchi_api.h" /* djb-rwth: necessary header file */
+#include "inpdef.h" /* djb-rwth: necessary header file */
 
 #ifndef _READINCH_H_
 #define _READINCH_H_

@@ -111,7 +111,7 @@ int InChI2Atom( INCHI_CLOCK *ic,
 
 
 
-    memset( pInChI, 0, sizeof( pInChI ) );
+    memset( pInChI, 0, sizeof( pInChI ) ); /* djb-rwth: memset_s C11/Annex K variant? */
 
 
     /* disconnected or reconnected */
@@ -161,10 +161,10 @@ int InChI2Atom( INCHI_CLOCK *ic,
     }
 
     if (bMobileH == TAUT_NON ||
-         bMobileH == TAUT_YES &&
+         (bMobileH == TAUT_YES &&
            OneInput->pInpInChI[iINChI][TAUT_NON] &&
            OneInput->pInpInChI[iINChI][TAUT_NON][iComponent].nNumberOfAtoms > 0 &&
-           !OneInput->pInpInChI[iINChI][TAUT_NON][iComponent].bDeleted
+           !OneInput->pInpInChI[iINChI][TAUT_NON][iComponent].bDeleted) /* djb-rwth: addressing LLVM warning */
         )
     {
         pStruct->bFixedHExists = 1;
@@ -257,7 +257,7 @@ void RemoveFixHInChIIdentical2MobH( InpInChI *pOneInput )
                 pOneInput->pInpInChI[iInchiRec][TAUT_NON] + k, NULL, NULL ))
             {
                 Free_INChI_Members( pOneInput->pInpInChI[iInchiRec][TAUT_NON] + k );
-                memset( pOneInput->pInpInChI[iInchiRec][TAUT_NON] + k, 0, sizeof( pOneInput->pInpInChI[0][0][0] ) );
+                memset( pOneInput->pInpInChI[iInchiRec][TAUT_NON] + k, 0, sizeof( pOneInput->pInpInChI[0][0][0] ) ); /* djb-rwth: memset_s C11/Annex K variant? */
             }
         }
     }
@@ -329,7 +329,7 @@ int MarkDisconectedIdenticalToReconnected( InpInChI *pOneInput )
                                        NULL, NULL )
                 ;
 
-            if (eqM && ( !isF1 && !isF2 || eqF ))
+            if (eqM && ( (!isF1 && !isF2) || eqF )) /* djb-rwth: addressing LLVM warning */
             {
                 pOneInput->pInpInChI[INCHI_BAS][TAUT_YES][k1].nLink = -( k2 + 1 );
                 pOneInput->pInpInChI[INCHI_REC][TAUT_YES][k2].nLink = ( k1 + 1 );
@@ -353,7 +353,7 @@ int MarkDisconectedIdenticalToReconnected( InpInChI *pOneInput )
 void SetUpSrm( SRM *pSrm )
 {
     /* structure restore parms !!!!! */
-    memset( pSrm, 0, sizeof( pSrm[0] ) );
+    memset( pSrm, 0, sizeof( pSrm[0] ) ); /* djb-rwth: memset_s C11/Annex K variant? */
     pSrm->bFixStereoBonds = FIX_STEREO_BOND_ORDER;
     pSrm->nMetal2EndpointMinBondOrder = 1;
     pSrm->nMetal2EndpointInitEdgeFlow = 0;
@@ -401,7 +401,7 @@ int MergeStructureComponents( ICHICONST INPUT_PARMS *ip,
                               StrFromINChI *pStruct[INCHI_NUM][TAUT_NUM],
                               InpInChI *pOneInput )
 {
-    int iInchiRec, iMobileH, iAlternH, num_components, tot_just_atoms, tot_removed_H, tot_atoms, cur_nA, cur_nH;
+    int iInchiRec, iMobileH, iAlternH, num_components, tot_just_atoms, tot_atoms, cur_nA, cur_nH; /* djb-rwth: removing redundant variables */
     int k, i, j, ret, iCurAtomOffs, iNxtAtomOffs, iCurDelHOffs, iNxtDelHOffs, len, len2, iShiftH, icomp;
     int *nAtomOffs = NULL, *nDelHOffs = NULL;
     StrFromINChI *pStruct1;
@@ -410,28 +410,28 @@ int MergeStructureComponents( ICHICONST INPUT_PARMS *ip,
     ret = 0;
     pOneInput->num_atoms = 0;
     /* select highest detail level */
-    if (num_components = pOneInput->nNumComponents[INCHI_REC][TAUT_NON])
+    if ((num_components = pOneInput->nNumComponents[INCHI_REC][TAUT_NON])) /* djb-rwth: addressing LLVM warning */
     {
         iInchiRec = INCHI_REC;
         iMobileH = TAUT_NON;
     }
     else
     {
-        if (num_components = pOneInput->nNumComponents[INCHI_REC][TAUT_YES])
+        if ((num_components = pOneInput->nNumComponents[INCHI_REC][TAUT_YES])) /* djb-rwth: addressing LLVM warning */
         {
             iInchiRec = INCHI_REC;
             iMobileH = TAUT_YES;
         }
         else
         {
-            if (num_components = pOneInput->nNumComponents[INCHI_BAS][TAUT_NON])
+            if ((num_components = pOneInput->nNumComponents[INCHI_BAS][TAUT_NON])) /* djb-rwth: addressing LLVM warning */
             {
                 iInchiRec = INCHI_BAS;
                 iMobileH = TAUT_NON;
             }
             else
             {
-                if (num_components = pOneInput->nNumComponents[INCHI_BAS][TAUT_YES])
+                if ((num_components = pOneInput->nNumComponents[INCHI_BAS][TAUT_YES])) /* djb-rwth: addressing LLVM warning */
                 {
                     iInchiRec = INCHI_BAS;
                     iMobileH = TAUT_YES;
@@ -452,7 +452,7 @@ int MergeStructureComponents( ICHICONST INPUT_PARMS *ip,
         goto exit_function;
     }
     /* count number of atoms and removed H */
-    tot_just_atoms = tot_removed_H = tot_atoms = 0;
+    /* djb-rwth: removing redundant code */
     iAlternH = ( iMobileH == TAUT_NON && pOneInput->nNumComponents[iInchiRec][TAUT_YES] ) ? TAUT_YES : -1;
     nAtomOffs[0] = nDelHOffs[0] = 0;
     for (k = 0; k < num_components; k++)
@@ -497,12 +497,12 @@ int MergeStructureComponents( ICHICONST INPUT_PARMS *ip,
         pStruct1 = pStruct[iInchiRec][iMobileH][k].num_atoms ? pStruct[iInchiRec][iMobileH] + k :
             iAlternH >= 0 &&
             pStruct[iInchiRec][iAlternH][k].num_atoms ? pStruct[iInchiRec][iAlternH] + k : NULL;
-        if (len = nAtomOffs[k + 1] - nAtomOffs[k])
+        if ((len = nAtomOffs[k + 1] - nAtomOffs[k])) /* djb-rwth: addressing LLVM warning */
         {
-            memcpy( at + nAtomOffs[k], pStruct1->at2, len * sizeof( at[0] ) );
-            if (len2 = nDelHOffs[k + 1] - nDelHOffs[k])
+            memcpy_s( at + nAtomOffs[k], sizeof(at[0])*len + 1, pStruct1->at2, len * sizeof(at[0])); /* djb-rwth: function replaced with its safe C11 variant */
+            if ((len2 = nDelHOffs[k + 1] - nDelHOffs[k])) /* djb-rwth: addressing LLVM warning */
             {
-                memcpy( at + nDelHOffs[k], pStruct1->at2 + len, len2 * sizeof( at[0] ) );
+                memcpy_s( at + nDelHOffs[k], sizeof(at[0])*len2 + 1, pStruct1->at2 + len, len2 * sizeof(at[0])); /* djb-rwth: function replaced with its safe C11 variant */
             }
         }
     }
@@ -611,7 +611,7 @@ int DisplayAllRestoredComponents( struct tagCANON_GLOBALS *pCG,
                                   int num_at,
                                   const char *szCurHdr )
 {
-    int    ret;
+    int    ret; /* djb-rwth: ignoring LLVM warning: variable used to store function return value */
     char     szTitle[512];
     DRAW_PARMS dp;
     TBL_DRAW_PARMS tdp;
@@ -619,13 +619,13 @@ int DisplayAllRestoredComponents( struct tagCANON_GLOBALS *pCG,
     {
         return 0;
     }
-    memset( &dp, 0, sizeof( dp ) );
-    memset( &tdp, 0, sizeof( tdp ) );
+    memset( &dp, 0, sizeof( dp ) ); /* djb-rwth: memset_s C11/Annex K variant? */
+    memset( &tdp, 0, sizeof( tdp ) ); /* djb-rwth: memset_s C11/Annex K variant? */
     /*memset( &pdp, 0, sizeof(pdp) );*/
     dp.sdp.tdp = &tdp;
     dp.pdp = &pdp;
     dp.sdp.nFontSize = -9;
-    sprintf( szTitle, "All Components of Restored %s Structure", szCurHdr ? szCurHdr : "(No structure name)" );
+    sprintf_s( szTitle, sizeof(szTitle) + 1, "All Components of Restored %s Structure", szCurHdr ? szCurHdr : "(No structure name)" ); /* djb-rwth: function replaced with its safe C11 variant */
 
     ret = DisplayStructure( pCG, at, num_at, 
                             NULL, /* OAD_Polymer *polymer, */
@@ -633,7 +633,7 @@ int DisplayAllRestoredComponents( struct tagCANON_GLOBALS *pCG,
                             0 /*nNumRemovedProtons*/, NULL /*NUM_H *nNumRemovedProtonsIsotopic*/,
                             1 /*int bIsotopic*/, 0 /*bTautomeric*/,
                             NULL /* pINChI */, NULL /* INChI_Aux **cur_INChI_Aux*/,
-                            0 /*bAbcNumbers*/, &dp, 0 /*INCHI_MODE nMode*/, szTitle );
+                            0 /*bAbcNumbers*/, &dp, 0 /*INCHI_MODE nMode*/, szTitle ); /* djb-rwth: ignoring LLVM warning: variable used to store function return value */
 
     return 0;
 }
@@ -648,7 +648,7 @@ int DisplayOneRestoredComponent( struct tagCANON_GLOBALS *pCG,
                                  int bMobileH,
                                  const char *szCurHdr )
 {
-    int    ret, k;
+    int    ret, k; /* djb-rwth: ignoring LLVM warning: variable used to store function return value */
     int    num_at = pStruct->num_atoms;
     XYZ_COORD *pxyz = pStruct->pXYZ;
     char     szTitle[512];
@@ -679,15 +679,15 @@ int DisplayOneRestoredComponent( struct tagCANON_GLOBALS *pCG,
     pAux = pStruct->RevInChI.pINChI_Aux[iInchiRec][0];
 
 
-    memset( &dp, 0, sizeof( dp ) );
-    memset( &tdp, 0, sizeof( tdp ) );
+    memset( &dp, 0, sizeof( dp ) ); /* djb-rwth: memset_s C11/Annex K variant? */
+    memset( &tdp, 0, sizeof( tdp ) ); /* djb-rwth: memset_s C11/Annex K variant? */
     /*memset( &pdp, 0, sizeof(pdp) );*/
     dp.sdp.tdp = &tdp;
     dp.pdp = &pdp;
     dp.sdp.nFontSize = -9;
-    sprintf( szTitle, "Restored %s Component %d of %d %c%c",
+    sprintf_s( szTitle, sizeof(szTitle) + 1, "Restored %s Component %d of %d %c%c",
                       szCurHdr ? szCurHdr : "(No structure name)", iComponent + 1, nNumComponents,
-                      pStruct->iInchiRec ? 'R' : 'D', pStruct->iMobileH ? 'M' : 'F' );
+                      pStruct->iInchiRec ? 'R' : 'D', pStruct->iMobileH ? 'M' : 'F' ); /* djb-rwth: function replaced with its safe C11 variant */
 
     ret = DisplayStructure( pCG, at, num_at, 
                             NULL, /* OAD_Polymer *polymer, */
@@ -695,7 +695,7 @@ int DisplayOneRestoredComponent( struct tagCANON_GLOBALS *pCG,
                             nNumRemovedProtons, /*NULL*/ nNumRemovedProtonsIsotopic,
                             1 /*int bIsotopic*/, k,
                             pInChI, pAux,
-                            0 /*bAbcNumbers*/, &dp, 0 /*INCHI_MODE nMode*/, szTitle );
+                            0 /*bAbcNumbers*/, &dp, 0 /*INCHI_MODE nMode*/, szTitle ); /* djb-rwth: ignoring LLVM warning: variable used to store function return value */
 
     return 0;
 }
@@ -709,7 +709,7 @@ int DisplayRestoredComponent( struct tagCANON_GLOBALS *pCG,
                               INChI *pInChI,
                               const char *szCurHdr )
 {
-    int    i, ret;
+    int    i, ret; /* djb-rwth: ignoring LLVM warning: variable used to store function return value */
     int    num_at = pStruct->num_atoms;
     int    num_deleted_H = pStruct->num_deleted_H;
     inp_ATOM *atom = pStruct->at2;
@@ -727,20 +727,20 @@ int DisplayRestoredComponent( struct tagCANON_GLOBALS *pCG,
     {
         return RI_ERR_ALLOC;
     }
-    memcpy( at, atom, ( (long long)num_at + (long long)num_deleted_H ) * sizeof( at[0] ) ); /* djb-rwth: cast operator added */
+    memcpy_s( at, sizeof(at[0])*((long long)num_at + (long long)num_deleted_H) + 1, atom, ((long long)num_at + (long long)num_deleted_H) * sizeof(at[0])); /* djb-rwth: cast operator added; function replaced with its safe C11 variant */
     for (i = 0; i < num_at; i++)
     {
         at[i].x = pxyz[i].xyz[0];
         at[i].y = pxyz[i].xyz[1];
         at[i].z = pxyz[i].xyz[2];
     }
-    memset( &dp, 0, sizeof( dp ) );
-    memset( &tdp, 0, sizeof( tdp ) );
+    memset( &dp, 0, sizeof( dp ) ); /* djb-rwth: memset_s C11/Annex K variant? */
+    memset( &tdp, 0, sizeof( tdp ) ); /* djb-rwth: memset_s C11/Annex K variant? */
     /*memset( &pdp, 0, sizeof(pdp) );*/
     dp.sdp.tdp = &tdp;
     dp.pdp = &pdp;
     dp.sdp.nFontSize = -9;
-    sprintf( szTitle, "DBG Restored %s Component %d %c%c", szCurHdr ? szCurHdr : "(No structure name)", iComponent + 1, pStruct->iInchiRec ? 'R' : 'D', pStruct->iMobileH ? 'M' : 'F' );
+    sprintf_s( szTitle, sizeof(szTitle) + 1, "DBG Restored %s Component %d %c%c", szCurHdr ? szCurHdr : "(No structure name)", iComponent + 1, pStruct->iInchiRec ? 'R' : 'D', pStruct->iMobileH ? 'M' : 'F' ); /* djb-rwth: function replaced with its safe C11 variant */
 
     ret = DisplayStructure( pCG, at, num_at, 
                             NULL, /* OAD_Polymer *polymer, */
@@ -748,7 +748,7 @@ int DisplayRestoredComponent( struct tagCANON_GLOBALS *pCG,
                             0 /*nNumRemovedProtons*/, NULL /*NUM_H *nNumRemovedProtonsIsotopic*/,
                             1 /*int bIsotopic*/, 0 /*bTautomeric*/,
                             &pInChI, NULL /* INChI_Aux **cur_INChI_Aux*/,
-                            0 /*bAbcNumbers*/, &dp, 0 /*INCHI_MODE nMode*/, szTitle );
+                            0 /*bAbcNumbers*/, &dp, 0 /*INCHI_MODE nMode*/, szTitle ); /* djb-rwth: ignoring LLVM warning: variable used to store function return value */
 
     inchi_free( at );
 
@@ -769,9 +769,9 @@ int DisplayStructureComponents( struct tagCANON_GLOBALS *pCG,
 {
     int iInchiRec, iMobileH,
         iCurMobH=-1,
-        iAlternH, num_components, tot_just_atoms, tot_removed_H, tot_atoms, cur_nA, cur_nH;
-    int k, i, j, ret, iCurAtomOffs, iNxtAtomOffs, iCurDelHOffs, iNxtDelHOffs, len, len2, iShiftH, icomp;
-    int *nAtomOffs = NULL, *nDelHOffs = NULL, bNoCoord = 0, iNewCoord = 0, nNewCoord = 0;
+        iAlternH, num_components, tot_just_atoms, tot_atoms, cur_nA, cur_nH; /* djb-rwth: removing redundant variables */
+    int k, i, j, ret, iCurAtomOffs, iNxtAtomOffs, len, len2; /* djb-rwth: removing redundant variables; removing redundant variables/code */
+    int *nAtomOffs = NULL, *nDelHOffs = NULL, iNewCoord = 0, nNewCoord = 0; /* djb-rwth: removing redundant variables */
     double x_max = -1.0e16, x_min = 1.0e16, y_max = -1.0e16, y_min = 1.0e16, delta = 0.0;
     StrFromINChI *pStruct1;
     inp_ATOM *at = NULL, *a;
@@ -784,28 +784,28 @@ int DisplayStructureComponents( struct tagCANON_GLOBALS *pCG,
     ret = 0;
     pOneInput->num_atoms = 0;
     /* select highest detail level */
-    if (num_components = pOneInput->nNumComponents[INCHI_REC][TAUT_NON])
+    if ((num_components = pOneInput->nNumComponents[INCHI_REC][TAUT_NON])) /* djb-rwth: addressing LLVM warning */
     {
         iInchiRec = INCHI_REC;
         iMobileH = TAUT_NON;
     }
     else
     {
-        if (num_components = pOneInput->nNumComponents[INCHI_REC][TAUT_YES])
+        if ((num_components = pOneInput->nNumComponents[INCHI_REC][TAUT_YES])) /* djb-rwth: addressing LLVM warning */
         {
             iInchiRec = INCHI_REC;
             iMobileH = TAUT_YES;
         }
         else
         {
-            if (num_components = pOneInput->nNumComponents[INCHI_BAS][TAUT_NON])
+            if ((num_components = pOneInput->nNumComponents[INCHI_BAS][TAUT_NON])) /* djb-rwth: addressing LLVM warning */
             {
                 iInchiRec = INCHI_BAS;
                 iMobileH = TAUT_NON;
             }
             else
             {
-                if (num_components = pOneInput->nNumComponents[INCHI_BAS][TAUT_YES])
+                if ((num_components = pOneInput->nNumComponents[INCHI_BAS][TAUT_YES])) /* djb-rwth: addressing LLVM warning */
                 {
                     iInchiRec = INCHI_BAS;
                     iMobileH = TAUT_YES;
@@ -836,7 +836,7 @@ int DisplayStructureComponents( struct tagCANON_GLOBALS *pCG,
     }
 
     /* count number of atoms and removed H */
-    tot_just_atoms = tot_removed_H = tot_atoms = 0;
+    /* djb-rwth: removing redundant code */
     iAlternH = ( iMobileH == TAUT_NON && pOneInput->nNumComponents[iInchiRec][TAUT_YES] ) ? TAUT_YES : -1;
     nAtomOffs[0] = nDelHOffs[0] = 0;
 
@@ -860,10 +860,7 @@ int DisplayStructureComponents( struct tagCANON_GLOBALS *pCG,
                     ret = 0; /* no coordinates available */
                     goto exit_function;
                 }
-                else
-                {
-                    bNoCoord++;
-                }
+                /* djb-rwth: removing redundant code */
             }
         }
         nAtomOffs[k + 1] = nAtomOffs[k] + cur_nA;
@@ -896,13 +893,13 @@ int DisplayStructureComponents( struct tagCANON_GLOBALS *pCG,
         pStruct1 = pStruct[iInchiRec][iMobileH][k].num_atoms ? pStruct[iInchiRec][iCurMobH = iMobileH] + k :
             iAlternH >= 0 &&
             pStruct[iInchiRec][iAlternH][k].num_atoms ? pStruct[iInchiRec][iCurMobH = iAlternH] + k : NULL;
-        if (len = nAtomOffs[k + 1] - nAtomOffs[k])
+        if ((len = nAtomOffs[k + 1] - nAtomOffs[k]) && pStruct1) /* djb-rwth: addressing LLVM warning */
         {
             XYZ_COORD *pxyz = pStruct1->pXYZ;
             len2 = nDelHOffs[k + 1] - nDelHOffs[k]; /* do not separate H from the atom: we will not need them */
             iCurAtomOffs = nAtomOffs[k];
             a = at + iCurAtomOffs;
-            memcpy( a, pStruct1->at2, ( (long long)len + (long long)len2 ) * sizeof( at[0] ) ); /* djb-rwth: cast operator added */
+            memcpy_s( a, sizeof(at[0])*((long long)len + (long long)len2) + 1, pStruct1->at2, ((long long)len + (long long)len2) * sizeof(at[0])); /* djb-rwth: cast operator added; function replaced with its safe C11 variant */
             DisconnectedConnectedH( a, len, len2 );
             if (pxyz)
             {
@@ -946,7 +943,7 @@ int DisplayStructureComponents( struct tagCANON_GLOBALS *pCG,
                     a[i].z = 0.0;
                     iNewCoord++;
                 }
-                if (pStruct1->pXYZ = (XYZ_COORD *) inchi_calloc( len, sizeof( pStruct1->pXYZ[0] ) ))
+                if ((pStruct1->pXYZ = (XYZ_COORD *) inchi_calloc( len, sizeof( pStruct1->pXYZ[0] )) )) /* djb-rwth: addressing LLVM warning */
                 {
 
                     for (i = 0; i < len; i++)
@@ -957,7 +954,7 @@ int DisplayStructureComponents( struct tagCANON_GLOBALS *pCG,
                     }
                 }
             }
-            if (ip->bDisplay || ip->bDisplayCompositeResults && 1 == num_components)
+            if (ip->bDisplay || (ip->bDisplayCompositeResults && 1 == num_components)) /* djb-rwth: addressing LLVM warning */
             {
                 DisplayOneRestoredComponent( pCG, pStruct1, a, k, num_components, iCurMobH, szCurHdr );
             }
@@ -970,7 +967,7 @@ int DisplayStructureComponents( struct tagCANON_GLOBALS *pCG,
     }
 
     /* merge atoms together: 3. Update atom numbers */
-    icomp = 0;
+    /* djb-rwth: removing redundant code */
     if (ip->bDisplayCompositeResults && num_components > 1)
     {
         for (k = 0; k < num_components; k++)
@@ -978,15 +975,15 @@ int DisplayStructureComponents( struct tagCANON_GLOBALS *pCG,
             /* display each restored component if requested */
             iCurAtomOffs = nAtomOffs[k];
             iNxtAtomOffs = nAtomOffs[k + 1];
-            iCurDelHOffs = nDelHOffs[k];
-            iNxtDelHOffs = nDelHOffs[k + 1];
+            /* djb-rwth: removing redundant code */
+            /* djb-rwth: removing redundant code */
             len = nAtomOffs[k + 1] - nAtomOffs[k]; /* number of atoms in a component excluding explicit H */
-            iShiftH = iCurDelHOffs - len;
+            /* djb-rwth: removing redundant code */
             if (!len)
             {
                 continue;
             }
-            icomp++; /* current component number */
+            /* djb-rwth: removing redundant code */
             /* update atoms */
             for (i = iCurAtomOffs; i < iNxtAtomOffs; i++)
             {
@@ -1053,7 +1050,7 @@ int AllInchiToStructure( INCHI_CLOCK *ic,
     ip = &ip_loc;
     *ip = *ip_inp;
     sd = &sd_loc;
-    memset( sd, 0, sizeof( *sd ) );
+    memset( sd, 0, sizeof( *sd ) ); /* djb-rwth: memset_s C11/Annex K variant? */
     sd->ulStructTime = sd_inp->ulStructTime;
     ret = 0;
     num_err = 0;
@@ -1090,9 +1087,9 @@ int AllInchiToStructure( INCHI_CLOCK *ic,
             for (k = 0; k < cur_num_comp; k++)
             {
                 /* components */
-                if (!iMobileH && !pOneInput->pInpInChI[iInchiRec][iMobileH][k].nNumberOfAtoms ||
+                if ((!iMobileH && !pOneInput->pInpInChI[iInchiRec][iMobileH][k].nNumberOfAtoms) ||
                      pOneInput->pInpInChI[iInchiRec][iMobileH][k].bDeleted ||
-                     pOneInput->pInpInChI[iInchiRec][iMobileH][k].nLink < 0)
+                     pOneInput->pInpInChI[iInchiRec][iMobileH][k].nLink < 0) /* djb-rwth: addressing LLVM warning */
                 {
                     pStruct[iInchiRec][iMobileH][k].nLink = pOneInput->pInpInChI[iInchiRec][iMobileH][k].nLink;
                     pStruct[iInchiRec][iMobileH][k].bDeleted = pOneInput->pInpInChI[iInchiRec][iMobileH][k].bDeleted;
@@ -1183,7 +1180,7 @@ int AddProtonAndIsoHBalanceToMobHStruct( INCHI_CLOCK *ic,
     int                   nRemovedByNormFromRevrs[INCHI_NUM];
     int                   nRemovedByRevrs[INCHI_NUM];
 
-    int   nDeltaFromDisconnected = 0, nRemovedProtonsByNormFromRevrs, nRemovedProtonsByRevrs, num_changes = 0;
+    int   nDeltaFromDisconnected = 0, nRemovedProtonsByNormFromRevrs, nRemovedProtonsByRevrs; /* djb-rwth: removing redundant variables */
     NUM_H nIsoDeltaFromDisconnected[NUM_H_ISOTOPES];
     int iInchiRec, i, k, k1, ret = 0;
     int  nChargeInChI, nChargeRevrs;
@@ -1219,7 +1216,7 @@ int AddProtonAndIsoHBalanceToMobHStruct( INCHI_CLOCK *ic,
             }
             nRemovedProtonsByNormFromRevrs = 0; /* Num protons removed from the Restored Structure by InChI Normalization */
             nRemovedProtonsByRevrs = 0; /* Num protons removed by the Reconstruction from the Restored Structure */
-            if (iInchiRec == INCHI_REC || iInchiRec == INCHI_BAS && ( k1 = pStruct[iInchiRec][TAUT_YES][k].nLink ) >= 0)
+            if (iInchiRec == INCHI_REC || (iInchiRec == INCHI_BAS && ( pStruct[iInchiRec][TAUT_YES][k].nLink ) >= 0)) /* djb-rwth: addressing LLVM warning; removing redundant code */
             {
 
                 REV_INCHI  *pRevInChI = &pStruct[iInchiRec][TAUT_YES][k].RevInChI;
@@ -1267,7 +1264,7 @@ int AddProtonAndIsoHBalanceToMobHStruct( INCHI_CLOCK *ic,
     }
 
     /* Since fixed-H layer is missing we need to add proton balance to the components */
-    memset( nIsoDeltaFromDisconnected, 0, sizeof( nIsoDeltaFromDisconnected ) );
+    memset( nIsoDeltaFromDisconnected, 0, sizeof( nIsoDeltaFromDisconnected ) ); /* djb-rwth: memset_s C11/Annex K variant? */
     for (iInchiRec = INCHI_REC; INCHI_BAS <= iInchiRec; iInchiRec--)
     {
         /*
@@ -1293,7 +1290,7 @@ int AddProtonAndIsoHBalanceToMobHStruct( INCHI_CLOCK *ic,
         {
             goto exit_function;
         }
-        num_changes += ret;
+        /* djb-rwth: removing redundant code */
        /*
        }
        */
@@ -1329,7 +1326,7 @@ int AddProtonAndIsoHBalanceToMobHStruct( INCHI_CLOCK *ic,
         {
             goto exit_function;
         }
-        num_changes += ret;
+        /* djb-rwth: removing redundant code */
         /*
         }
         */
@@ -1529,7 +1526,7 @@ void FreeInpInChI( InpInChI *pOneInput )
 
     FreeExtOrigAtData( pOneInput->polymer, pOneInput->v3000 );
 
-    memset( pOneInput, 0, sizeof( *pOneInput ) );
+    memset( pOneInput, 0, sizeof( *pOneInput ) ); /* djb-rwth: memset_s C11/Annex K variant? */
 }
 
 
@@ -1540,12 +1537,12 @@ int CompareAllOrigInchiToRevInChI( StrFromINChI *pStruct[INCHI_NUM][TAUT_NUM],
                                    long num_inp,
                                    char *szCurHdr )
 {
-    int i, iInchiRec, iMobileH, iMobileHpStruct, num_components, iComponent, ret = 0;
+    int i, iInchiRec, iMobileH, iMobileHpStruct, num_components, iComponent, ret = 0; /* djb-rwth: ignoring LLVM warning: variable used to store function return value */
     COMPONENT_REM_PROTONS nCurRemovedProtons, nNumRemovedProtons;
     INChI     *pInChI[TAUT_NUM];
     INCHI_MODE  CompareInchiFlags[TAUT_NUM];
-    memset( pOneInput->CompareInchiFlags[0], 0, sizeof( pOneInput->CompareInchiFlags[0] ) );
-    memset( &nNumRemovedProtons, 0, sizeof( nNumRemovedProtons ) );
+    memset( pOneInput->CompareInchiFlags[0], 0, sizeof( pOneInput->CompareInchiFlags[0] ) ); /* djb-rwth: memset_s C11/Annex K variant? */
+    memset( &nNumRemovedProtons, 0, sizeof( nNumRemovedProtons ) ); /* djb-rwth: memset_s C11/Annex K variant? */
 
     /* do we have reconnected InChI ?*/
     iInchiRec = INCHI_REC;
@@ -1586,8 +1583,8 @@ int CompareAllOrigInchiToRevInChI( StrFromINChI *pStruct[INCHI_NUM][TAUT_NUM],
                 pInChI[0] = &pOneInput->pInpInChI[iInchiRec][bMobileH][iComponent];
             }
         }
-        memset( CompareInchiFlags, 0, sizeof( CompareInchiFlags ) );
-        memset( &nCurRemovedProtons, 0, sizeof( nCurRemovedProtons ) );
+        memset( CompareInchiFlags, 0, sizeof( CompareInchiFlags ) ); /* djb-rwth: memset_s C11/Annex K variant? */
+        memset( &nCurRemovedProtons, 0, sizeof( nCurRemovedProtons ) ); /* djb-rwth: memset_s C11/Annex K variant? */
         iMobileHpStruct =
 #if ( bRELEASE_VERSION == 0 )
 #ifndef TARGET_API_LIB
@@ -1692,7 +1689,7 @@ int CompareAllDisconnectedOrigInchiToRevInChI( StrFromINChI *pStruct[INCHI_NUM][
     int        nNumNonTaut1 = 0, nNumNonTaut2 = 0;
 
     ret = 0;
-    memset( pOneInput->CompareInchiFlags[1], 0, sizeof( pOneInput->CompareInchiFlags[1] ) );
+    memset( pOneInput->CompareInchiFlags[1], 0, sizeof( pOneInput->CompareInchiFlags[1] ) ); /* djb-rwth: memset_s C11/Annex K variant? */
 
     /* count components that are not subject to disconnection */
     if (!pOneInput->nNumComponents[INCHI_REC][TAUT_YES] &&
@@ -1701,11 +1698,11 @@ int CompareAllDisconnectedOrigInchiToRevInChI( StrFromINChI *pStruct[INCHI_NUM][
         return 0; /* nothing to do */
     }
 
-    memset( &nNumRemovedProtons_D, 0, sizeof( nNumRemovedProtons_D ) );
-    memset( &nNumRemovedProtons_R, 0, sizeof( nNumRemovedProtons_R ) );
-    memset( &nNumRemovedProtons_D_all, 0, sizeof( nNumRemovedProtons_D_all ) );
-    memset( &nNumRemovedProtons_R_all, 0, sizeof( nNumRemovedProtons_R_all ) );
-    memset( CompareInchiFlags, 0, sizeof( CompareInchiFlags ) );
+    memset( &nNumRemovedProtons_D, 0, sizeof( nNumRemovedProtons_D ) ); /* djb-rwth: memset_s C11/Annex K variant? */
+    memset( &nNumRemovedProtons_R, 0, sizeof( nNumRemovedProtons_R ) ); /* djb-rwth: memset_s C11/Annex K variant? */
+    memset( &nNumRemovedProtons_D_all, 0, sizeof( nNumRemovedProtons_D_all ) ); /* djb-rwth: memset_s C11/Annex K variant? */
+    memset( &nNumRemovedProtons_R_all, 0, sizeof( nNumRemovedProtons_R_all ) ); /* djb-rwth: memset_s C11/Annex K variant? */
+    memset( CompareInchiFlags, 0, sizeof( CompareInchiFlags ) ); /* djb-rwth: memset_s C11/Annex K variant? */
 
     num_components_D = inchi_max( pOneInput->nNumComponents[INCHI_BAS][TAUT_YES],
                                   pOneInput->nNumComponents[INCHI_BAS][TAUT_NON] );
@@ -1726,9 +1723,9 @@ int CompareAllDisconnectedOrigInchiToRevInChI( StrFromINChI *pStruct[INCHI_NUM][
 
     /* in case of Mobile-H components here are the proton totals from the original InChI disconn. layer */
     nNumRemovedProtons_D.nNumRemovedProtons = pOneInput->nNumProtons[iInChI][TAUT_YES].nNumRemovedProtons;
-    memcpy( nNumRemovedProtons_D.nNumRemovedIsotopicH,
+    memcpy_s( nNumRemovedProtons_D.nNumRemovedIsotopicH, sizeof(nNumRemovedProtons_D.nNumRemovedIsotopicH) + 1,
             pOneInput->nNumProtons[iInChI][TAUT_YES].nNumRemovedIsotopicH,
-            sizeof( nNumRemovedProtons_D.nNumRemovedIsotopicH ) ); /* total for the disconnected layer */
+            sizeof( nNumRemovedProtons_D.nNumRemovedIsotopicH ) ); /* total for the disconnected layer */ /* djb-rwth: function replaced with its safe C11 variant */
 
     for (k = 0; k < num_components_D; k++)
     {
@@ -2057,8 +2054,8 @@ int CompareAllDisconnectedOrigInchiToRevInChI( StrFromINChI *pStruct[INCHI_NUM][
                 NUM_H   nNumRemovedIsotopicH1[NUM_H_ISOTOPES];
                 NUM_H   nNumRemovedIsotopicH2[NUM_H_ISOTOPES];
 
-                memset( nNumRemovedIsotopicH1, 0, sizeof( nNumRemovedIsotopicH1 ) );
-                memset( nNumRemovedIsotopicH2, 0, sizeof( nNumRemovedIsotopicH2 ) );
+                memset( nNumRemovedIsotopicH1, 0, sizeof( nNumRemovedIsotopicH1 ) ); /* djb-rwth: memset_s C11/Annex K variant? */
+                memset( nNumRemovedIsotopicH2, 0, sizeof( nNumRemovedIsotopicH2 ) ); /* djb-rwth: memset_s C11/Annex K variant? */
                 /* compare removed protons */
                 if (pINChISort1[iComponent].ord_number != pINChISort2[iComponent].ord_number)
                 {
@@ -2068,9 +2065,9 @@ int CompareAllDisconnectedOrigInchiToRevInChI( StrFromINChI *pStruct[INCHI_NUM][
                 k = pINChISort2[iComponent].n1; /* input InChI, OneInput */
                 if (pOneInput->nNumProtons[INCHI_BAS][TAUT_YES].pNumProtons)
                 {
-                    memcpy( nNumRemovedIsotopicH2,
+                    memcpy_s( nNumRemovedIsotopicH2, sizeof(nNumRemovedIsotopicH2) + 1,
                         pOneInput->nNumProtons[INCHI_BAS][TAUT_YES].pNumProtons[k].nNumRemovedIsotopicH,
-                        sizeof( nNumRemovedIsotopicH2 ) );
+                        sizeof( nNumRemovedIsotopicH2 ) ); /* djb-rwth: function replaced with its safe C11 variant */
                 }
                /* get fragments of reconstructed structure removed protons info */
                 k = pINChISort1[iComponent].n1; /* restored component number */
@@ -2106,18 +2103,15 @@ int CompareAllDisconnectedOrigInchiToRevInChI( StrFromINChI *pStruct[INCHI_NUM][
                     bfMobileH = ifMobileH;
                     if (!bRevInchiComponentExists( pStruct1, ifInChI, bfMobileH, i ))
                     {
-                        if (bRevInchiComponentExists( pStruct1, ifInChI, TAUT_YES, i ))
-                        {
-                            bfMobileH = TAUT_YES;
-                        }
-                        else
+                        if (!bRevInchiComponentExists( pStruct1, ifInChI, TAUT_YES, i ))
+                            /* djb-rwth: removing redundant code */
                         {
                             goto compare_iso_H;
                         }
                     }
-                    memcpy( nNumRemovedIsotopicH1,
+                    memcpy_s( nNumRemovedIsotopicH1, sizeof(nNumRemovedIsotopicH1) + 1,
                         pStruct1->RevInChI.pINChI_Aux[ifInChI][i][TAUT_YES]->nNumRemovedIsotopicH,
-                        sizeof( nNumRemovedIsotopicH1 ) );
+                        sizeof( nNumRemovedIsotopicH1 ) ); /* djb-rwth: function replaced with its safe C11 variant */
                 }
             compare_iso_H:
                 if (memcmp( nNumRemovedIsotopicH1, nNumRemovedIsotopicH2, sizeof( nNumRemovedIsotopicH1 ) ))
@@ -2241,7 +2235,7 @@ int CompareOneOrigInchiToRevInChI( StrFromINChI *pStruct,
 {
     int ret = pStruct->RevInChI.nRetVal, err = 0;
     INCHI_MODE cmp;
-    if (ret == _IS_OKAY || ret == _IS_WARNING)
+    if ((ret == _IS_OKAY || ret == _IS_WARNING) && pStruct) /* djb-rwth: fixing a NULL pointer dereference */
     {
         /* ignore bMobileH for now */
         int i, i0, b /* created type */, b0 /* requested type*/, j, k;
@@ -2267,11 +2261,14 @@ int CompareOneOrigInchiToRevInChI( StrFromINChI *pStruct,
             return 0;
         }
 
-        if (pStruct->RevInChI.num_components[i] > 1 &&
-             !pStruct->RevInChI.pINChI[i][1][b]->bDeleted ||
-             pStruct->RevInChI.num_components[i] < 1)
+        if (pStruct->RevInChI.pINChI[i]) /* djb-rwth: fixing a NULL pointer dereference */
         {
-            CompareInchiFlags[bMobileH] |= INCHIDIFF_COMP_NUMBER;
+            if ((pStruct->RevInChI.num_components[i] > 1 &&
+                !pStruct->RevInChI.pINChI[i][1][b]->bDeleted) ||
+                pStruct->RevInChI.num_components[i] < 1) /* djb-rwth: addressing LLVM warning */
+            {
+                CompareInchiFlags[bMobileH] |= INCHIDIFF_COMP_NUMBER;
+            }
         }
         if (b != b0 || b != bMobileH || b0 != bMobileH || i > i0)
         {
@@ -2279,15 +2276,11 @@ int CompareOneOrigInchiToRevInChI( StrFromINChI *pStruct,
             CompareInchiFlags[bMobileH] |= INCHIDIFF_COMP_HLAYER;
         }
 
-        if (pStruct->RevInChI.num_components[i])
+        if (pStruct->RevInChI.num_components[i] && pStruct->RevInChI.pINChI[i]) /* djb-rwth: fixing a NULL pointer dereference */
         {
             /* compare InChI from restored structure; '0' in [i][0][b] is the first component */
-            if (b == TAUT_YES && pStruct->RevInChI.pINChI[i][0][b]->bDeleted && ( !pInChI[0] || pInChI[0]->bDeleted ))
-            {
-                /* the 1st component is made out of proton(s) and the input component is missing or also a proton */
-                cmp = 0;
-            }
-            else
+            if (b != TAUT_YES && pStruct->RevInChI.pINChI[i][0][b]->bDeleted && ( !pInChI[0] || pInChI[0]->bDeleted ))
+                /* djb-rwth: removing redundant code */
             {
                 cmp = CompareReversedINChI3( pStruct->RevInChI.pINChI[i][0][b], pInChI[0], NULL, NULL, &err );
                 if (cmp)
@@ -2297,9 +2290,9 @@ int CompareOneOrigInchiToRevInChI( StrFromINChI *pStruct,
             }
             if (b == b0 && b == TAUT_NON)
             {
-                if (pStruct->RevInChI.pINChI[i][0][TAUT_YES] &&
-                     !pStruct->RevInChI.pINChI[i][0][TAUT_YES]->bDeleted ||
-                     pInChI[1] && !pInChI[1]->bDeleted)
+                if ((pStruct->RevInChI.pINChI[i][0][TAUT_YES] &&
+                     !pStruct->RevInChI.pINChI[i][0][TAUT_YES]->bDeleted) ||
+                     (pInChI[1] && !pInChI[1]->bDeleted)) /* djb-rwth: addressing LLVM warnings */
                 {
                     /* in addition to fixed-H also compare mobile-H InChI */
                     cmp = CompareReversedINChI3( pStruct->RevInChI.pINChI[i][0][TAUT_YES], pInChI[1], NULL, NULL, &err );
@@ -2314,7 +2307,7 @@ int CompareOneOrigInchiToRevInChI( StrFromINChI *pStruct,
                     CompareInchiFlags[TAUT_YES] |= INCHIDIFF_MOBH_PROTONS;
                 }
             }
-            memset( nCurRemovedProtons, 0, sizeof( *nCurRemovedProtons ) );
+            memset( nCurRemovedProtons, 0, sizeof( *nCurRemovedProtons ) ); /* djb-rwth: memset_s C11/Annex K variant? */
             for (k = 0; k < pStruct->RevInChI.num_components[i]; k++)
             {
                 if (!k || pStruct->RevInChI.pINChI[i][k][TAUT_YES]->bDeleted)
@@ -2346,7 +2339,7 @@ INCHI_MODE CompareReversedStereoINChI3( INChI_Stereo *s1,
                                         ICR *picr )
 {
     int ret = 0;
-    int j1, j2, num_eq, num_dif, num_extra_undf, num_miss_undf, num_in1_only, num_in2_only;
+    int j1, j2, num_dif, num_extra_undf, num_miss_undf, num_in1_only, num_in2_only; /* djb-rwth: removing redundant variables */
     int bAddSb = !( picr->num_sb_undef_in1_only + picr->num_sb_in1_only + picr->num_sb_in2_only );
     int bAddSc = !( picr->num_sc_undef_in1_only + picr->num_sc_in1_only + picr->num_sc_in2_only );
 
@@ -2361,16 +2354,13 @@ INCHI_MODE CompareReversedStereoINChI3( INChI_Stereo *s1,
             memcmp( s1->t_parity, s2->t_parity, nNumSc1 * sizeof( s1->t_parity[0] ) ) )) /* djb-rwth: condition corrected */
     {
 
-        num_eq = num_dif = num_extra_undf = num_miss_undf = num_in1_only = num_in2_only = 0;
+        num_dif = num_extra_undf = num_miss_undf = num_in1_only = num_in2_only = 0; /* djb-rwth: removing redundant code */
         for (j1 = j2 = 0; j1 < nNumSc1 && j2 < nNumSc2; )
         {
             if (s1->nNumber[j1] == s2->nNumber[j2])
             {
-                if (s1->t_parity[j1] == s2->t_parity[j2])
-                {
-                    num_eq++;
-                }
-                else
+                if (s1->t_parity[j1] != s2->t_parity[j2])
+                    /* djb-rwth: removing redundant code */
                 {
                     num_dif++;
                 }
@@ -2496,17 +2486,14 @@ INCHI_MODE CompareReversedStereoINChI3( INChI_Stereo *s1,
             memcmp( s1->b_parity, s2->b_parity, nNumSb1 * sizeof( s1->b_parity[0] ) ) ))
     {
 
-        num_eq = num_dif = num_extra_undf = num_miss_undf = num_in1_only = num_in2_only = 0;
+        num_dif = num_extra_undf = num_miss_undf = num_in1_only = num_in2_only = 0; /* djb-rwth: removing redundant code */
         for (j1 = j2 = 0; j1 < nNumSb1 && j2 < nNumSb2; )
         {
             if (s1->nBondAtom1[j1] == s2->nBondAtom1[j2] &&
                  s1->nBondAtom2[j1] == s2->nBondAtom2[j2])
             {
-                if (s1->b_parity[j1] == s2->b_parity[j2])
-                {
-                    num_eq++;
-                }
-                else
+                if (s1->b_parity[j1] != s2->b_parity[j2])
+                    /* djb-rwth: removing redundant code */
                 {
                     num_dif++;
                 }
@@ -2516,7 +2503,7 @@ INCHI_MODE CompareReversedStereoINChI3( INChI_Stereo *s1,
             else
             {
                 if (s1->nBondAtom1[j1] < s2->nBondAtom1[j2] ||
-                     s1->nBondAtom1[j1] == s2->nBondAtom1[j2] && s1->nBondAtom2[j1] < s2->nBondAtom2[j2])
+                     (s1->nBondAtom1[j1] == s2->nBondAtom1[j2] && s1->nBondAtom2[j1] < s2->nBondAtom2[j2])) /* djb-rwth: addressing LLVM warning */
                 {
                     num_in1_only++;
                     if (s1->b_parity[j1] == AB_PARITY_UNDF)
@@ -2641,7 +2628,7 @@ INCHI_MODE CompareReversedINChI3( INChI *i1 /* InChI from reversed struct */,
 
     *err = 0;
 
-    memset( picr, 0, sizeof( *picr ) );
+    memset( picr, 0, sizeof( *picr ) ); /* djb-rwth: memset_s C11/Annex K variant? */
 
     if (i1 == NULL && i2 == NULL)
     {
@@ -3135,10 +3122,10 @@ int AddOneMsg( char *szMsg,
     {
         if (len_delim)
         {
-            strcpy( szMsg + used_len, szDelim );
+            strcpy_s( szMsg + used_len, len_delim + 1, szDelim ); /* djb-rwth: function replaced with its safe C11 variant */
             used_len += len_delim;
         }
-        strcpy( szMsg + used_len, szAddMsg );
+        strcpy_s( szMsg + used_len, len + 1, szAddMsg ); /* djb-rwth: function replaced with its safe C11 variant */
         used_len += len;
     }
     else
@@ -3147,12 +3134,12 @@ int AddOneMsg( char *szMsg,
         {
             if (len_delim)
             {
-                strcpy( szMsg + used_len, szDelim );
+                strcpy_s( szMsg + used_len, (long long)len_delim + 1, szDelim ); /* djb-rwth: function replaced with its safe C11 variant */
                 used_len += len_delim;
             }
-            strncpy( szMsg + used_len, szAddMsg, len_to_copy );
+            strncpy_s( szMsg + used_len, (long long)len_to_copy + 1, szAddMsg, len_to_copy ); /* djb-rwth: function replaced with its safe C11 variant */
             used_len += len_to_copy;
-            strcpy( szMsg + used_len, ellip );
+            strcpy_s( szMsg + used_len, sizeof(szMsg) + 1, ellip ); /* djb-rwth: function replaced with its safe C11 variant */
             used_len += sizeof( ellip ) - 1;
         }
     }
@@ -3188,7 +3175,7 @@ int FillOutCompareMessage( char *szMsg, int nLenMsg, INCHI_MODE bits[] )
 
             if (bits[bMobileH])
             {
-                strcpy( szOneMsg, bMobileH == TAUT_YES ? " Mobile-H(" : " Fixed-H(" );
+                strcpy_s( szOneMsg, sizeof(szOneMsg) + 1, bMobileH == TAUT_YES ? " Mobile-H(" : " Fixed-H(" ); /* djb-rwth: function replaced with its safe C11 variant */
                 len = AddOneMsg( szMsg, len, nLenMsg, szOneMsg, NULL );
             }
 
