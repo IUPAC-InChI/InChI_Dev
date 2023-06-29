@@ -1,0 +1,1211 @@
+InChI version 1, Software v. 1.061 (inchi-1 executable) 
+Windows 64-bit Build (MS VS 2017 or later) of Jun 29 2023 16:50:37
+
+Opened log file 'InChI_TestSet.sdf.log'
+Opened input file 'InChI_TestSet.sdf'
+Opened output file 'InChI_TestSet.sdf.txt'
+Opened problem file 'InChI_TestSet.sdf.prb'
+The command line used:
+"D:\Zekan\Posao\code_comparison_igor_dev\dev_cleaned_final\INCHI_EXE\bin2\Windows\x64\Release\inchi-1.exe InChI_TestSet.sdf"
+Generating standard InChI
+Input format: MOLfile
+Output format: Plain text
+Full Aux. info
+Timeout per structure: 60000 msec
+Up to 1024 atoms per structure
+
+! Working in engineering mode
+
+Warning (Metal was disconnected) structure #13.
+Warning (Metal was disconnected) structure #14.
+Warning (Metal was disconnected) structure #15.
+Warning (Metal was disconnected) structure #16.
+Warning (Metal was disconnected) structure #17.
+Warning (Metal was disconnected) structure #26.
+Warning (Metal was disconnected) structure #27.
+Warning (Metal was disconnected) structure #28.
+Warning (Metal was disconnected) structure #29.
+Warning (Metal was disconnected) structure #30.
+Warning (Metal was disconnected) structure #40.
+Warning (Metal was disconnected) structure #41.
+Warning (Metal was disconnected) structure #42.
+Warning (Metal was disconnected) structure #43.
+Warning (Metal was disconnected) structure #51.
+Warning (Metal was disconnected) structure #55.
+Warning (Metal was disconnected) structure #56.
+Warning (Metal was disconnected) structure #64.
+Warning (Metal was disconnected) structure #68.
+Warning (Metal was disconnected) structure #69.
+Warning (Metal was disconnected) structure #82.
+Warning (Metal was disconnected) structure #105.
+Warning (Accepted unusual valence(s): Mn(1); Zn(1); Ni(1); Pd(1); Cr(1); Ru(1); Ti(1); Mo(1); Zr(1); Hf(1); Pr(1); W(1); Pm(1); Os(1); Eu(1); Pt(1); Dy(1); Pa(1); Er(1); Np(1); Yb(1); Am(1); Cd(1); Cf(1); Fm(1); Ac(1); Co(1); Ir(1); Rh(1); Gd(1); Lu(1); Cm(1)...) structure #106.
+Warning (Accepted unusual valence(s): Mn(1); Fe(1); Zn(1); Gd(1); Ac(1); Ni(1); Co(1); Pd(1); Rh(1); Cr(1); V(1); Ru(1); Tc(1); Ti(1); Sc(1); Mo(1); Nb(1); Zr(1); Y(1); Hf(1); La(1); Pr(1); Ce(1); W(1); Ta(1); Pm(1); Nd(1); Os(1); Re(1); Eu(1); Sm(1); Pt(1); Ir(1)) structure #107.
+Warning (Accepted unusual valence(s): Ag(3); H(3); Fr(3); Kr(3); Xe(3); Rn(3); Pt(3); Pd(3); He(3); Rf(3); Ra(3); Be(3); Li(3); Mg(3); Na(3); Ne(3); F(3); Ar(3); O(3); S(3); Ca(3); K(3); Sr(3); Rb(3); Ba(3); Cs(3); Zr(3); Hf(3); Ta(3); Tc(3); Re(3); Zn(3); Cd(3)) structure #108.
+Warning (Accepted unusual valence(s): O-1(2); Metal was disconnected) structure #109.
+Warning (Accepted unusual valence(s): N-2(2); Metal was disconnected) structure #110.
+Warning (Accepted unusual valence(s): Ra+1(2); Mg+1(2); Sr+1(2); Be+1(2); Ca+1(2); Ba+1(2); Metal was disconnected) structure #111.
+Warning (Accepted unusual valence(s): Al+2(2); In+2(2); B+2(2); Ga+2(2); Metal was disconnected) structure #112.
+Warning (Accepted unusual valence(s): Ag(3); Cd(3); Hg(3); H(3); Be(3); F(3); O(3); Li(3); Rf(3); Ra(3); Fr(3); S(3); Mg(3); Na(3); Ca(3); K(3); Sr(3); Rb(3); Ba(3); Cs(3); Pd(3); Tc(3); Zr(3); Zn(3); Pt(3); Re(3); Ta(3); Hf(3); Cu(3); Lr(3); No(3)...) structure #113.
+Warning (Accepted unusual valence(s): Ag(4); Cd(4); Hg(4); Lu(4); Yb(4); Ho(4); Dy(4); Cm(4); H(4); B(4); Be(4); He(4); Ne(4); F(4); O(4); N(4); Li(4); Rf(4); Ac(4); Ra(4); Fr(4); Ar(4); Al(4); Mg(4); Na(4); Kr(4); Ga(4); Ca(4); K(4); Xe(4); In(4); Sr(4); Rb(4)...) structure #114.
+Warning (Accepted unusual valence(s): Ag(2); Cd(4); Hg(4); Lu(4); Yb(4); Tm(4); Er(4); Ho(4); Dy(4); Cm(4); H(4); B(4); Be(4); He(4); Ne(4); F(4); O(4); N(4); Li(4); Rf(4); Ac(4); Ra(4); Fr(4); Ar(4); Al(4); Mg(4); Na(4); Kr(4); Ga(4); Ca(4); K(4); Xe(4); In(4)...) structure #115.
+Warning (Accepted unusual valence(s): Ag(4); Cd(4); Hg(4); Lu(4); Yb(4); Tm(4); Er(4); Ho(4); Dy(4); Cm(4); H(4); B(4); Be(4); He(4); Ne(4); F(4); O(4); N(4); Li(4); Rf(4); Ac(4); Ra(4); Fr(4); Ar(4); Al(4); Mg(4); Na(4); Kr(4); Ga(4); Ca(4); K(4); Xe(4); In(4)...) structure #116.
+Warning (Accepted unusual valence(s): O-1(3); N-1(3); Metal was disconnected) structure #117.
+Warning (Accepted unusual valence(s): N-2(3); C-2(3); Si-2(3); Metal was disconnected) structure #118.
+Warning (Accepted unusual valence(s): B+1(3); Be+1(3); F+1(3); Ra+1(3); Al+1(3); Mg+1(3); Ca+1(3); Sr+1(3); Ba+1(3); Metal was disconnected; Omitted undefined stereo) structure #119.
+Warning (Accepted unusual valence(s): B+2(3); C+2(3); Si+2(3); Al+2(3); Ga+2(3); In+2(3); Metal was disconnected) structure #120.
+Warning (Accepted unusual valence(s): Ag(4); Cu(4); Zn(4); Cd(4); Hg(4); Au(4); H(4); B(4); Be(4); F(4); O(4); N(4); Li(4); Al(4); Mg(4); Na(4); Ga(4); Ca(4); K(4); In(4); Sr(4); Rb(4); Tl(4); Ba(4); Cs(4); Ni(4); Co(4); Cr(4); Sc(4); Tc(4); Nb(4); Y(4); Ta(4)...) structure #121.
+Warning (Accepted unusual valence(s): O-1(4); N-1(4); C-1(4); Metal was disconnected; Omitted undefined stereo) structure #122.
+Warning (Accepted unusual valence(s): B-2(4); N-2(4); C-2(4); Si-2(4); Metal was disconnected) structure #123.
+Warning (Accepted unusual valence(s): B+1(4); Be+1(4); F+1(4); C+1(4); Si+1(4); Al+1(4); Mg+1(4); Ge+1(4); Ca+1(4); Sn+1(4); Sr+1(4); Pb+1(4); Ba+1(4); Ra+1(4); Metal was disconnected; Omitted undefined stereo) structure #124.
+Warning (Accepted unusual valence(s): B+2(4); N+2(4); C+2(4); P+2(4); Si+2(4); Al+2(4); As+2(4); Ga+2(4); Sb+2(4); In+2(4); Bi+2(4); Metal was disconnected; Omitted undefined stereo) structure #125.
+Warning (Accepted unusual valence(s): Ag(5); Cu(5); Zn(5); Cd(5); Hg(5); Pt(5); Au(5); H(5); B(5); Be(5); F(5); O(5); C(5); Li(5); Si(5); Al(5); Mg(5); Na(5); Ge(5); Ga(5); Ca(5); K(5); Sn(5); In(5); Sr(5); Rb(5); Pb(5); Tl(5); Ba(5); Cs(5); Mn(5); Fe(5); Ni(5)...) structure #126.
+Warning (Accepted unusual valence(s): B-1(5); O-1(5); N-1(5); C-1(5); Al-1(5); Ga-1(5); In-1(5); Tl-1(5); Metal was disconnected; Omitted undefined stereo) structure #127.
+Warning (Accepted unusual valence(s): B-2(5); N-2(5); C-2(5); Si-2(5); Metal was disconnected; Omitted undefined stereo) structure #128.
+Warning (Accepted unusual valence(s): B+1(5); Be+1(5); F+1(5); N+1(5); C+1(5); P+1(5); Si+1(5); Al+1(5); Mg+1(5); As+1(5); Ge+1(5); Ca+1(5); Sb+1(5); Sn+1(5); Sr+1(5); Bi+1(5); Pb+1(5); Ba+1(5); Ra+1(5); Metal was disconnected; Omitted undefined stereo) structure #129.
+Warning (Accepted unusual valence(s): B+2(5); O+2(5); N+2(5); C+2(5); S+2(5); P+2(5); Si+2(5); Al+2(5); Se+2(5); As+2(5); Ga+2(5); Te+2(5); Sb+2(5); In+2(5); Po+2(5); Bi+2(5); Metal was disconnected; Omitted undefined stereo) structure #130.
+Warning (Accepted unusual valence(s): Ag(6); Cu(6); Zn(6); Cd(6); Hg(6); Pt(6); Au(6); H(6); B(6); Be(6); F(6); O(6); N(6); C(6); Li(6); P(6); Si(6); Al(6); Mg(6); Na(6); As(6); Ge(6); Ga(6); Ca(6); K(6); Sb(6); Sn(6); In(6); Sr(6); Rb(6); Bi(6); Pb(6); Tl(6)...) structure #131.
+Warning (Accepted unusual valence(s): B-1(6); O-1(6); N-1(6); C-1(6); Si-1(6); Al-1(6); Ge-1(6); Ga-1(6); Sn-1(6); In-1(6); Pb-1(6); Tl-1(6); Metal was disconnected; Omitted undefined stereo) structure #132.
+Warning (Accepted unusual valence(s): B-2(6); N-2(6); C-2(6); Si-2(6); Al-2(6); Ga-2(6); In-2(6); Tl-2(6); Metal was disconnected) structure #133.
+Warning (Accepted unusual valence(s): B+1(6); Be+1(6); F+1(6); O+1(6); N+1(6); C+1(6); S+1(6); P+1(6); Si+1(6); Al+1(6); Mg+1(6); Se+1(6); As+1(6); Ge+1(6); Ca+1(6); Te+1(6); Sb+1(6); Sn+1(6); Sr+1(6); Po+1(6); Bi+1(6); Pb+1(6); Ba+1(6); Ra+1(6)...) structure #134.
+Warning (Accepted unusual valence(s): B+2(6); F+2(6); O+2(6); N+2(6); C+2(6); Cl+2(6); S+2(6); P+2(6); Si+2(6); Al+2(6); Br+2(6); Se+2(6); As+2(6); Ga+2(6); I+2(6); Te+2(6); Sb+2(6); In+2(6); At+2(6); Po+2(6); Bi+2(6); Metal was disconnected) structure #135.
+Warning (Accepted unusual valence(s): Ag(6); Cu(6); Zn(7); Cd(7); Hg(6); Pt(7); Au(7); H(7); B(7); Be(7); F(6); O(6); N(6); C(7); Li(7); S(7); P(7); Si(7); Al(7); Mg(7); Na(7); Se(7); As(7); Ge(7); Ga(7); Ca(7); K(7); Te(7); Sb(7); Sn(7); In(7); Sr(7); Rb(7)...) structure #136.
+Warning (Accepted unusual valence(s): B-1(7); O-1(7); N-1(7); C-1(7); P-1(7); Si-1(7); Al-1(7); As-1(7); Ge-1(7); Ga-1(7); Sb-1(7); Sn-1(7); In-1(7); Bi-1(7); Pb-1(7); Tl-1(7); Metal was disconnected; Omitted undefined stereo) structure #137.
+Warning (Accepted unusual valence(s): B-2(7); N-2(7); C-2(7); Si-2(7); Al-2(7); Ge-2(7); Ga-2(7); Sn-2(7); In-2(7); Pb-2(7); Tl-2(7); Metal was disconnected; Omitted undefined stereo) structure #138.
+Warning (Accepted unusual valence(s): B+1(7); Be+1(7); F+1(7); O+1(7); N+1(7); C+1(7); Cl+1(7); S+1(7); P+1(7); Si+1(7); Al+1(7); Mg+1(7); Br+1(7); Se+1(7); As+1(7); Ge+1(7); Ca+1(7); I+1(7); Te+1(7); Sb+1(7); Sn+1(7); Sr+1(7); At+1(7); Po+1(7); Bi+1(7); Pb+1(7)) structure #139.
+Warning (Accepted unusual valence(s): B+2(7); F+2(7); O+2(7); N+2(7); C+2(7); Cl+2(7); S+2(7); P+2(7); Si+2(7); Al+2(7); Br+2(7); Se+2(7); As+2(7); Ga+2(7); I+2(7); Te+2(7); Sb+2(7); In+2(7); At+2(7); Po+2(7); Bi+2(7); Metal was disconnected...) structure #140.
+Warning (Accepted unusual valence(s): Ag(7); Cu(8); Zn(8); Cd(8); Hg(8); Pt(8); Au(8); H(8); B(8); Be(8); F(8); O(8); N(8); C(8); Li(8); Cl(8); S(8); P(8); Si(8); Al(8); Mg(8); Na(8); Br(8); Se(8); As(8); Ge(8); Ga(8); Ca(8); K(8); I(8); Te(8); Sb(8); Sn(8); In(8)) structure #141.
+Warning (Accepted unusual valence(s): B-1(8); O-1(8); N-1(8); C-1(8); S-1(8); P-1(8); Si-1(8); Al-1(8); Se-1(8); As-1(8); Ge-1(8); Ga-1(8); Te-1(8); Sb-1(8); Sn-1(8); In-1(8); Po-1(8); Bi-1(8); Pb-1(8); Tl-1(8); Metal was disconnected; Omitted undefined stereo) structure #142.
+Warning (Accepted unusual valence(s): B-2(8); N-2(8); C-2(8); P-2(8); Si-2(8); Al-2(8); As-2(8); Ge-2(8); Ga-2(8); Sb-2(8); Sn-2(8); In-2(8); Bi-2(8); Pb-2(8); Tl-2(8); Metal was disconnected; Omitted undefined stereo) structure #143.
+Warning (Accepted unusual valence(s): B+1(8); Be+1(8); F+1(8); O+1(8); N+1(8); C+1(8); Cl+1(8); S+1(8); P+1(8); Si+1(8); Al+1(8); Mg+1(8); Br+1(8); Se+1(8); As+1(8); Ge+1(8); Ca+1(8); I+1(8); Te+1(8); Sb+1(8); Sn+1(8); Sr+1(8); At+1(8); Po+1(8); Bi+1(8); Pb+1(8)) structure #144.
+Warning (Accepted unusual valence(s): B+2(8); F+2(8); O+2(8); N+2(8); C+2(8); Cl+2(8); S+2(8); P+2(8); Si+2(8); Al+2(8); Br+2(8); Se+2(8); As+2(8); Ga+2(8); I+2(8); Te+2(8); Sb+2(8); In+2(8); At+2(8); Po+2(8); Bi+2(8); Metal was disconnected...) structure #145.
+Warning (Accepted unusual valence(s): Mn(1); Zn(1); Ni(1); Pd(1); Cr(1); Ru(1); Ti(1); Mo(1); Zr(1); Hf(1); Pr(1); W(1); Pm(1); Os(1); Eu(1); Pt(1); Dy(1); Pa(1); Er(1); Np(1); Yb(1); Am(1); Cd(1); Cf(1); Fm(1); Ac(1); Co(1); Ir(1); Rh(1); Gd(1); Lu(1); Cm(1)...) structure #146.
+Warning (Accepted unusual valence(s): Ag(2); H(2); Au(2); Ti(2); Mo(2); Zr(2); Hf(2); Pr(2); W(2); Pm(2); Dy(2); Pa(2); Er(2); Np(2); Am(2); Cf(2); Fm(2); No(2); Li(2); Fr(2); Ac(2); Rf(2); F(2); Gd(2); Lu(2); Cm(2); Lr(2); Md(2); Pu(2); Tc(2); Nb(2); Ta(2); Nd(2)) structure #147.
+Warning (Accepted unusual valence(s): Mn(1); Zn(1); Ni(1); Pd(1); Cr(1); Ru(1); Ti(1); Mo(1); Zr(1); Hf(1); Pr(1); W(1); Pm(1); Os(1); Eu(1); Pt(1); Dy(1); Pa(1); Er(1); Np(1); Yb(1); Am(1); Cd(1); Cf(1); Fm(1); Ac(1); Co(1); Ir(1); Rh(1); Gd(1); Lu(1); Cm(1)...) structure #148.
+Warning (Metal was disconnected; Proton(s) added/removed) structure #149.
+Warning (Metal was disconnected) structure #150.
+Warning (Metal was disconnected) structure #151.
+Warning (Metal was disconnected; Proton(s) added/removed) structure #152.
+Warning (Metal was disconnected) structure #153.
+Warning (Metal was disconnected) structure #154.
+Warning (Metal was disconnected; Proton(s) added/removed) structure #155.
+Warning (Metal was disconnected) structure #156.
+Warning (Metal was disconnected; Proton(s) added/removed) structure #158.
+Warning (Metal was disconnected) structure #159.
+Warning (Metal was disconnected) structure #161.
+Warning (Metal was disconnected) structure #162.
+Warning (Metal was disconnected) structure #163.
+Warning (Accepted unusual valence(s): Mn(1); Zn(1); B(1); Pd(1); Pt(1); Cd(1); Sc(1); Y(1); La(1); Ce(1); Tb(1); Th(1); Bk(1); Be(1); Mg(1); Ca(1); Sr(1); Ba(1); Ti(1); Zr(1); Hf(1); Pr(1); Dy(1); Pa(1); Cf(1); Al(1); Ga(1); In(1); V(1); Nb(1); Ta(1); Nd(1); Ho(1)) structure #165.
+Warning (Accepted unusual valence(s): Ag(2); H(2); B(2); Li(2); Na(2); K(2); Rb(2); Cs(2); Sc(2); Y(2); La(2); Ce(2); Tb(2); Th(2); Bk(2); Ti(2); Zr(2); Hf(2); Pr(2); Dy(2); Pa(2); Cf(2); Al(2); Ga(2); In(2); Tl(2); Nb(2); Ta(2); Nd(2); Ho(2); U(2); Es(2); Fr(2)) structure #166.
+Warning (Accepted unusual valence(s): Ag(3); H(3); Zn(3); Cu(3); Pd(3); Pt(3); Cd(3); Li(3); Na(3); K(3); Rb(3); Cs(3); Be(3); Mg(3); Ca(3); Sr(3); Ba(3); Zr(3); Hf(3); Ta(3); Fr(3); C(3); Si(3); Ge(3); Sn(3); Pb(3); Ra(3); Tc(3); Re(3); O(3); S(3); Se(3); Te(3)) structure #167.
+Warning (Accepted unusual valence(s): Ag(4); H(4); Zn(4); Cu(4); B(4); Cd(4); Li(4); Na(4); K(4); Rb(4); Cs(4); Sc(4); Y(4); La(4); Be(4); Mg(4); Ca(4); Sr(4); Ba(4); Dy(4); Cf(4); Al(4); Ga(4); In(4); Tl(4); Nb(4); Ta(4); Nd(4); Ho(4); Es(4); Fr(4); Cr(4); Pm(4)) structure #168.
+Warning (Charges were rearranged) structure #169.
+Warning (Proton(s) added/removed; Charges neutralized) structure #170.
+Warning (Metal was disconnected; Proton(s) added/removed; Ambiguous stereo: bond(s); Charges neutralized) structure #171.
+Warning (Charges were rearranged) structure #175.
+Warning (Charges were rearranged) structure #177.
+Warning (Charges were rearranged) structure #178.
+Warning (Charges were rearranged) structure #182.
+Warning (Proton(s) added/removed) structure #186.
+Warning (Proton(s) added/removed; Omitted undefined stereo) structure #187.
+Warning (Proton(s) added/removed) structure #188.
+Warning (Proton(s) added/removed; Omitted undefined stereo) structure #189.
+Warning (Proton(s) added/removed) structure #190.
+Warning (Proton(s) added/removed) structure #191.
+Warning (Proton(s) added/removed) structure #194.
+Warning (Proton(s) added/removed) structure #195.
+Warning (Proton(s) added/removed) structure #196.
+Warning (Proton(s) added/removed) structure #197.
+Warning (Omitted undefined stereo; Proton(s) added/removed) structure #198.
+Warning (Proton(s) added/removed) structure #199.
+Warning (Proton(s) added/removed) structure #205.
+Warning (Omitted undefined stereo) structure #206.
+Warning (Omitted undefined stereo) structure #207.
+Warning (Omitted undefined stereo) structure #208.
+Warning (Proton(s) added/removed; Omitted undefined stereo) structure #209.
+Warning (Proton(s) added/removed) structure #213.
+Warning (Omitted undefined stereo; Proton(s) added/removed) structure #214.
+Warning (Omitted undefined stereo) structure #235.
+Warning (Omitted undefined stereo) structure #236.
+Warning (Omitted undefined stereo) structure #237.
+Warning (Charges were rearranged; Proton(s) added/removed) structure #245.
+Warning (Proton(s) added/removed) structure #246.
+Warning (Proton(s) added/removed) structure #247.
+Warning (Charges were rearranged) structure #248.
+Warning (Charges were rearranged) structure #249.
+Warning (Charges were rearranged; Omitted undefined stereo) structure #250.
+Warning (Charges were rearranged; Accepted unusual valence(s): Cl-1(6); Sb(1); Metal was disconnected) structure #251.
+Warning (Charges were rearranged; Accepted unusual valence(s): V(6); Metal was disconnected; Proton(s) added/removed) structure #252.
+Warning (Accepted unusual valence(s): V(6); Metal was disconnected) structure #253.
+Warning (Proton(s) added/removed; Omitted undefined stereo) structure #254.
+Warning (Proton(s) added/removed; Omitted undefined stereo) structure #256.
+Warning (Charges were rearranged; Accepted unusual valence(s): Cl-1(6); Sb(1); V(6); Metal was disconnected; Proton(s) added/removed; Omitted undefined stereo) structure #257.
+Warning (Charges were rearranged; Proton(s) added/removed) structure #258.
+Warning (Charges were rearranged; Accepted unusual valence(s): O(4); C(2); Metal was disconnected; Proton(s) added/removed) structure #259.
+Warning (Charges were rearranged) structure #260.
+Warning (Charges were rearranged; Accepted unusual valence(s): O(4)) structure #262.
+Warning (Accepted unusual valence(s): O(4)) structure #263.
+Warning (Charges were rearranged; Accepted unusual valence(s): O(4)) structure #264.
+Warning (Accepted unusual valence(s): O(4)) structure #265.
+Warning (Accepted unusual valence(s): O(4)) structure #266.
+Warning (Charges were rearranged) structure #267.
+Warning (Charges were rearranged) structure #268.
+Warning (Charges were rearranged) structure #269.
+Warning (Charges were rearranged) structure #270.
+Warning (Charges were rearranged) structure #275.
+Warning (Charges were rearranged) structure #276.
+Warning (Charges were rearranged) structure #277.
+Warning (Charges were rearranged; Accepted unusual valence(s): O(4)) structure #281.
+Warning (Accepted unusual valence(s): O(4)) structure #282.
+Warning (Charges were rearranged; Accepted unusual valence(s): O(4)) structure #283.
+Warning (Charges were rearranged; Accepted unusual valence(s): O(4)) structure #284.
+Warning (Accepted unusual valence(s): O(4)) structure #285.
+Warning (Charges were rearranged) structure #286.
+Warning (Charges were rearranged) structure #287.
+Warning (Charges were rearranged) structure #288.
+Warning (Charges were rearranged) structure #289.
+Warning (Charges were rearranged) structure #290.
+Warning (Charges were rearranged) structure #291.
+Warning (Charges were rearranged) structure #292.
+Warning (Charges were rearranged) structure #293.
+Warning (Charges were rearranged) structure #294.
+Warning (Charges were rearranged) structure #295.
+Warning (Charges were rearranged) structure #296.
+Warning (Charges were rearranged) structure #297.
+Warning (Charges were rearranged) structure #298.
+Warning (Charges were rearranged) structure #299.
+Warning (Charges were rearranged) structure #300.
+Warning (Charges were rearranged) structure #301.
+Warning (Charges were rearranged) structure #302.
+Warning (Charges were rearranged) structure #303.
+Warning (Charges were rearranged) structure #304.
+Warning (Charges were rearranged) structure #305.
+Warning (Charges were rearranged) structure #306.
+Warning (Charges were rearranged) structure #307.
+Warning (Charges were rearranged) structure #308.
+Warning (Charges were rearranged) structure #309.
+Warning (Charges were rearranged) structure #310.
+Warning (Charges were rearranged) structure #311.
+Warning (Charges were rearranged; Metal was disconnected) structure #312.
+Warning (Charges were rearranged) structure #313.
+Warning (Charges were rearranged; Metal was disconnected) structure #314.
+Warning (Charges were rearranged; Metal was disconnected) structure #315.
+Warning (Charges were rearranged; Metal was disconnected) structure #316.
+Warning (Charges were rearranged; Metal was disconnected) structure #317.
+Warning (Charges were rearranged; Metal was disconnected) structure #318.
+Warning (Charges were rearranged; Metal was disconnected) structure #319.
+Warning (Charges were rearranged; Metal was disconnected) structure #320.
+Warning (Charges were rearranged) structure #321.
+Warning (Charges were rearranged) structure #322.
+Warning (Metal was disconnected) structure #323.
+Warning (Metal was disconnected) structure #324.
+Warning (Charges were rearranged; Metal was disconnected) structure #325.
+Warning (Charges were rearranged; Metal was disconnected) structure #326.
+Warning (Charges were rearranged; Metal was disconnected) structure #327.
+Warning (Charges were rearranged; Metal was disconnected) structure #328.
+Warning (Charges were rearranged; Metal was disconnected) structure #329.
+Warning (Charges were rearranged; Metal was disconnected) structure #330.
+Warning (Charges were rearranged; Accepted unusual valence(s): O(4); Metal was disconnected) structure #331.
+Warning (Charges were rearranged; Accepted unusual valence(s): O(4)) structure #332.
+Warning (Accepted unusual valence(s): O(4)) structure #333.
+Warning (Charges were rearranged) structure #334.
+Warning (Charges were rearranged) structure #336.
+Warning (Charges were rearranged; Accepted unusual valence(s): O(4)) structure #337.
+Warning (Accepted unusual valence(s): O(4)) structure #338.
+Warning (Charges were rearranged) structure #339.
+Warning (Charges were rearranged) structure #341.
+Warning (Charges were rearranged) structure #343.
+Warning (Charges were rearranged) structure #345.
+Warning (Charges were rearranged) structure #347.
+Warning (Charges were rearranged) structure #349.
+Warning (Charges were rearranged) structure #351.
+Warning (Charges were rearranged) structure #352.
+Warning (Charges were rearranged) structure #353.
+Warning (Charges were rearranged) structure #354.
+Warning (Charges were rearranged) structure #355.
+Warning (Charges were rearranged) structure #356.
+Warning (Charges were rearranged) structure #357.
+Warning (Charges were rearranged) structure #358.
+Warning (Charges were rearranged) structure #359.
+Warning (Charges were rearranged) structure #360.
+Warning (Charges were rearranged) structure #361.
+Warning (Charges were rearranged) structure #362.
+Warning (Charges were rearranged) structure #363.
+Warning (Charges were rearranged) structure #364.
+Warning (Charges were rearranged) structure #365.
+Warning (Charges were rearranged) structure #366.
+Warning (Charges were rearranged) structure #367.
+Warning (Charges were rearranged) structure #368.
+Warning (Charges were rearranged) structure #369.
+Warning (Charges were rearranged) structure #370.
+Warning (Charges were rearranged; Metal was disconnected) structure #371.
+Warning (Charges were rearranged; Metal was disconnected) structure #372.
+Warning (Charges were rearranged; Metal was disconnected) structure #373.
+Warning (Charges were rearranged; Metal was disconnected) structure #374.
+Warning (Charges were rearranged; Metal was disconnected) structure #375.
+Warning (Charges were rearranged; Metal was disconnected) structure #376.
+Warning (Charges were rearranged; Metal was disconnected) structure #377.
+Warning (Charges were rearranged; Metal was disconnected) structure #378.
+Warning (Metal was disconnected) structure #379.
+Warning (Metal was disconnected) structure #380.
+Warning (Charges were rearranged) structure #381.
+Warning (Charges were rearranged) structure #382.
+Warning (Charges were rearranged) structure #384.
+Warning (Charges were rearranged) structure #385.
+Warning (Charges were rearranged; Metal was disconnected) structure #386.
+Warning (Charges were rearranged) structure #388.
+Warning (Charges were rearranged) structure #389.
+Warning (Charges were rearranged; Metal was disconnected) structure #390.
+Warning (Charges were rearranged; Accepted unusual valence(s): O(4); Metal was disconnected) structure #391.
+Warning (Accepted unusual valence(s): Si(2)) structure #392.
+Warning (Accepted unusual valence(s): C(2); Metal was disconnected) structure #398.
+Warning (Metal was disconnected) structure #399.
+Warning (Metal was disconnected) structure #400.
+Warning (Metal was disconnected) structure #401.
+Warning (Metal was disconnected) structure #402.
+Warning (Metal was disconnected) structure #403.
+Warning (Accepted unusual valence(s): Si(2); C(2); Metal was disconnected) structure #404.
+Warning (Salt was disconnected; Metal was disconnected; Proton(s) added/removed) structure #405.
+Warning (Charges were rearranged; Proton(s) added/removed) structure #406.
+Warning (Metal was disconnected; Proton(s) added/removed; Omitted undefined stereo) structure #407.
+Warning (Charges were rearranged; Metal was disconnected; Proton(s) added/removed; Omitted undefined stereo) structure #408.
+Warning (Charges were rearranged; Proton(s) added/removed) structure #409.
+Warning (Metal was disconnected; Proton(s) added/removed; Omitted undefined stereo) structure #410.
+Warning (Accepted unusual valence(s): N(4); As(4); Proton(s) added/removed; Omitted undefined stereo; Ambiguous stereo: bond(s)) structure #411.
+Warning (Accepted unusual valence(s): S(8); Se(8); Te(8); Proton(s) added/removed; Omitted undefined stereo) structure #412.
+Warning (Metal was disconnected; Charges were rearranged; Omitted undefined stereo; Proton(s) added/removed) structure #413.
+Warning (Metal was disconnected; Omitted undefined stereo; Proton(s) added/removed) structure #414.
+Warning (Metal was disconnected; Charges were rearranged; Omitted undefined stereo; Proton(s) added/removed) structure #415.
+Warning (Accepted unusual valence(s): S(8); Se(8); Te(8); Po(8); Metal was disconnected; Charges were rearranged; Omitted undefined stereo; Proton(s) added/removed) structure #416.
+Warning (Accepted unusual valence(s): S(8); Se(8); Te(8); Po(8); Metal was disconnected; Proton(s) added/removed) structure #417.
+Warning (Accepted unusual valence(s): S(8); Se(8); Te(8); Po(8); Metal was disconnected; Charges were rearranged; Omitted undefined stereo; Proton(s) added/removed) structure #418.
+Warning (Charges were rearranged; Metal was disconnected; Omitted undefined stereo; Proton(s) added/removed) structure #419.
+Warning (Charges were rearranged) structure #430.
+Warning (Charges were rearranged) structure #432.
+Warning (Charges were rearranged) structure #433.
+Warning (Charges were rearranged) structure #434.
+Warning (Charges were rearranged) structure #436.
+Warning (Charges were rearranged) structure #437.
+Warning (Charges were rearranged) structure #439.
+Warning (Charges were rearranged) structure #441.
+Warning (Charges were rearranged) structure #443.
+Warning (Charges were rearranged) structure #444.
+Warning (Charges were rearranged; Metal was disconnected; Proton(s) added/removed) structure #445.
+Warning (Charges were rearranged; Metal was disconnected; Proton(s) added/removed) structure #446.
+Warning (Ambiguous stereo: center(s)) structure #448.
+Warning (Omitted undefined stereo; Ambiguous stereo: center(s)) structure #453.
+Warning (Omitted undefined stereo; Ambiguous stereo: center(s)) structure #454.
+Warning (Omitted undefined stereo; Ambiguous stereo: center(s)) structure #455.
+Warning (Ambiguous stereo: center(s)) structure #456.
+Warning (Omitted undefined stereo; Ambiguous stereo: center(s)) structure #459.
+Warning (Ambiguous stereo: center(s)) structure #460.
+Warning (Ambiguous stereo: center(s)) structure #461.
+Warning (Ambiguous stereo: center(s)) structure #462.
+Warning (Ambiguous stereo: center(s)) structure #465.
+Warning (Ambiguous stereo: center(s)) structure #466.
+Warning (Ambiguous stereo: center(s)) structure #468.
+Warning (Omitted undefined stereo; Ambiguous stereo: center(s)) structure #469.
+Warning (Ambiguous stereo: center(s); Omitted undefined stereo) structure #471.
+Warning (Omitted undefined stereo; Ambiguous stereo: center(s)) structure #473.
+Warning (Omitted undefined stereo; Ambiguous stereo: center(s)) structure #475.
+Warning (Omitted undefined stereo; Ambiguous stereo: center(s)) structure #476.
+Warning (Omitted undefined stereo; Ambiguous stereo: center(s)) structure #477.
+Warning (Omitted undefined stereo; Ambiguous stereo: center(s)) structure #479.
+Warning (Omitted undefined stereo; Ambiguous stereo: center(s)) structure #481.
+Warning (Omitted undefined stereo; Ambiguous stereo: center(s)) structure #482.
+Warning (Omitted undefined stereo; Ambiguous stereo: center(s)) structure #483.
+Warning (Omitted undefined stereo; Ambiguous stereo: center(s)) structure #489.
+Warning (Omitted undefined stereo; Ambiguous stereo: center(s)) structure #495.
+Warning (Omitted undefined stereo; Ambiguous stereo: center(s)) structure #496.
+Warning (Proton(s) added/removed) structure #497.
+Warning (Proton(s) added/removed) structure #498.
+Warning (Charges were rearranged) structure #503.
+Warning (Accepted unusual valence(s): C(5)) structure #504.
+Warning (Proton(s) added/removed) structure #505.
+Warning (Omitted undefined stereo) structure #509.
+Warning (Accepted unusual valence(s): C(5); Ni(7); Metal was disconnected) structure #510.
+Warning (Omitted undefined stereo) structure #512.
+Warning (Accepted unusual valence(s): C-1(4); N-1(3); N(4)) structure #513.
+Warning (Omitted undefined stereo) structure #520.
+Warning (Proton(s) added/removed) structure #521.
+Warning (Proton(s) added/removed) structure #522.
+Warning (Metal was disconnected) structure #523.
+Warning (Omitted undefined stereo) structure #529.
+Warning (Omitted undefined stereo) structure #530.
+Warning (Omitted undefined stereo) structure #536.
+Warning (Ambiguous stereo: center(s)) structure #537.
+Warning (Accepted unusual valence(s): Fe(10); Metal was disconnected) structure #539.
+Warning (Accepted unusual valence(s): C(5); Fe(10); C,d(4); Metal was disconnected) structure #540.
+Warning (Accepted unusual valence(s): Fe(11); Fe(12); Metal was disconnected) structure #541.
+Warning (Charges were rearranged) structure #542.
+Warning (Charges neutralized) structure #543.
+Warning (Omitted undefined stereo) structure #545.
+Warning (Omitted undefined stereo) structure #548.
+Warning (Omitted undefined stereo) structure #549.
+Warning (Omitted undefined stereo) structure #551.
+Warning (Omitted undefined stereo) structure #553.
+Warning (Omitted undefined stereo) structure #564.
+Warning (Omitted undefined stereo) structure #582.
+Warning (Omitted undefined stereo) structure #583.
+Warning (Omitted undefined stereo) structure #586.
+Warning (Metal was disconnected) structure #587.
+Warning (Accepted unusual valence(s): C(12)) structure #588.
+Warning (Ambiguous stereo: center(s); Omitted undefined stereo) structure #590.
+Warning (Proton(s) added/removed) structure #591.
+Warning (Proton(s) added/removed) structure #592.
+Warning (Proton(s) added/removed) structure #593.
+Warning (Proton(s) added/removed) structure #594.
+Warning (Proton(s) added/removed) structure #596.
+Warning (Proton(s) added/removed) structure #597.
+Warning (Proton(s) added/removed) structure #598.
+Warning (Metal was disconnected) structure #599.
+Warning (Proton(s) added/removed; Omitted undefined stereo) structure #600.
+Warning (Omitted undefined stereo) structure #601.
+Warning (Ambiguous stereo: center(s)) structure #602.
+Warning (Proton(s) added/removed) structure #604.
+Warning (Proton(s) added/removed) structure #605.
+Warning (Proton(s) added/removed) structure #606.
+Warning (Proton(s) added/removed; Omitted undefined stereo) structure #607.
+Warning (Omitted undefined stereo) structure #608.
+Warning (Omitted undefined stereo) structure #609.
+Warning (Proton(s) added/removed; Omitted undefined stereo) structure #610.
+Warning (Proton(s) added/removed; Omitted undefined stereo) structure #611.
+Warning (Omitted undefined stereo) structure #612.
+Warning (Proton(s) added/removed; Omitted undefined stereo) structure #613.
+Warning (Proton(s) added/removed; Omitted undefined stereo) structure #614.
+Warning (Proton(s) added/removed; Omitted undefined stereo) structure #615.
+Warning (Omitted undefined stereo; Proton(s) added/removed) structure #617.
+Warning (Proton(s) added/removed) structure #618.
+Warning (Proton(s) added/removed) structure #619.
+Warning (Proton(s) added/removed) structure #620.
+Warning (Proton(s) added/removed) structure #621.
+Warning (Proton(s) added/removed) structure #622.
+Warning (Proton(s) added/removed) structure #623.
+Warning (Proton(s) added/removed) structure #624.
+Warning (Proton(s) added/removed) structure #625.
+Warning (Proton(s) added/removed) structure #626.
+Warning (Proton(s) added/removed) structure #627.
+Warning (Proton(s) added/removed) structure #628.
+Warning (Proton(s) added/removed) structure #629.
+Warning (Proton(s) added/removed) structure #630.
+Warning (Proton(s) added/removed) structure #631.
+Warning (Proton(s) added/removed) structure #632.
+Warning (Proton(s) added/removed) structure #633.
+Warning (Proton(s) added/removed) structure #634.
+Warning (Proton(s) added/removed) structure #635.
+Warning (Proton(s) added/removed) structure #636.
+Warning (Proton(s) added/removed) structure #637.
+Warning (Proton(s) added/removed) structure #638.
+Warning (Omitted undefined stereo) structure #640.
+Warning (Charges were rearranged; Proton(s) added/removed; Omitted undefined stereo; Not chiral) structure #647.
+Warning (Accepted unusual valence(s): B(4); H(2)) structure #649.
+Warning (Proton(s) added/removed) structure #651.
+Warning (Omitted undefined stereo) structure #655.
+Warning (Omitted undefined stereo) structure #659.
+Warning (Ambiguous stereo: bond(s); center(s)) structure #660.
+Warning (Ambiguous stereo: bond(s); center(s)) structure #661.
+Warning (Charges were rearranged; Omitted undefined stereo) structure #663.
+Warning (Omitted undefined stereo) structure #668.
+Warning (Ambiguous stereo: center(s)) structure #672.
+Warning (Accepted unusual valence(s): C(5)) structure #673.
+Warning (Accepted unusual valence(s): C(5); Ambiguous stereo: center(s)) structure #675.
+Warning (Salt was disconnected; Accepted unusual valence(s): N(4); Proton(s) added/removed) structure #679.
+Warning (Accepted unusual valence(s): C,d(1)) structure #682.
+Warning (Ambiguous stereo: center(s)) structure #684.
+Warning (Charges were rearranged; Proton(s) added/removed) structure #687.
+Warning (Proton(s) added/removed) structure #688.
+Warning (Proton(s) added/removed) structure #689.
+Warning (Proton(s) added/removed) structure #690.
+Warning (Proton(s) added/removed; Omitted undefined stereo) structure #691.
+Warning (Proton(s) added/removed) structure #692.
+Warning (Proton(s) added/removed) structure #693.
+Warning (Proton(s) added/removed) structure #694.
+Warning (Proton(s) added/removed) structure #695.
+Warning (Proton(s) added/removed) structure #696.
+Warning (Charges neutralized) structure #697.
+Warning (Proton(s) added/removed) structure #698.
+Warning (Proton(s) added/removed) structure #699.
+Warning (Proton(s) added/removed) structure #700.
+Warning (Proton(s) added/removed) structure #701.
+Warning (Proton(s) added/removed) structure #702.
+Warning (Proton(s) added/removed) structure #703.
+Warning (Proton(s) added/removed) structure #704.
+Warning (Proton(s) added/removed) structure #705.
+Warning (Proton(s) added/removed) structure #706.
+Warning (Charges were rearranged) structure #709.
+Warning (Charges were rearranged; Proton(s) added/removed) structure #710.
+Warning (Charges were rearranged; Proton(s) added/removed) structure #711.
+Warning (Charges were rearranged; Proton(s) added/removed; Omitted undefined stereo) structure #712.
+Warning (Proton(s) added/removed; Omitted undefined stereo) structure #719.
+Warning (Proton(s) added/removed; Omitted undefined stereo) structure #720.
+Warning (Proton(s) added/removed; Omitted undefined stereo) structure #725.
+Warning (Metal was disconnected; Proton(s) added/removed) structure #726.
+Warning (Metal was disconnected; Proton(s) added/removed) structure #727.
+Warning (Metal was disconnected; Proton(s) added/removed) structure #728.
+Warning (Accepted unusual valence(s): Co-1(7); N(4); Metal was disconnected; Proton(s) added/removed) structure #729.
+Warning (Accepted unusual valence(s): Co-1(7); N(4); Metal was disconnected; Proton(s) added/removed) structure #730.
+Warning (Accepted unusual valence(s): Co-1(7); N(4); Metal was disconnected; Proton(s) added/removed) structure #731.
+Warning (Proton(s) added/removed) structure #734.
+Warning (Accepted unusual valence(s): C(5); Co(8); S(3); B(6); B(5); H(2); Metal was disconnected) structure #738.
+Warning (Accepted unusual valence(s): B(6); B(5); H(2); Metal was disconnected) structure #739.
+Warning (Metal was disconnected; Proton(s) added/removed) structure #740.
+Warning (Omitted undefined stereo) structure #741.
+Warning (Proton(s) added/removed) structure #742.
+Warning (Omitted undefined stereo) structure #743.
+Warning (Ambiguous stereo: bond(s)) structure #744.
+Warning (Accepted unusual valence(s): C(5); O,t(2); C+2(3); C,t(3); N+1(3); O-2(2)) structure #745.
+Warning (Accepted unusual valence(s): C(5); O,t(2); C,t(3); C+2(3); N+1(3); O-2(2)) structure #746.
+Warning (Accepted unusual valence(s): C(5)) structure #747.
+Warning (Accepted unusual valence(s): C(5)) structure #748.
+Warning (Accepted unusual valence(s): C(5)) structure #749.
+Warning (Accepted unusual valence(s): C(5)) structure #750.
+Warning (Accepted unusual valence(s): C(5)) structure #751.
+Warning (Accepted unusual valence(s): C(5)) structure #752.
+Warning (Accepted unusual valence(s): C(5)) structure #753.
+Warning (Omitted undefined stereo) structure #754.
+Warning (Omitted undefined stereo) structure #755.
+Warning (Omitted undefined stereo) structure #758.
+Warning (Omitted undefined stereo) structure #760.
+Warning (Omitted undefined stereo; Proton(s) added/removed) structure #761.
+Warning (Ambiguous stereo: center(s)) structure #762.
+Warning (Ambiguous stereo: center(s)) structure #763.
+Warning (Ambiguous stereo: center(s)) structure #764.
+Warning (Omitted undefined stereo) structure #765.
+Warning (Ambiguous stereo: center(s)) structure #767.
+Warning (Accepted unusual valence(s): C-1(4); N-1(3); N(4)) structure #769.
+Warning (Ambiguous stereo: center(s)) structure #770.
+Warning (Accepted unusual valence(s): C-1(4); N-1(3); N(4); Ambiguous stereo: center(s)) structure #771.
+Warning (Proton(s) added/removed) structure #773.
+Warning (Accepted unusual valence(s): H(2)) structure #775.
+Warning (Accepted unusual valence(s): N(4)) structure #796.
+Warning (Accepted unusual valence(s): O(1)) structure #797.
+Warning (Accepted unusual valence(s): N(4); O(1)) structure #798.
+Warning (Omitted undefined stereo) structure #799.
+Warning (Salt was disconnected) structure #801.
+Warning (Proton(s) added/removed) structure #802.
+Warning (Accepted unusual valence(s): B(4); H(2)) structure #804.
+Warning (Accepted unusual valence(s): B(4); H(2)) structure #805.
+Warning (Proton(s) added/removed) structure #812.
+Warning (Proton(s) added/removed) structure #813.
+Warning (Proton(s) added/removed) structure #814.
+Warning (Proton(s) added/removed) structure #815.
+Warning (Proton(s) added/removed) structure #816.
+Warning (Proton(s) added/removed) structure #817.
+Warning (Proton(s) added/removed) structure #818.
+Warning (Omitted undefined stereo) structure #825.
+Warning (Accepted unusual valence(s): H(2)) structure #827.
+Warning (Proton(s) added/removed) structure #829.
+Warning (Proton(s) added/removed) structure #830.
+Warning (Proton(s) added/removed) structure #832.
+Warning (Proton(s) added/removed) structure #833.
+Warning (Proton(s) added/removed) structure #834.
+Warning (Proton(s) added/removed) structure #835.
+Warning (Accepted unusual valence(s): Dy(1); Metal was disconnected) structure #836.
+Warning (Accepted unusual valence(s): C(5)) structure #837.
+Warning (Proton(s) added/removed) structure #839.
+Warning (Proton(s) added/removed) structure #840.
+Warning (Proton(s) added/removed) structure #841.
+Warning (Proton(s) added/removed) structure #842.
+Warning (Proton(s) added/removed; Omitted undefined stereo) structure #843.
+Warning (Omitted undefined stereo) structure #845.
+Warning (Proton(s) added/removed) structure #846.
+Warning (Charges were rearranged; Proton(s) added/removed; Omitted undefined stereo) structure #847.
+Warning (Omitted undefined stereo) structure #849.
+Warning (Omitted undefined stereo) structure #850.
+Warning (Accepted unusual valence(s): C-1,d(4); Metal was disconnected; Omitted undefined stereo) structure #851.
+Warning (Accepted unusual valence(s): C-1,d(4); Omitted undefined stereo) structure #852.
+Warning (Accepted unusual valence(s): C(3); O(1)) structure #854.
+Warning (Accepted unusual valence(s): C(5); Omitted undefined stereo) structure #856.
+Warning (Accepted unusual valence(s): O(3); Omitted undefined stereo) structure #857.
+Warning (Omitted undefined stereo) structure #858.
+Warning (Accepted unusual valence(s): C(5); O(3); Omitted undefined stereo) structure #859.
+Warning (Accepted unusual valence(s): C(3)) structure #862.
+Warning (Accepted unusual valence(s): S(3)) structure #863.
+Warning (Accepted unusual valence(s): C(3); S(3)) structure #864.
+Warning (Accepted unusual valence(s): S(3)) structure #867.
+Warning (Accepted unusual valence(s): S(3)) structure #870.
+Warning (Proton(s) added/removed) structure #871.
+Warning (Proton(s) added/removed) structure #872.
+Warning (Proton(s) added/removed; Omitted undefined stereo) structure #873.
+Warning (Accepted unusual valence(s): Co(1); Metal was disconnected; Charges neutralized; Proton(s) added/removed) structure #874.
+Warning (Omitted undefined stereo) structure #875.
+Warning (Omitted undefined stereo) structure #876.
+Warning (Accepted unusual valence(s): C(3)) structure #880.
+Warning (Not chiral) structure #881.
+Warning (Omitted undefined stereo) structure #882.
+Warning (Proton(s) added/removed) structure #883.
+Warning (Proton(s) added/removed) structure #887.
+Warning (Proton(s) added/removed) structure #888.
+Warning (Omitted undefined stereo) structure #890.
+Warning (Omitted undefined stereo) structure #897.
+Warning (Accepted unusual valence(s): C(3)) structure #898.
+Warning (Metal was disconnected; Omitted undefined stereo) structure #900.
+Warning (Metal was disconnected; Omitted undefined stereo; Proton(s) added/removed) structure #901.
+Warning (Metal was disconnected) structure #902.
+Warning (Accepted unusual valence(s): C(5); C-1(4); Metal was disconnected) structure #903.
+Warning (Accepted unusual valence(s): C(5); C-1(4); Metal was disconnected) structure #904.
+Warning (Accepted unusual valence(s): C-1(5); Metal was disconnected) structure #905.
+Warning (Accepted unusual valence(s): C-1(5); Fe(10); Metal was disconnected) structure #906.
+Warning (Accepted unusual valence(s): Fe(10); Metal was disconnected) structure #907.
+Warning (Accepted unusual valence(s): C(3); C-1(2)) structure #908.
+Warning (Accepted unusual valence(s): Fe(9); Metal was disconnected) structure #913.
+Warning (Accepted unusual valence(s): Fe(10); Metal was disconnected) structure #914.
+Warning (Accepted unusual valence(s): Fe(10); Metal was disconnected) structure #915.
+Warning (Accepted unusual valence(s): Fe(10); Metal was disconnected) structure #916.
+Warning (Omitted undefined stereo) structure #922.
+Warning (Omitted undefined stereo) structure #923.
+Warning (Omitted undefined stereo) structure #925.
+Warning (Omitted undefined stereo) structure #933.
+Warning (Omitted undefined stereo) structure #934.
+Warning (Omitted undefined stereo) structure #940.
+Warning (Accepted unusual valence(s): S(7); N(4)) structure #941.
+Warning (Omitted undefined stereo) structure #942.
+Warning (Omitted undefined stereo) structure #943.
+Warning (Omitted undefined stereo) structure #944.
+Warning (Omitted undefined stereo) structure #945.
+Warning (Omitted undefined stereo) structure #947.
+Warning (Omitted undefined stereo) structure #948.
+Warning (Charges were rearranged) structure #953.
+Warning (Omitted undefined stereo) structure #954.
+Warning (Proton(s) added/removed) structure #956.
+Warning (Proton(s) added/removed) structure #958.
+Warning (Proton(s) added/removed) structure #959.
+Warning (Proton(s) added/removed) structure #961.
+Warning (Accepted unusual valence(s): B(4); H(2)) structure #965.
+Warning (Proton(s) added/removed; Omitted undefined stereo) structure #971.
+Warning (Proton(s) added/removed) structure #973.
+Warning (Proton(s) added/removed) structure #974.
+Warning (Proton(s) added/removed) structure #975.
+Warning (Proton(s) added/removed) structure #976.
+Warning (Salt was disconnected; Accepted unusual valence(s): C(2); Ag(2); Metal was disconnected; Proton(s) added/removed) structure #977.
+Warning (Accepted unusual valence(s): Ni(7); Metal was disconnected) structure #978.
+Warning (Accepted unusual valence(s): Ni(7); Metal was disconnected) structure #979.
+Warning (Proton(s) added/removed) structure #980.
+Warning (Charges were rearranged; Proton(s) added/removed) structure #981.
+Warning (Charges were rearranged) structure #983.
+Warning (Charges were rearranged; Proton(s) added/removed) structure #984.
+Warning (Omitted undefined stereo) structure #987.
+Warning (Charges were rearranged) structure #989.
+Warning (Proton(s) added/removed; Omitted undefined stereo) structure #991.
+Warning (Accepted unusual valence(s): C(6); Metal was disconnected; Omitted undefined stereo) structure #992.
+Warning (Accepted unusual valence(s): C(6); Metal was disconnected; Omitted undefined stereo) structure #993.
+Error 78 (no InChI; Unacceptable isotope of hydrogen) inp structure #995.
+Warning (Omitted undefined stereo) structure #1002.
+Warning (Omitted undefined stereo) structure #1003.
+Warning (Proton(s) added/removed) structure #1005.
+Warning (Proton(s) added/removed) structure #1006.
+Warning (Accepted unusual valence(s): Ni(7); Metal was disconnected) structure #1011.
+Warning (Ambiguous stereo: center(s)) structure #1012.
+Warning (Metal was disconnected; Omitted undefined stereo) structure #1013.
+Warning (Ambiguous stereo: center(s)) structure #1014.
+Warning (Accepted unusual valence(s): N(4); Metal was disconnected; Proton(s) added/removed) structure #1017.
+Warning (Metal was disconnected; Proton(s) added/removed) structure #1018.
+Warning (Accepted unusual valence(s): N(4); Metal was disconnected; Proton(s) added/removed) structure #1019.
+Warning (Accepted unusual valence(s): N(4); Metal was disconnected; Proton(s) added/removed) structure #1020.
+Warning (Omitted undefined stereo; Not chiral) structure #1022.
+Warning (Proton(s) added/removed; Omitted undefined stereo; Not chiral) structure #1027.
+Warning (Proton(s) added/removed; Omitted undefined stereo; Not chiral) structure #1028.
+Warning (Proton(s) added/removed; Omitted undefined stereo; Not chiral) structure #1029.
+Warning (Proton(s) added/removed; Ambiguous stereo: center(s)) structure #1032.
+Warning (Proton(s) added/removed) structure #1033.
+Warning (Omitted undefined stereo; Not chiral) structure #1037.
+Warning (Omitted undefined stereo; Not chiral) structure #1039.
+Warning (Proton(s) added/removed; Omitted undefined stereo; Not chiral) structure #1044.
+Warning (Omitted undefined stereo; Not chiral) structure #1045.
+Warning (Proton(s) added/removed; Omitted undefined stereo; Not chiral) structure #1047.
+Warning (Omitted undefined stereo) structure #1048.
+Warning (Proton(s) added/removed; Ambiguous stereo: center(s)) structure #1049.
+Warning (Proton(s) added/removed; Omitted undefined stereo; Not chiral) structure #1050.
+Warning (Proton(s) added/removed; Ambiguous stereo: center(s)) structure #1051.
+Warning (Proton(s) added/removed; Omitted undefined stereo; Not chiral) structure #1052.
+Warning (Omitted undefined stereo; Not chiral) structure #1053.
+Warning (Proton(s) added/removed; Omitted undefined stereo; Not chiral) structure #1054.
+Warning (Omitted undefined stereo; Not chiral) structure #1055.
+Warning (Omitted undefined stereo; Not chiral) structure #1056.
+Warning (Charges were rearranged; Omitted undefined stereo; Ambiguous stereo: center(s)) structure #1057.
+Warning (Charges were rearranged; Omitted undefined stereo; Ambiguous stereo: center(s)) structure #1058.
+Warning (Omitted undefined stereo; Not chiral) structure #1059.
+Warning (Omitted undefined stereo; Not chiral) structure #1060.
+Warning (Omitted undefined stereo) structure #1061.
+Warning (Proton(s) added/removed; Omitted undefined stereo; Not chiral) structure #1062.
+Warning (Omitted undefined stereo; Not chiral) structure #1064.
+Warning (Omitted undefined stereo; Not chiral) structure #1065.
+Warning (Omitted undefined stereo; Not chiral) structure #1066.
+Warning (Omitted undefined stereo; Not chiral) structure #1067.
+Warning (Not chiral) structure #1068.
+Warning (Not chiral) structure #1069.
+Warning (Proton(s) added/removed; Omitted undefined stereo; Not chiral) structure #1070.
+Warning (Ambiguous stereo: center(s)) structure #1071.
+Warning (Ambiguous stereo: center(s)) structure #1073.
+Warning (Ambiguous stereo: center(s)) structure #1074.
+Warning (Ambiguous stereo: center(s)) structure #1075.
+Warning (Ambiguous stereo: center(s)) structure #1076.
+Warning (Omitted undefined stereo; Not chiral) structure #1081.
+Warning (Omitted undefined stereo) structure #1082.
+Warning (Proton(s) added/removed; Ambiguous stereo: center(s)) structure #1083.
+Warning (Ambiguous stereo: center(s)) structure #1084.
+Warning (Omitted undefined stereo; Not chiral) structure #1085.
+Warning (Omitted undefined stereo; Not chiral) structure #1086.
+Warning (Ambiguous stereo: center(s)) structure #1087.
+Warning (Proton(s) added/removed) structure #1088.
+Warning (Proton(s) added/removed) structure #1090.
+Warning (Proton(s) added/removed) structure #1091.
+Warning (Proton(s) added/removed) structure #1092.
+Warning (Proton(s) added/removed) structure #1094.
+Warning (Proton(s) added/removed) structure #1096.
+Warning (Proton(s) added/removed) structure #1098.
+Warning (Proton(s) added/removed) structure #1100.
+Warning (Proton(s) added/removed) structure #1101.
+Warning (Proton(s) added/removed) structure #1103.
+Warning (Proton(s) added/removed) structure #1104.
+Warning (Proton(s) added/removed) structure #1106.
+Warning (Accepted unusual valence(s): N(4); Metal was disconnected) structure #1109.
+Warning (Proton(s) added/removed) structure #1111.
+Warning (Accepted unusual valence(s): H(2); Omitted undefined stereo) structure #1114.
+Warning (Proton(s) added/removed; Ambiguous stereo: bond(s); Omitted undefined stereo) structure #1115.
+Warning (Proton(s) added/removed) structure #1116.
+Warning (Proton(s) added/removed) structure #1117.
+Warning (Proton(s) added/removed) structure #1118.
+Warning (Proton(s) added/removed; Omitted undefined stereo) structure #1119.
+Warning (Accepted unusual valence(s): C(2); C(3); O(1); N(1); Proton(s) added/removed) structure #1120.
+Warning (Proton(s) added/removed; Ambiguous stereo: center(s)) structure #1121.
+Warning (Accepted unusual valence(s): Fe(10); Ni(10); Metal was disconnected) structure #1122.
+Warning (Proton(s) added/removed) structure #1123.
+Warning (Proton(s) added/removed) structure #1124.
+Warning (Proton(s) added/removed) structure #1125.
+Warning (Proton(s) added/removed) structure #1126.
+Warning (Proton(s) added/removed) structure #1127.
+Warning (Charges were rearranged) structure #1128.
+Warning (Proton(s) added/removed) structure #1129.
+Warning (Proton(s) added/removed) structure #1130.
+Warning (Proton(s) added/removed) structure #1131.
+Warning (Charges were rearranged) structure #1133.
+Warning (Charges were rearranged) structure #1134.
+Warning (Proton(s) added/removed) structure #1135.
+Warning (Omitted undefined stereo) structure #1137.
+Warning (Omitted undefined stereo) structure #1138.
+Warning (Omitted undefined stereo) structure #1139.
+Warning (Omitted undefined stereo) structure #1140.
+Warning (Omitted undefined stereo) structure #1141.
+Warning (Salt was disconnected; Proton(s) added/removed) structure #1142.
+Warning (Salt was disconnected; Proton(s) added/removed) structure #1143.
+Warning (Salt was disconnected; Proton(s) added/removed) structure #1144.
+Warning (Salt was disconnected; Proton(s) added/removed) structure #1145.
+Warning (Charges were rearranged; Salt was disconnected; Proton(s) added/removed) structure #1146.
+Warning (Salt was disconnected; Proton(s) added/removed) structure #1147.
+Warning (Charges were rearranged; Salt was disconnected; Proton(s) added/removed) structure #1148.
+Warning (Salt was disconnected; Proton(s) added/removed) structure #1149.
+Warning (Metal was disconnected; Proton(s) added/removed) structure #1157.
+Warning (Charges were rearranged; Accepted unusual valence(s): Ti(6); Metal was disconnected; Proton(s) added/removed) structure #1158.
+Warning (Proton(s) added/removed) structure #1159.
+Warning (Proton(s) added/removed) structure #1160.
+Warning (Proton(s) added/removed; Omitted undefined stereo) structure #1162.
+Warning (Proton(s) added/removed; Omitted undefined stereo) structure #1163.
+Warning (Proton(s) added/removed; Omitted undefined stereo) structure #1164.
+Warning (Metal was disconnected) structure #1166.
+Warning (Charges were rearranged) structure #1168.
+Warning (Charges were rearranged) structure #1170.
+Warning (Charges were rearranged) structure #1174.
+Warning (Charges were rearranged) structure #1176.
+Warning (Charges were rearranged) structure #1178.
+Warning (Charges were rearranged) structure #1180.
+Warning (Omitted undefined stereo) structure #1186.
+Warning (Proton(s) added/removed) structure #1189.
+Warning (Proton(s) added/removed) structure #1190.
+Warning (Proton(s) added/removed) structure #1191.
+Warning (Charges were rearranged; Proton(s) added/removed) structure #1193.
+Warning (Charges were rearranged; Proton(s) added/removed) structure #1194.
+Warning (Charges were rearranged; Metal was disconnected; Omitted undefined stereo; Proton(s) added/removed) structure #1195.
+Warning (Charges were rearranged) structure #1197.
+Warning (Charges were rearranged) structure #1198.
+Warning (Salt was disconnected) structure #1213.
+Warning (Omitted undefined stereo) structure #1214.
+Warning (Charges were rearranged; Accepted unusual valence(s): C(3)) structure #1215.
+Warning (Charges were rearranged) structure #1216.
+Warning (Charges were rearranged) structure #1217.
+Warning (Charges were rearranged; Omitted undefined stereo) structure #1218.
+Warning (Proton(s) added/removed) structure #1220.
+Warning (Proton(s) added/removed) structure #1221.
+Warning (Charges were rearranged) structure #1222.
+Warning (Charges were rearranged; Proton(s) added/removed; Omitted undefined stereo) structure #1223.
+Warning (Proton(s) added/removed) structure #1225.
+Warning (Proton(s) added/removed) structure #1226.
+Warning (Omitted undefined stereo; Ambiguous stereo: center(s)) structure #1231.
+Warning (Charges were rearranged) structure #1236.
+Warning (Accepted unusual valence(s): N-1(4)) structure #1237.
+Warning (Metal was disconnected) structure #1238.
+Warning (Proton(s) added/removed) structure #1239.
+Warning (Proton(s) added/removed) structure #1240.
+Warning (Proton(s) added/removed) structure #1241.
+Warning (Proton(s) added/removed) structure #1243.
+Warning (Accepted unusual valence(s): N(4); B(4)) structure #1247.
+Warning (Accepted unusual valence(s): B(4); N(4)) structure #1248.
+Warning (Charges were rearranged; Metal was disconnected) structure #1250.
+Warning (Metal was disconnected; Proton(s) added/removed) structure #1251.
+Warning (Metal was disconnected; Proton(s) added/removed) structure #1252.
+Warning (Accepted unusual valence(s): Fe,d(11); Metal was disconnected) structure #1253.
+Warning (Charges were rearranged; Metal was disconnected) structure #1254.
+Warning (Omitted undefined stereo) structure #1256.
+Warning (Accepted unusual valence(s): N(4); Metal was disconnected; Proton(s) added/removed) structure #1258.
+Warning (Charges were rearranged; Accepted unusual valence(s): Cu(4); Metal was disconnected; Proton(s) added/removed) structure #1259.
+Warning (Charges were rearranged; Accepted unusual valence(s): Cu(4); Metal was disconnected; Proton(s) added/removed) structure #1260.
+Warning (Accepted unusual valence(s): Mo(8); C,d(5); Metal was disconnected) structure #1261.
+Warning (Metal was disconnected) structure #1262.
+Warning (Accepted unusual valence(s): W(9); C(5); Metal was disconnected) structure #1263.
+Warning (Accepted unusual valence(s): B(4)) structure #1265.
+Warning (Omitted undefined stereo) structure #1266.
+Warning (Metal was disconnected) structure #1268.
+Warning (Metal was disconnected; Proton(s) added/removed) structure #1269.
+Warning (Accepted unusual valence(s): Ni(6); Metal was disconnected) structure #1270.
+Warning (Accepted unusual valence(s): Cu(4); Metal was disconnected; Proton(s) added/removed) structure #1271.
+Warning (Omitted undefined stereo) structure #1272.
+Warning (Metal was disconnected; Proton(s) added/removed) structure #1273.
+Warning (Charges were rearranged) structure #1274.
+Warning (Proton(s) added/removed) structure #1275.
+Warning (Charges were rearranged; Metal was disconnected; Proton(s) added/removed) structure #1276.
+Warning (Omitted undefined stereo) structure #1279.
+Warning (Charges were rearranged) structure #1280.
+Warning (Charges were rearranged) structure #1281.
+Warning (Charges were rearranged) structure #1289.
+Warning (Charges were rearranged; Accepted unusual valence(s): Ni(4); Metal was disconnected) structure #1291.
+Warning (Omitted undefined stereo) structure #1292.
+Warning (Charges were rearranged; Metal was disconnected) structure #1293.
+Warning (Accepted unusual valence(s): Rh(5); Metal was disconnected; Proton(s) added/removed) structure #1294.
+Warning (Accepted unusual valence(s): C(5); Cr(9); C-1(4); Metal was disconnected) structure #1295.
+Warning (Accepted unusual valence(s): C(5); Omitted undefined stereo) structure #1308.
+Warning (Ambiguous stereo: center(s)) structure #1309.
+Warning (Accepted unusual valence(s): Co,d(6); Metal was disconnected; Omitted undefined stereo) structure #1310.
+Warning (Accepted unusual valence(s): N(4)) structure #1311.
+Warning (Proton(s) added/removed) structure #1314.
+Warning (Proton(s) added/removed) structure #1315.
+Warning (Proton(s) added/removed) structure #1317.
+Warning (Accepted unusual valence(s): Fe(10); Metal was disconnected) structure #1318.
+Warning (Proton(s) added/removed) structure #1319.
+Warning (Accepted unusual valence(s): Mo(9); Metal was disconnected) structure #1322.
+Warning (Metal was disconnected; Omitted undefined stereo) structure #1323.
+Warning (Metal was disconnected) structure #1324.
+Warning (Accepted unusual valence(s): Rh(9); Metal was disconnected) structure #1327.
+Warning (Accepted unusual valence(s): Rh(9); Metal was disconnected; Omitted undefined stereo) structure #1328.
+Warning (Accepted unusual valence(s): Rh(9); Metal was disconnected; Omitted undefined stereo) structure #1329.
+Warning (Proton(s) added/removed) structure #1330.
+Warning (Accepted unusual valence(s): B(5)) structure #1331.
+Warning (Omitted undefined stereo) structure #1333.
+Warning (Metal was disconnected; Proton(s) added/removed) structure #1335.
+Warning (Proton(s) added/removed) structure #1336.
+Warning (Accepted unusual valence(s): N(4); Proton(s) added/removed) structure #1337.
+Warning (Proton(s) added/removed) structure #1338.
+Warning (Metal was disconnected) structure #1340.
+Warning (Metal was disconnected) structure #1341.
+Warning (Charges were rearranged; Accepted unusual valence(s): Co(6); Metal was disconnected) structure #1342.
+Warning (Metal was disconnected) structure #1343.
+Warning (Proton(s) added/removed) structure #1345.
+Warning (Charges were rearranged) structure #1348.
+Warning (Proton(s) added/removed) structure #1352.
+Warning (Proton(s) added/removed) structure #1353.
+Warning (Omitted undefined stereo) structure #1354.
+Warning (Accepted unusual valence(s): C-1,d(4); Metal was disconnected) structure #1355.
+Warning (Charges were rearranged; Metal was disconnected; Ambiguous stereo: bond(s)) structure #1356.
+Warning (Proton(s) added/removed) structure #1358.
+Warning (Omitted undefined stereo; Ambiguous stereo: center(s)) structure #1359.
+Warning (Omitted undefined stereo) structure #1360.
+Warning (Accepted unusual valence(s): Cu(6); Metal was disconnected; Proton(s) added/removed) structure #1361.
+Warning (Accepted unusual valence(s): N(4); O(3); Metal was disconnected; Proton(s) added/removed) structure #1363.
+Warning (Accepted unusual valence(s): Co(6); Metal was disconnected; Proton(s) added/removed) structure #1365.
+Warning (Charges were rearranged; Omitted undefined stereo) structure #1366.
+Warning (Omitted undefined stereo) structure #1368.
+Warning (Accepted unusual valence(s): Ti(6); Metal was disconnected; Proton(s) added/removed; Omitted undefined stereo) structure #1371.
+Warning (Accepted unusual valence(s): O(3); Metal was disconnected) structure #1372.
+Warning (Accepted unusual valence(s): N(4); Proton(s) added/removed) structure #1374.
+Warning (Accepted unusual valence(s): B-2(5)) structure #1378.
+Warning (Accepted unusual valence(s): Ni(6); Metal was disconnected) structure #1379.
+Warning (Omitted undefined stereo) structure #1387.
+Warning (Accepted unusual valence(s): S(8)) structure #1388.
+Warning (Accepted unusual valence(s): S(8)) structure #1389.
+Warning (Metal was disconnected; Proton(s) added/removed) structure #1390.
+Warning (Proton(s) added/removed) structure #1392.
+Warning (Charges were rearranged; Proton(s) added/removed) structure #1393.
+Warning (Metal was disconnected; Proton(s) added/removed) structure #1394.
+Warning (Metal was disconnected; Proton(s) added/removed) structure #1395.
+Warning (Metal was disconnected; Proton(s) added/removed) structure #1396.
+Warning (Accepted unusual valence(s): S(3)) structure #1397.
+Warning (Proton(s) added/removed) structure #1398.
+Warning (Accepted unusual valence(s): C+1,d(4); Metal was disconnected) structure #1399.
+Warning (Accepted unusual valence(s): C(6); Pt,d(7); C,d(5); Metal was disconnected) structure #1400.
+Warning (Salt was disconnected; Proton(s) added/removed) structure #1401.
+Warning (Metal was disconnected) structure #1403.
+Warning (Accepted unusual valence(s): C+1,d(4); Omitted undefined stereo) structure #1405.
+Warning (Accepted unusual valence(s): S(3)) structure #1406.
+Warning (Charges were rearranged; Accepted unusual valence(s): S(3); Proton(s) added/removed; Omitted undefined stereo) structure #1407.
+Warning (Ambiguous stereo: center(s)) structure #1408.
+Warning (Accepted unusual valence(s): S(3)) structure #1409.
+Warning (Accepted unusual valence(s): S(3)) structure #1410.
+Warning (Charges were rearranged; Metal was disconnected; Proton(s) added/removed) structure #1411.
+Warning (Omitted undefined stereo) structure #1413.
+Warning (Metal was disconnected; Proton(s) added/removed) structure #1414.
+Warning (Omitted undefined stereo) structure #1415.
+Warning (Accepted unusual valence(s): C-1(5); Metal was disconnected; Proton(s) added/removed) structure #1416.
+Warning (Metal was disconnected; Proton(s) added/removed) structure #1417.
+Warning (Metal was disconnected; Proton(s) added/removed) structure #1418.
+Warning (Proton(s) added/removed) structure #1434.
+Warning (Proton(s) added/removed) structure #1435.
+Warning (Omitted undefined stereo) structure #1437.
+Warning (Omitted undefined stereo) structure #1438.
+Warning (Accepted unusual valence(s): C(5); Fe(10); Metal was disconnected) structure #1440.
+Warning (Accepted unusual valence(s): C-1,d(4); Metal was disconnected; Proton(s) added/removed) structure #1441.
+Warning (Metal was disconnected) structure #1442.
+Warning (Accepted unusual valence(s): C-1(4); C(5); B+2(4); Metal was disconnected) structure #1443.
+Warning (Omitted undefined stereo) structure #1446.
+Warning (Omitted undefined stereo) structure #1449.
+Warning (Omitted undefined stereo) structure #1450.
+Warning (Accepted unusual valence(s): C+1(4); Proton(s) added/removed) structure #1451.
+Warning (Accepted unusual valence(s): N(4); C+1(4); Proton(s) added/removed) structure #1452.
+Warning (Accepted unusual valence(s): C(5); Cr(12); Metal was disconnected) structure #1453.
+Warning (Charges were rearranged) structure #1454.
+Warning (Omitted undefined stereo; Proton(s) added/removed) structure #1456.
+Warning (Metal was disconnected; Proton(s) added/removed) structure #1457.
+Warning (Accepted unusual valence(s): C-2(4); Metal was disconnected) structure #1458.
+Warning (Accepted unusual valence(s): C-2(4); Metal was disconnected) structure #1459.
+Warning (Metal was disconnected) structure #1460.
+Warning (Accepted unusual valence(s): Mo(10); Metal was disconnected; Proton(s) added/removed) structure #1461.
+Warning (Metal was disconnected) structure #1462.
+Warning (Accepted unusual valence(s): Mo(10); Metal was disconnected; Proton(s) added/removed; Ambiguous stereo: bond(s)) structure #1463.
+Warning (Charges were rearranged) structure #1464.
+Warning (Charges were rearranged) structure #1466.
+Warning (Proton(s) added/removed) structure #1467.
+Warning (Omitted undefined stereo) structure #1468.
+Warning (Accepted unusual valence(s): N(2)) structure #1469.
+Warning (Omitted undefined stereo) structure #1471.
+Warning (Accepted unusual valence(s): O(1); H(2)) structure #1472.
+Warning (Accepted unusual valence(s): Zr(20); Metal was disconnected) structure #1473.
+Warning (Omitted undefined stereo; Ambiguous stereo: center(s)) structure #1474.
+Warning (Not chiral) structure #1477.
+Warning (Charges were rearranged) structure #1482.
+Warning (Charges were rearranged) structure #1483.
+Warning (Accepted unusual valence(s): N+1(2); N+1(3)) structure #1484.
+Warning (Charges were rearranged; Omitted undefined stereo) structure #1485.
+Warning (Metal was disconnected; Omitted undefined stereo) structure #1487.
+Warning (Metal was disconnected; Omitted undefined stereo) structure #1488.
+Warning (Charges were rearranged) structure #1489.
+Warning (Omitted undefined stereo) structure #1490.
+Warning (Proton(s) added/removed) structure #1492.
+Warning (Metal was disconnected; Proton(s) added/removed; Omitted undefined stereo) structure #1493.
+Warning (Metal was disconnected) structure #1494.
+Warning (Metal was disconnected; Proton(s) added/removed; Omitted undefined stereo) structure #1497.
+Warning (Omitted undefined stereo; Not chiral) structure #1498.
+Warning (Proton(s) added/removed; Omitted undefined stereo; Not chiral) structure #1499.
+Warning (Charges neutralized) structure #1503.
+Warning (Omitted undefined stereo) structure #1505.
+Warning (Proton(s) added/removed) structure #1511.
+Warning (Proton(s) added/removed) structure #1512.
+Warning (Metal was disconnected; Omitted undefined stereo) structure #1513.
+Warning (Accepted unusual valence(s): N(7)) structure #1517.
+Warning (Accepted unusual valence(s): N+1(7)) structure #1518.
+Warning (Charges were rearranged) structure #1531.
+Warning (Charges were rearranged) structure #1564.
+Warning (Accepted unusual valence(s): C(5)) structure #1571.
+Warning (Ambiguous stereo: center(s)) structure #1579.
+Warning (Ambiguous stereo: center(s)) structure #1580.
+Warning (Ambiguous stereo: center(s)) structure #1581.
+Warning (Ambiguous stereo: center(s)) structure #1582.
+Warning (Ambiguous stereo: center(s)) structure #1583.
+Warning (Ambiguous stereo: center(s)) structure #1584.
+Warning (Omitted undefined stereo) structure #1585.
+Warning (Omitted undefined stereo) structure #1586.
+Warning (Omitted undefined stereo; Proton(s) added/removed) structure #1587.
+Warning (Proton(s) added/removed) structure #1590.
+Warning (Proton(s) added/removed) structure #1591.
+Warning (Omitted undefined stereo) structure #1592.
+Warning (Omitted undefined stereo; Proton(s) added/removed) structure #1593.
+Warning (Omitted undefined stereo; Proton(s) added/removed) structure #1594.
+Warning (Proton(s) added/removed) structure #1596.
+Warning (Omitted undefined stereo) structure #1606.
+Warning (Proton(s) added/removed) structure #1607.
+Warning (Charges were rearranged; Accepted unusual valence(s): S(3); Proton(s) added/removed; Omitted undefined stereo) structure #1608.
+Warning (Charges were rearranged; Proton(s) added/removed; Omitted undefined stereo) structure #1609.
+Warning (Charges were rearranged) structure #1611.
+Warning (Accepted unusual valence(s): S(8)) structure #1615.
+Warning (Accepted unusual valence(s): N-1,t(2)) structure #1616.
+Warning (Omitted undefined stereo) structure #1620.
+Warning (Metal was disconnected; Charges neutralized) structure #1623.
+Warning (Salt was disconnected; Metal was disconnected; Proton(s) added/removed) structure #1624.
+Warning (Salt was disconnected; Proton(s) added/removed) structure #1625.
+Warning (Salt was disconnected; Proton(s) added/removed) structure #1626.
+Warning (Salt was disconnected; Proton(s) added/removed) structure #1627.
+Warning (Salt was disconnected; Proton(s) added/removed) structure #1628.
+Warning (Salt was disconnected; Proton(s) added/removed) structure #1629.
+Warning (Salt was disconnected; Proton(s) added/removed) structure #1630.
+Warning (Salt was disconnected; Proton(s) added/removed) structure #1631.
+Warning (Omitted undefined stereo) structure #1632.
+Warning (Proton(s) added/removed) structure #1634.
+Warning (Omitted undefined stereo) structure #1662.
+Warning (Omitted undefined stereo) structure #1663.
+Warning (Omitted undefined stereo) structure #1664.
+Warning (Omitted undefined stereo) structure #1665.
+Warning (Omitted undefined stereo) structure #1666.
+Warning (Metal was disconnected) structure #1667.
+Warning (Ambiguous stereo: bond(s)) structure #1668.
+Warning (Accepted unusual valence(s): N+1(2); N(2)) structure #1669.
+Warning (Accepted unusual valence(s): La(4); Metal was disconnected) structure #1677.
+Warning (Accepted unusual valence(s): La(4); Metal was disconnected) structure #1678.
+Warning (Ambiguous stereo: center(s)) structure #1679.
+Warning (Ambiguous stereo: center(s)) structure #1681.
+Warning (Accepted unusual valence(s): La(4); Metal was disconnected; Ambiguous stereo: center(s)) structure #1685.
+Warning (Accepted unusual valence(s): La(4); Metal was disconnected) structure #1687.
+Warning (Ambiguous stereo: center(s)) structure #1690.
+Warning (Ambiguous stereo: center(s)) structure #1691.
+Warning (Ambiguous stereo: center(s)) structure #1698.
+Warning (Accepted unusual valence(s): La(4); Metal was disconnected; Ambiguous stereo: center(s)) structure #1699.
+Warning (Metal was disconnected) structure #1700.
+Warning (Omitted undefined stereo) structure #1701.
+Warning (Omitted undefined stereo) structure #1704.
+Warning (Omitted undefined stereo) structure #1705.
+Warning (Omitted undefined stereo) structure #1712.
+Warning (Ambiguous stereo: center(s)) structure #1713.
+Warning (Ambiguous stereo: center(s); Omitted undefined stereo) structure #1714.
+Warning (Ambiguous stereo: center(s)) structure #1715.
+Warning (Ambiguous stereo: center(s)) structure #1716.
+Warning (Ambiguous stereo: center(s)) structure #1717.
+Warning (Ambiguous stereo: center(s)) structure #1718.
+Warning (Ambiguous stereo: center(s)) structure #1719.
+Warning (Ambiguous stereo: center(s)) structure #1720.
+Warning (Ambiguous stereo: center(s)) structure #1721.
+Warning (Ambiguous stereo: center(s)) structure #1722.
+Warning (Ambiguous stereo: center(s)) structure #1724.
+Warning (Ambiguous stereo: center(s)) structure #1725.
+Warning (Proton(s) added/removed; Ambiguous stereo: bond(s)) structure #1727.
+Warning (Omitted undefined stereo) structure #1741.
+Warning (Omitted undefined stereo) structure #1744.
+Warning (Omitted undefined stereo) structure #1745.
+Warning (Omitted undefined stereo) structure #1747.
+Warning (Omitted undefined stereo) structure #1748.
+Warning (Ambiguous stereo: center(s)) structure #1750.
+Warning (Ambiguous stereo: center(s)) structure #1751.
+Warning (Ambiguous stereo: center(s)) structure #1752.
+Warning (Ambiguous stereo: center(s)) structure #1753.
+Warning (Ambiguous stereo: center(s)) structure #1754.
+Warning (Ambiguous stereo: center(s)) structure #1755.
+Warning (Ambiguous stereo: center(s)) structure #1756.
+Warning (Ambiguous stereo: center(s)) structure #1757.
+Warning (Ambiguous stereo: center(s)) structure #1758.
+Warning (Ambiguous stereo: center(s)) structure #1759.
+Warning (Omitted undefined stereo) structure #1761.
+Warning (Omitted undefined stereo) structure #1768.
+Warning (Omitted undefined stereo) structure #1771.
+Warning (Omitted undefined stereo) structure #1773.
+Warning (Accepted unusual valence(s): N+1(2); Proton(s) added/removed; Omitted undefined stereo) structure #1775.
+Warning (Proton(s) added/removed) structure #1776.
+Warning (Proton(s) added/removed) structure #1777.
+Warning (Proton(s) added/removed) structure #1778.
+Warning (Proton(s) added/removed) structure #1779.
+Warning (Proton(s) added/removed; Omitted undefined stereo) structure #1781.
+Warning (Proton(s) added/removed) structure #1782.
+Warning (Proton(s) added/removed) structure #1783.
+Warning (Proton(s) added/removed) structure #1784.
+Warning (Proton(s) added/removed; Omitted undefined stereo) structure #1785.
+Warning (Proton(s) added/removed) structure #1788.
+Warning (Proton(s) added/removed) structure #1789.
+Warning (Proton(s) added/removed) structure #1790.
+Warning (Accepted unusual valence(s): Co(1); Metal was disconnected) structure #1792.
+Warning (Accepted unusual valence(s): Co(1); Metal was disconnected) structure #1793.
+Warning (Charges were rearranged) structure #1794.
+Warning (Charges were rearranged) structure #1797.
+Warning (Proton(s) added/removed) structure #1798.
+Warning (Charges were rearranged) structure #1801.
+Warning (Proton(s) added/removed) structure #1802.
+Warning (Charges were rearranged; Ambiguous stereo: bond(s)) structure #1804.
+Warning (Proton(s) added/removed) structure #1805.
+Warning (Proton(s) added/removed) structure #1809.
+Warning (Omitted undefined stereo) structure #1810.
+Warning (Salt was disconnected; Proton(s) added/removed) structure #1812.
+Warning (Proton(s) added/removed) structure #1813.
+Warning (Proton(s) added/removed) structure #1815.
+Warning (Salt was disconnected; Proton(s) added/removed) structure #1816.
+Warning (Metal was disconnected; Proton(s) added/removed) structure #1817.
+Warning (Proton(s) added/removed) structure #1818.
+Warning (Salt was disconnected; Metal was disconnected; Proton(s) added/removed) structure #1819.
+Warning (Omitted undefined stereo) structure #1820.
+Warning (Proton(s) added/removed) structure #1826.
+Warning (Metal was disconnected; Proton(s) added/removed) structure #1827.
+Warning (Accepted unusual valence(s): C(5)) structure #1832.
+Warning (Accepted unusual valence(s): N+1(5); N,d(3)) structure #1835.
+Warning (Proton(s) added/removed) structure #1836.
+Warning (Omitted undefined stereo; Not chiral) structure #1838.
+Warning (Proton(s) added/removed) structure #1839.
+Warning (Accepted unusual valence(s): C(5)) structure #1840.
+Warning (Proton(s) added/removed) structure #1851.
+Warning (Proton(s) added/removed) structure #1856.
+Warning (Proton(s) added/removed) structure #1877.
+Warning (Omitted undefined stereo) structure #1878.
+Warning (Accepted unusual valence(s): N(4); C(10); Omitted undefined stereo) structure #1892.
+Warning (Charges were rearranged) structure #1894.
+Warning (Accepted unusual valence(s): N,d(3)) structure #1901.
+Warning (Accepted unusual valence(s): S(5)) structure #1906.
+Warning (Accepted unusual valence(s): S(5)) structure #1907.
+Warning (Accepted unusual valence(s): N+1(5); N,d(3)) structure #1912.
+Warning (Accepted unusual valence(s): N+1(5)) structure #1913.
+Warning (Omitted undefined stereo) structure #1915.
+Warning (Omitted undefined stereo) structure #1916.
+Warning (Proton(s) added/removed) structure #1918.
+Warning (Proton(s) added/removed) structure #1919.
+Warning (Proton(s) added/removed) structure #1920.
+Warning (Charges were rearranged; Proton(s) added/removed) structure #1921.
+Warning (Proton(s) added/removed) structure #1924.
+Warning (Proton(s) added/removed) structure #1925.
+Warning (Proton(s) added/removed; Omitted undefined stereo) structure #1926.
+Warning (Proton(s) added/removed; Omitted undefined stereo) structure #1939.
+Warning (Proton(s) added/removed) structure #1940.
+Warning (Proton(s) added/removed) structure #1941.
+Warning (Proton(s) added/removed) structure #1942.
+Warning (Proton(s) added/removed) structure #1943.
+Warning (Proton(s) added/removed) structure #1945.
+Warning (Proton(s) added/removed) structure #1946.
+Warning (Proton(s) added/removed) structure #1947.
+Warning (Proton(s) added/removed) structure #1950.
+Warning (Proton(s) added/removed) structure #1951.
+Warning (Omitted undefined stereo) structure #1954.
+Warning (Proton(s) added/removed) structure #1955.
+Warning (Accepted unusual valence(s): C(3)) structure #1956.
+Warning (Proton(s) added/removed; Omitted undefined stereo) structure #1958.
+Warning (Proton(s) added/removed) structure #1960.
+Warning (Accepted unusual valence(s): C+1,t(2); C-1,t(3); Omitted undefined stereo) structure #1961.
+Warning (Accepted unusual valence(s): C(5); C+1,t(2); C-1,t(3)) structure #1962.
+Warning (Accepted unusual valence(s): C(5); C+1,t(2); C-1,t(3)) structure #1963.
+Warning (Accepted unusual valence(s): C+1,t(2); C-1,t(3); Omitted undefined stereo) structure #1964.
+Warning (Accepted unusual valence(s): C(5); C+1,t(2); C-1,t(3)) structure #1965.
+Warning (Accepted unusual valence(s): C(5); C+1,t(2); C-1,t(3)) structure #1966.
+Warning (Omitted undefined stereo) structure #1967.
+Warning (Proton(s) added/removed; Omitted undefined stereo) structure #1968.
+Warning (Metal was disconnected; Proton(s) added/removed) structure #1971.
+Warning (Accepted unusual valence(s): C,t(3); Metal was disconnected; Proton(s) added/removed) structure #1972.
+Warning (Omitted undefined stereo) structure #1974.
+Warning (Omitted undefined stereo) structure #1975.
+Warning (Omitted undefined stereo) structure #1976.
+Warning (Omitted undefined stereo) structure #1977.
+Warning (Omitted undefined stereo) structure #1978.
+Warning (Omitted undefined stereo) structure #1979.
+Warning (Proton(s) added/removed; Omitted undefined stereo) structure #1980.
+Warning (Omitted undefined stereo; Proton(s) added/removed) structure #1987.
+Warning (Omitted undefined stereo) structure #1989.
+Warning (Charges were rearranged) structure #1991.
+Warning (Charges were rearranged) structure #1992.
+Warning (Charges were rearranged; Omitted undefined stereo) structure #1993.
+Warning (Proton(s) added/removed) structure #1994.
+Warning (Salt was disconnected; Proton(s) added/removed; Omitted undefined stereo) structure #1995.
+Warning (Proton(s) added/removed) structure #2000.
+Warning (Proton(s) added/removed) structure #2001.
+Warning (Proton(s) added/removed; Omitted undefined stereo) structure #2002.
+Warning (Proton(s) added/removed; Omitted undefined stereo) structure #2003.
+Warning (Charges neutralized) structure #2007.
+Warning (Proton(s) added/removed; Omitted undefined stereo) structure #2008.
+Warning (Proton(s) added/removed; Omitted undefined stereo) structure #2009.
+Warning (Proton(s) added/removed) structure #2010.
+Warning (Proton(s) added/removed; Omitted undefined stereo) structure #2011.
+Warning (Proton(s) added/removed; Omitted undefined stereo) structure #2012.
+Warning (Omitted undefined stereo) structure #2013.
+Warning (Proton(s) added/removed; Omitted undefined stereo) structure #2014.
+Warning (Proton(s) added/removed) structure #2016.
+Warning (Charges were rearranged; Accepted unusual valence(s): O(4); C(2); Omitted undefined stereo) structure #2018.
+Warning (Charges were rearranged; Omitted undefined stereo) structure #2019.
+Warning (Proton(s) added/removed; Charges neutralized) structure #2020.
+Warning (Charges were rearranged; Omitted undefined stereo) structure #2021.
+Warning (Salt was disconnected; Proton(s) added/removed; Omitted undefined stereo) structure #2022.
+Warning (Charges were rearranged) structure #2024.
+Warning (Omitted undefined stereo) structure #2026.
+Warning (Charges were rearranged; Proton(s) added/removed) structure #2034.
+Warning (Omitted undefined stereo) structure #2035.
+Warning (Omitted undefined stereo) structure #2036.
+Warning (Proton(s) added/removed) structure #2037.
+Warning (Salt was disconnected; Omitted undefined stereo) structure #2040.
+Warning (Salt was disconnected; Proton(s) added/removed) structure #2041.
+Warning (Proton(s) added/removed; Omitted undefined stereo) structure #2048.
+Warning (Salt was disconnected; Omitted undefined stereo) structure #2049.
+Warning (Proton(s) added/removed; Omitted undefined stereo) structure #2056.
+Warning (Proton(s) added/removed) structure #2057.
+Warning (Proton(s) added/removed) structure #2058.
+Warning (Proton(s) added/removed) structure #2059.
+Warning (Proton(s) added/removed) structure #2060.
+Warning (Proton(s) added/removed) structure #2061.
+Warning (Ambiguous stereo: center(s)) structure #2070.
+Warning (Ambiguous stereo: center(s)) structure #2071.
+Warning (Ambiguous stereo: center(s)) structure #2072.
+Warning (Ambiguous stereo: center(s)) structure #2073.
+Warning (Ambiguous stereo: center(s)) structure #2074.
+Warning (Ambiguous stereo: center(s)) structure #2075.
+Warning (Ambiguous stereo: center(s)) structure #2076.
+Warning (Ambiguous stereo: center(s)) structure #2077.
+Warning (Ambiguous stereo: center(s)) structure #2078.
+Warning (Ambiguous stereo: center(s)) structure #2083.
+Warning (Omitted undefined stereo) structure #2084.
+Warning (Proton(s) added/removed) structure #2086.
+Warning (Omitted undefined stereo) structure #2088.
+Warning (Omitted undefined stereo) structure #2089.
+Warning (Omitted undefined stereo) structure #2090.
+Warning (Omitted undefined stereo) structure #2091.
+Warning (Omitted undefined stereo) structure #2092.
+Warning (Omitted undefined stereo) structure #2093.
+Warning (Omitted undefined stereo) structure #2094.
+Warning (Accepted unusual valence(s): N(4)) structure #2095.
+Warning (Accepted unusual valence(s): O-1,d(2); H,t(1)) structure #2096.
+Warning (Proton(s) added/removed; Charges neutralized) structure #2099.
+Warning (Proton(s) added/removed) structure #2100.
+Warning (Proton(s) added/removed) structure #2101.
+Warning (Proton(s) added/removed; Charges neutralized) structure #2103.
+Warning (Charges neutralized) structure #2104.
+Warning (Omitted undefined stereo) structure #2107.
+Warning (Omitted undefined stereo) structure #2109.
+Warning (Omitted undefined stereo) structure #2112.
+Warning (Metal was disconnected) structure #2113.
+Warning (Charges were rearranged; Accepted unusual valence(s): C,d(5); Metal was disconnected) structure #2114.
+Warning (Omitted undefined stereo) structure #2115.
+Warning (Omitted undefined stereo; Not chiral) structure #2117.
+Warning (Charges were rearranged; Omitted undefined stereo) structure #2118.
+Warning (Proton(s) added/removed) structure #2120.
+Warning (Proton(s) added/removed) structure #2122.
+Warning (Charges were rearranged; Not chiral) structure #2123.
+Warning (Charges were rearranged) structure #2124.
+Warning (Omitted undefined stereo; Not chiral) structure #2125.
+Warning (Not chiral) structure #2126.
+Warning (Proton(s) added/removed; Omitted undefined stereo; Not chiral) structure #2127.
+Warning (Omitted undefined stereo) structure #2128.
+Warning (Omitted undefined stereo) structure #2129.
+Warning (Metal was disconnected) structure #2130.
+Warning (Accepted unusual valence(s): C(5)) structure #2133.
+Warning (Proton(s) added/removed) structure #2135.
+Warning (Metal was disconnected; Proton(s) added/removed) structure #2136.
+Warning (Omitted undefined stereo) structure #2139.
+Warning (Charges were rearranged) structure #2140.
+Warning (Charges were rearranged; Proton(s) added/removed) structure #2142.
+Warning (Proton(s) added/removed) structure #2143.
+Warning (Charges were rearranged; Proton(s) added/removed; Omitted undefined stereo) structure #2144.
+Warning (Charges were rearranged; Proton(s) added/removed) structure #2145.
+Warning (Proton(s) added/removed) structure #2146.
+Warning (Proton(s) added/removed) structure #2147.
+Warning (Charges were rearranged; Proton(s) added/removed) structure #2148.
+Warning (Charges were rearranged; Omitted undefined stereo) structure #2149.
+Warning (Omitted undefined stereo) structure #2150.
+Warning (Omitted undefined stereo) structure #2151.
+Warning (Charges were rearranged; Omitted undefined stereo) structure #2152.
+Warning (Charges were rearranged; Omitted undefined stereo; Proton(s) added/removed) structure #2153.
+Warning (Charges were rearranged; Accepted unusual valence(s): O(4)) structure #2154.
+Warning (Charges were rearranged; Accepted unusual valence(s): O(4)) structure #2155.
+Warning (Charges were rearranged; Accepted unusual valence(s): O(4)) structure #2156.
+Warning (Charges were rearranged; Accepted unusual valence(s): O(4)) structure #2157.
+Warning (Charges were rearranged) structure #2161.
+Warning (Charges were rearranged) structure #2163.
+Warning (Charges were rearranged) structure #2165.
+Warning (Charges were rearranged) structure #2166.
+Warning (Charges were rearranged) structure #2167.
+Warning (Charges were rearranged) structure #2168.
+Warning (Charges were rearranged) structure #2169.
+Warning (Charges were rearranged) structure #2170.
+Warning (Charges were rearranged; Accepted unusual valence(s): O(4)) structure #2173.
+Warning (Charges were rearranged) structure #2174.
+Warning (Charges were rearranged) structure #2175.
+Warning (Charges were rearranged) structure #2179.
+Warning (Charges were rearranged; Accepted unusual valence(s): O(4)) structure #2180.
+Warning (Charges were rearranged; Accepted unusual valence(s): O(4); Omitted undefined stereo; Charges neutralized) structure #2181.
+Warning (Accepted unusual valence(s): O+1(1); Proton(s) added/removed) structure #2184.
+Warning (Charges were rearranged; Accepted unusual valence(s): O+1(1); Omitted undefined stereo; Proton(s) added/removed) structure #2186.
+End of file detected after structure #2186.   
+Finished processing 2186 structures: 1 error, processing time 0:00:01.67
+
+Elapsed walltime: 3047 msec.
