@@ -70,9 +70,9 @@ endif
 # === C Compiler Options =======
 ifndef C_OPTIONS
   ifndef CALLER_IS_MOL2INCHI
-	C_OPTIONS = -ansi -O3 -c
+	C_OPTIONS = -std=c11 -ansi -O3 -c
   else
-	C_OPTIONS = -O3 -c  
+	C_OPTIONS = -std= c11 -O3 -c  
   endif
   ifdef ISLINUX
 	ifndef C_SO_OPTIONS
@@ -194,6 +194,3 @@ $(INCHI_LIB_PATHNAME).so$(MAIN_VERSION)
 	$(C_COMPILER) $(C_SO_OPTIONS) $(C_OPTIONS) $<
 %.o: $(P_BASE)%.c
 	$(C_COMPILER) $(C_SO_OPTIONS) $(C_OPTIONS) $<
-.PHONY: clean
-clean:
-	rm -f $(INCHI_LIB_OBJS)
