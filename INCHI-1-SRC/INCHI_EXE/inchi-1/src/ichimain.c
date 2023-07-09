@@ -55,7 +55,9 @@
 #endif
 
 
-#include <crtdbg.h>
+#ifdef _WIN32
+    #include <crtdbg.h>
+#endif
 #include "../../../INCHI_BASE/src/ichitime.h"
 #include "../../../INCHI_BASE/src/incomdef.h"
 #include "../../../INCHI_BASE/src/ichidrp.h"
@@ -566,7 +568,7 @@ int ProcessSingleInputFile( int argc, char *argv[] )
 #endif
 #endif
 
-
+#ifdef _WIN32
 #if ( TRACE_MEMORY_LEAKS == 1 )
     _CrtSetDbgFlag(_CRTDBG_CHECK_ALWAYS_DF | _CRTDBG_LEAK_CHECK_DF | _CRTDBG_ALLOC_MEM_DF);
     /* for execution outside the VC++ debugger uncomment one of the following two */
@@ -594,6 +596,7 @@ int ProcessSingleInputFile( int argc, char *argv[] )
         /* Set the control word. */
         _controlfp(cw, MCW_EM);
     }
+#endif
 #endif
 
     sd->bUserQuit = 0;
@@ -1438,7 +1441,11 @@ void shuffle(void *obj, size_t nmemb, size_t size)
         memcpy_s(BYTE(obj) + n*size, sizeof(BYTE(obj)) + size, BYTE(obj) + k*size, size); /* djb-rwth: function replaced with its safe C11 variant */
         memcpy_s(BYTE(obj) + k*size, sizeof(BYTE(obj)) + size, temp, size); /* djb-rwth: function replaced with its safe C11 variant */
     }
-    _free_dbg(temp, _NORMAL_BLOCK); /* djb-rwth: _free_dbg for _malloc_dbg must be used */
+#ifdef _WIN32
+    _free_dbg(temp, _NORMAL_BLOCK); /* djb-rwth: _free_dbg for _malloc_dbg must be used if Windows SDK is used */
+#else
+    free(temp); /* djb-rwth: otherwise just free */
+#endif
 }
 
 
