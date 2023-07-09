@@ -4,6 +4,6 @@
 
 ## Branches
 * `test_dev`: final debugged core files/projects
-* `test_dev_old`: partially debugged files/projects using GCC and MSVC; exists just for comparison to `test_dev` and can be deleted after everyone has reviewed the changes
+~~* `test_dev_old`: partially debugged files/projects using GCC and MSVC; exists just for comparison to `test_dev` and can be deleted after everyone has reviewed the changes~~
 * `master`: original files as received from Igor/Gerd
  
