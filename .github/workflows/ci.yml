@@ -2,7 +2,7 @@ name: InChI Continuous Integration
 
 on:
   push:
-    branches: [ master ]
+    branches: [ master, test_dev ]
   pull_request:
     branches: [ master ]
   workflow_dispatch:
