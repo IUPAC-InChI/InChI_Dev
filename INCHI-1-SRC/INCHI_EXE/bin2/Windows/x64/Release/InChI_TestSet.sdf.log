@@ -1,5 +1,5 @@
 InChI version 1, Software v. 1.061 (inchi-1 executable) 
-Windows 64-bit Build (MS VS 2017 or later) of Jun 29 2023 16:50:37
+Windows 64-bit Build (MS VS 2017 or later) of Jul 21 2023 10:55:17
 
 Opened log file 'InChI_TestSet.sdf.log'
 Opened input file 'InChI_TestSet.sdf'
@@ -1206,6 +1206,6 @@ Warning (Charges were rearranged; Accepted unusual valence(s): O(4); Omitted und
 Warning (Accepted unusual valence(s): O+1(1); Proton(s) added/removed) structure #2184.
 Warning (Charges were rearranged; Accepted unusual valence(s): O+1(1); Omitted undefined stereo; Proton(s) added/removed) structure #2186.
 End of file detected after structure #2186.   
-Finished processing 2186 structures: 1 error, processing time 0:00:01.67
+Finished processing 2186 structures: 1 error, processing time 0:00:01.54
 
-Elapsed walltime: 3047 msec.
+Elapsed walltime: 2734 msec.
