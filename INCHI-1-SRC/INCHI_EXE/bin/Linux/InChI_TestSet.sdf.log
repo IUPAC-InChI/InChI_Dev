@@ -1,12 +1,12 @@
 InChI version 1, Software v. 1.061 (inchi-1 executable) 
-Windows 64-bit Build (gcc 13.1.0) of Jul  6 2023 00:51:13
+Linux 64-bit Build (gcc 11.3.0) of Jul 21 2023 10:51:37
 
 Opened log file 'InChI_TestSet.sdf.log'
 Opened input file 'InChI_TestSet.sdf'
 Opened output file 'InChI_TestSet.sdf.txt'
 Opened problem file 'InChI_TestSet.sdf.prb'
 The command line used:
-"D:\Zekan\Posao\code_comparison_igor_dev\dev_cleaned_final\INCHI_EXE\bin\Linux\inchi-1.exe InChI_TestSet.sdf"
+"./inchi-1 InChI_TestSet.sdf"
 Generating standard InChI
 Input format: MOLfile
 Output format: Plain text
@@ -1206,4 +1206,4 @@ Warning (Charges were rearranged; Accepted unusual valence(s): O(4); Omitted und
 Warning (Accepted unusual valence(s): O+1(1); Proton(s) added/removed) structure #2184.
 Warning (Charges were rearranged; Accepted unusual valence(s): O+1(1); Omitted undefined stereo; Proton(s) added/removed) structure #2186.
 End of file detected after structure #2186.   
-Finished processing 2186 structures: 1 error, processing time 0:00:01.62
+Finished processing 2186 structures: 1 error, processing time 0:00:01.05
