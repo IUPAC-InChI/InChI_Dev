@@ -1,5 +1,8 @@
 *.o
 *.so*
+*.regression.sqlite
+tests/data/pubchem/*.sdf.gz
+tests/data/pubchem/*.sqlite
 __pycache__
 .pytest_cache
 */test/datasets

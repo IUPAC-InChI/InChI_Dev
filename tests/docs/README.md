@@ -14,16 +14,16 @@ docker build -t inchi-tests ./tests
 , and subsequently run the tests with
 
 ```Shell
-docker run -rm -v $(pwd):/workdir inchi-tests bash -c "cd workdir && ./tests/<name_of_script>.sh"
+docker run -rm -v $(pwd):/workdir inchi-tests bash -c "cd workdir && python -m tests.<script> <dataset>"
 ```
 
 ## Compute reference
 
 ```Shell
-./tests/compute_regression_reference.sh
+python -m tests.compute_regression_reference ci
 ```
-downloads `libinchi.so.1.06.00`, the shared library belonging to the current stable InChI release,  
-and generates a `<dataset>_regression_reference.sqlite` file for each dataset under `data`.  
+downloads `libinchi.so.1.06.00`, the shared library belonging to the current stable InChI release,
+and generates a `<dataset>.regression_reference.sqlite` file for each dataset under `tests/data/ci`.
 The `sqlite` file contains a table with the InChI strings for each structure.
 
 For example,
@@ -37,12 +37,12 @@ For example,
 ## Run tests
 
 ```Shell
-./tests/run_regression_tests.sh
+python -m tests.run_regression_tests ci
 ```
 compiles the shared library `libinchi.so.dev` from the current state of the repository.
-It then uses this library to compute the InChI strings for each structure in each dataset under `data`.
+It then uses this library to compute the InChI strings for each structure in each dataset under `tests/data/ci`.
 Those strings are compared with the corresponding reference.
-For each dataset under `data`, the comparisons are logged to `<dataset>_regression.sqlite`,  
+For each dataset under `tests/data/ci`, the comparisons are logged to `<dataset>.regression.sqlite`,
 either as `passed` or the `difference between the current and reference strings`.
 
 For example,
@@ -52,7 +52,11 @@ For example,
 | regression | 2023-05-31T09:36:50 | 9261759198 | passed |
 | regression | 2023-05-31T09:36:50 | 2139556156 | 'Foo=1S/AsCl3/c2-1(3)4' != 'InChI=1S/AsCl3/c2-1(3)4'- Foo=1S/AsCl3/c2-1(3)4? ^^^+ InChI=1S/AsCl3/c2-1(3)4? ^^^^^ |
 
-To convince yourself that the tests fail once a regression has been introduced, 
-change `INCHI_NAME` in `INCHI-1-SRC/INCHI_BASE/src/mode.h`  
-and re-run the tests (remove `<dataset>_regression.sqlite` before, it won't be overwritten by default).
+To convince yourself that the tests fail once a regression has been introduced,
+change `INCHI_NAME` in `INCHI-1-SRC/INCHI_BASE/src/mode.h`
+and re-run the tests (remove `<dataset>.regression.sqlite` before, it won't be overwritten by default).
 The tests should now fail and indicate that the difference between the reference results and the latest test run is the change you've made.
+
+
+## Download PubChem
+`python -m tests.data.pubchem.download`
