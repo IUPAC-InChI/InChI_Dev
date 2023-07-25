@@ -14,7 +14,7 @@ docker build -t inchi-tests ./tests
 , and subsequently run the tests with
 
 ```Shell
-docker run -rm -v $(pwd):/workdir inchi-tests bash -c "cd workdir && python -m tests.<script> <dataset>"
+docker run --rm -v $(pwd):/workdir inchi-tests bash -c "cd workdir && python -m tests.<script> <dataset>"
 ```
 
 ## Compute reference
