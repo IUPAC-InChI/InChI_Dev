@@ -11,20 +11,41 @@ Build a Docker image from the [Dockerfile](../Dockerfile) with
 ```Shell
 docker build -t inchi-tests ./tests
 ```
-, and subsequently run the tests with
+, and subsequently drop into a terminal in the Docker container by running
 
 ```Shell
-docker run -rm -v $(pwd):/workdir inchi-tests bash -c "cd workdir && python -m tests.<script> <dataset>"
+docker run --rm -it -v $(pwd):/inchi inchi-tests bash
+```
+
+From the `inchi` directory in the Docker container you can run all commands from the
+instructions below.
+
+Alternatively, you can run single commands non-interactively:
+
+```Shell
+docker run --rm -v $(pwd):/inchi inchi-tests bash -c "cd inchi && <command>"
+```
+
+## Datasets
+
+In the following instructions `<dataset>` refers to either `ci`
+(i.e, continuous integration, aka the tests running on GitHub) or `pubchem`.
+The `ci` data already lives in the repository (the `mcule.sdf.gz` and `inchi.sdf.gz` files under `tests/data/ci`).
+The `pubchem` data doesn't live in the repository since it's too large.
+You can download the `pubchem` data from https://ftp.ncbi.nlm.nih.gov/pubchem/Compound/CURRENT-Full/SDF/ by running
+
+```Shell
+python -m tests.data.pubchem.download
 ```
 
 ## Compute reference
 
 ```Shell
-python -m tests.compute_regression_reference ci
+python -m tests.compute_regression_reference <dataset>
 ```
 downloads `libinchi.so.1.06.00`, the shared library belonging to the current stable InChI release,
-and generates a `<dataset>.regression_reference.sqlite` file for each dataset under `tests/data/ci`.
-The `sqlite` file contains a table with the InChI strings for each structure.
+and generates a `<SDF>.regression_reference.sqlite` file for each SDF under `tests/data/<dataset>`.
+The `sqlite` file contains a table with the InChI strings for each molfile.
 
 For example,
 
@@ -37,12 +58,12 @@ For example,
 ## Run tests
 
 ```Shell
-python -m tests.run_regression_tests ci
+python -m tests.run_regression_tests <dataset>
 ```
 compiles the shared library `libinchi.so.dev` from the current state of the repository.
-It then uses this library to compute the InChI strings for each structure in each dataset under `tests/data/ci`.
+It then uses this library to compute the InChI strings for each molfile in each SDF under `tests/data/<dataset>`.
 Those strings are compared with the corresponding reference.
-For each dataset under `tests/data/ci`, the comparisons are logged to `<dataset>.regression.sqlite`,
+The comparisons are logged to `<SDF>.regression.sqlite`,
 either as `passed` or the `difference between the current and reference strings`.
 
 For example,
@@ -54,9 +75,9 @@ For example,
 
 To convince yourself that the tests fail once a regression has been introduced,
 change `INCHI_NAME` in `INCHI-1-SRC/INCHI_BASE/src/mode.h`
-and re-run the tests (remove `<dataset>.regression.sqlite` before, it won't be overwritten by default).
+and re-run the tests (remove all `<SDF>.regression.sqlite` before, it won't be overwritten by default).
 The tests should now fail and indicate that the difference between the reference results and the latest test run is the change you've made.
 
+## Viewing `.sqlite` files
 
-## Download PubChem
-`python -m tests.data.pubchem.download`
+For conveniently viewing `.sqlite` files, install the `SQLite Viewer` extension for VSCode: https://marketplace.visualstudio.com/items?itemName=qwtel.sqlite-viewer.
