@@ -2,7 +2,7 @@ import ctypes
 import subprocess
 from functools import partial
 from typing import Final
-from sdf_pipeline import drivers
+from sdf_pipeline import drivers, utils
 from tests.consumers import regression_consumer
 from tests.config import (
     INCHI_REFERENCE_LIB_PATH,
@@ -11,6 +11,7 @@ from tests.config import (
     N_PROCESSES,
     get_molfile_id,
     get_dataset_arg,
+    show_progress,
 )
 
 
@@ -23,8 +24,12 @@ if __name__ == "__main__":
 
     INCHI_LIB: Final = ctypes.CDLL(str(INCHI_REFERENCE_LIB_PATH))
     exit_code = 0
-
-    for sdf_path in DATASETS[dataset]["sdf_paths"]:
+    sdf_paths = list(DATASETS[dataset]["sdf_paths"])
+    n_sdf = len(sdf_paths)
+    print(
+        f"\n{utils.get_current_time()}: Starting to process {n_sdf} SDFs on {N_PROCESSES} cores.\n"
+    )
+    for i, sdf_path in enumerate(sdf_paths):
         exit_code = max(
             exit_code,
             drivers.regression_reference(
@@ -37,5 +42,6 @@ if __name__ == "__main__":
                 number_of_consumer_processes=N_PROCESSES,
             ),
         )
+        show_progress(i + 1, n_sdf)
 
     raise SystemExit(exit_code)
