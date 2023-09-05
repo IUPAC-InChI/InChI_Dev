@@ -51,6 +51,7 @@ def show_progress(current: int, total: int) -> None:
     )
 
 
+INCHI_API_PARAMETERS: Final[str] = ""
 TEST_PATH: Final[Path] = Path(__file__).parent.absolute()
 INCHI_LIB_PATH: Final[Path] = TEST_PATH.joinpath("libinchi.so.dev")
 INCHI_REFERENCE_LIB_PATH: Final[Path] = TEST_PATH.joinpath("libinchi.so.1.06.00")
