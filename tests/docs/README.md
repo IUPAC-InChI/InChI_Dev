@@ -49,10 +49,10 @@ The `sqlite` file contains a table with the InChI strings for each molfile.
 
 For example,
 
-| consumer | time | molfile_id | result |
+| molfile_id | time | info | result |
 | --- | --- | --- | --- |
-| regression | 2023-05-31T09:36:50 | 9261759198 | InChI=1S/C2BF6/c4-2(5,6)1-3(7,8)9/q-1 |
-| regression | 2023-05-31T09:36:50 | 2139556156 | InChI=1S/AsCl3/c2-1(3)4 |
+| 9261759198 | 2023-05-31T09:36:50 | consumer: regression; parameters: '' | InChI=1S/C2BF6/c4-2(5,6)1-3(7,8)9/q-1 |
+| 2139556156 | 2023-05-31T09:36:50 | consumer: regression; parameters: '' | InChI=1S/AsCl3/c2-1(3)4 |
 
 
 ## Run tests
@@ -68,10 +68,10 @@ either as `passed` or the `difference between the current and reference strings`
 
 For example,
 
-| consumer | time | molfile_id | result |
+| molfile_id | time | info | result |
 | --- | --- | --- | --- |
-| regression | 2023-05-31T09:36:50 | 9261759198 | passed |
-| regression | 2023-05-31T09:36:50 | 2139556156 | 'Foo=1S/AsCl3/c2-1(3)4' != 'InChI=1S/AsCl3/c2-1(3)4'- Foo=1S/AsCl3/c2-1(3)4? ^^^+ InChI=1S/AsCl3/c2-1(3)4? ^^^^^ |
+| 9261759198 | 2023-05-31T09:36:50 | consumer: regression; parameters: '' | passed |
+| 2139556156 | 2023-05-31T09:36:50 | consumer: regression; parameters: '' | 'Foo=1S/AsCl3/c2-1(3)4' != 'InChI=1S/AsCl3/c2-1(3)4'- Foo=1S/AsCl3/c2-1(3)4? ^^^+ InChI=1S/AsCl3/c2-1(3)4? ^^^^^ |
 
 To convince yourself that the tests fail once a regression has been introduced,
 change `INCHI_NAME` in `INCHI-1-SRC/INCHI_BASE/src/mode.h`

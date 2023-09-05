@@ -12,8 +12,8 @@ def regression_consumer(
     )
 
     return utils.ConsumerResult(
-        "regression",
-        utils.get_current_time(),
         get_molfile_id(molfile),
+        utils.get_current_time(),
+        "consumer: regression; parameters: '-SNon -DoNotAddH'",
         inchi_string,
     )
