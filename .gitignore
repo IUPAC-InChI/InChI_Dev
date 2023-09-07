@@ -1,5 +1,6 @@
 *.o
 *.so*
+*.log
 *.regression.sqlite
 tests/data/pubchem/*.sdf.gz
 tests/data/pubchem/*.sqlite
