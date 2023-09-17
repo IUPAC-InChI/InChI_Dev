@@ -57,7 +57,7 @@
 #include "inchi_api.h"
 #include "util.h"
 
-#include "../../INCHI_EXE/inchi-1/src/bcf_s.h"
+#include "bcf_s.h"
 
 /*    Local options */
 
@@ -424,8 +424,8 @@ int INCHI_DECL GetINCHIKeyFromINCHI( const char* szINCHISource,
     if (( slen > 0 ) && ( slen < 255 ))
     {
 #if USE_BCF
-        strcpy_s( stmp, sizeof(stmp) + slen + 1, sminor); /* djb-rwth: function replaced with its safe C11 variant */
-        strcpy_s( sminor + slen, sizeof(sminor) + slen + 1, stmp ); /* djb-rwth: function replaced with its safe C11 variant */
+        strcpy_s( stmp, slen, sminor); /* djb-rwth: function replaced with its safe C11 variant */
+        strcpy_s( sminor + slen, strlen(stmp), stmp); /* djb-rwth: function replaced with its safe C11 variant */
 #else
         strcpy(stmp, sminor);
         strcpy(sminor + slen, stmp);

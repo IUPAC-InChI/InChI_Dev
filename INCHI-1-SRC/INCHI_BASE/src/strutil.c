@@ -45,7 +45,7 @@
 
 #include <stdbool.h>
 
-#include "../../INCHI_EXE/inchi-1/src/bcf_s.h"
+#include "bcf_s.h"
 
 /* Added fix to remove_ion_pairs() -- 2010-03-17 DT */
 #define FIX_P_IV_Plus_O_Minus
@@ -630,7 +630,7 @@ int fix_odd_things( int num_atoms,
         {
             len = (int) ( e - b );
 #if USE_BCF
-            memcpy_s( elname, len + 1, b, len ); /* djb-rwth: function replaced with its safe C11 variant */
+            memcpy_s( elname, (long long)len + 1, b, len ); /* djb-rwth: function replaced with its safe C11 variant */
 #else
             memcpy(elname, b, len);
 #endif
@@ -1095,7 +1095,7 @@ int remove_ion_pairs( int num_atoms, inp_ATOM *at )
         {
             len = (int) ( e - b );
 #if USE_BCF
-            memcpy_s( elname, len + 1, b, len ); /* djb-rwth: function replaced with its safe C11 variant */
+            memcpy_s( elname, (long long)len + 1, b, len ); /* djb-rwth: function replaced with its safe C11 variant */
 #else
             memcpy(elname, b, len);
 #endif
@@ -4018,7 +4018,7 @@ int remove_terminal_HDT( int num_atoms, inp_ATOM *at, int bFixTermHChrg )
                     {
                         if (new_HydrogenAt_order[k])
                         {
-                            new_OtherNeigh_order[num_HydrogenAt - j] = new_HydrogenAt_order[k];
+                            new_OtherNeigh_order[num_HydrogenAt - j] = new_HydrogenAt_order[k]; /* djb-rwth: buffer overrun avoided implicitly */
                             for (m = 0; m < MAX_NUM_STEREO_BONDS && new_at[i].sb_parity[m]; m++)
                             {
                                 if ((int) new_at[i].sn_ord[m] == -( k + 1 ))
@@ -4514,10 +4514,7 @@ int MarkDisconnectedComponents( ORIG_ATOM_DATA *orig_at_data,
     stable sort
     */
 
-    qsort( (void*) component_nbr[0],
-           num_components,
-           sizeof( component_nbr[0] ),
-           cmp_components );
+    qsort( (void*) component_nbr[0], num_components, sizeof( component_nbr[0] ), cmp_components ); /* djb-rwth: buffer overrun while writing component_nbr[0]? */
 
     /* Invert the transposition */
     for (i = 0; i < num_components; i++)

@@ -44,7 +44,7 @@
 #include "ichitime.h"
 #include "ichi_bns.h"
 
-#include "../../INCHI_EXE/inchi-1/src/bcf_s.h"
+#include "bcf_s.h"
 
 /*
     Local functions
@@ -2377,7 +2377,7 @@ AT_NUMB *GetDfsOrder4CT( CANON_GLOBALS *pCG,
             do
             {
                 /* advance */
-                while (i = (int) nStackAtom[nTopStackAtom], j = (int) cNeighNumb[i] + 1, (int) nl[i][0] >= j)
+                while (i = (int) nStackAtom[nTopStackAtom], j = (int) cNeighNumb[i] + 1, i < num_atoms && (int) nl[i][0] >= j) /* djb-rwth: additional condition to avoid buffer overruns */
                     /*while ( (int)nl[i=nStackAtom[nTopStackAtom]][0] >= (j = (int)cNeighNumb[i]+1) )*/
                     /* replaced due to missing sequence point; undefined behavior, reported by Geoffrey Hutchison */
                 {
@@ -4499,7 +4499,7 @@ int  Create_INChI( CANON_GLOBALS *pCG,
                                                       at[i], pCS,
                                                       pCG,
                                                       i, pStrErrStruct );
-                if (ret2)
+                if (ret2 && pINChI_Aux) /* djb-rwth: fixing a NULL pointer dereference */
                 {
                     pINChI->nErrorCode = ret2;
                     pINChI_Aux->nErrorCode = ret2;
@@ -5555,211 +5555,214 @@ int FillOutOneCanonInfAtom( struct tagCANON_GLOBALS *pCG,
         bIncludeIsotopicH = bIsotopic && ( i >= num_at || (!inf_norm_at[i].nTautGroupCanonNbr && !( inf_norm_at[i].cFlags & AT_FLAG_ISO_H_POINT )) ); /* djb-rwth: addressing LLVM warning */
         /*  isotopic mass */
         atw = 0;
-        if (cur_norm_at->iso_atw_diff && bIsotopic)
+        if (cur_norm_at) /* djb-rwth: fixing a NULL pointer dereference */
         {
-            if (cur_norm_at->at_type == ATT_PROTON)
+            if (cur_norm_at->iso_atw_diff && bIsotopic)
             {
-                ; /* do not set isotopic mass of a tautomeric proton */
-            }
-            else
-            {
-                if (num_at <= i && cur_norm_at->el_number == PERIODIC_NUMBER_H && cur_norm_at->chem_bonds_valence == 1 &&
-                        !cur_norm_at->charge && !cur_norm_at->radical && !cur_norm_at->num_H &&
-                        0 <= ( j = (int) cur_norm_at->neighbor[0] - offset ) && j < num_at &&
-                           ( inf_norm_at[j].nTautGroupCanonNbr || ( inf_norm_at[j].cFlags & AT_FLAG_ISO_H_POINT ) ))
+                if (cur_norm_at->at_type == ATT_PROTON)
                 {
-                    ; /* do not set isotopic mass of an exchangeable proton */
+                    ; /* do not set isotopic mass of a tautomeric proton */
                 }
                 else
                 {
-                    atw = get_atomic_mass( cur_norm_at->elname );
-                    atw += ( cur_norm_at->iso_atw_diff > 0 ) ? cur_norm_at->iso_atw_diff - 1 : cur_norm_at->iso_atw_diff;
-                    /*len += sprintf( str+len, "^%d", atw );*/
-                }
-            }
-        }
-        /*  element name */
-        if (cur_norm_at->el_number == PERIODIC_NUMBER_H && 2 <= atw && atw <= 3)
-        {
-#if USE_BCF
-            len += sprintf_s( str + len, sizeof(str) - len, "%s", atw == 2 ? "D" : "T" ); /* djb-rwth: memset_s C11/Annex K variant? */
-#else
-            len += sprintf(str + len, "%s", atw == 2 ? "D" : "T");
-#endif
-        }
-        else
-        {
-            if (atw)
-            {
-#if USE_BCF
-                len += sprintf_s( str + len, sizeof(str) - len, "^%d", atw ); /* djb-rwth: memset_s C11/Annex K variant? */
-#else
-                len += sprintf(str + len, "^%d", atw);
-#endif
-            }
-            /*if (strcmp( cur_norm_at->elname, "Zz" ))*/
-            if (strcmp( cur_norm_at->elname, "Zz" ) && strcmp( cur_norm_at->elname, "Zy" ) )
-            {
-#if USE_BCF
-                len += sprintf_s( str + len, sizeof(str) - len, "%s", cur_norm_at->elname ); /* djb-rwth: memset_s C11/Annex K variant? */
-#else
-                len += sprintf(str + len, "%s", cur_norm_at->elname);
-#endif
-            }
-            else /* always show "Zy" as "Zz" */
-            {
-#if ( DISPLAY_ZZ_AS_STAR == 1 )
-#if USE_BCF
-                len += sprintf_s(str + len, sizeof(str) - len, "*"); /* djb-rwth: function replaced with its safe C11 variant */
-#else
-                len += sprintf(str + len, "*");
-#endif
-#else
-#if USE_BCF
-                len += sprintf_s(str + len, "Zz"); /* djb-rwth: function replaced with its safe C11 variant */
-#else
-                len += sprintf(str + len, "Zz");
-#endif
-#endif
-            }
-        }
-
-        /*  hydrogens */
-        /*  find number of previuosly removed terminal hydrogen atoms */
-        for (j = 0; j < NUM_H_ISOTOPES; j++)
-        {
-            num_iso_H[j] = cur_norm_at->num_iso_H[j];
-        }
-        for (j = 0, n = (int) cur_norm_at->num_H; j < num_H; j++)
-        {
-            /*  subtract number of removed terminal */
-            /*  H atoms from the total number of H atoms */
-            if (i == (int) norm_at_H[j].neighbor[0] - offset)
-            {
-                n -= 1;
-                m = (int) norm_at_H[j].iso_atw_diff - 1;
-                if (0 <= m && m < NUM_H_ISOTOPES)
-                {
-                    /*  subtract number of removed terminal isotopic */
-                    /*  H atoms from the total number of isotopic H atoms */
-                    num_iso_H[m] -= 1;
-                }
-            }
-        }
-        if (bIncludeIsotopicH)
-        {
-            /*  subtract number of isotopic H atoms from the total number of H atoms */
-            for (j = 0; j < NUM_H_ISOTOPES; j++)
-            {
-                n -= num_iso_H[j];
-            }
-        }
-        /*  non-isotopic hydrogen atoms */
-        if (n > 1)
-        {
-#if USE_BCF
-            len += sprintf_s( str + len, sizeof(str) - len, "H%d", n ); /* djb-rwth: memset_s C11/Annex K variant? */
-#else
-            len += sprintf(str + len, "H%d", n);
-#endif
-        }
-        else
-        {
-            if (n == 1)
-            {
-#if USE_BCF
-                len += sprintf_s( str + len, sizeof(str) - len, "H" ); /* djb-rwth: memset_s C11/Annex K variant? */
-#else
-                len += sprintf(str + len, "H");
-#endif
-            }
-        }
-
-        /*  isotopic hydrogen atoms */
-        if (bIncludeIsotopicH)
-        {
-            for (j = 0; j < NUM_H_ISOTOPES; j++)
-            {
-                if (num_iso_H[j])
-                {
-                    if (j == 0 || (j != 1 && j != 2)) /* djb-rwth: addressing LLVM warning */
+                    if (num_at <= i && cur_norm_at->el_number == PERIODIC_NUMBER_H && cur_norm_at->chem_bonds_valence == 1 &&
+                        !cur_norm_at->charge && !cur_norm_at->radical && !cur_norm_at->num_H &&
+                        0 <= (j = (int)cur_norm_at->neighbor[0] - offset) && j < num_at &&
+                        (inf_norm_at[j].nTautGroupCanonNbr || (inf_norm_at[j].cFlags & AT_FLAG_ISO_H_POINT)))
                     {
-#if USE_BCF
-                        len += sprintf_s( str + len, sizeof(str) - len, "^%dH", j + 1 ); /* djb-rwth: memset_s C11/Annex K variant? */
-#else
-                        len += sprintf(str + len, "^%dH", j + 1);
-#endif
+                        ; /* do not set isotopic mass of an exchangeable proton */
                     }
                     else
                     {
-#if USE_BCF
-                        len += sprintf_s( str + len, sizeof(str) - len, j == 1 ? "D" : "T" ); /* djb-rwth: memset_s C11/Annex K variant? */
-#else
-                        len += sprintf(str + len, j == 1 ? "D" : "T");
-#endif
-                    }
-                    if (num_iso_H[j] != 1)
-                    {
-#if USE_BCF
-                        len += sprintf_s( str + len, sizeof(str) - len, "%d", (int) num_iso_H[j] ); /* djb-rwth: memset_s C11/Annex K variant? */
-#else
-                        len += sprintf(str + len, "%d", (int)num_iso_H[j]);
-#endif
+                        atw = get_atomic_mass(cur_norm_at->elname);
+                        atw += (cur_norm_at->iso_atw_diff > 0) ? cur_norm_at->iso_atw_diff - 1 : cur_norm_at->iso_atw_diff;
+                        /*len += sprintf( str+len, "^%d", atw );*/
                     }
                 }
             }
-        }
-        if (cur_norm_at->el_number == PERIODIC_NUMBER_H && str[0] == str[1])
-        {
-            char *q;
-            if (!str[2])
+            /*  element name */
+            if (cur_norm_at->el_number == PERIODIC_NUMBER_H && 2 <= atw && atw <= 3)
             {
-                str[1] = '2';  /* quick fix: replace HH with H2 */
+#if USE_BCF
+                len += sprintf_s(str + len, sizeof(str) - len, "%s", atw == 2 ? "D" : "T"); /* djb-rwth: memset_s C11/Annex K variant? */
+#else
+                len += sprintf(str + len, "%s", atw == 2 ? "D" : "T");
+#endif
             }
             else
             {
-                if (isdigit( UCINT str[2] ) && ( n = strtol( str + 2, &q, 10 ) ) && !q[0])
+                if (atw)
                 {
 #if USE_BCF
-                    len = 1 + sprintf_s( str + 1, sizeof(str), "%d", n + 1 ); /* djb-rwth: memset_s C11/Annex K variant? */
+                    len += sprintf_s(str + len, sizeof(str) - len, "^%d", atw); /* djb-rwth: memset_s C11/Annex K variant? */
 #else
-                    len = 1 + sprintf(str + 1, "%d", n + 1);
+                    len += sprintf(str + len, "^%d", atw);
+#endif
+                }
+                /*if (strcmp( cur_norm_at->elname, "Zz" ))*/
+                if (strcmp(cur_norm_at->elname, "Zz") && strcmp(cur_norm_at->elname, "Zy"))
+                {
+#if USE_BCF
+                    len += sprintf_s(str + len, sizeof(str) - len, "%s", cur_norm_at->elname); /* djb-rwth: memset_s C11/Annex K variant? */
+#else
+                    len += sprintf(str + len, "%s", cur_norm_at->elname);
+#endif
+                }
+                else /* always show "Zy" as "Zz" */
+                {
+#if ( DISPLAY_ZZ_AS_STAR == 1 )
+#if USE_BCF
+                    len += sprintf_s(str + len, sizeof(str) - len, "*"); /* djb-rwth: function replaced with its safe C11 variant */
+#else
+                    len += sprintf(str + len, "*");
+#endif
+#else
+#if USE_BCF
+                    len += sprintf_s(str + len, "Zz"); /* djb-rwth: function replaced with its safe C11 variant */
+#else
+                    len += sprintf(str + len, "Zz");
+#endif
 #endif
                 }
             }
-        }
-        /*  charge */
-        if (abs( cur_norm_at->charge ) > 1)
-        {
-#if USE_BCF
-            len += sprintf_s( str + len, sizeof(str) - len, "%+d", cur_norm_at->charge ); /* djb-rwth: memset_s C11/Annex K variant? */
-#else
-            len += sprintf(str + len, "%+d", cur_norm_at->charge);
-#endif
-        }
-        else
-        {
-            if (abs( cur_norm_at->charge ) == 1)
+
+            /*  hydrogens */
+            /*  find number of previuosly removed terminal hydrogen atoms */
+            for (j = 0; j < NUM_H_ISOTOPES; j++)
+            {
+                num_iso_H[j] = cur_norm_at->num_iso_H[j];
+            }
+            for (j = 0, n = (int)cur_norm_at->num_H; j < num_H; j++)
+            {
+                /*  subtract number of removed terminal */
+                /*  H atoms from the total number of H atoms */
+                if (i == (int)norm_at_H[j].neighbor[0] - offset)
+                {
+                    n -= 1;
+                    m = (int)norm_at_H[j].iso_atw_diff - 1;
+                    if (0 <= m && m < NUM_H_ISOTOPES)
+                    {
+                        /*  subtract number of removed terminal isotopic */
+                        /*  H atoms from the total number of isotopic H atoms */
+                        num_iso_H[m] -= 1;
+                    }
+                }
+            }
+            if (bIncludeIsotopicH)
+            {
+                /*  subtract number of isotopic H atoms from the total number of H atoms */
+                for (j = 0; j < NUM_H_ISOTOPES; j++)
+                {
+                    n -= num_iso_H[j];
+                }
+            }
+            /*  non-isotopic hydrogen atoms */
+            if (n > 1)
             {
 #if USE_BCF
-                len += sprintf_s( str + len, sizeof(str) - len, "%s", cur_norm_at->charge > 0 ? "+" : "-" ); /* djb-rwth: memset_s C11/Annex K variant? */
+                len += sprintf_s(str + len, sizeof(str) - len, "H%d", n); /* djb-rwth: memset_s C11/Annex K variant? */
 #else
-                len += sprintf(str + len, "%s", cur_norm_at->charge > 0 ? "+" : "-");
+                len += sprintf(str + len, "H%d", n);
 #endif
             }
-        }
-        /*  radical */
-        if (cur_norm_at->radical)
-        {
+            else
+            {
+                if (n == 1)
+                {
 #if USE_BCF
-            len += sprintf_s( str + len, sizeof(str) - len, "%s", cur_norm_at->radical == RADICAL_SINGLET ? ":" :
-                                      cur_norm_at->radical == RADICAL_DOUBLET ? "." :
-                                      cur_norm_at->radical == RADICAL_TRIPLET ? ".." : "?" ); /* djb-rwth: function replaced with its safe C11 variant; ignoring LLVM warning: variable used? */
+                    len += sprintf_s(str + len, sizeof(str) - len, "H"); /* djb-rwth: memset_s C11/Annex K variant? */
 #else
-            len += sprintf(str + len, "%s", cur_norm_at->radical == RADICAL_SINGLET ? ":" :
-                cur_norm_at->radical == RADICAL_DOUBLET ? "." :
-                cur_norm_at->radical == RADICAL_TRIPLET ? ".." : "?");
+                    len += sprintf(str + len, "H");
 #endif
+                }
+            }
+
+            /*  isotopic hydrogen atoms */
+            if (bIncludeIsotopicH)
+            {
+                for (j = 0; j < NUM_H_ISOTOPES; j++)
+                {
+                    if (num_iso_H[j])
+                    {
+                        if (j == 0 || (j != 1 && j != 2)) /* djb-rwth: addressing LLVM warning */
+                        {
+#if USE_BCF
+                            len += sprintf_s(str + len, sizeof(str) - len, "^%dH", j + 1); /* djb-rwth: memset_s C11/Annex K variant? */
+#else
+                            len += sprintf(str + len, "^%dH", j + 1);
+#endif
+                        }
+                        else
+                        {
+#if USE_BCF
+                            len += sprintf_s(str + len, sizeof(str) - len, j == 1 ? "D" : "T"); /* djb-rwth: memset_s C11/Annex K variant? */
+#else
+                            len += sprintf(str + len, j == 1 ? "D" : "T");
+#endif
+                        }
+                        if (num_iso_H[j] != 1)
+                        {
+#if USE_BCF
+                            len += sprintf_s(str + len, sizeof(str) - len, "%d", (int)num_iso_H[j]); /* djb-rwth: memset_s C11/Annex K variant? */
+#else
+                            len += sprintf(str + len, "%d", (int)num_iso_H[j]);
+#endif
+                        }
+                    }
+                }
+            }
+            if (cur_norm_at->el_number == PERIODIC_NUMBER_H && str[0] == str[1])
+            {
+                char* q;
+                if (!str[2])
+                {
+                    str[1] = '2';  /* quick fix: replace HH with H2 */
+                }
+                else
+                {
+                    if (isdigit(UCINT str[2]) && (n = strtol(str + 2, &q, 10)) && !q[0])
+                    {
+#if USE_BCF
+                        len = 1 + sprintf_s(str + 1, sizeof(str), "%d", n + 1); /* djb-rwth: memset_s C11/Annex K variant? */
+#else
+                        len = 1 + sprintf(str + 1, "%d", n + 1);
+#endif
+                    }
+                }
+            }
+            /*  charge */
+            if (abs(cur_norm_at->charge) > 1)
+            {
+#if USE_BCF
+                len += sprintf_s(str + len, sizeof(str) - len, "%+d", cur_norm_at->charge); /* djb-rwth: memset_s C11/Annex K variant? */
+#else
+                len += sprintf(str + len, "%+d", cur_norm_at->charge);
+#endif
+            }
+            else
+            {
+                if (abs(cur_norm_at->charge) == 1)
+                {
+#if USE_BCF
+                    len += sprintf_s(str + len, sizeof(str) - len, "%s", cur_norm_at->charge > 0 ? "+" : "-"); /* djb-rwth: memset_s C11/Annex K variant? */
+#else
+                    len += sprintf(str + len, "%s", cur_norm_at->charge > 0 ? "+" : "-");
+#endif
+                }
+            }
+            /*  radical */
+            if (cur_norm_at->radical)
+            {
+#if USE_BCF
+                len += sprintf_s(str + len, sizeof(str) - len, "%s", cur_norm_at->radical == RADICAL_SINGLET ? ":" :
+                    cur_norm_at->radical == RADICAL_DOUBLET ? "." :
+                    cur_norm_at->radical == RADICAL_TRIPLET ? ".." : "?"); /* djb-rwth: function replaced with its safe C11 variant; ignoring LLVM warning: variable used? */
+#else
+                len += sprintf(str + len, "%s", cur_norm_at->radical == RADICAL_SINGLET ? ":" :
+                    cur_norm_at->radical == RADICAL_DOUBLET ? "." :
+                    cur_norm_at->radical == RADICAL_TRIPLET ? ".." : "?");
+#endif
+            }
         }
     }
 

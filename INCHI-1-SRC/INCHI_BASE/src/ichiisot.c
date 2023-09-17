@@ -34,7 +34,7 @@
 #include "mode.h"
 #include "ichicomn.h"
 
-#include "../../INCHI_EXE/inchi-1/src/bcf_s.h"
+#include "bcf_s.h"
 
 /**********************************************************************************/
 AT_ISO_SORT_KEY make_iso_sort_key( int iso_atw_diff, int num_1H, int num_2H, int num_3H )

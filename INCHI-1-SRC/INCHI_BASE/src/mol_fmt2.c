@@ -45,7 +45,7 @@
 #include "util.h"
 #include "ichi_io.h"
 
-#include "../../INCHI_EXE/inchi-1/src/bcf_s.h"
+#include "bcf_s.h"
 
 /*
     MolFile related procedures - 2
@@ -435,7 +435,7 @@ int MolfileSaveCopy( INCHI_IOSTREAM *inp_file,
                 int len;
                 lrtrim( line, &len );
 #if USE_BCF
-                len = sprintf_s( szNumber, sizeof(szNumber) + 1, "#%ld%s", num, len ? "/" : "" ); /* djb-rwth: function replaced with its safe C11 variant */
+                len = sprintf_s( szNumber, sizeof(szNumber), "#%ld%s", num, len ? "/" : "" ); /* djb-rwth: function replaced with its safe C11 variant */
 #else
                 len = sprintf(szNumber, "#%ld%s", num, len ? "/" : "");
 #endif

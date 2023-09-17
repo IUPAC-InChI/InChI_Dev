@@ -47,7 +47,7 @@
 #include "inchi_api.h"
 #include "readinch.h"
 
-#include "../../INCHI_EXE/inchi-1/src/bcf_s.h"
+#include "bcf_s.h"
 
 #define NO_ATOM          (-1) /* non-existent (central) atom */
 
@@ -427,10 +427,14 @@ int Extract0DParities( inp_ATOM *at,
         FixUnkn0DStereoBonds( at, nNumAtoms );
 #ifdef TARGET_API_LIB
 
-        if (k = ReconcileAllCmlBondParities( at, nNumAtoms, 0 ))
+        if ((k = ReconcileAllCmlBondParities( at, nNumAtoms, 0 ))) /* djb-rwth: addressing LLVM warning */
         {
             char szErrCode[16];
+#if USE_BCF
+            sprintf_s( szErrCode, (long long)k + 1, "%d", k ); /* djb-rwth: function replaced with its safe C11 variant */
+#else
             sprintf( szErrCode, "%d", k );
+#endif
             AddErrorMessage( pStrErr, "0D Parities Reconciliation failed:" );
             AddErrorMessage( pStrErr, szErrCode );
         }

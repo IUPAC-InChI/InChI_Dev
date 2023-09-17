@@ -70,7 +70,7 @@
 #include "ichi_io.h"
 #include "util.h"
 
-#include "../../INCHI_EXE/inchi-1/src/bcf_s.h"
+#include "bcf_s.h"
 
 #define VER103_DEFAULT_MODE    (REQ_MODE_TAUT | REQ_MODE_ISO | REQ_MODE_STEREO |\
                                 REQ_MODE_SB_IGN_ALL_UU | REQ_MODE_SC_IGN_ALL_UU)
@@ -683,8 +683,8 @@ int ReadCommandLineParms(int argc,
     int bOutputMolfileOnly = 0;
     int bOutputMolfileDT = 0;
     int bOutputMolfileSplit = 0;
-    int bDisplayCompositeResults = 0;
-    int nFontSize = -9;
+    int bDisplayCompositeResults = 0; /* djb-rwth: ignoring LLVM warning: variable used */
+    int nFontSize = -9; /* djb-rwth: ignoring LLVM warning: variable used */
     int bINChIOutputOptions2 = 0;
 #ifdef TARGET_LIB_FOR_WINCHI
     int is_gui = 1;

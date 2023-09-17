@@ -44,7 +44,7 @@
 #include "strutil.h"
 #include "util.h"
 
-#include "../../INCHI_EXE/inchi-1/src/bcf_s.h"
+#include "bcf_s.h"
 
 #ifndef INCHI_ADD_STR_LEN
 #define INCHI_ADD_STR_LEN   32768

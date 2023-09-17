@@ -38,7 +38,7 @@
 #include "mode.h"
 #include "ichierr.h"
 
-#include "../../INCHI_EXE/inchi-1/src/bcf_s.h"
+#include "bcf_s.h"
 
 static int already_have_this_message( char *prev_messages, const char *new_message );
 

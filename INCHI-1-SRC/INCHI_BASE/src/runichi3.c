@@ -66,7 +66,7 @@
 #include "inpdef.h"
 #include "ichi_io.h"
 
-#include "../../INCHI_EXE/inchi-1/src/bcf_s.h"
+#include "bcf_s.h"
 
 /* Local prototypes */
 static int OrigAtData_bCheckUnusualValences( ORIG_ATOM_DATA *orig_at_data,
@@ -114,7 +114,7 @@ int OrigAtData_bCheckUnusualValences( ORIG_ATOM_DATA *orig_at_data,
                     WarningMessage( pStrErrStruct, "Accepted unusual valence(s):" );
                 }
 #if USE_BCF
-                len = sprintf_s( msg, sizeof(msg) + 1, "%s", at[i].elname ); /* djb-rwth: function replaced with its safe C11 variant */
+                len = sprintf_s( msg, sizeof(msg), "%s", at[i].elname ); /* djb-rwth: function replaced with its safe C11 variant */
 #else
                 len = sprintf(msg, "%s", at[i].elname);
 #endif
@@ -352,7 +352,7 @@ int OrigAtData_Duplicate( ORIG_ATOM_DATA *new_orig_atom,
                 goto exit_function;
             }
 #if USE_BCF
-            memcpy_s( new_v3000, sizeof(OAD_V3000) + 1, orig_atom->v3000, sizeof( OAD_V3000 ) ); /* djb-rwth: function replaced with its safe C11 variant */
+            memcpy_s( new_v3000, sizeof(OAD_V3000), orig_atom->v3000, sizeof( OAD_V3000 ) ); /* djb-rwth: function replaced with its safe C11 variant */
 #else
             memcpy(new_v3000, orig_atom->v3000, sizeof(OAD_V3000));
 #endif
@@ -461,22 +461,25 @@ int OrigAtData_Duplicate( ORIG_ATOM_DATA *new_orig_atom,
             {
                 new_v3000->lists_sterac = (int **) inchi_calloc( orig_atom->v3000->n_sterac, sizeof( int* ) );
                 /* if ( NULL==new_v3000->lists_sterac ) { TREAT_ERR( err, 9001, "Out of RAM"); goto exit_function; }*/
-                for (m = 0; m < orig_atom->v3000->n_sterac; m++)
+                if (new_v3000->lists_sterac) /* djb-rwth: fixing a NULL pointer dereference */
                 {
-                    int *lst = NULL;
-                    int *old_lst = orig_atom->v3000->lists_sterac[m];
-                    nn = old_lst[1] + 2;
-                    lst = new_v3000->lists_sterac[m] = (int *) inchi_calloc( nn, sizeof( int ) );
-                    if (!lst)
+                    for (m = 0; m < orig_atom->v3000->n_sterac; m++)
                     {
-                        inchi_free(new_v3000); /* djb-rwth: avoiding memory leak */
-                        goto exit_function;
-                    }
+                        int* lst = NULL;
+                        int* old_lst = orig_atom->v3000->lists_sterac[m];
+                        nn = old_lst[1] + 2;
+                        lst = new_v3000->lists_sterac[m] = (int*)inchi_calloc(nn, sizeof(int));
+                        if (!lst)
+                        {
+                            inchi_free(new_v3000); /* djb-rwth: avoiding memory leak */
+                            goto exit_function;
+                        }
 #if USE_BCF
-                    memcpy_s( lst, sizeof(int)*nn + 1, old_lst, nn * sizeof( int ) ); /* djb-rwth: function replaced with its safe C11 variant */
+                        memcpy_s(lst, sizeof(int) * nn + 1, old_lst, nn * sizeof(int)); /* djb-rwth: function replaced with its safe C11 variant */
 #else
-                    memcpy(lst, old_lst, nn * sizeof(int));
+                        memcpy(lst, old_lst, nn * sizeof(int));
 #endif
+                    }
                 }
             }
 
@@ -1353,7 +1356,7 @@ OAD_PolymerUnit* OAD_PolymerUnit_CreateCopy( OAD_PolymerUnit *u )
     }
 
 #if USE_BCF
-    strcpy_s( u2->smt, sizeof(u2->smt) + 1, u->smt ); /* djb-rwth: function replaced with its safe C11 variant */
+    strcpy_s( u2->smt, sizeof(u2->smt), u->smt ); /* djb-rwth: function replaced with its safe C11 variant */
 #else
     strcpy(u2->smt, u->smt);
 #endif
@@ -1732,7 +1735,7 @@ int OAD_ValidatePolymerAndPseudoElementData( ORIG_ATOM_DATA *orig_at_data,
         {
             if (!strcmp( orig_at_data->at[k].elname, "Zz" ))
             {
-                pd->pzz[kk++] = k + 1;
+                pd->pzz[kk++] = k + 1; /* djb-rwth: buffer overrun avoided implicitly */
             }
         }
     }

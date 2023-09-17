@@ -41,7 +41,7 @@
 #include "ichimake.h"
 #include "ichi_io.h"
 
-#include "../../INCHI_EXE/inchi-1/src/bcf_s.h"
+#include "bcf_s.h"
 
  /****************************************************************************/
 int Eql_INChI_Stereo( INChI_Stereo  *s1,
@@ -1257,7 +1257,7 @@ int MakeTautString( AT_NUMB          *LinearCT,
                                     if (nValue == 1)
                                     {
 #if USE_BCF
-                                        strcpy_s( szValue, sizeof(szValue) + strlen(p), p ); /* djb-rwth: function replaced with its safe C11 variant */
+                                        strcpy_s( szValue, strlen(p) + 1, p ); /* djb-rwth: function replaced with its safe C11 variant */
 #else
                                         strcpy(szValue, p);
 #endif

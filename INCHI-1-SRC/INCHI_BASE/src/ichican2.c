@@ -46,7 +46,7 @@
 #include "ichicomn.h"
 #include "ichitime.h"
 
-#include "../../INCHI_EXE/inchi-1/src/bcf_s.h"
+#include "bcf_s.h"
 
 #define MAX_CELLS    32766
 #define MAX_NODES    32766
@@ -823,8 +823,11 @@ int CTableCreate( ConTable *Ct, int n, CANON_DATA *pCD )
 
     Ct->maxPos = n;
     Ct->lenPos = 0;
-    Ct->nextAtRank[0] = 0;
-    Ct->nextCtblPos[0] = 0;
+    /* djb-rwth: fixing a NULL pointer dereferences */
+    if (Ct->nextAtRank)
+        Ct->nextAtRank[0] = 0;
+    if (Ct->nextCtblPos)
+        Ct->nextCtblPos[0] = 0;
 
     if (Ct->Ctbl && Ct->nextCtblPos &&
         ( !maxlenNumH || Ct->NumH ) &&
@@ -4759,7 +4762,7 @@ void FillOutAtomInvariant2( sp_ATOM* at,
             if (nNumChemElements)
             {
 #if USE_BCF
-                memmove_s( ChemElements + ELEM_NAME_LEN, sizeof(ChemElements) + ELEM_NAME_LEN* nNumChemElements, ChemElements, (long long)ELEM_NAME_LEN * (long long)nNumChemElements ); /* djb-rwth: function replaced with its safe C11 variant */
+                memmove_s( ChemElements + ELEM_NAME_LEN, sizeof(ChemElements) + ELEM_NAME_LEN*(long long)nNumChemElements, ChemElements, (long long)ELEM_NAME_LEN * (long long)nNumChemElements ); /* djb-rwth: function replaced with its safe C11 variant; cast operator added */
 #else
                 memmove(ChemElements + ELEM_NAME_LEN, ChemElements, (long long)ELEM_NAME_LEN * (long long)nNumChemElements); /* djb-rwth: cast operators added */
 #endif

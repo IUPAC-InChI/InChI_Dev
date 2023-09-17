@@ -44,7 +44,7 @@
 #include "ichister.h"
 #include "ichirvrs.h"
 
-#include "../../INCHI_EXE/inchi-1/src/bcf_s.h"
+#include "bcf_s.h"
 
 /****************************************************************************/
 void CopyAt2St( inp_ATOM *at, inp_ATOM_STEREO * st, int num_atoms )
@@ -55,7 +55,7 @@ void CopyAt2St( inp_ATOM *at, inp_ATOM_STEREO * st, int num_atoms )
         if (at[i].p_parity)
         {
 #if USE_BCF
-            memcpy_s( st[i].p_orig_at_num, sizeof(st[0].p_orig_at_num) + 1, at[i].p_orig_at_num, sizeof( st[0].p_orig_at_num ) ); /* djb-rwth: function replaced with its safe C11 variant */
+            memcpy_s( st[i].p_orig_at_num, sizeof(st[0].p_orig_at_num), at[i].p_orig_at_num, sizeof( st[0].p_orig_at_num ) ); /* djb-rwth: function replaced with its safe C11 variant */
 #else
             memcpy(st[i].p_orig_at_num, at[i].p_orig_at_num, sizeof(st[0].p_orig_at_num));
 #endif
@@ -64,10 +64,10 @@ void CopyAt2St( inp_ATOM *at, inp_ATOM_STEREO * st, int num_atoms )
         if (at[i].sb_parity[0])
         {
 #if USE_BCF
-            memcpy_s( st[i].sb_ord, sizeof(st[0].sb_ord) + 1, at[i].sb_ord, sizeof( st[0].sb_ord ) ); /* djb-rwth: function replaced with its safe C11 variant */
-            memcpy_s( st[i].sb_parity, sizeof(st[0].sb_parity) + 1, at[i].sb_parity, sizeof( st[0].sb_parity ) ); /* djb-rwth: function replaced with its safe C11 variant */
-            memcpy_s( st[i].sn_ord, sizeof(st[0].sn_ord) + 1, at[i].sn_ord, sizeof( st[0].sn_ord ) ); /* djb-rwth: function replaced with its safe C11 variant */
-            memcpy_s( st[i].sn_orig_at_num, sizeof(st[0].sn_orig_at_num) + 1, at[i].sn_orig_at_num, sizeof( st[0].sn_orig_at_num ) ); /* djb-rwth: function replaced with its safe C11 variant */
+            memcpy_s( st[i].sb_ord, sizeof(st[0].sb_ord), at[i].sb_ord, sizeof( st[0].sb_ord ) ); /* djb-rwth: function replaced with its safe C11 variant */
+            memcpy_s( st[i].sb_parity, sizeof(st[0].sb_parity), at[i].sb_parity, sizeof( st[0].sb_parity ) ); /* djb-rwth: function replaced with its safe C11 variant */
+            memcpy_s( st[i].sn_ord, sizeof(st[0].sn_ord), at[i].sn_ord, sizeof( st[0].sn_ord ) ); /* djb-rwth: function replaced with its safe C11 variant */
+            memcpy_s( st[i].sn_orig_at_num, sizeof(st[0].sn_orig_at_num), at[i].sn_orig_at_num, sizeof( st[0].sn_orig_at_num ) ); /* djb-rwth: function replaced with its safe C11 variant */
 #else
             memcpy(st[i].sb_ord, at[i].sb_ord, sizeof(st[0].sb_ord));
             memcpy(st[i].sb_parity, at[i].sb_parity, sizeof(st[0].sb_parity));
@@ -93,7 +93,7 @@ void CopySt2At( inp_ATOM *at, inp_ATOM_STEREO * st, int num_atoms )
         if (st[i].p_parity)
         {
 #if USE_BCF
-            memcpy_s( at[i].p_orig_at_num, sizeof(at[0].p_orig_at_num) + 1, st[i].p_orig_at_num, sizeof( at[0].p_orig_at_num ) ); /* djb-rwth: function replaced with its safe C11 variant */
+            memcpy_s( at[i].p_orig_at_num, sizeof(at[0].p_orig_at_num), st[i].p_orig_at_num, sizeof( at[0].p_orig_at_num ) ); /* djb-rwth: function replaced with its safe C11 variant */
 #else
             memcpy(at[i].p_orig_at_num, st[i].p_orig_at_num, sizeof(at[0].p_orig_at_num));
 #endif
@@ -102,10 +102,10 @@ void CopySt2At( inp_ATOM *at, inp_ATOM_STEREO * st, int num_atoms )
         if (st[i].sb_parity[0])
         {
 #if USE_BCF
-            memcpy_s( at[i].sb_ord, sizeof(st[0].sb_ord) + 1, st[i].sb_ord, sizeof( st[0].sb_ord ) ); /* djb-rwth: function replaced with its safe C11 variant */
-            memcpy_s( at[i].sb_parity, sizeof(at[0].sb_parity) + 1, st[i].sb_parity, sizeof( at[0].sb_parity ) ); /* djb-rwth: function replaced with its safe C11 variant */
-            memcpy_s( at[i].sn_ord, sizeof(at[0].sn_ord) + 1, st[i].sn_ord, sizeof( at[0].sn_ord ) ); /* djb-rwth: function replaced with its safe C11 variant */
-            memcpy_s( at[i].sn_orig_at_num, sizeof(at[0].sn_orig_at_num) + 1, st[i].sn_orig_at_num, sizeof( at[0].sn_orig_at_num ) ); /* djb-rwth: function replaced with its safe C11 variant */
+            memcpy_s( at[i].sb_ord, sizeof(st[0].sb_ord), st[i].sb_ord, sizeof( st[0].sb_ord ) ); /* djb-rwth: function replaced with its safe C11 variant */
+            memcpy_s( at[i].sb_parity, sizeof(at[0].sb_parity), st[i].sb_parity, sizeof( at[0].sb_parity ) ); /* djb-rwth: function replaced with its safe C11 variant */
+            memcpy_s( at[i].sn_ord, sizeof(at[0].sn_ord), st[i].sn_ord, sizeof( at[0].sn_ord ) ); /* djb-rwth: function replaced with its safe C11 variant */
+            memcpy_s( at[i].sn_orig_at_num, sizeof(at[0].sn_orig_at_num), st[i].sn_orig_at_num, sizeof( at[0].sn_orig_at_num ) ); /* djb-rwth: function replaced with its safe C11 variant */
 #else
             memcpy(at[i].sb_ord, st[i].sb_ord, sizeof(st[0].sb_ord));
             memcpy(at[i].sb_parity, st[i].sb_parity, sizeof(at[0].sb_parity));
@@ -439,7 +439,7 @@ int RestoreAtomConnectionsSetStereo( StrFromINChI *pStruct,
             }
             pStruct->num_deleted_H = nNumDeletedH;
 #if USE_BCF
-            memcpy_s( at2, sizeof(at2[0])*num_atoms + 1, at, num_atoms * sizeof(at2[0])); /* djb-rwth: function replaced with its safe C11 variant */
+            memcpy_s( at2, sizeof(at2[0])*num_atoms, at, num_atoms * sizeof(at2[0])); /* djb-rwth: function replaced with its safe C11 variant */
 #else
             memcpy(at2, at, num_atoms * sizeof(at2[0]));
 #endif

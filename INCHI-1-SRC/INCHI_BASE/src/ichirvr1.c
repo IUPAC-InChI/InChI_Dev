@@ -49,7 +49,7 @@
 #include "ichimain.h"
 #include "inpdef.h"
 
-#include "../../INCHI_EXE/inchi-1/src/bcf_s.h"
+#include "bcf_s.h"
 
 /**************************************************************************************************
 
@@ -645,7 +645,7 @@ int GetTgroupInfoFromInChI( T_GROUP_INFO *ti,
 
             for (; 0 < len_tg--; j++, i++)
             {
-                k = ti->nEndpointAtomNumber[i] = pInChI->nTautomer[j] - 1;
+                k = ti->nEndpointAtomNumber[i] = pInChI->nTautomer[j] - 1; /* djb-rwth: buffer overrun avoided implicitly in loop condition */
 #if ( FIX_GAF_2019_1==1 )
                 if (k<0 || k>num_atoms)
                 {
@@ -4713,7 +4713,7 @@ int AllocEdgeList( EDGE_LIST *pEdges, int nLen )
                 if (tmp_edges && tmp_num > 0)
                 {
 #if USE_BCF
-                    memcpy_s( pEdges->pnEdges, sizeof(pEdges->pnEdges[0])*tmp_num + 1, tmp_edges, tmp_num * sizeof(pEdges->pnEdges[0])); /* djb-rwth: function replaced with its safe C11 variant */
+                    memcpy_s( pEdges->pnEdges, sizeof(pEdges->pnEdges[0])*tmp_num, tmp_edges, tmp_num * sizeof(pEdges->pnEdges[0])); /* djb-rwth: function replaced with its safe C11 variant */
 #else
                     memcpy(pEdges->pnEdges, tmp_edges, tmp_num * sizeof(pEdges->pnEdges[0]));
 #endif
@@ -5428,7 +5428,7 @@ int MakeOneInChIOutOfStrFromINChI( struct tagCANON_GLOBALS *pCG,
         if (pStruct->pOne_norm_data[0])
         {
 #if USE_BCF
-            memcpy_s( pStruct->pOne_norm_data[0], sizeof(pStruct->pOne_norm_data[0][0]) + 1, inp_norm_data[bMobileH], sizeof(pStruct->pOne_norm_data[0][0])); /* djb-rwth: function replaced with its safe C11 variant */
+            memcpy_s( pStruct->pOne_norm_data[0], sizeof(pStruct->pOne_norm_data[0][0]), inp_norm_data[bMobileH], sizeof(pStruct->pOne_norm_data[0][0])); /* djb-rwth: function replaced with its safe C11 variant */
 #else
             memcpy(pStruct->pOne_norm_data[0], inp_norm_data[bMobileH], sizeof(pStruct->pOne_norm_data[0][0]));
 #endif
@@ -5450,7 +5450,7 @@ int MakeOneInChIOutOfStrFromINChI( struct tagCANON_GLOBALS *pCG,
             if (pStruct->pOne_norm_data[1])
             {
 #if USE_BCF
-                memcpy_s( pStruct->pOne_norm_data[1], sizeof(pStruct->pOne_norm_data[0][0]) + 1, inp_norm_data[bMobileHalt], sizeof(pStruct->pOne_norm_data[0][0])); /* djb-rwth: function replaced with its safe C11 variant */
+                memcpy_s( pStruct->pOne_norm_data[1], sizeof(pStruct->pOne_norm_data[0][0]), inp_norm_data[bMobileHalt], sizeof(pStruct->pOne_norm_data[0][0])); /* djb-rwth: function replaced with its safe C11 variant */
 #else
                 memcpy(pStruct->pOne_norm_data[1], inp_norm_data[bMobileHalt], sizeof(pStruct->pOne_norm_data[0][0]));
 #endif
@@ -5815,7 +5815,7 @@ int MakeInChIOutOfStrFromINChI2( INCHI_CLOCK *ic,
         }
 
 #if USE_BCF
-        memcpy_s( orig_inp_data->at, (long long)len + 1, pStruct->at2, len ); /* djb-rwth: function replaced with its safe C11 variant */
+        memcpy_s( orig_inp_data->at, (long long)len, pStruct->at2, len ); /* djb-rwth: function replaced with its safe C11 variant */
 #else
         memcpy(orig_inp_data->at, pStruct->at2, len);
 #endif
@@ -5858,8 +5858,8 @@ int MakeInChIOutOfStrFromINChI2( INCHI_CLOCK *ic,
 
 
 #if USE_BCF
-    memcpy_s( pStruct->RevInChI.num_components, sizeof(pStruct->RevInChI.num_components) + 1, sd->num_components, sizeof(pStruct->RevInChI.num_components)); /* djb-rwth: function replaced with its safe C11 variant */
-    memcpy_s( sd_inp->pStrErrStruct, sizeof(sd_inp->pStrErrStruct) + 1, sd->pStrErrStruct, sizeof(sd_inp->pStrErrStruct)); /* djb-rwth: function replaced with its safe C11 variant */
+    memcpy_s( pStruct->RevInChI.num_components, sizeof(pStruct->RevInChI.num_components), sd->num_components, sizeof(pStruct->RevInChI.num_components)); /* djb-rwth: function replaced with its safe C11 variant */
+    memcpy_s( sd_inp->pStrErrStruct, sizeof(sd_inp->pStrErrStruct), sd->pStrErrStruct, sizeof(sd_inp->pStrErrStruct)); /* djb-rwth: function replaced with its safe C11 variant */
 #else
     memcpy(pStruct->RevInChI.num_components, sd->num_components, sizeof(pStruct->RevInChI.num_components));
     memcpy(sd_inp->pStrErrStruct, sd->pStrErrStruct, sizeof(sd_inp->pStrErrStruct));
@@ -6086,7 +6086,7 @@ int OutputInChIOutOfStrFromINChI( struct tagINCHI_CLOCK *ic,
 
 
 #if USE_BCF
-    memcpy_s( RevInChI.num_components, sizeof(RevInChI.num_components) + 1, sd->num_components, sizeof( RevInChI.num_components ) ); /* djb-rwth: function replaced with its safe C11 variant */
+    memcpy_s( RevInChI.num_components, sizeof(RevInChI.num_components), sd->num_components, sizeof( RevInChI.num_components ) ); /* djb-rwth: function replaced with its safe C11 variant */
 #else
     memcpy(RevInChI.num_components, sd->num_components, sizeof(RevInChI.num_components));
 #endif

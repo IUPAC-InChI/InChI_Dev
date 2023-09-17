@@ -37,7 +37,7 @@
 #include "mode.h"
 #include "ichicomn.h"
 
-#include "../../INCHI_EXE/inchi-1/src/bcf_s.h"
+#include "bcf_s.h"
 
 #define MAP_MODE_STD  0 /* Standard approach: switch 2 neighbors */
 #define MAP_MODE_C2v  1 /* Check for C2v reflection leading to parity inversion */

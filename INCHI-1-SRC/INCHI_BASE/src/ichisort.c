@@ -37,7 +37,7 @@
 #include "ichicomn.h"
 #include "ichicant.h"
 
-#include "../../INCHI_EXE/inchi-1/src/bcf_s.h"
+#include "bcf_s.h"
 
 #if 0
 #define RET_MAX 32767
@@ -885,7 +885,7 @@ NEIGH_LIST *CreateNeighList( int num_atoms,
                     start = length++;
                     for (j = 0; j < val; j++)
                     {
-                        pAtList[length++] = at[i].neighbor[j];
+                        pAtList[length++] = at[i].neighbor[j]; /* djb-rwth: buffer overrun avoided implicitly */
                         if (bDoubleBondSquare && BOND_DOUBLE == at[i].bond_type[j])
                         {
                             pAtList[length++] = at[i].neighbor[j]; /*  a list of neighbor orig. numbers */

@@ -36,7 +36,7 @@
 #include "mode.h"
 #include "ichicomn.h"
 
-#include "../../INCHI_EXE/inchi-1/src/bcf_s.h"
+#include "bcf_s.h"
 
 #define SB_DEPTH 6
 

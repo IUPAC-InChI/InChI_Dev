@@ -39,7 +39,7 @@
 #include "ichitime.h"
 #include "ichirvrs.h"
 
-#include "../../INCHI_EXE/inchi-1/src/bcf_s.h"
+#include "bcf_s.h"
 
 #if ( READ_INCHI_STRING == 1 )
 
@@ -5001,9 +5001,9 @@ int FixFixedHRestoredStructure( CANON_GLOBALS *pCG,
                 /* v1 is -OH, v2 is adjacent to it Metal */
                 iat = CurrEdges.pnEdges[i];
                 iatMetal = at2[iat].neighbor[0];
-                peOHPlus = pBNS->edge + ( pVA[iat].nCPlusGroupEdge - 1 ); /* djb-rwth: removing redundant variables/code */
-                peMPlus = pBNS->edge + ( pVA[iatMetal].nCPlusGroupEdge - 1 ); /* djb-rwth: removing redundant variables/code */
-                peMMinus = pBNS->edge + ( pVA[iatMetal].nCMinusGroupEdge - 1 ); /* djb-rwth: removing redundant variables/code */
+                peOHPlus = pBNS->edge + ( (long long)pVA[iat].nCPlusGroupEdge - 1 ); /* djb-rwth: removing redundant variables/code */
+                peMPlus = pBNS->edge + ( (long long)pVA[iatMetal].nCPlusGroupEdge - 1 ); /* djb-rwth: removing redundant variables/code */
+                peMMinus = pBNS->edge + ( (long long)pVA[iatMetal].nCMinusGroupEdge - 1 ); /* djb-rwth: removing redundant variables/code */
                 peOMBond = pBNS->edge + ( pBNS->vert[iat].iedge[0] ); /* djb-rwth: removing redundant variables/code */
                 /* remove forbidden edge masks */
                 peMPlus->forbidden &= forbidden_edge_mask_inv;

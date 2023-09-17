@@ -36,7 +36,7 @@
 #include "mode.h"
 #include "ichitaut.h"
 
-#include "../../INCHI_EXE/inchi-1/src/bcf_s.h"
+#include "bcf_s.h"
 
 /****************************************************************************/
 
@@ -776,7 +776,7 @@ int are_alt_bonds( U_CHAR *bonds, int len )
     {
         return 0;
     }
-    bonds[0] == BOND_SINGLE ? BOND_DOUBLE : bonds[0] == BOND_DOUBLE ? BOND_SINGLE : 0; /* djb-rwth: removing redundant code; ignoring LLVM warning: possible presence of global variables */
+    next_bond = bonds[0] == BOND_SINGLE ? BOND_DOUBLE : bonds[0] == BOND_DOUBLE ? BOND_SINGLE : 0; /* djb-rwth: removing redundant code; ignoring LLVM warning: possible presence of global variables */
     if (bonds[0] == BOND_TAUTOM)
     {
         bTautBondPresent = BOND_TAUTOM;

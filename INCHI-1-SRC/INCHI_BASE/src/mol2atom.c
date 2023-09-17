@@ -42,7 +42,7 @@
 #include "strutil.h"
 #include "inchi_api.h"
 
-#include "../../INCHI_EXE/inchi-1/src/bcf_s.h"
+#include "bcf_s.h"
 
 /*
 Convert input molecular data to internal representation
@@ -212,11 +212,14 @@ int CreateOrigInpDataFromMolfile( INCHI_IOSTREAM *inp_file,
                     /*  adjust numbering in the newly read structure */
                     for (i = 0; i < num_inp_atoms_new; i++)
                     {
-                        for (j = 0; j < at_new[i].valence; j++)
+                        if (at_new) /* djb-rwth: fixing a NULL pointer dereference */
                         {
-                            at_new[i].neighbor[j] += orig_at_data->num_inp_atoms;
+                            for (j = 0; j < at_new[i].valence; j++)
+                            {
+                                at_new[i].neighbor[j] += orig_at_data->num_inp_atoms;
+                            }
+                            at_new[i].orig_at_number += orig_at_data->num_inp_atoms; /* 12-19-2003 */
                         }
-                        at_new[i].orig_at_number += orig_at_data->num_inp_atoms; /* 12-19-2003 */
                     }
                     if (orig_at_data->szCoord && szCoordOld)
 #if USE_BCF
@@ -731,7 +734,7 @@ inp_ATOM* MakeInpAtomsFromMolfileData( MOL_FMT_DATA* mfdata,
             char szMsg[64];
             *err |= 4; /*  too large number of bonds. Some bonds ignored. */
 #if USE_BCF
-            sprintf_s( szMsg, sizeof(szMsg) + 1, "Atom '%s' has more than %d bonds",
+            sprintf_s( szMsg, sizeof(szMsg), "Atom '%s' has more than %d bonds",
                      at[a1].valence >= MAXVAL ? at[a1].elname : at[a2].elname, MAXVAL ); /* djb-rwth: function replaced with its safe C11 variant */
 #else
             sprintf(szMsg, "Atom '%s' has more than %d bonds",

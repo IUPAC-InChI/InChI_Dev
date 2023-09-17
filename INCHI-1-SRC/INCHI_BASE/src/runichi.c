@@ -65,7 +65,7 @@
 #include "readinch.h"
 #include "ichirvrs.h"
 
-#include "../../INCHI_EXE/inchi-1/src/bcf_s.h"
+#include "bcf_s.h"
 
 extern int DisplayTheWholeStructure( struct tagCANON_GLOBALS *pCG,
                                      struct tagINCHI_CLOCK   *ic,
@@ -559,7 +559,7 @@ int OrigAtData_SaveMolfile( ORIG_ATOM_DATA  *orig_inp_data,
     {
         char szNumber[256];
 #if USE_BCF
-        sprintf_s( szNumber, sizeof(szNumber) + 1, "Structure #%ld. %s%s%s%s", num_inp, SDF_LBL_VAL(ip->pSdfLabel, ip->pSdfValue)); /* djb-rwth: function replaced with its safe C11 variant */
+        sprintf_s( szNumber, sizeof(szNumber), "Structure #%ld. %s%s%s%s", num_inp, SDF_LBL_VAL(ip->pSdfLabel, ip->pSdfValue)); /* djb-rwth: function replaced with its safe C11 variant */
 #else
         sprintf(szNumber, "Structure #%ld. %s%s%s%s", num_inp, SDF_LBL_VAL(ip->pSdfLabel, ip->pSdfValue));
 #endif
@@ -1468,7 +1468,7 @@ int CreateOneStructureINChI( CANON_GLOBALS          *pCG,
              *                                   inp_norm_data[1]->bHasIsotopicLayer  *
              **************************************************************************/
 
-            int bIsotopic, bTautomeric, bDisplayTaut, bHasIsotopicLayer, bFixedBondsTaut, m_max, m, nNumDisplayedFixedBondTaut = 0;
+            int bIsotopic, bTautomeric, bDisplayTaut, bHasIsotopicLayer, bFixedBondsTaut, m_max, m, nNumDisplayedFixedBondTaut = 0; /* djb-rwth: ignoring LLVM warning: variable used */
 
             for ( j = 0;
                   ip->bDisplay && !sd->bUserQuitComponentDisplay && j < TAUT_NUM;

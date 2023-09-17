@@ -45,7 +45,7 @@
 #include "ichi.h"
 #include "ichicomn.h"
 
-#include "../../INCHI_EXE/inchi-1/src/bcf_s.h"
+#include "bcf_s.h"
 
  /****************************************************************************
  *
@@ -181,8 +181,8 @@ long InchiTimeMsecDiff( INCHI_CLOCK *ic, inchiTime *TickEnd, inchiTime *TickStar
         FillMaxMinClock( ic );
         if (!TickEnd || !TickStart)
             return 0;
-        if (TickEnd->clockTime >= 0 && TickStart->clockTime >= 0 ||
-             TickEnd->clockTime <= 0 && TickStart->clockTime <= 0)
+        if ((TickEnd->clockTime >= 0 && TickStart->clockTime >= 0) ||
+             (TickEnd->clockTime <= 0 && TickStart->clockTime <= 0)) /* djb-rwth: addressing LLVM warnings */
         {
             delta = TickEnd->clockTime - TickStart->clockTime;
         }
@@ -285,8 +285,8 @@ int bInchiTimeIsOver( INCHI_CLOCK *ic, inchiTime *TickStart )
         if (!TickStart)
             return 0;
         clockCurrTime = InchiClock( );
-        if (clockCurrTime >= 0 && TickStart->clockTime >= 0 ||
-             clockCurrTime <= 0 && TickStart->clockTime <= 0)
+        if ((clockCurrTime >= 0 && TickStart->clockTime >= 0) ||
+             (clockCurrTime <= 0 && TickStart->clockTime <= 0)) /* djb-rwth: addressing LLVM warning */
         {
             return ( clockCurrTime > TickStart->clockTime );
         }

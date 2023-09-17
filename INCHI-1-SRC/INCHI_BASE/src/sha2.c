@@ -44,7 +44,7 @@
 
 #include "mode.h"
 
-#include "../../INCHI_EXE/inchi-1/src/bcf_s.h"
+#include "bcf_s.h"
 
 /*
  * 32-bit integer manipulation macros (big endian)
@@ -240,7 +240,7 @@ void sha2_update( sha2_context *ctx, unsigned char *input, int ilen )
     if (left && ilen >= fill)
     {
 #if USE_BCF
-        memcpy_s( (void *) ( ctx->buffer + left ), fill + 1, 
+        memcpy_s( (void *) ( ctx->buffer + left ), (long long)fill + 1, 
             (void *) input, fill ); /* djb-rwth: function replaced with its safe C11 variant */
 #else
         memcpy((void*)(ctx->buffer + left),
@@ -262,7 +262,7 @@ void sha2_update( sha2_context *ctx, unsigned char *input, int ilen )
     if (ilen > 0)
     {
 #if USE_BCF
-        memcpy_s( (void *) ( ctx->buffer + left ), ilen + 1,
+        memcpy_s( (void *) ( ctx->buffer + left ), (long long)ilen + 1,
             (void *) input, ilen ); /* djb-rwth: function replaced with its safe C11 variant */
 #else
         memcpy((void*)(ctx->buffer + left),

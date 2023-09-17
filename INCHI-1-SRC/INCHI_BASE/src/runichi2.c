@@ -70,7 +70,7 @@
 
 #include "ichirvrs.h"
 
-#include "../../INCHI_EXE/inchi-1/src/bcf_s.h"
+#include "bcf_s.h"
 
 /* Modified in-CRU stereoventer info */
 typedef struct tagModSCenterInfo
@@ -1192,11 +1192,14 @@ int InchiToOrigAtom( INCHI_IOSTREAM *inp_molfile,
                     /*  adjust numbering in the newly read structure */
                     for (i = 0; i < num_inp_atoms_new; i++)
                     {
-                        for (j = 0; j < at_new[i].valence; j++)
+                        if (at_new) /* djb-rwth: fixing a NULL pointer dereference */
                         {
-                            at_new[i].neighbor[j] += orig_at_data->num_inp_atoms;
+                            for (j = 0; j < at_new[i].valence; j++)
+                            {
+                                at_new[i].neighbor[j] += orig_at_data->num_inp_atoms;
+                            }
+                            at_new[i].orig_at_number += orig_at_data->num_inp_atoms; /* 12-19-2003 */
                         }
-                        at_new[i].orig_at_number += orig_at_data->num_inp_atoms; /* 12-19-2003 */
                     }
                     if (orig_at_data->szCoord && szCoordOld)
                     {
@@ -2223,7 +2226,7 @@ int analyze_CRU_folding(ORIG_ATOM_DATA *orig_at_data,
     int n_cuts = 0, n_frags = 0; 
     int n_frags_in_repeating_subunit = 0;
     int n_fold, n_frag_classes = 0;
-    int subunit_last_atom, next_subunit_first_atom;
+    int subunit_last_atom, next_subunit_first_atom = 0;
     int *cut = NULL;        /* [ bkbond1at1, bkbond1at2,  bkbond2at1,bkbond2at2, ... ] 
                                these are (atoms of) backbone bonds which are non-cyclic and non-multiple ('breakable')      */
     DiylFrag **frag=NULL;   /* frag is divalent fragment surrounded by 'cut' bonds, so it may be a repeating CRU sub-unit   */
@@ -2283,7 +2286,7 @@ int analyze_CRU_folding(ORIG_ATOM_DATA *orig_at_data,
         {
             if (bIsSameBond(a1, a2, all_bkb[2 * j], all_bkb[2 * j + 1]))
             {
-                cut[2 * n_cuts] = a1;
+                cut[2 * n_cuts] = a1; /* djb-rwth: buffer overrun implicitly avoided in loop condition */
                 cut[2 * n_cuts + 1] = a2;
                 n_cuts++;
                 break;
@@ -2446,7 +2449,7 @@ int analyze_CRU_folding(ORIG_ATOM_DATA *orig_at_data,
     */
 
     /*djb-rwth: the whole block had to be rewritten to fix NULL pointer dereference */
-    if (frag[n_frags_in_repeating_subunit])
+    if (frag[n_frags_in_repeating_subunit] && frag[n_frags_in_repeating_subunit - 1]) /* djb-rwth: fixing a NULL pointer dereference */
     {
         subunit_last_atom        = frag[n_frags_in_repeating_subunit - 1]->end2;
         next_subunit_first_atom  = frag[n_frags_in_repeating_subunit]->end1;
@@ -2472,13 +2475,16 @@ int analyze_CRU_folding(ORIG_ATOM_DATA *orig_at_data,
 
     for (k = n_frags_in_repeating_subunit; k < n_frags; k++)
     {
-        for (m = 0; m < frag[k]->na; m++)
+        if (frag[k]) /* djb-rwth: fixing a NULL pointer dereference */
         {
-            fail = IntArray_AppendIfAbsent(ed->del_atom, frag[k]->alist[m]);
-            if (fail)
+            for (m = 0; m < frag[k]->na; m++)
             {
-                ret = _IS_ERROR;
-                goto exit_function;
+                fail = IntArray_AppendIfAbsent(ed->del_atom, frag[k]->alist[m]);
+                if (fail)
+                {
+                    ret = _IS_ERROR;
+                    goto exit_function;
+                }
             }
         }
     }

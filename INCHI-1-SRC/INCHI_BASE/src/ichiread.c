@@ -72,7 +72,7 @@
 #endif
 /* */
 
-#include "../../INCHI_EXE/inchi-1/src/bcf_s.h"
+#include "bcf_s.h"
 
 
 #define SEGM_LINE_ADD 128
@@ -662,8 +662,8 @@ int ReadWriteInChI( INCHI_CLOCK *ic,
     long          ulProcessingTime = 0;
     inchiTime     ulTStart;
     long          num_processed = 0, num_errors = 0;
-    int  bPlainTabbedOutput;
-    const char *pTAB;
+    int  bPlainTabbedOutput; /* djb-rwth: ignoring LLVM warning: variable used */
+    const char *pTAB; /* djb-rwth: ignoring LLVM warning: variable used */
 
     long num_inp = 0;
 
@@ -943,7 +943,7 @@ int ReadWriteInChI( INCHI_CLOCK *ic,
 
 #if ( FIX_DALKE_BUGS == 1 )
 #if USE_BCF
-            sprintf_s( szMessage, sizeof(szMessage) + 1, "%ld: %.400s", num_inp, strHdr ? strHdr : "" ); /* djb-rwth: function replaced with its safe C11 variant */
+            sprintf_s( szMessage, sizeof(szMessage), "%ld: %.400s", num_inp, strHdr ? strHdr : "" ); /* djb-rwth: function replaced with its safe C11 variant */
 #else
             sprintf(szMessage, "%ld: %.400s", num_inp, strHdr ? strHdr : "");
 #endif
@@ -4665,50 +4665,53 @@ int AddAuxSegmentCoord( int         nRet,
             for (k = 0; k < nNumComponents[iINChI][j]; k++)
             {
                 pInChI = pInpInChI[iINChI][j] + k;
-                num_at = ( !pInChI->bDeleted ) ? pInChI->nNumberOfAtoms : 0;
-                if (!num_at)
+                if (pInChI) /* djb-rwth: fixing a NULL pointer dereference */
                 {
-                    if (pInChI->nPossibleLocationsOfIsotopicH)
+                    num_at = (!pInChI->bDeleted) ? pInChI->nNumberOfAtoms : 0;
+                    if (!num_at)
                     {
-                        inchi_free( pInChI->nPossibleLocationsOfIsotopicH );
-                        pInChI->nPossibleLocationsOfIsotopicH = NULL;
-                    }
-                    continue;
-                }
-                if (!pInChI->nPossibleLocationsOfIsotopicH)
-                {
-                    continue;
-                }
-                if (iINChI == INCHI_BAS && num_at == 1 &&
-                     pInChI->szHillFormula && !strcmp( pInChI->szHillFormula, "H" ) &&
-                     (int) pInChI->nPossibleLocationsOfIsotopicH[0] - 1 >= nLenXYZ)
-                {
-                    ; /* a single atom H disconnected from a metal atom has no coordinates */
-                }
-                else
-                {
-                    /* add atom coordinates */
-                    pxyz = (XYZ_COORD *) inchi_calloc( num_at, sizeof( pxyz[0] ) );
-                    if (!pxyz)
-                    {
-                        ret = RI_ERR_ALLOC;
-                        goto exit_function;
-                    }
-                    for (n = 0; n < num_at; n++)
-                    {
-                        m = (int) pInChI->nPossibleLocationsOfIsotopicH[n] - 1;
-                        if (m < 0 || m >= nLenXYZ)
+                        if (pInChI->nPossibleLocationsOfIsotopicH)
                         {
-                            inchi_free( pxyz );
-                            ret = RI_ERR_SYNTAX;
+                            inchi_free(pInChI->nPossibleLocationsOfIsotopicH);
+                            pInChI->nPossibleLocationsOfIsotopicH = NULL;
+                        }
+                        continue;
+                    }
+                    if (!pInChI->nPossibleLocationsOfIsotopicH)
+                    {
+                        continue;
+                    }
+                    if (iINChI == INCHI_BAS && num_at == 1 &&
+                        pInChI->szHillFormula && !strcmp(pInChI->szHillFormula, "H") &&
+                        (int)pInChI->nPossibleLocationsOfIsotopicH[0] - 1 >= nLenXYZ)
+                    {
+                        ; /* a single atom H disconnected from a metal atom has no coordinates */
+                    }
+                    else
+                    {
+                        /* add atom coordinates */
+                        pxyz = (XYZ_COORD*)inchi_calloc(num_at, sizeof(pxyz[0]));
+                        if (!pxyz)
+                        {
+                            ret = RI_ERR_ALLOC;
                             goto exit_function;
                         }
-                        pxyz[n] = pXYZ[m];
+                        for (n = 0; n < num_at; n++)
+                        {
+                            m = (int)pInChI->nPossibleLocationsOfIsotopicH[n] - 1;
+                            if (m < 0 || m >= nLenXYZ)
+                            {
+                                inchi_free(pxyz);
+                                ret = RI_ERR_SYNTAX;
+                                goto exit_function;
+                            }
+                            pxyz[n] = pXYZ[m];
+                        }
+                        pInChI->IsotopicTGroup = (INChI_IsotopicTGroup*)pxyz;
                     }
-                    pInChI->IsotopicTGroup = (INChI_IsotopicTGroup *) pxyz;
+                    inchi_free(pInChI->nPossibleLocationsOfIsotopicH);
+                    pInChI->nPossibleLocationsOfIsotopicH = NULL;
                 }
-                inchi_free( pInChI->nPossibleLocationsOfIsotopicH );
-                pInChI->nPossibleLocationsOfIsotopicH = NULL;
             }
         }
     }
@@ -7386,9 +7389,12 @@ int ParseSegmentSp2( const char *str,
                 }
                 p = q + 1;
                 bondParity = (int) ( r - parity_type ) + 1;
-                pStereo[0]->b_parity[iBond] = bondParity;
-                pStereo[0]->nBondAtom1[iBond] = nAtom1;
-                pStereo[0]->nBondAtom2[iBond] = nAtom2;
+                if (iBond < pStereo[0]->nNumberOfStereoBonds)
+                {
+                    pStereo[0]->b_parity[iBond] = bondParity;
+                    pStereo[0]->nBondAtom1[iBond] = nAtom1;
+                    pStereo[0]->nBondAtom2[iBond] = nAtom2;
+                }
 
                 if (iBond &&
                      !( pStereo[0]->nBondAtom1[iBond - 1] < nAtom1 ||
@@ -9683,7 +9689,7 @@ int nFillOutProtonMobileH( INChI *pInChI )
         return RI_ERR_ALLOC; /* alloc failure */
     }
 #if USE_BCF
-    strcpy_s( pInChI->szHillFormula, sizeof(pInChI->szHillFormula) + 1, "H" ); /* djb-rwth: function replaced with its safe C11 variant */
+    strcpy_s( pInChI->szHillFormula, strlen("H") + 1, "H"); /* djb-rwth: function replaced with its safe C11 variant */
 #else
     strcpy(pInChI->szHillFormula, "H");
 #endif
@@ -10022,7 +10028,8 @@ int ParseSegmentFormula( const char *str,
 #else
             memcpy(pInChI[iComponent].szHillFormula, p, len);
 #endif
-            pInChI[iComponent + i].szHillFormula[len] = '\0';
+            if (pInChI[iComponent + i].szHillFormula) /* djb-rwth: fixing a NULL pointer dereference */
+                pInChI[iComponent + i].szHillFormula[len] = '\0'; 
             if (!i)
             {
                 /* Pass 2.1 Parse formula and count atoms except H */
@@ -10030,7 +10037,7 @@ int ParseSegmentFormula( const char *str,
                 nNumH = 0;
                 /* djb-rwth: removing redundant code */
                 e = pInChI[iComponent].szHillFormula;
-                while (*e)
+                while (e && *e) /* djb-rwth: fixing a NULL pointer dereference */
                 {
                     if (!isupper( UCINT *e ))
                     {
@@ -10910,7 +10917,7 @@ void TreatErrorsInReadInChIString( int            nReadStatus,
         char szMsg2[1024];
         ( *num_inp )++;
 #if USE_BCF
-        sprintf_s( szHdrSimulation, sizeof(szHdrSimulation) + 1, "Structure: %ld", *num_inp ); /* djb-rwth: function replaced with its safe C11 variant */
+        sprintf_s( szHdrSimulation, sizeof(szHdrSimulation), "Structure: %ld", *num_inp ); /* djb-rwth: function replaced with its safe C11 variant */
 #else
         sprintf(szHdrSimulation, "Structure: %ld", *num_inp);
 #endif
@@ -11226,7 +11233,7 @@ int ConvertInChI2Struct( ICHICONST INPUT_PARMS   *ip_inp,
     SRM srm; /* rules how to handle bonds to metal atoms */
     StrFromINChI *pStruct[INCHI_NUM][TAUT_NUM];
 
-    int bINChIOutputOptions =
+    int bINChIOutputOptions = /* djb-rwth: ignoring LLVM warning: variable used */
 #if ( I2S_MODIFY_OUTPUT != 1 )
         0;
 #else

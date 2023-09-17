@@ -44,7 +44,7 @@
 #include "ichi_io.h"
 #include "ichimake.h"
 
-#include "../../INCHI_EXE/inchi-1/src/bcf_s.h"
+#include "bcf_s.h"
 
 /****************************************************************************/
 int ForbidCarbonChargeEdges( BN_STRUCT *pBNS,
@@ -3638,7 +3638,7 @@ int MakeProtonComponent( StrFromINChI *pStruct, int iComponent, int num_prot )
         at[i].charge = 1;
     }
 #if USE_BCF
-    memcpy_s( pStruct->at2, sizeof(pStruct->at2[0])*num_prot + 1, at, num_prot * sizeof( pStruct->at2[0] ) ); /* djb-rwth: function replaced with its safe C11 variant */
+    memcpy_s( pStruct->at2, sizeof(pStruct->at2[0])*num_prot, at, num_prot * sizeof( pStruct->at2[0] ) ); /* djb-rwth: function replaced with its safe C11 variant */
 #else
     memcpy(pStruct->at2, at, num_prot * sizeof(pStruct->at2[0]));
 #endif

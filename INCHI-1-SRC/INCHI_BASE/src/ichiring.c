@@ -34,7 +34,7 @@
 #include "mode.h"
 #include "ichiring.h"
 
-#include "../../INCHI_EXE/inchi-1/src/bcf_s.h"
+#include "bcf_s.h"
 
 /* Local prototypes */
 int GetMinRingSize( inp_ATOM* atom, QUEUE *q, AT_RANK *nAtomLevel, S_CHAR *cSource, AT_RANK nMaxRingSize );

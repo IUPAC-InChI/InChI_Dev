@@ -42,7 +42,7 @@
 #include "ichicant.h"
 #include "util.h"
 
-#include "../../INCHI_EXE/inchi-1/src/bcf_s.h"
+#include "bcf_s.h"
 
 /* Local prototypes */
 
@@ -4335,21 +4335,24 @@ int MakeIsotopicHGroup( inp_ATOM *at,
         if (nNumCandidates > 0)
         {
             t_group_info->nIsotopicEndpointAtomNumber = (AT_NUMB *) inchi_calloc( (long long)nNumNonTautCandidates + 1, sizeof( t_group_info->nIsotopicEndpointAtomNumber[0] ) ); /* djb-rwth: cast operator added */
-            t_group_info->nIsotopicEndpointAtomNumber[0] = nNumNonTautCandidates;
-            for (i = 0, n = 1; i < nNumCandidates; i++)
+            if (t_group_info->nIsotopicEndpointAtomNumber) /* djb-rwth: fixing a NULL pointer dereference */
             {
-                k = s_candidate[i].atnumber;
-                if (!at[k].endpoint)
+                t_group_info->nIsotopicEndpointAtomNumber[0] = nNumNonTautCandidates;
+                for (i = 0, n = 1; i < nNumCandidates; i++)
                 {
-                    t_group_info->nIsotopicEndpointAtomNumber[n++] = k;
+                    k = s_candidate[i].atnumber;
+                    if (!at[k].endpoint)
+                    {
+                        t_group_info->nIsotopicEndpointAtomNumber[n++] = k;
+                    }
+                    for (j = 0; j < NUM_H_ISOTOPES; j++)
+                    {
+                        t_group_info->num_iso_H[j] += at[k].num_iso_H[j];
+                    }
+                    at[k].cFlags |= AT_FLAG_ISO_H_POINT;
                 }
-                for (j = 0; j < NUM_H_ISOTOPES; j++)
-                {
-                    t_group_info->num_iso_H[j] += at[k].num_iso_H[j];
-                }
-                at[k].cFlags |= AT_FLAG_ISO_H_POINT;
+                t_group_info->nNumIsotopicEndpoints = nNumNonTautCandidates + 1;
             }
-            t_group_info->nNumIsotopicEndpoints = nNumNonTautCandidates + 1;
         }
     }
 
@@ -6461,7 +6464,7 @@ int make_a_copy_of_t_group_info( T_GROUP_INFO *t_group_info,
                 (T_GROUP*) inchi_malloc( len * sizeof( t_group_info->t_group[0] ) ))) /* djb-rwth: addressing LLVM warning */
             {
 #if USE_BCF
-                memcpy_s( t_group_info->t_group, sizeof(t_group_info->t_group[0])*len + 1, 
+                memcpy_s( t_group_info->t_group, sizeof(t_group_info->t_group[0])*len, 
                         t_group_info_orig->t_group,
                         len * sizeof( t_group_info->t_group[0] ) ); /* djb-rwth: function replaced with its safe C11 variant */
 #else
@@ -6481,7 +6484,7 @@ int make_a_copy_of_t_group_info( T_GROUP_INFO *t_group_info,
                 (AT_NUMB*) inchi_malloc( len * sizeof( t_group_info->nEndpointAtomNumber[0] ) ))) /* djb-rwth: addressing LLVM warning */
             {
 #if USE_BCF
-                memcpy_s( t_group_info->nEndpointAtomNumber, sizeof(t_group_info->nEndpointAtomNumber[0])*len + 1,
+                memcpy_s( t_group_info->nEndpointAtomNumber, sizeof(t_group_info->nEndpointAtomNumber[0])*len,
                         t_group_info_orig->nEndpointAtomNumber,
                         len * sizeof( t_group_info->nEndpointAtomNumber[0] ) ); /* djb-rwth: function replaced with its safe C11 variant */
 #else
@@ -6501,7 +6504,7 @@ int make_a_copy_of_t_group_info( T_GROUP_INFO *t_group_info,
                 (AT_NUMB*) inchi_malloc( (long long)len * TGSO_TOTAL_LEN * sizeof( t_group_info->tGroupNumber[0] ) ))) /* djb-rwth: cast operator added; djb-rwth: addressing LLVM warning */
             {
 #if USE_BCF
-                memcpy_s( t_group_info->tGroupNumber, sizeof(t_group_info->tGroupNumber[0])*((long long)len)*TGSO_TOTAL_LEN + 1,
+                memcpy_s( t_group_info->tGroupNumber, sizeof(t_group_info->tGroupNumber[0])*((long long)len)*TGSO_TOTAL_LEN,
                         t_group_info_orig->tGroupNumber,
                         (long long)len * TGSO_TOTAL_LEN * sizeof( t_group_info->tGroupNumber[0] ) ); /* djb-rwth: cast operator added */
 #else
@@ -6521,7 +6524,7 @@ int make_a_copy_of_t_group_info( T_GROUP_INFO *t_group_info,
                 (AT_NUMB*) inchi_malloc( len * sizeof( t_group_info->nIsotopicEndpointAtomNumber[0] ) ))) /* djb-rwth: addressing LLVM warning */
             {
 #if USE_BCF
-                memcpy_s( t_group_info->nIsotopicEndpointAtomNumber, sizeof(t_group_info->nIsotopicEndpointAtomNumber[0])*len + 1,
+                memcpy_s( t_group_info->nIsotopicEndpointAtomNumber, sizeof(t_group_info->nIsotopicEndpointAtomNumber[0])*len,
                         t_group_info_orig->nIsotopicEndpointAtomNumber,
                         len * sizeof( t_group_info->nIsotopicEndpointAtomNumber[0] ) ); /* djb-rwth: function replaced with its safe C11 variant */
 #else
@@ -6700,56 +6703,59 @@ int CountTautomerGroups( sp_ATOM *at,
         {
             nNumH -= (int) t_group[i].num[j];
         }
-        if (t_group[i].nNumEndpoints != nTautomerGroupNumber[(int) nGroupNumber]
-#if ( IGNORE_TGROUP_WITHOUT_H == 1 )
-             || ( bNoH = ( t_group[i].num[0] == t_group[i].num[1] ) )  /* only for (H,-) t-groups; (+) t-groups are not removed */
-#endif
-             )
+        if (nTautomerGroupNumber) /* djb-rwth: fixing a NULL pointer dereference */
         {
-            if (!nTautomerGroupNumber[(int) nGroupNumber] || bNoH)
-            {
-                /*  The group belongs to another disconnected part of the structure or has only charges */
-                /*  Remove the group */
-                num_t--;
-                if (i < num_t)
-#if USE_BCF
-                    memmove_s( t_group + i, sizeof(t_group[0])*((long long)num_t - (long long)i), t_group + i + 1, ( (long long)num_t - (long long)i ) * sizeof( t_group[0] ) ); /* djb-rwth: cast operators added; function replaced with its safe C11 variant */
-#else
-                    memmove(t_group + i, t_group + i + 1, ((long long)num_t - (long long)i) * sizeof(t_group[0])); /* djb-rwth: cast operators added */
+            if (t_group[i].nNumEndpoints != nTautomerGroupNumber[(int)nGroupNumber]
+#if ( IGNORE_TGROUP_WITHOUT_H == 1 )
+                || (bNoH = (t_group[i].num[0] == t_group[i].num[1]))  /* only for (H,-) t-groups; (+) t-groups are not removed */
 #endif
-                if (bNoH)
+                ) /* djb-rwth: fixing a NULL pointer dereference */
+            {
+                if (!nTautomerGroupNumber[(int)nGroupNumber] || bNoH)
                 {
-                    /*  Group contains no mobile hydrogen atoms, only charges. Prepare to remove it. */
-                    nTautomerGroupNumber[(int) nGroupNumber] = 0;
-                    num_groups_noH++;
+                    /*  The group belongs to another disconnected part of the structure or has only charges */
+                    /*  Remove the group */
+                    num_t--;
+                    if (i < num_t)
+#if USE_BCF
+                        memmove_s(t_group + i, sizeof(t_group[0]) * ((long long)num_t - (long long)i), t_group + i + 1, ((long long)num_t - (long long)i) * sizeof(t_group[0])); /* djb-rwth: cast operators added; function replaced with its safe C11 variant */
+#else
+                        memmove(t_group + i, t_group + i + 1, ((long long)num_t - (long long)i) * sizeof(t_group[0])); /* djb-rwth: cast operators added */
+#endif
+                    if (bNoH)
+                    {
+                        /*  Group contains no mobile hydrogen atoms, only charges. Prepare to remove it. */
+                        nTautomerGroupNumber[(int)nGroupNumber] = 0;
+                        num_groups_noH++;
+                    }
+                    /*i --;*/
                 }
-                /*i --;*/
+                else
+                {
+                    /*  Different number of endpoints */
+                    goto err_exit_function; /*  program error */ /*   <BRKPT> */
+                }
             }
             else
             {
-                /*  Different number of endpoints */
-                goto err_exit_function; /*  program error */ /*   <BRKPT> */
-            }
-        }
-        else
-        {
-            /*  Renumber t_group and prepare to renumber at[i].endpoint */
-            nTautomerGroupNumber[(int) nGroupNumber] =
-                t_group[i].nGroupNumber = ++nNewGroupNumber; /*  = i+1 */
-                                                             /*  get first group atom orig. number position in the nEndpointAtomNumber[] */
-                                                             /*  and in the tautomer endpoint canon numbers part of the connection table */
-            t_group[i].nFirstEndpointAtNoPos = nCurrEndpointAtNoPos[i] =
-                i ? ( t_group[i - 1].nFirstEndpointAtNoPos + t_group[i - 1].nNumEndpoints ) : 0;
-            t_group[i].num[0] = nNumH;
+                /*  Renumber t_group and prepare to renumber at[i].endpoint */
+                nTautomerGroupNumber[(int)nGroupNumber] =
+                    t_group[i].nGroupNumber = ++nNewGroupNumber; /*  = i+1 */
+                /*  get first group atom orig. number position in the nEndpointAtomNumber[] */
+                /*  and in the tautomer endpoint canon numbers part of the connection table */
+                t_group[i].nFirstEndpointAtNoPos = nCurrEndpointAtNoPos[i] =
+                    i ? (t_group[i - 1].nFirstEndpointAtNoPos + t_group[i - 1].nNumEndpoints) : 0;
+                t_group[i].num[0] = nNumH;
 #if ( REMOVE_TGROUP_CHARGE == 1 )
-            t_group[i].num[1] = 0;  /* remove only (-) charges */
+                t_group[i].num[1] = 0;  /* remove only (-) charges */
 #endif
-                                    /* -- wrong condition. Disabled.
-                                    if ( t_group[i].nGroupNumber != i + 1 ) { // for debug only
-                                    goto err_exit_function; // program error
-                                    }
-                                    */
-            i++;
+                /* -- wrong condition. Disabled.
+                if ( t_group[i].nGroupNumber != i + 1 ) { // for debug only
+                goto err_exit_function; // program error
+                }
+                */
+                i++;
+            }
         }
     }
     if (num_t != nNewGroupNumber)

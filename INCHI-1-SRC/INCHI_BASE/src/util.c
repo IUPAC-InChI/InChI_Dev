@@ -45,7 +45,7 @@
 #include "util.h"
 #include "extr_ct.h"
 
-#include "../../INCHI_EXE/inchi-1/src/bcf_s.h"
+#include "bcf_s.h"
 
 #define MIN_ATOM_CHARGE        (-2)
 #define MAX_ATOM_CHARGE         2
@@ -1896,7 +1896,7 @@ void extract_inchi_substring( char ** buf, const char *str, size_t slen )
 
     *buf = (char*) inchi_calloc( i + 1, sizeof( char ) );
 #if USE_BCF
-    memcpy_s( *buf, sizeof(*buf) + i, p, i ); /* djb-rwth: function replaced with its safe C11 variant */
+    memcpy_s( *buf, i, p, i ); /* djb-rwth: function replaced with its safe C11 variant */
 #else
     memcpy(*buf, p, i);
 #endif
@@ -1940,7 +1940,7 @@ void extract_auxinfo_substring( char ** buf, const char *str, size_t slen )
 
     *buf = (char*) inchi_calloc( i + 1, sizeof( char ) );
 #if USE_BCF
-    memcpy_s( *buf, sizeof(*buf) + i, p, i ); /* djb-rwth: function replaced with its safe C11 variant */
+    memcpy_s( *buf, i, p, i ); /* djb-rwth: function replaced with its safe C11 variant */
 #else
     memcpy(*buf, p, i);
 #endif

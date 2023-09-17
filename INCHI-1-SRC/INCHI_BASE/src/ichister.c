@@ -43,7 +43,7 @@
 #include "ichicant.h"
 #include "util.h"
 
-#include "../../INCHI_EXE/inchi-1/src/bcf_s.h"
+#include "bcf_s.h"
 
 #define    ZTYPE_DOWN     (-1)  /*  should be equal to -ZTYPE_UP */
 #define    ZTYPE_NONE     0
@@ -3632,7 +3632,7 @@ int set_stereo_bonds_parity( sp_ATOM *out_at,
                         if (!out_at[at_1].parity)
                         {
 #if USE_BCF
-                            memcpy_s( out_at[at_1].z_dir, sizeof(out_at[at_1]) + 1, z_dir1, sizeof(out_at[0].z_dir)); /* djb-rwth: function replaced with its safe C11 variant */
+                            memcpy_s( out_at[at_1].z_dir, sizeof(out_at[0].z_dir), z_dir1, sizeof(out_at[0].z_dir)); /* djb-rwth: function replaced with its safe C11 variant */
 #else
                             memcpy(out_at[at_1].z_dir, z_dir1, sizeof(out_at[0].z_dir));
 #endif
@@ -3645,7 +3645,7 @@ int set_stereo_bonds_parity( sp_ATOM *out_at,
                         if (!out_at[at_2].parity)
                         {
 #if USE_BCF
-                            memcpy_s( out_at[at_2].z_dir, sizeof(out_at[at_2]) + 1, z_dir2, sizeof(out_at[0].z_dir)); /* djb-rwth: function replaced with its safe C11 variant */
+                            memcpy_s( out_at[at_2].z_dir, sizeof(out_at[0].z_dir), z_dir2, sizeof(out_at[0].z_dir)); /* djb-rwth: function replaced with its safe C11 variant */
 #else
                             memcpy(out_at[at_2].z_dir, z_dir2, sizeof(out_at[0].z_dir));
 #endif

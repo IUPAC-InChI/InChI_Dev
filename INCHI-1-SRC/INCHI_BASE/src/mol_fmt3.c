@@ -45,7 +45,7 @@
 #include "util.h"
 #include "ichi_io.h"
 
-#include "../../INCHI_EXE/inchi-1/src/bcf_s.h"
+#include "bcf_s.h"
 
 /*
     Molfile V3000 related procedures
@@ -73,10 +73,13 @@ int MolfileV3000Init( MOL_FMT_CTAB* ctab,
     {
         ctab->v3000->atom_index_orig = (int *)inchi_calloc(ctab->n_atoms, sizeof(int));
         ctab->v3000->atom_index_fin = (int *)inchi_calloc(ctab->n_atoms, sizeof(int));
-        for (i = 0; i < ctab->n_atoms; i++) /* protective */
+        if (ctab->v3000->atom_index_orig && ctab->v3000->atom_index_fin) /* djb-rwth: fixing a NULL pointer dereference */
         {
-            ctab->v3000->atom_index_orig[i] = -1;
-            ctab->v3000->atom_index_fin[i]  = -1;
+            for (i = 0; i < ctab->n_atoms; i++) /* protective */
+            {
+                ctab->v3000->atom_index_orig[i] = -1;
+                ctab->v3000->atom_index_fin[i] = -1;
+            }
         }
     }
     else

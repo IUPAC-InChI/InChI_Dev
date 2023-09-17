@@ -46,7 +46,7 @@
 #include "ichi_io.h"
 #include "ichimain.h"
 
-#include "../../INCHI_EXE/inchi-1/src/bcf_s.h"
+#include "bcf_s.h"
 
 /*
     SDFile related procedures
@@ -348,7 +348,7 @@ int SDFileIdentifyLabel( char* inp_line, const char *pSdfLabel )
         ( len = q - p - 1 ) > 0 && len < ( int )sizeof( line ))
     {
 #if USE_BCF
-        memcpy_s( line, sizeof(line) + len + 1, p + 1, len ); /* djb-rwth: function replaced with its safe C11 variant */
+        memcpy_s( line, len, p + 1, len ); /* djb-rwth: function replaced with its safe C11 variant */
 #else
         memcpy(line, p + 1, len);
 #endif
@@ -1075,7 +1075,7 @@ int OrigAtData_WriteToSDfileAtomsBlock( const ORIG_ATOM_DATA *inp_at_data,
             else
             {
 #if USE_BCF
-                strncpy_s( elname, sizeof(elname) + 1, at[i].elname, sizeof( elname ) - 1 ); /* djb-rwth: function replaced with its safe C11 variant */
+                strncpy_s( elname, sizeof(elname), at[i].elname, sizeof( elname ) - 1 ); /* djb-rwth: function replaced with its safe C11 variant */
 #else
                 strncpy(elname, at[i].elname, sizeof(elname) - 1);
 #endif
@@ -1442,8 +1442,8 @@ int OrigAtData_WriteToSDfileAdditionalLines( const ORIG_ATOM_DATA *inp_at_data,
                     iso += get_atomic_mass_from_elnum(el_num);
 
 #if USE_BCF
-                    sprintf_s(entry, sizeof(entry) + 1, " %3d %3d", i + 1, iso); /* djb-rwth: function replaced with its safe C11 variant */
-                    strcat_s(str_m, sizeof(str_m) + 1, entry); /* djb-rwth: function replaced with its safe C11 variant */
+                    sprintf_s(entry, sizeof(entry), " %3d %3d", i + 1, iso); /* djb-rwth: function replaced with its safe C11 variant */
+                    strcat_s(str_m, sizeof(str_m), entry); /* djb-rwth: function replaced with its safe C11 variant */
 #else
                     sprintf(entry, " %3d %3d", i + 1, iso);
                     strcat(str_m, entry);

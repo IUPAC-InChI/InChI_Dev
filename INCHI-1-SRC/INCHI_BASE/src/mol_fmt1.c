@@ -46,7 +46,7 @@
 #include "ichi_io.h"
 #include "strutil.h"
 
-#include "../../INCHI_EXE/inchi-1/src/bcf_s.h"
+#include "bcf_s.h"
 
 /*
     MolFile related procedures - 1
@@ -1838,7 +1838,7 @@ int MolfileReadSgroupOfPolymer( MOL_FMT_CTAB* ctab,
         {
             lrtrim( stmplong, &len );
 #if USE_BCF
-            strcpy_s( ctab->sgroups.group[index]->smt, sizeof(ctab->sgroups.group[index]->smt) + 2, stmplong); /* djb-rwth: function replaced with its safe C11 variant */
+            strcpy_s( ctab->sgroups.group[index]->smt, strlen(stmplong), stmplong); /* djb-rwth: function replaced with its safe C11 variant */
 #else
             strcpy(ctab->sgroups.group[index]->smt, stmplong);
 #endif

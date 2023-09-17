@@ -54,7 +54,7 @@
 
 #include "inchi_gui.h"
 
-#include "../../INCHI_EXE/inchi-1/src/bcf_s.h"
+#include "bcf_s.h"
 
 #if 0
 #ifndef COMPILE_ANSI_ONLY
@@ -636,7 +636,7 @@ int DisplayAllRestoredComponents( struct tagCANON_GLOBALS *pCG,
     dp.pdp = &pdp;
     dp.sdp.nFontSize = -9;
 #if USE_BCF
-    sprintf_s( szTitle, sizeof(szTitle) + 1, "All Components of Restored %s Structure", szCurHdr ? szCurHdr : "(No structure name)" ); /* djb-rwth: function replaced with its safe C11 variant */
+    sprintf_s( szTitle, sizeof(szTitle), "All Components of Restored %s Structure", szCurHdr ? szCurHdr : "(No structure name)" ); /* djb-rwth: function replaced with its safe C11 variant */
 #else
     sprintf(szTitle, "All Components of Restored %s Structure", szCurHdr ? szCurHdr : "(No structure name)");
 #endif
@@ -699,7 +699,7 @@ int DisplayOneRestoredComponent( struct tagCANON_GLOBALS *pCG,
     dp.pdp = &pdp;
     dp.sdp.nFontSize = -9;
 #if USE_BCF
-    sprintf_s( szTitle, sizeof(szTitle) + 1, "Restored %s Component %d of %d %c%c",
+    sprintf_s( szTitle, sizeof(szTitle), "Restored %s Component %d of %d %c%c",
                       szCurHdr ? szCurHdr : "(No structure name)", iComponent + 1, nNumComponents,
                       pStruct->iInchiRec ? 'R' : 'D', pStruct->iMobileH ? 'M' : 'F' ); /* djb-rwth: function replaced with its safe C11 variant */
 #else
@@ -763,7 +763,7 @@ int DisplayRestoredComponent( struct tagCANON_GLOBALS *pCG,
     dp.pdp = &pdp;
     dp.sdp.nFontSize = -9;
 #if USE_BCF
-    sprintf_s( szTitle, sizeof(szTitle) + 1, "DBG Restored %s Component %d %c%c", szCurHdr ? szCurHdr : "(No structure name)", iComponent + 1, pStruct->iInchiRec ? 'R' : 'D', pStruct->iMobileH ? 'M' : 'F' ); /* djb-rwth: function replaced with its safe C11 variant */
+    sprintf_s( szTitle, sizeof(szTitle), "DBG Restored %s Component %d %c%c", szCurHdr ? szCurHdr : "(No structure name)", iComponent + 1, pStruct->iInchiRec ? 'R' : 'D', pStruct->iMobileH ? 'M' : 'F' ); /* djb-rwth: function replaced with its safe C11 variant */
 #else
     sprintf(szTitle, "DBG Restored %s Component %d %c%c", szCurHdr ? szCurHdr : "(No structure name)", iComponent + 1, pStruct->iInchiRec ? 'R' : 'D', pStruct->iMobileH ? 'M' : 'F');
 #endif
@@ -3170,14 +3170,14 @@ int AddOneMsg( char *szMsg,
         if (len_delim)
         {
 #if USE_BCF
-            strcpy_s( szMsg + used_len, len_delim + 1, szDelim ); /* djb-rwth: function replaced with its safe C11 variant */
+            strcpy_s( szMsg + used_len, (long long)len_delim + 1, szDelim ); /* djb-rwth: function replaced with its safe C11 variant */
 #else
             strcpy(szMsg + used_len, szDelim);
 #endif
             used_len += len_delim;
         }
 #if USE_BCF
-        strcpy_s( szMsg + used_len, len + 1, szAddMsg ); /* djb-rwth: function replaced with its safe C11 variant */
+        strcpy_s( szMsg + used_len, (long long)len + 1, szAddMsg ); /* djb-rwth: function replaced with its safe C11 variant */
 #else
         strcpy(szMsg + used_len, szAddMsg);
 #endif
@@ -3243,7 +3243,7 @@ int FillOutCompareMessage( char *szMsg, int nLenMsg, INCHI_MODE bits[] )
             if (bits[bMobileH])
             {
 #if USE_BCF
-                strcpy_s( szOneMsg, sizeof(szOneMsg) + 1, bMobileH == TAUT_YES ? " Mobile-H(" : " Fixed-H(" ); /* djb-rwth: function replaced with its safe C11 variant */
+                strcpy_s( szOneMsg, sizeof(szOneMsg), bMobileH == TAUT_YES ? " Mobile-H(" : " Fixed-H(" ); /* djb-rwth: function replaced with its safe C11 variant */
 #else
                 strcpy(szOneMsg, bMobileH == TAUT_YES ? " Mobile-H(" : " Fixed-H(");
 #endif

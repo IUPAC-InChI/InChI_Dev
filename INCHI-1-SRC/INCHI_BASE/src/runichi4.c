@@ -65,7 +65,7 @@
 #endif
 #include "readinch.h"
 
-#include "../../INCHI_EXE/inchi-1/src/bcf_s.h"
+#include "bcf_s.h"
 
 #ifdef TARGET_LIB_FOR_WINCHI
 
@@ -114,7 +114,7 @@ int SortAndPrintINChI( CANON_GLOBALS            *pCG,
                        unsigned char            save_opt_bits )
 {
     INCHI_SORT *pINChISort[INCHI_NUM][TAUT_NUM];
-    int j, i, k, k1, ret, ret2, iINChI, max_num_components;
+    int j, i, k, k1, ret, ret2, iINChI, max_num_components; /* djb-rwth: ignoring LLVM warning: variable used */
     int INCHI_basic_or_INCHI_reconnected;
     /* djb-rwth: removing redundant variables */
     int bDisconnectedCoord = ( 0 != ( bTautFlagsDone[0] & TG_FLAG_DISCONNECT_COORD_DONE ) );

@@ -43,7 +43,7 @@
 #include "ichimake.h"
 #include "ichi_io.h"
 
-#include "../../INCHI_EXE/inchi-1/src/bcf_s.h"
+#include "bcf_s.h"
 
 /*
     Local functions
@@ -2145,7 +2145,7 @@ char *szGetTag( const INCHI_TAG *Tag,
                 {
 #if USE_BCF
                     memmove_s( szTag + num, (long long)len + 2, szTag, (long long)len + 1 ); /* djb-rwth: cast operator added; function replaced with its safe C11 variant */
-                    memcpy_s( szTag, num + 1, Tag[j].szPlainLabel, num ); /* djb-rwth: function replaced with its safe C11 variant */
+                    memcpy_s( szTag, (long long)num + 1, Tag[j].szPlainLabel, num ); /* djb-rwth: function replaced with its safe C11 variant */
 #else
                     memmove(szTag + num, szTag, (long long)len + 1); /* djb-rwth: cast operator added */
                     memcpy(szTag, Tag[j].szPlainLabel, num);
@@ -5383,7 +5383,7 @@ void EditINCHI_HidePolymerZz(INCHI_IOSTREAM *out, int n_pzz, int n_zy)
 
 
 /****************************************************************************/
-int CountPseudoElementInFormula( const char *pseudo, char *s )
+int CountPseudoElementInFormula( const char *pseudo, char *s ) /* djb-rwth: ignoring LLVM warning: function used */
 {
     int npseudo=0, mult=1, index=1, new_component=1;
     const char *p, *q;
