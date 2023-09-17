@@ -66,6 +66,7 @@
 #include "../../../INCHI_BASE/src/ichitime.h"
 #include "../../../INCHI_BASE/src/mode.h"
 #include "../../../INCHI_BASE/src/inchi_api.h"
+#include "../../../INCHI_BASE/src/bcf_s.h"
 
 #include "inchi_dll_a.h" /* not inchi_api.h as it hides internal data types */
 #include "inchi_dll.h"
@@ -131,11 +132,11 @@ INCHIGEN_HANDLE INCHI_DECL INCHIGEN_Create( void )
         return (INCHIGEN_HANDLE) NULL;
     }
 
-    memset( HGen, 0, sizeof( INCHIGEN_CONTROL ) );
+    memset( HGen, 0, sizeof( INCHIGEN_CONTROL ) ); /* djb-rwth: memset_s C11/Annex K variant? */
 
     /* Set/init aliases */
-    memset( &( HGen->InpParms ), 0, sizeof( INPUT_PARMS ) );
-    memset( &( HGen->StructData ), 0, sizeof( STRUCT_DATA ) );
+    memset( &( HGen->InpParms ), 0, sizeof( INPUT_PARMS ) ); /* djb-rwth: memset_s C11/Annex K variant? */
+    memset( &( HGen->StructData ), 0, sizeof( STRUCT_DATA ) ); /* djb-rwth: memset_s C11/Annex K variant? */
 
     HGen->ulTotalProcessingTime = 0;
     HGen->num_err = 0;
@@ -149,11 +150,11 @@ INCHIGEN_HANDLE INCHI_DECL INCHIGEN_Create( void )
     inchi_ios_init( &( HGen->inchi_file[2] ), INCHI_IOS_TYPE_STRING, NULL );
 
 
-    memset( &( HGen->OrigInpData ), 0, sizeof( HGen->OrigInpData ) );
-    memset( &( HGen->PrepInpData[0] ), 0, 2 * sizeof( HGen->PrepInpData[0] ) );
+    memset( &( HGen->OrigInpData ), 0, sizeof( HGen->OrigInpData ) ); /* djb-rwth: memset_s C11/Annex K variant? */
+    memset( &( HGen->PrepInpData[0] ), 0, 2 * sizeof( HGen->PrepInpData[0] ) ); /* djb-rwth: memset_s C11/Annex K variant? */
 
-    memset( HGen->pINChI, 0, sizeof( HGen->pINChI ) );
-    memset( HGen->pINChI_Aux, 0, sizeof( HGen->pINChI_Aux ) );
+    memset( HGen->pINChI, 0, sizeof( HGen->pINChI ) ); /* djb-rwth: memset_s C11/Annex K variant? */
+    memset( HGen->pINChI_Aux, 0, sizeof( HGen->pINChI_Aux ) ); /* djb-rwth: memset_s C11/Annex K variant? */
 
     /* Supply expandable string buffer */
     if (0 >= inchi_strbuf_init( &( HGen->strbuf_container ), INCHI_STRBUF_INITIAL_SIZE, INCHI_STRBUF_SIZE_INCREMENT ))
@@ -242,7 +243,11 @@ int INCHI_DECL STDINCHIGEN_Setup( INCHIGEN_HANDLE _HGen,
     ip->bINChIOutputOptions |= INCHI_OUT_STDINCHI;
     ip->bINChIOutputOptions &= ~INCHI_OUT_SAVEOPT;
 
+#if USE_BCF
+    strcpy_s( pGenData->pStrErrStruct, sizeof(pGenData->pStrErrStruct), sd->pStrErrStruct ); /* djb-rwth: function replaced with its safe C11 variant */
+#else
     strcpy( pGenData->pStrErrStruct, sd->pStrErrStruct );
+#endif
 
     return retcode;
 }
@@ -298,7 +303,7 @@ int INCHI_DECL INCHIGEN_Setup( INCHIGEN_HANDLE _HGen,
         retcode = _IS_ERROR;
         goto ret;
     }
-    memset( pGenData, 0, sizeof( *pGenData ) );
+    memset( pGenData, 0, sizeof( *pGenData ) ); /* djb-rwth: memset_s C11/Annex K variant? */
 
     /* Parse 'command-line' options and fill internal INPUT_PARMS structure */
     if (pInp && pInp->szOptions)
@@ -309,7 +314,11 @@ int INCHI_DECL INCHIGEN_Setup( INCHIGEN_HANDLE _HGen,
         else
         {
             /* Parse. */
+#if USE_BCF
+            strcpy_s( szOptions, strlen(pInp->szOptions) + 1, pInp->szOptions ); /* djb-rwth: function replaced with its safe C11 variant */
+#else
             strcpy( szOptions, pInp->szOptions );
+#endif
             argc = parse_options_string( szOptions, argv, INCHI_MAX_NUM_ARG );
         }
     }
@@ -322,20 +331,20 @@ int INCHI_DECL INCHIGEN_Setup( INCHIGEN_HANDLE _HGen,
     }
 
 
-    if (argc == 1
+    if ((argc == 1
 #ifdef TARGET_API_LIB
-        && ( !pInp || pInp->num_atoms <= 0 || !pInp->atom )
+        && ( !pInp || pInp->num_atoms <= 0 || !pInp->atom ))
 #endif
-        || argc == 2 && ( argv[1][0] == INCHI_OPTION_PREFX ) &&
-        ( !strcmp( argv[1] + 1, "?" ) || !inchi_stricmp( argv[1] + 1, "help" ) ))
+        || (argc == 2 && ( argv[1][0] == INCHI_OPTION_PREFX ) &&
+        ( !strcmp( argv[1] + 1, "?" ) || !inchi_stricmp( argv[1] + 1, "help" ) ))) /* djb-rwth: addressing LLVM warnings */
     {
 
         HelpCommandLineParms( log_file );
-        memset( log_file, 0, sizeof( *log_file ) );
+        memset( log_file, 0, sizeof( *log_file ) ); /* djb-rwth: memset_s C11/Annex K variant? */
         return _IS_EOF;
     }
 
-    memset( szSdfDataValue, 0, sizeof( szSdfDataValue ) );
+    memset( szSdfDataValue, 0, sizeof( szSdfDataValue ) ); /* djb-rwth: memset_s C11/Annex K variant? */
 
     /* Decrypt command line    */
     retcode = ReadCommandLineParms( argc, argv, ip, szSdfDataValue, &ulDisplTime, bReleaseVersion, log_file );
@@ -404,7 +413,11 @@ ret:switch (retcode)
 
     if (NULL!=pGenData)
     {
+#if USE_BCF
+        strcpy_s( pGenData->pStrErrStruct, sizeof(pGenData->pStrErrStruct), sd->pStrErrStruct ); /* djb-rwth: function replaced with its safe C11 variant */
+#else
         strcpy( pGenData->pStrErrStruct, sd->pStrErrStruct );
+#endif
         for (p = 0; p < INCHI_NUM; p++)
         {
             pGenData->num_components[p] = sd->num_components[p];
@@ -448,11 +461,11 @@ int INCHI_DECL INCHIGEN_DoNormalization( INCHIGEN_HANDLE _HGen, INCHIGEN_DATA *p
     CANON_GLOBALS CG;
     int k;
 
-    memset( &CG, 0, sizeof( CG ) );
-    memset( &ic, 0, sizeof( ic ) );
+    memset( &CG, 0, sizeof( CG ) ); /* djb-rwth: memset_s C11/Annex K variant? */
+    memset( &ic, 0, sizeof( ic ) ); /* djb-rwth: memset_s C11/Annex K variant? */
 
 #if ( RING2CHAIN == 1 || UNDERIVATIZE == 1 )
-    int ret1 = 0, ret2 = 0;
+    int ret1 = 0, ret2 = 0; /* djb-rwth: ignoring LLVM warning: variables used */
 #endif
 
 /* Set debug output */
@@ -498,8 +511,8 @@ int INCHI_DECL INCHIGEN_DoNormalization( INCHIGEN_HANDLE _HGen, INCHIGEN_DATA *p
 
     sd->bUserQuitComponent = 0;
     sd->bUserQuitComponentDisplay = 0;
-    memset( HGen->composite_norm_data, 0, sizeof( HGen->composite_norm_data ) );
-    memset( pncFlags, 0, sizeof( *pncFlags ) );
+    memset( HGen->composite_norm_data, 0, sizeof( HGen->composite_norm_data ) ); /* djb-rwth: memset_s C11/Annex K variant? */
+    memset( pncFlags, 0, sizeof( *pncFlags ) ); /* djb-rwth: memset_s C11/Annex K variant? */
 
     /* for testing only */
 #if( REMOVE_ION_PAIRS_ORIG_STRU == 1 )
@@ -551,8 +564,12 @@ int INCHI_DECL INCHIGEN_DoNormalization( INCHIGEN_HANDLE _HGen, INCHIGEN_DATA *p
     if (ip->bINChIOutputOptions & INCHI_OUT_SDFILE_ONLY)
     {
         char szNumber[32];
-        int ret1a = 0, ret2a = 0; /* for derivatives and ring-chain */
+        int ret1a = 0, ret2a = 0; /* for derivatives and ring-chain */ /* djb-rwth: ignoring LLVM warning: variables used to store function return values */
+#if USE_BCF
+        ret1a = sprintf_s( szNumber, sizeof(szNumber) + 1, "Structure #%ld", HGen->num_inp ); /* djb-rwth: function replaced with its safe C11 variant */
+#else
         ret1a = sprintf( szNumber, "Structure #%ld", HGen->num_inp );
+#endif
         ret2a = OrigAtData_WriteToSDfile( orig_inp_data, out_file, szNumber, NULL,
             ( sd->bChiralFlag & FLAG_INP_AT_CHIRAL ) ? 1 : 0,
             ( ip->bINChIOutputOptions & INCHI_OUT_SDFILE_ATOMS_DT ) ? 1 : 0, ip->pSdfLabel, ip->pSdfValue );
@@ -563,7 +580,7 @@ int INCHI_DECL INCHIGEN_DoNormalization( INCHIGEN_HANDLE _HGen, INCHIGEN_DATA *p
     if (!( ip->bINChIOutputOptions & ( INCHI_OUT_NO_AUX_INFO | INCHI_OUT_SHORT_AUX_INFO ) ))
     {
         pOrigStruct = &( HGen->OrigStruct );
-        memset( pOrigStruct, 0, sizeof( *pOrigStruct ) );
+        memset( pOrigStruct, 0, sizeof( *pOrigStruct ) ); /* djb-rwth: memset_s C11/Annex K variant? */
         if (OrigStruct_FillOut( &CG, orig_inp_data, pOrigStruct, sd ))
         {
             AddErrorMessage( sd->pStrErrStruct, "Cannot interpret reversibility information" );
@@ -662,7 +679,11 @@ exit_function:
         }
     }
 
+#if USE_BCF
+    strcpy_s( pGenData->pStrErrStruct, sizeof(pGenData->pStrErrStruct), sd->pStrErrStruct ); /* djb-rwth: function replaced with its safe C11 variant */
+#else
     strcpy( pGenData->pStrErrStruct, sd->pStrErrStruct );
+#endif
 
     make_norm_atoms_from_inp_atoms( pGenData, HGen );
 
@@ -707,8 +728,8 @@ int INCHI_DECL INCHIGEN_DoCanonicalization
 
     int k;
 
-    memset( &ic, 0, sizeof( ic ) );
-    memset( &CG, 0, sizeof( CG ) );
+    memset( &ic, 0, sizeof( ic ) ); /* djb-rwth: memset_s C11/Annex K variant? */
+    memset( &CG, 0, sizeof( CG ) ); /* djb-rwth: memset_s C11/Annex K variant? */
 
     /* Set debug output */
 #if (TRACE_MEMORY_LEAKS == 1)
@@ -830,7 +851,11 @@ int INCHI_DECL INCHIGEN_DoCanonicalization
     }
 exit_function:
 
+#if USE_BCF
+    strcpy_s( pGenData->pStrErrStruct, sizeof(pGenData->pStrErrStruct), sd->pStrErrStruct ); /* djb-rwth: function replaced with its safe C11 variant */
+#else
     strcpy( pGenData->pStrErrStruct, sd->pStrErrStruct );
+#endif
     for (k = 0; k < INCHI_NUM; k++)
     {
         pGenData->num_components[k] = sd->num_components[k];
@@ -859,78 +884,78 @@ int INCHI_DECL STDINCHIGEN_DoSerialization( INCHIGEN_HANDLE HGen,
 
 
 /****************************************************************************/
-int INCHI_DECL INCHIGEN_DoSerialization( INCHIGEN_HANDLE _HGen,
-                                        INCHIGEN_DATA * pGenData,
-                                        inchi_Output * pResults )
+int INCHI_DECL INCHIGEN_DoSerialization(INCHIGEN_HANDLE _HGen,
+    INCHIGEN_DATA* pGenData,
+    inchi_Output* pResults)
 {
     int nRet = 0, nRet1 = 0, i, k;
 
 
 
-    INCHIGEN_CONTROL * HGen = (INCHIGEN_CONTROL *) _HGen;
+    INCHIGEN_CONTROL* HGen = (INCHIGEN_CONTROL*)_HGen;
 
-    INPUT_PARMS *ip = &( HGen->InpParms );
-    INCHI_IOSTREAM *out_file = HGen->inchi_file, *log_file = HGen->inchi_file + 1;
-    INCHI_IOSTREAM inpstr, *inp_file = &inpstr;
-    INCHI_IOSTREAM prbstr, *prb_file = &prbstr;
+    INPUT_PARMS* ip = &(HGen->InpParms);
+    INCHI_IOSTREAM* out_file = HGen->inchi_file, * log_file = HGen->inchi_file + 1;
+    INCHI_IOSTREAM inpstr, * inp_file = &inpstr;
+    INCHI_IOSTREAM prbstr, * prb_file = &prbstr;
 
-    STRUCT_DATA *sd = &( HGen->StructData );
-    NORM_CANON_FLAGS *pncFlags = &( HGen->ncFlags );
-    ORIG_ATOM_DATA *orig_inp_data = &( HGen->OrigInpData );
-    ORIG_ATOM_DATA *prep_inp_data = &( HGen->PrepInpData[0] );
-    ORIG_STRUCT      *pOrigStruct = &( HGen->OrigStruct );
+    STRUCT_DATA* sd = &(HGen->StructData);
+    NORM_CANON_FLAGS* pncFlags = &(HGen->ncFlags);
+    ORIG_ATOM_DATA* orig_inp_data = &(HGen->OrigInpData);
+    ORIG_ATOM_DATA* prep_inp_data = &(HGen->PrepInpData[0]);
+    ORIG_STRUCT* pOrigStruct = &(HGen->OrigStruct);
     int bSortPrintINChIFlags = 0;
     unsigned char save_opt_bits = 0;
     int retcode = 0;
 
     CANON_GLOBALS CG;
-    memset( &CG, 0, sizeof( CG ) );
+    memset(&CG, 0, sizeof(CG)); /* djb-rwth: memset_s C11/Annex K variant? */
 
     /* Post-1.02b - added initialization of pResults to 0; thanks to David Foss */
-    memset( pResults, 0, sizeof( *pResults ) );
+    memset(pResults, 0, sizeof(*pResults)); /* djb-rwth: memset_s C11/Annex K variant? */
     pResults->szLog = log_file->s.pStr;
-    inchi_ios_init( inp_file, INCHI_IOS_TYPE_FILE, NULL );
-    inchi_ios_init( prb_file, INCHI_IOS_TYPE_FILE, NULL );
+    inchi_ios_init(inp_file, INCHI_IOS_TYPE_FILE, NULL);
+    inchi_ios_init(prb_file, INCHI_IOS_TYPE_FILE, NULL);
 
     /* Set debug output */
 
 #if (TRACE_MEMORY_LEAKS == 1)
 
-    _CrtSetDbgFlag( _CRTDBG_CHECK_ALWAYS_DF | _CRTDBG_LEAK_CHECK_DF | _CRTDBG_ALLOC_MEM_DF );
+    _CrtSetDbgFlag(_CRTDBG_CHECK_ALWAYS_DF | _CRTDBG_LEAK_CHECK_DF | _CRTDBG_ALLOC_MEM_DF);
 
-/* for execution outside the VC++ debugger uncomment one of the following two */
+    /* for execution outside the VC++ debugger uncomment one of the following two */
 #ifdef MY_REPORT_FILE
-    _CrtSetReportMode( _CRT_WARN, _CRTDBG_MODE_FILE );
-    _CrtSetReportFile( _CRT_WARN, MY_REPORT_FILE );
-    _CrtSetReportMode( _CRT_ERROR, _CRTDBG_MODE_FILE );
-    _CrtSetReportFile( _CRT_ERROR, MY_REPORT_FILE );
-    _CrtSetReportMode( _CRT_ASSERT, _CRTDBG_MODE_FILE );
-    _CrtSetReportFile( _CRT_ASSERT, MY_REPORT_FILE );
+    _CrtSetReportMode(_CRT_WARN, _CRTDBG_MODE_FILE);
+    _CrtSetReportFile(_CRT_WARN, MY_REPORT_FILE);
+    _CrtSetReportMode(_CRT_ERROR, _CRTDBG_MODE_FILE);
+    _CrtSetReportFile(_CRT_ERROR, MY_REPORT_FILE);
+    _CrtSetReportMode(_CRT_ASSERT, _CRTDBG_MODE_FILE);
+    _CrtSetReportFile(_CRT_ASSERT, MY_REPORT_FILE);
 #else
-    _CrtSetReportMode( _CRT_WARN | _CRT_ERROR, _CRTDBG_MODE_DEBUG );
+    _CrtSetReportMode(_CRT_WARN | _CRT_ERROR, _CRTDBG_MODE_DEBUG);
 #endif
 #if ( !defined(__STDC__) || __STDC__ != 1 )
     /* turn on floating point exceptions */
     {
         /* Get the default control word. */
-        int cw = _controlfp( 0, 0 );
+        int cw = _controlfp(0, 0);
         /* Set the exception masks OFF, turn exceptions on. */
         /*cw &=~(EM_OVERFLOW|EM_UNDERFLOW|EM_INEXACT|EM_ZERODIVIDE|EM_DENORMAL);*/
-        cw &= ~( EM_OVERFLOW | EM_UNDERFLOW | EM_ZERODIVIDE | EM_DENORMAL );
+        cw &= ~(EM_OVERFLOW | EM_UNDERFLOW | EM_ZERODIVIDE | EM_DENORMAL);
         /* Set the control word. */
-        _controlfp( cw, MCW_EM );
+        _controlfp(cw, MCW_EM);
     }
 #endif /* ( !defined(__STDC__) || __STDC__ != 1 ) */
 
 #endif /* (TRACE_MEMORY_LEAKS == 1) */
 
 
-/*****************************/
+    /*****************************/
 
 
     if (HGen->canon_passed == 0)
     {
-        AddErrorMessage( sd->pStrErrStruct, "Got non-canonicalized structure" );
+        AddErrorMessage(sd->pStrErrStruct, "Got non-canonicalized structure");
         sd->nStructReadError = 99;
         sd->nErrorType = _IS_ERROR;
         retcode = _IS_ERROR;
@@ -944,40 +969,40 @@ int INCHI_DECL INCHIGEN_DoSerialization( INCHIGEN_HANDLE _HGen,
     /* Prepare SaveOpt bits */
     if (ip->bINChIOutputOptions & INCHI_OUT_SAVEOPT)
     {
-        if (0 != ( ip->bTautFlags & TG_FLAG_RECONNECT_COORD ))
+        if (0 != (ip->bTautFlags & TG_FLAG_RECONNECT_COORD))
         {
             save_opt_bits |= SAVE_OPT_RECMET;
         }
-        if (0 != ( ip->nMode & REQ_MODE_BASIC ))
+        if (0 != (ip->nMode & REQ_MODE_BASIC))
         {
             save_opt_bits |= SAVE_OPT_FIXEDH;
         }
-        if (0 != ( ip->nMode & REQ_MODE_DIFF_UU_STEREO ))
+        if (0 != (ip->nMode & REQ_MODE_DIFF_UU_STEREO))
         {
             save_opt_bits |= SAVE_OPT_SLUUD;
         }
-        if (0 == ( ip->nMode & ( REQ_MODE_SB_IGN_ALL_UU | REQ_MODE_SC_IGN_ALL_UU ) ))
+        if (0 == (ip->nMode & (REQ_MODE_SB_IGN_ALL_UU | REQ_MODE_SC_IGN_ALL_UU)))
         {
             save_opt_bits |= SAVE_OPT_SUU;
         }
-        if (0 != ( ip->bTautFlags & TG_FLAG_KETO_ENOL_TAUT ))
+        if (0 != (ip->bTautFlags & TG_FLAG_KETO_ENOL_TAUT))
         {
             save_opt_bits |= SAVE_OPT_KET;
         }
-        if (0 != ( ip->bTautFlags & TG_FLAG_1_5_TAUT ))
+        if (0 != (ip->bTautFlags & TG_FLAG_1_5_TAUT))
         {
             save_opt_bits |= SAVE_OPT_15T;
         }
     }
 
-    nRet = SortAndPrintINChI( &CG,out_file, &( HGen->strbuf_container ),
-                              log_file, ip, orig_inp_data, prep_inp_data,
-                              HGen->composite_norm_data, pOrigStruct,
-                              sd->num_components, sd->num_non_taut, sd->num_taut,
-                              sd->bTautFlags, sd->bTautFlagsDone,
-                              pncFlags, HGen->num_inp,
-                              HGen->pINChI, HGen->pINChI_Aux,
-                              &bSortPrintINChIFlags, save_opt_bits );
+    nRet = SortAndPrintINChI(&CG, out_file, &(HGen->strbuf_container),
+        log_file, ip, orig_inp_data, prep_inp_data,
+        HGen->composite_norm_data, pOrigStruct,
+        sd->num_components, sd->num_non_taut, sd->num_taut,
+        sd->bTautFlags, sd->bTautFlagsDone,
+        pncFlags, HGen->num_inp,
+        HGen->pINChI, HGen->pINChI_Aux,
+        &bSortPrintINChIFlags, save_opt_bits);
 
     if (nRet != _IS_FATAL && nRet != _IS_ERROR)
     {
@@ -986,15 +1011,15 @@ int INCHI_DECL INCHIGEN_DoSerialization( INCHIGEN_HANDLE _HGen,
         */
         if (prb_file->f && 0L <= sd->fPtrStart && sd->fPtrStart < sd->fPtrEnd && ip->bSaveAllGoodStructsAsProblem)
         {
-            MolfileSaveCopy( inp_file, sd->fPtrStart, sd->fPtrEnd, prb_file->f, 0 );
+            MolfileSaveCopy(inp_file, sd->fPtrStart, sd->fPtrEnd, prb_file->f, 0);
         }
 #if( /*bRELEASE_VERSION != 1 &&*/ EXTR_FLAGS == EXTR_TRANSPOSITION_EXAMPLES && EXTR_MASK == EXTR_FLAGS )
         else
-            if (prb_file->f && ( bSortPrintINChIFlags &
-                ( FLAG_SORT_PRINT_TRANSPOS_BAS | FLAG_SORT_PRINT_TRANSPOS_REC ) )
+            if (prb_file->f && (bSortPrintINChIFlags &
+                (FLAG_SORT_PRINT_TRANSPOS_BAS | FLAG_SORT_PRINT_TRANSPOS_REC))
                 )
             {
-                MolfileSaveCopy( inp_file, sd->fPtrStart, sd->fPtrEnd, prb_file->f, 0 );
+                MolfileSaveCopy(inp_file, sd->fPtrStart, sd->fPtrEnd, prb_file->f, 0);
             }
 #endif
     }
@@ -1003,7 +1028,7 @@ int INCHI_DECL INCHIGEN_DoSerialization( INCHIGEN_HANDLE _HGen,
     {
         for (k = 0; k < TAUT_NUM + 1; k++)
         {
-            FreeCompAtomData( &( HGen->composite_norm_data[i][k] ) );
+            FreeCompAtomData(&(HGen->composite_norm_data[i][k]));
         }
     }
 
@@ -1014,23 +1039,27 @@ int INCHI_DECL INCHIGEN_DoSerialization( INCHIGEN_HANDLE _HGen,
     /* Error/warning. */
     if (sd->pStrErrStruct[0])
     {
-        if (pGenData && ( pResults->szMessage = (char *) inchi_malloc( strlen( sd->pStrErrStruct ) + 1 ) ))
+        if (pGenData && (pResults->szMessage = (char*)inchi_malloc(strlen(sd->pStrErrStruct) + 1)))
         {
-            strcpy( pResults->szMessage, sd->pStrErrStruct );
+#if USE_BCF
+            strcpy_s(pResults->szMessage, strlen(sd->pStrErrStruct) + 1, sd->pStrErrStruct); /* djb-rwth: function replaced with its safe C11 variant */
+#else
+            strcpy(pResults->szMessage, sd->pStrErrStruct);
+#endif
         }
     }
 
     /* InChI, AuxInfo  (go to  pResults->szInChI, pResults->szAuxInfo) */
     if (out_file->s.pStr && out_file->s.nUsedLength > 0 && pGenData)
     {
-        char *p;
+        char* p;
         pResults->szInChI = out_file->s.pStr;
         pResults->szAuxInfo = NULL;
-        if (!( INCHI_OUT_SDFILE_ONLY & ip->bINChIOutputOptions )) /* do not remove last LF from SDF output - 2008-12-23 DT */
+        if (!(INCHI_OUT_SDFILE_ONLY & ip->bINChIOutputOptions)) /* do not remove last LF from SDF output - 2008-12-23 DT */
         {
-            for (p = strchr( pResults->szInChI, '\n' ); p; p = strchr( p + 1, '\n' ))
+            for (p = strchr(pResults->szInChI, '\n'); p; p = strchr(p + 1, '\n'))
             {
-                if (!memcmp( p, "\nAuxInfo", 8 ))
+                if (!memcmp(p, "\nAuxInfo", 8))
                 {
                     *p = '\0';            /* remove LF after INChI */
                     pResults->szAuxInfo = p + 1; /* save pointer to AuxInfo */
@@ -1063,22 +1092,22 @@ int INCHI_DECL INCHIGEN_DoSerialization( INCHIGEN_HANDLE _HGen,
 
     if (out_file->s.pStr)
     {
-        inchi_free( out_file->s.pStr );
+        inchi_free(out_file->s.pStr);
         out_file->s.pStr = NULL;
     }
     if (log_file->s.pStr)
     {
-        inchi_free( log_file->s.pStr );
+        inchi_free(log_file->s.pStr);
         log_file->s.pStr = NULL;
     }
 
     HGen->ulTotalProcessingTime += sd->ulStructTime;
-    nRet = inchi_max( nRet, nRet1 );
+    nRet = inchi_max(nRet, nRet1);
 
     switch (nRet)
     {
-        case _IS_FATAL:
-        case _IS_ERROR:     HGen->num_err++;
+    case _IS_FATAL:
+    case _IS_ERROR:     HGen->num_err++;
     }
 
 frees:
@@ -1087,17 +1116,24 @@ frees:
     {
         if (ip->path[i])
         {
-            inchi_free( (char*) ip->path[i] ); /*  cast deliberately discards 'const' qualifier */
+            inchi_free((char*)ip->path[i]); /*  cast deliberately discards 'const' qualifier */
             ip->path[i] = NULL;
         }
     }
-    SetBitFree( &CG );
+    SetBitFree(&CG);
 
 
-    strcpy( pGenData->pStrErrStruct, sd->pStrErrStruct );
-    for (k = 0; k < INCHI_NUM; k++)
+    if (pGenData) /* djb-rwth: fixing a NULL pointer dereference */
     {
-        pGenData->num_components[k] = sd->num_components[k];
+#if USE_BCF
+        strcpy_s(pGenData->pStrErrStruct, sizeof(pGenData->pStrErrStruct), sd->pStrErrStruct); /* djb-rwth: function replaced with its safe C11 variant */
+#else
+        strcpy(pGenData->pStrErrStruct, sd->pStrErrStruct);
+#endif
+        for (k = 0; k < INCHI_NUM; k++)
+        {
+            pGenData->num_components[k] = sd->num_components[k];
+        }
     }
 
     return retcode;
@@ -1163,18 +1199,18 @@ void INCHI_DECL INCHIGEN_Reset( INCHIGEN_HANDLE _HGen,
                 HGen->InpParms.path[i] = NULL;
             }
         }
-        memset( &( HGen->InpParms ), 0, sizeof( INPUT_PARMS ) );
+        memset( &( HGen->InpParms ), 0, sizeof( INPUT_PARMS ) ); /* djb-rwth: memset_s C11/Annex K variant? */
 
         FreeOrigAtData( &( HGen->OrigInpData ) );
-        memset( &( HGen->OrigInpData ), 0, sizeof( HGen->OrigInpData ) );
+        memset( &( HGen->OrigInpData ), 0, sizeof( HGen->OrigInpData ) ); /* djb-rwth: memset_s C11/Annex K variant? */
 
 
         FreeOrigAtData( &( HGen->PrepInpData[0] ) );
         FreeOrigAtData( &( HGen->PrepInpData[1] ) );
-        memset( &( HGen->PrepInpData[0] ), 0, 2 * sizeof( HGen->PrepInpData[0] ) );
+        memset( &( HGen->PrepInpData[0] ), 0, 2 * sizeof( HGen->PrepInpData[0] ) ); /* djb-rwth: memset_s C11/Annex K variant? */
 
         OrigStruct_Free( &( HGen->OrigStruct ) );
-        memset( &( HGen->OrigStruct ), 0, sizeof( HGen->OrigStruct ) );
+        memset( &( HGen->OrigStruct ), 0, sizeof( HGen->OrigStruct ) ); /* djb-rwth: memset_s C11/Annex K variant? */
 
         for (i = 0; i < INCHI_NUM; i++)
         {
@@ -1271,15 +1307,16 @@ void INCHI_DECL INCHIGEN_Reset( INCHIGEN_HANDLE _HGen,
 
         /*  free INChI memory */
         FreeAllINChIArrays( HGen->pINChI, HGen->pINChI_Aux, HGen->StructData.num_components );
-        memset( HGen->pINChI, 0, sizeof( HGen->pINChI ) );
-        memset( HGen->pINChI_Aux, 0, sizeof( HGen->pINChI_Aux ) );
+        memset( HGen->pINChI, 0, sizeof( HGen->pINChI ) ); /* djb-rwth: memset_s C11/Annex K variant? */
+        memset( HGen->pINChI_Aux, 0, sizeof( HGen->pINChI_Aux ) ); /* djb-rwth: memset_s C11/Annex K variant? */
 
         HGen->szTitle[0] = '\0';
     }
 
-    memset( &( HGen->StructData ), 0, sizeof( STRUCT_DATA ) );
-    memset( pResults, 0, sizeof( *pResults ) );
-    memset( pGenData, 0, sizeof( *pGenData ) );
+    if (HGen) /* djb-rwth: fixing a NULL pointer dereference */
+        memset( &( HGen->StructData ), 0, sizeof( STRUCT_DATA ) ); /* djb-rwth: memset_s C11/Annex K variant? */
+    memset( pResults, 0, sizeof( *pResults ) ); /* djb-rwth: memset_s C11/Annex K variant? */
+    memset( pGenData, 0, sizeof( *pGenData ) ); /* djb-rwth: memset_s C11/Annex K variant? */
 
     return;
 }

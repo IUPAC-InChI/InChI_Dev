@@ -61,6 +61,7 @@
 #include "../../../INCHI_BASE/src/ichitaut.h"
 #include "../../../INCHI_BASE/src/ichicant.h"
 #include "../../../INCHI_BASE/src/ichitime.h"
+#include "../../../INCHI_BASE/src/bcf_s.h"
 
 #include "inchi_dll.h"
 
@@ -161,7 +162,7 @@ void INCHI_DECL FreeINCHI( inchi_Output *out )
         inchi_free( out->szMessage );
     }
 
-    memset( out, 0, sizeof( *out ) );
+    memset( out, 0, sizeof( *out ) ); /* djb-rwth: memset_s C11/Annex K variant? */
 }
 
 
@@ -220,7 +221,7 @@ void INCHI_DECL FreeStructFromINCHI( inchi_OutputStruct *out )
         inchi_free( out->szMessage );
     }
 
-    memset( out, 0, sizeof( *out ) );
+    memset( out, 0, sizeof( *out ) ); /* djb-rwth: memset_s C11/Annex K variant? */
 }
 
 
@@ -293,10 +294,14 @@ int input_erroneously_contains_pseudoatoms( inchi_Input *inp,
         {
             if (out)
             {
-                memset(out, 0, sizeof(*out));
-                if (out->szMessage = (char *)inchi_malloc(strlen(str_noz) + 1))
+                memset(out, 0, sizeof(*out)); /* djb-rwth: memset_s C11/Annex K variant? */
+                if ((out->szMessage = (char *)inchi_malloc(strlen(str_noz) + 1))) /* djb-rwth: addressing LLVM warning */
                 {
+#if USE_BCF
+                    strcpy_s(out->szMessage, strlen(str_noz) + 1, str_noz); /* djb-rwth: function replaced with its safe C11 variant */
+#else
                     strcpy(out->szMessage, str_noz);
+#endif
                 }
             }
             return 1;
@@ -342,13 +347,13 @@ static int GetINCHI1( inchi_InputEx *extended_input,
     char szTitle[MAX_SDF_HEADER + MAX_SDF_VALUE + 256];
 
     int i;
-    long num_inp, num_err;
+    long num_inp, num_err; /* djb-rwth: ignoring LLVM warning: variable used */
     char      szSdfDataValue[MAX_SDF_VALUE + 1];
     PINChI2     *pINChI[INCHI_NUM];
     PINChI_Aux2 *pINChI_Aux[INCHI_NUM];
 
     unsigned long  ulDisplTime = 0;    /*  infinite, milliseconds */
-    unsigned long  ulTotalProcessingTime = 0;
+    unsigned long  ulTotalProcessingTime = 0; /* djb-rwth: ignoring LLVM warning: variable used */
 
     INPUT_PARMS inp_parms;
     INPUT_PARMS *ip = &inp_parms;
@@ -437,23 +442,23 @@ static int GetINCHI1( inchi_InputEx *extended_input,
     sd->bUserQuit = 0;
 
     /* clear original input structure */
-    memset( pINChI, 0, sizeof( pINChI ) );
-    memset( pINChI_Aux, 0, sizeof( pINChI_Aux ) );
-    memset( sd, 0, sizeof( *sd ) );
-    memset( ip, 0, sizeof( *ip ) );
-    memset( orig_inp_data, 0, sizeof( *orig_inp_data ) );
-    memset( prep_inp_data, 0, 2 * sizeof( *prep_inp_data ) );
-    memset( szSdfDataValue, 0, sizeof( szSdfDataValue ) );
+    memset( pINChI, 0, sizeof( pINChI ) ); /* djb-rwth: memset_s C11/Annex K variant? */
+    memset( pINChI_Aux, 0, sizeof( pINChI_Aux ) ); /* djb-rwth: memset_s C11/Annex K variant? */
+    memset( sd, 0, sizeof( *sd ) ); /* djb-rwth: memset_s C11/Annex K variant? */
+    memset( ip, 0, sizeof( *ip ) ); /* djb-rwth: memset_s C11/Annex K variant? */
+    memset( orig_inp_data, 0, sizeof( *orig_inp_data ) ); /* djb-rwth: memset_s C11/Annex K variant? */
+    memset( prep_inp_data, 0, 2 * sizeof( *prep_inp_data ) ); /* djb-rwth: memset_s C11/Annex K variant? */
+    memset( szSdfDataValue, 0, sizeof( szSdfDataValue ) ); /* djb-rwth: memset_s C11/Annex K variant? */
 
-    memset( &CG, 0, sizeof( CG ) );
-    memset( &ic, 0, sizeof( ic ) );
+    memset( &CG, 0, sizeof( CG ) ); /* djb-rwth: memset_s C11/Annex K variant? */
+    memset( &ic, 0, sizeof( ic ) ); /* djb-rwth: memset_s C11/Annex K variant? */
 
     if (!out)
     {
         nRet = _IS_ERROR;
         goto exit_function;
     }
-    memset( out, 0, sizeof( *out ) );
+    memset( out, 0, sizeof( *out ) ); /* djb-rwth: memset_s C11/Annex K variant? */
 
     /* options */
     if (pvinp && pvinp->szOptions)
@@ -461,7 +466,11 @@ static int GetINCHI1( inchi_InputEx *extended_input,
         szOptions = (char*) inchi_malloc( strlen( pvinp->szOptions ) + 1 );
         if (szOptions)
         {
+#if USE_BCF
+            strcpy_s( szOptions, strlen(pvinp->szOptions) + 1, pvinp->szOptions ); /* djb-rwth: function replaced with its safe C11 variant */
+#else
             strcpy( szOptions, pvinp->szOptions );
+#endif
             argc = parse_options_string( szOptions, argv, INCHI_MAX_NUM_ARG );
         }
         else
@@ -477,16 +486,16 @@ static int GetINCHI1( inchi_InputEx *extended_input,
         argv[1] = NULL;
     }
 
-    if (argc == 1
+    if ((argc == 1
 #ifdef TARGET_API_LIB
-              && ( !pvinp || pvinp->num_atoms <= 0 || !pvinp->atom )
+              && ( !pvinp || pvinp->num_atoms <= 0 || !pvinp->atom ))
 #endif
-              || argc == 2 && ( argv[1][0] == INCHI_OPTION_PREFX ) &&
-                    ( !strcmp( argv[1] + 1, "?" ) || !inchi_stricmp( argv[1] + 1, "help" ) ))
+              || (argc == 2 && ( argv[1][0] == INCHI_OPTION_PREFX ) &&
+                    ( !strcmp( argv[1] + 1, "?" ) || !inchi_stricmp( argv[1] + 1, "help" )) )) /* djb-rwth: addressing LLVM warnings */
     {
         HelpCommandLineParms( log_file );
         out->szLog = log_file->s.pStr;
-        memset( log_file, 0, sizeof( *log_file ) );
+        memset( log_file, 0, sizeof( *log_file ) ); /* djb-rwth: memset_s C11/Annex K variant? */
         nRet = _IS_EOF;
         goto translate_RetVal;
     }
@@ -582,13 +591,12 @@ static int GetINCHI1( inchi_InputEx *extended_input,
     }
 
     /***************************************************
-    /*  Main cycle                                     */
-    /*  read input structures and create their INChI's */
+    Main cycle -- read input structures and create their INChI's */ /* djb-rwth: addressing LLVM warning */
     ulTotalProcessingTime = 0;
 
     if (pStructPtrs)
     {
-        memset( pStructPtrs, 0, sizeof( pStructPtrs[0] ) );
+        memset( pStructPtrs, 0, sizeof( pStructPtrs[0] ) ); /* djb-rwth: memset_s C11/Annex K variant? */
     }
 
     /* === possible improvement: convert inp to orig_inp_data ==== */
@@ -735,7 +743,11 @@ void produce_generation_output( inchi_Output *out,
     {
         if (out && ( out->szMessage = (char *) inchi_malloc( strlen( sd->pStrErrStruct ) + 1 ) ))
         {
-            strcpy( out->szMessage, sd->pStrErrStruct );
+#if USE_BCF
+            strcpy_s( out->szMessage, strlen(sd->pStrErrStruct) + 1, sd->pStrErrStruct ); /* djb-rwth: function replaced with its safe C11 variant */
+#else
+            strcpy(out->szMessage, sd->pStrErrStruct);
+#endif
         }
     }
 
@@ -1133,7 +1145,11 @@ int SetAtomProperties( inp_ATOM *at,
     S_CHAR      cRadical;
 
     /* element, check later */
+#if USE_BCF
+    strcpy_s( at[a1].elname, strlen(ati[a1].elname) + 1, ati[a1].elname); /* djb-rwth: function replaced with its safe C11 variant */
+#else
     strcpy( at[a1].elname, ati[a1].elname );
+#endif
 
     /* charge */
     at[a1].charge = ati[a1].charge;
@@ -1166,7 +1182,11 @@ int SetAtomProperties( inp_ATOM *at,
             {
                 nRad -= 2;
             }
+#if USE_BCF
+            sprintf_s( szRadicalType, sizeof(szRadicalType), "%d->%d", ati[a1].radical, nRad ); /* djb-rwth: function replaced with its safe C11 variant */
+#else
             sprintf( szRadicalType, "%d->%d", ati[a1].radical, nRad );
+#endif
             TREAT_ERR( *err, 0, "Radical center type replaced:" );
             TREAT_ERR( *err, 0, szRadicalType );
             cRadical = nRad;
@@ -1190,11 +1210,23 @@ int SetAtomProperties( inp_ATOM *at,
         char str[32];
         MOL_COORD * coord_p = szCoord + a1;
         WriteCoord( str, ati[a1].x );
+#if USE_BCF
+        memcpy_s( *coord_p, 11, str, 10 ); /* djb-rwth: function replaced with its safe C11 variant */
+#else
         memcpy( *coord_p, str, 10 );
+#endif
         WriteCoord( str, ati[a1].y );
+#if USE_BCF
+        memcpy_s( *coord_p + 10, 11, str, 10 ); /* djb-rwth: function replaced with its safe C11 variant */
+#else
         memcpy( *coord_p + 10, str, 10 );
+#endif
         WriteCoord( str, ati[a1].z );
+#if USE_BCF
+        memcpy_s( *coord_p + 20, 11, str, 10 ); /* djb-rwth: function replaced with its safe C11 variant */
+#else
         memcpy( *coord_p + 20, str, 10 );
+#endif
     }
 
     if (MIN_BOND_LENGTH < fabs( ati[a1].x ) || MIN_BOND_LENGTH < fabs( ati[a1].y ) || MIN_BOND_LENGTH < fabs( ati[a1].z ))
@@ -1250,7 +1282,11 @@ int SetBondProperties( inp_ATOM *at,
         default:
         {
             char szBondType[16];
+#if USE_BCF
+            sprintf_s( szBondType, sizeof(szBondType) + 1, "%d", ati[a1].bond_type[j] ); /* djb-rwth: function replaced with its safe C11 variant */
+#else
             sprintf( szBondType, "%d", ati[a1].bond_type[j] );
+#endif
             TREAT_ERR( *err, 0, "Unrecognized bond type:" );
             TREAT_ERR( *err, 0, szBondType );
             *err |= 8; /*  Unrecognized Bond type replaced with single bond */
@@ -1302,7 +1338,11 @@ int SetBondProperties( inp_ATOM *at,
         default:
         {
             char szBondType[16];
+#if USE_BCF
+            sprintf_s( szBondType, sizeof(szBondType) + 1, "%d", ati[a1].bond_stereo[j] ); /* djb-rwth: function replaced with its safe C11 variant */
+#else
             sprintf( szBondType, "%d", ati[a1].bond_stereo[j] );
+#endif
             TREAT_ERR( *err, 0, "Unrecognized bond stereo:" );
             TREAT_ERR( *err, 0, szBondType );
             *err |= 8; /*  Unrecognized Bond stereo replaced with non-stereo bond */
@@ -1336,11 +1376,11 @@ int SetBondProperties( inp_ATOM *at,
     {
         n1 = (int) ( p1 - at[a1].neighbor );
         n2 = (int) ( p2 - at[a2].neighbor );
-        if (n1 + 1 < at[a1].valence &&
-             is_in_the_list( at[a1].neighbor + n1 + 1, (AT_NUMB) a2, at[a1].valence - n1 - 1 )
+        if ((n1 + 1 < at[a1].valence &&
+             is_in_the_list( at[a1].neighbor + n1 + 1, (AT_NUMB) a2, at[a1].valence - n1 - 1 ))
              ||
-             n2 + 1 < at[a2].valence &&
-             is_in_the_list( at[a2].neighbor + n2 + 1, (AT_NUMB) a1, at[a2].valence - n2 - 1 ))
+             (n2 + 1 < at[a2].valence &&
+             is_in_the_list( at[a2].neighbor + n2 + 1, (AT_NUMB) a1, at[a2].valence - n2 - 1 ))) /* djb-rwth: addressing LLVM warnings */
         {
             TREAT_ERR( *err, 0, "Multiple bonds between two atoms" );
             *err |= 2; /*  multiple bonds between atoms */
@@ -1366,8 +1406,8 @@ int SetBondProperties( inp_ATOM *at,
         n1 = p1 ? (int) ( p1 - at[a1].neighbor ) : at[a1].valence++;
         n2 = p2 ? (int) ( p2 - at[a2].neighbor ) : at[a2].valence++;
         /* the bond is present in one atom only: possibly program error */
-        if (p1 && ( cBondType != at[a1].bond_type[n1] || at[a1].bond_stereo[n1] != cStereoType1 ) ||
-             p2 && ( cBondType != at[a2].bond_type[n2] || at[a2].bond_stereo[n2] != cStereoType2 ))
+        if ((p1 && ( cBondType != at[a1].bond_type[n1] || at[a1].bond_stereo[n1] != cStereoType1 )) ||
+             (p2 && ( cBondType != at[a2].bond_type[n2] || at[a2].bond_stereo[n2] != cStereoType2 ))) /* djb-rwth: addressing LLVM warnings */
         {
             TREAT_ERR( *err, 0, "Multiple bonds between two atoms" );
             *err |= 2; /*  multiple bonds between atoms */
@@ -1388,15 +1428,20 @@ int SetBondProperties( inp_ATOM *at,
     {
         char szMsg[64];
         *err |= 4; /*  too large number of bonds. Some bonds ignored. */
-        sprintf( szMsg, "Atom '%s' has more than %d bonds",
-                        at[a1].valence >= MAXVAL ? at[a1].elname : at[a2].elname, MAXVAL );
+#if USE_BCF
+        sprintf_s( szMsg, sizeof(szMsg), "Atom '%s' has more than %d bonds",
+                        at[a1].valence >= MAXVAL ? at[a1].elname : at[a2].elname, MAXVAL ); /* djb-rwth: function replaced with its safe C11 variant */
+#else
+        sprintf(szMsg, "Atom '%s' has more than %d bonds",
+            at[a1].valence >= MAXVAL ? at[a1].elname : at[a2].elname, MAXVAL);
+#endif
         TREAT_ERR( *err, 0, szMsg );
         goto err_exit;
     }
 
     /* store the connection */
 
-    /* bond type */
+    /* bond type */ /* djb-rwth: buffer overruns avoided implicitly */
     at[a1].bond_type[n1] =
         at[a2].bond_type[n2] = cBondType;
         /* connection */
@@ -1459,8 +1504,13 @@ int SetAtomAndBondProperties( inp_ATOM *at,
         {
             char szMsg[64];
             *err |= 8; /*  wrong number of alt. bonds */
-            sprintf( szMsg, "Atom '%s' has %d alternating bonds",
-                            at[a1].elname, num_alt_bonds );
+#if USE_BCF
+            sprintf_s( szMsg, sizeof(szMsg), "Atom '%s' has %d alternating bonds",
+                            at[a1].elname, num_alt_bonds ); /* djb-rwth: function replaced with its safe C11 variant */
+#else
+            sprintf(szMsg, "Atom '%s' has %d alternating bonds",
+                at[a1].elname, num_alt_bonds);
+#endif
             TREAT_ERR( *err, 0, szMsg );
         }
         break;
@@ -1473,8 +1523,8 @@ int SetAtomAndBondProperties( inp_ATOM *at,
         /*  Case when elname contains more than 1 element: extract number of H if possible */
         if (extract_charges_and_radicals( at[a1].elname, &nRadical, &nCharge ))
         {
-            if (nRadical && at[a1].radical && nRadical != at[a1].radical ||
-                 nCharge  && at[a1].charge  && nCharge != at[a1].charge)
+            if ((nRadical && at[a1].radical && nRadical != at[a1].radical) ||
+                 (nCharge && at[a1].charge && nCharge != at[a1].charge)) /* djb-rwth: addressing LLVM warnings */
             {
                 TREAT_ERR( *err, 0, "Ignored charge/radical redefinition:" );
                 TREAT_ERR( *err, 0, ati[a1].elname );
@@ -1695,7 +1745,7 @@ int InpAtom0DToInchiAtom( inp_ATOM *at,
         *stereo0D = (inchi_Stereo0D *) inchi_calloc( num_inp_stereo0D, sizeof( ( *stereo0D )[0] ) );
     }
 
-    if (num_inp_atoms && !( *atom ) || num_inp_stereo0D > 0 && !( *stereo0D ))
+    if ((num_inp_atoms && !( *atom )) || (num_inp_stereo0D > 0 && !( *stereo0D ))) /* djb-rwth: addressing LLVM warnings */
     {
         /* allocation failed */
         ret = -1;
@@ -1712,7 +1762,11 @@ int InpAtom0DToInchiAtom( inp_ATOM *at,
             ( *atom )[i].neighbor[m] = at[i].neighbor[m];
         }
         ( *atom )[i].charge = at[i].charge;
+#if USE_BCF
+        memcpy_s( ( *atom )[i].elname, ATOM_EL_LEN, at[i].elname, ATOM_EL_LEN ); /* djb-rwth: function replaced with its safe C11 variant */
+#else
         memcpy( ( *atom )[i].elname, at[i].elname, ATOM_EL_LEN );
+#endif
         if (at[i].iso_atw_diff)
         {
             ( *atom )[i].isotopic_mass = ISOTOPIC_SHIFT_FLAG + ( at[i].iso_atw_diff > 0 ? at[i].iso_atw_diff - 1 : at[i].iso_atw_diff );
@@ -2148,7 +2202,7 @@ int INCHI_DECL GetINCHIfromINCHI( inchi_InputINCHI *inpInChI,
 #endif
 #endif
 
-    memset( out, 0, sizeof( *out ) );
+    memset( out, 0, sizeof( *out ) ); /* djb-rwth: memset_s C11/Annex K variant? */
 #if ( defined(REPEAT_ALL) && REPEAT_ALL > 0 )
 repeat:
     FreeINCHI( out );
@@ -2166,12 +2220,12 @@ repeat:
 
     /* clear original input structure */
     /* memset( inchi_file, 0, sizeof(inchi_file) ); */
-    memset( sd, 0, sizeof( *sd ) );
-    memset( ip, 0, sizeof( *ip ) );
-    memset( szSdfDataValue, 0, sizeof( szSdfDataValue ) );
+    memset( sd, 0, sizeof( *sd ) ); /* djb-rwth: memset_s C11/Annex K variant? */
+    memset( ip, 0, sizeof( *ip ) ); /* djb-rwth: memset_s C11/Annex K variant? */
+    memset( szSdfDataValue, 0, sizeof( szSdfDataValue ) ); /* djb-rwth: memset_s C11/Annex K variant? */
 
-    memset( &ic, 0, sizeof( ic ) );
-    memset( &CG, 0, sizeof( CG ) );
+    memset( &ic, 0, sizeof( ic ) ); /* djb-rwth: memset_s C11/Annex K variant? */
+    memset( &CG, 0, sizeof( CG ) ); /* djb-rwth: memset_s C11/Annex K variant? */
 
     szMainOption[1] = INCHI_OPTION_PREFX;
 
@@ -2185,14 +2239,22 @@ repeat:
     if (inpInChI)
     {
         int opt_len = (int) ( ( inpInChI->szOptions ? strlen( inpInChI->szOptions ) : 0 ) + sizeof( szMainOption ) + 1 );
-        szOptions = (char*) inchi_calloc( opt_len + 1, sizeof( szOptions[0] ) );
+        szOptions = (char*) inchi_calloc( (long long)opt_len + 1, sizeof( szOptions[0] ) ); /* djb-rwth: cast operator added */
         if (szOptions)
         {
             if (inpInChI->szOptions)
             {
+#if USE_BCF
+                strcpy_s( szOptions, sizeof(szOptions[0])*((long long)opt_len) + 1, inpInChI->szOptions); /* djb-rwth: function replaced with its safe C11 variant */
+#else
                 strcpy( szOptions, inpInChI->szOptions );
+#endif
             }
+#if USE_BCF
+            strcat_s( szOptions, sizeof(szOptions), szMainOption ); /* djb-rwth: function replaced with its safe C11 variant */
+#else
             strcat( szOptions, szMainOption );
+#endif
             argc = parse_options_string( szOptions, argv, INCHI_MAX_NUM_ARG );
         }
         else
@@ -2208,18 +2270,19 @@ repeat:
         argv[1] = NULL;
     }
 
-    if (argc == 1
+    if ((argc == 1
 #ifdef TARGET_API_LIB
-        && ( !inpInChI || !inpInChI->szInChI )
+        && ( !inpInChI || !inpInChI->szInChI ))
 #endif
 
-        || argc == 2 && ( argv[1][0] == INCHI_OPTION_PREFX ) &&
-        ( !strcmp( argv[1] + 1, "?" ) || !inchi_stricmp( argv[1] + 1, "help" ) ))
+        || (argc == 2 && ( argv[1][0] == INCHI_OPTION_PREFX ) &&
+        ( !strcmp( argv[1] + 1, "?" ) || !inchi_stricmp( argv[1] + 1, "help" ) ))) /* djb-rwth: addressing LLVM warnings */
     {
         HelpCommandLineParms( log_file );
         out->szLog = log_file->s.pStr;
-        memset( log_file, 0, sizeof( *log_file ) );
+        memset( log_file, 0, sizeof( *log_file ) ); /* djb-rwth: memset_s C11/Annex K variant? */
         nRet = _IS_EOF;
+        inchi_free(szOptions); /* djb-rwth: avoiding memory leak */
         goto translate_RetVal;
     }
 
@@ -2464,8 +2527,8 @@ int INCHI_DECL GetStructFromINCHIEx( inchi_InputINCHI *inpInChI,
     INCHI_IOSTREAM inchi_file[3];
     INCHI_IOSTREAM *out_file = inchi_file, *log_file = inchi_file + 1, *input_file = inchi_file + 2;
     int    i, nRet = 0, nRet1;
-    int bStdFormat = 0;
-    int bReleaseVersion = bRELEASE_VERSION;
+    /* djb-rwth: removing redundant variables/code */
+    int bReleaseVersion = bRELEASE_VERSION; /* djb-rwth: ignoring LLVM warning: variable used in function call */
     unsigned long  ulDisplTime = 0;    /*  infinite, milliseconds */
 #if ( defined(REPEAT_ALL) && REPEAT_ALL > 0 )
     int  num_repeat = REPEAT_ALL;
@@ -2512,7 +2575,7 @@ int INCHI_DECL GetStructFromINCHIEx( inchi_InputINCHI *inpInChI,
 #endif
 #endif
 
-    memset( outStruct, 0, sizeof( *outStruct ) );
+    memset( outStruct, 0, sizeof( *outStruct ) ); /* djb-rwth: memset_s C11/Annex K variant? */
 
 #if ( defined(REPEAT_ALL) && REPEAT_ALL > 0 )
     repeat:
@@ -2530,12 +2593,12 @@ int INCHI_DECL GetStructFromINCHIEx( inchi_InputINCHI *inpInChI,
     inchi_ios_init( log_file, INCHI_IOS_TYPE_STRING, NULL );
 
     /* clear original input structure */
-    memset( sd, 0, sizeof( *sd ) );
-    memset( ip, 0, sizeof( *ip ) );
-    memset( szSdfDataValue, 0, sizeof( szSdfDataValue ) );
+    memset( sd, 0, sizeof( *sd ) ); /* djb-rwth: memset_s C11/Annex K variant? */
+    memset( ip, 0, sizeof( *ip ) ); /* djb-rwth: memset_s C11/Annex K variant? */
+    memset( szSdfDataValue, 0, sizeof( szSdfDataValue ) ); /* djb-rwth: memset_s C11/Annex K variant? */
 
-    memset( &ic, 0, sizeof( ic ) );
-    memset( &CG, 0, sizeof( CG ) );
+    memset( &ic, 0, sizeof( ic ) ); /* djb-rwth: memset_s C11/Annex K variant? */
+    memset( &CG, 0, sizeof( CG ) ); /* djb-rwth: memset_s C11/Annex K variant? */
 
     szMainOption[1] = INCHI_OPTION_PREFX;
 
@@ -2550,13 +2613,21 @@ int INCHI_DECL GetStructFromINCHIEx( inchi_InputINCHI *inpInChI,
     {
         /* fix bug discovered by Burt Leland 2008-12-23 */
         int opt_len = ( inpInChI->szOptions ? strlen( inpInChI->szOptions ) : 0 ) + sizeof( szMainOption ) + 1;
-        szOptions = (char*) inchi_calloc( opt_len + 1, sizeof( szOptions[0] ) );
+        szOptions = (char*)inchi_calloc((long long)opt_len + 1, sizeof(szOptions[0])); /* djb-rwth: cast operator added */
         if (szOptions)
         {
             if (inpInChI->szOptions)
                 /* fix bug discovered by Burt Leland 2008-12-23 */
-                strcpy( szOptions, inpInChI->szOptions );
-            strcat( szOptions, szMainOption );
+#if USE_BCF
+                strcpy_s( szOptions, strlen(inpInChI->szOptions) + 1, inpInChI->szOptions ); /* djb-rwth: function replaced with its safe C11 variant */
+#else
+                strcpy(szOptions, inpInChI->szOptions);
+#endif
+#if USE_BCF
+            strcat_s( szOptions, sizeof(szMainOption) + 1, szMainOption ); /* djb-rwth: function replaced with its safe C11 variant */
+#else
+            strcat(szOptions, szMainOption);
+#endif
             argc = parse_options_string( szOptions, argv, INCHI_MAX_NUM_ARG );
         }
         else
@@ -2572,12 +2643,12 @@ int INCHI_DECL GetStructFromINCHIEx( inchi_InputINCHI *inpInChI,
         argv[1] = NULL;
     }
 
-    if (argc == 1
+    if ((argc == 1
 #ifdef TARGET_API_LIB
-        && ( !inpInChI || !inpInChI->szInChI )
+        && ( !inpInChI || !inpInChI->szInChI ))
 #endif
-        || argc == 2 && ( argv[1][0] == INCHI_OPTION_PREFX ) &&
-        ( !strcmp( argv[1] + 1, "?" ) || !inchi_stricmp( argv[1] + 1, "help" ) ))
+        || (argc == 2 && ( argv[1][0] == INCHI_OPTION_PREFX ) &&
+        ( !strcmp( argv[1] + 1, "?" ) || !inchi_stricmp( argv[1] + 1, "help" ) ))) /* djb-rwth: addressing LLVM warnings */
     {
         HelpCommandLineParms( log_file );
         outStruct->szLog = log_file->s.pStr;
@@ -2636,11 +2707,7 @@ int INCHI_DECL GetStructFromINCHIEx( inchi_InputINCHI *inpInChI,
     {
         const int strict = 0;                     /* do not use strict mode, it may be too alarmous */
         nRet = CheckINCHI( inpInChI->szInChI, strict );
-        if (nRet == INCHI_VALID_STANDARD)
-        {
-            bStdFormat = 1;
-        }
-        else if (nRet == INCHI_VALID_NON_STANDARD || nRet == INCHI_VALID_BETA)
+        if (nRet == INCHI_VALID_STANDARD || nRet == INCHI_VALID_NON_STANDARD || nRet == INCHI_VALID_BETA) /* djb-rwth: removing redundant code */
         {
             ;
         }
@@ -2792,26 +2859,29 @@ translate_RetVal:
         case -2: nRet = inchi_Ret_ERROR; break; /* Error: no Structure has been created */
         case -1: nRet = inchi_Ret_FATAL; break; /* Severe error: no Structure has been created (typically; break; memory allocation failed) */
         default:
-            if (!outStruct->atom || !outStruct->num_atoms)
+            if (outStruct) /* djb-rwth: fixing a NULL pointer dereference */
             {
-                nRet = inchi_Ret_EOF;
-            }
-            else
-            {
-                int m, n, t = 0;
-                for (m = 0; m < 2; m++)
+                if (!outStruct->atom || !outStruct->num_atoms)
                 {
-                    for (n = 0; n < 2; n++)
+                    nRet = inchi_Ret_EOF;
+                }
+                else
+                {
+                    int m, n, t = 0;
+                    for (m = 0; m < 2; m++)
                     {
-                        if (outStruct->WarningFlags[m][n])
+                        for (n = 0; n < 2; n++)
                         {
-                            t++;
+                            if (outStruct->WarningFlags[m][n])
+                            {
+                                t++;
+                            }
                         }
                     }
+                    nRet = t ? inchi_Ret_WARNING : inchi_Ret_OKAY;
                 }
-                nRet = t ? inchi_Ret_WARNING : inchi_Ret_OKAY;
+                break;
             }
-            break;
     }
 
     return nRet;
@@ -2830,7 +2900,7 @@ int INCHI_DECL GetStructFromINCHI( inchi_InputINCHI *inpInChI,
     int ret = 0;
 
     inchi_OutputStructEx outex;
-    memset( out, 0, sizeof( *out ) );
+    memset( out, 0, sizeof( *out ) ); /* djb-rwth: memset_s C11/Annex K variant? */
 
     ret = GetStructFromINCHIEx( inpInChI, &outex );
 
@@ -2886,7 +2956,7 @@ void INCHI_DECL FreeStructFromINCHIEx( inchi_OutputStructEx *out )
         FreeInChIExtInput( out->polymer, out->v3000 );
     }
 
-    memset( out, 0, sizeof( *out ) );
+    memset( out, 0, sizeof( *out ) ); /* djb-rwth: memset_s C11/Annex K variant? */
 }
 
 
@@ -3016,7 +3086,7 @@ int SetExtOrigAtDataByInChIExtInput( OAD_Polymer **ppPolymer,
             err = 9001;
             goto exitf;
         }
-        memset( ( *ppPolymer )->units, 0, sizeof( *( *ppPolymer )->units ) );
+        memset( ( *ppPolymer )->units, 0, sizeof( *( *ppPolymer )->units ) ); /* djb-rwth: memset_s C11/Annex K variant? */
 
         ( *ppPolymer )->n = iep->n;
         /*( *ppPolymer )->valid = -1;*/
@@ -3036,7 +3106,7 @@ int SetExtOrigAtDataByInChIExtInput( OAD_Polymer **ppPolymer,
                 goto exitf;
             }
 
-            memset( unitk, 0, sizeof( *unitk ) );
+            memset( unitk, 0, sizeof( *unitk ) ); /* djb-rwth: memset_s C11/Annex K variant? */
             unitk->id = groupk->id;
             unitk->type = groupk->type;
             unitk->subtype = groupk->subtype;
@@ -3048,7 +3118,11 @@ int SetExtOrigAtDataByInChIExtInput( OAD_Polymer **ppPolymer,
                 unitk->xbr1[q] = groupk->xbr1[q];
                 unitk->xbr2[q] = groupk->xbr2[q];
             }
+#if USE_BCF
+            strcpy_s( unitk->smt, sizeof(groupk->smt) + 1, groupk->smt ); /* djb-rwth: function replaced with its safe C11 variant */
+#else
             strcpy( unitk->smt, groupk->smt );
+#endif
             unitk->na = groupk->na;
             unitk->alist = (int *) inchi_calloc( unitk->na, sizeof( int ) );
             if (!unitk->alist )
@@ -3063,7 +3137,7 @@ int SetExtOrigAtDataByInChIExtInput( OAD_Polymer **ppPolymer,
             unitk->nb = groupk->nb;
             if (unitk->nb > 0)
             {
-                unitk->blist = (int *) inchi_calloc( 2 * unitk->nb, sizeof( int ) );
+                unitk->blist = (int *) inchi_calloc( 2 * (long long)unitk->nb, sizeof( int ) ); /* djb-rwth: cast operator added */
                 if (!unitk->blist )
                 {
                     err = 9001;
@@ -3092,7 +3166,7 @@ int SetExtOrigAtDataByInChIExtInput( OAD_Polymer **ppPolymer,
             err = 9001;
             goto exitf;
         }
-        memset( pv, 0, sizeof( *pv ) );
+        memset( pv, 0, sizeof( *pv ) ); /* djb-rwth: memset_s C11/Annex K variant? */
 
         pv->n_collections = iev->n_collections;
         pv->n_haptic_bonds = iev->n_haptic_bonds;
@@ -3113,7 +3187,11 @@ int SetExtOrigAtDataByInChIExtInput( OAD_Polymer **ppPolymer,
                 err = 9001;
                 goto exitf;
             }
+#if USE_BCF
+            memcpy_s( pv->atom_index_orig, (long long)nat + 1, iev->atom_index_orig, nat ); /* djb-rwth: function replaced with its safe C11 variant; cast operator added  */
+#else
             memcpy( pv->atom_index_orig, iev->atom_index_orig, nat );
+#endif
         }
         if (iev->atom_index_fin)
         {
@@ -3123,7 +3201,11 @@ int SetExtOrigAtDataByInChIExtInput( OAD_Polymer **ppPolymer,
                 err = 9001;
                 goto exitf;
             }
+#if USE_BCF
+            memcpy_s( pv->atom_index_fin, (long long)nat + 1, iev->atom_index_fin, nat ); /* djb-rwth: function replaced with its safe C11 variant; cast operator added */
+#else
             memcpy( pv->atom_index_fin, iev->atom_index_fin, nat );
+#endif
         }
         if (iev->n_haptic_bonds && iev->lists_haptic_bonds)
         {
@@ -3249,7 +3331,7 @@ int SetInChIExtInputByExtOrigAtData( OAD_Polymer     *orp,
         {
             err = 9001; goto exitf;
         }
-        memset( ( *iip )->units, 0, sizeof( *( *iip )->units ) );
+        memset( ( *iip )->units, 0, sizeof( *( *iip )->units ) ); /* djb-rwth: memset_s C11/Annex K variant? */
         for (k = 0; k < orp->n; k++)
         {
             int q = 0;
@@ -3261,7 +3343,7 @@ int SetInChIExtInputByExtOrigAtData( OAD_Polymer     *orp,
             {
                 err = 9001; goto exitf;
             }
-            memset( unitk, 0, sizeof( *unitk ) );
+            memset( unitk, 0, sizeof( *unitk ) ); /* djb-rwth: memset_s C11/Annex K variant? */
             unitk->id = groupk->id;
             unitk->type = groupk->type;
             unitk->subtype = groupk->subtype;
@@ -3272,7 +3354,11 @@ int SetInChIExtInputByExtOrigAtData( OAD_Polymer     *orp,
                 unitk->xbr1[q] = groupk->xbr1[q];
                 unitk->xbr2[q] = groupk->xbr2[q];
             }
+#if USE_BCF
+            strcpy_s( unitk->smt, sizeof(unitk->smt) + 1, groupk->smt ); /* djb-rwth: function replaced with its safe C11 variant */
+#else
             strcpy( unitk->smt, groupk->smt );
+#endif
             unitk->na = groupk->na;
             unitk->alist = (int *) inchi_calloc( unitk->na, sizeof( int ) );
             if (!unitk->alist)
@@ -3286,7 +3372,7 @@ int SetInChIExtInputByExtOrigAtData( OAD_Polymer     *orp,
             unitk->nb = groupk->nb;
             if (unitk->nb > 0)
             {
-                unitk->blist = (int *) inchi_calloc( 2 * unitk->nb, sizeof( int ) );
+                unitk->blist = (int *) inchi_calloc( 2 * (long long)unitk->nb, sizeof( int ) ); /* djb-rwth: cast operator added */
                 if (!unitk->blist)
                 {
                     err = 9001; goto exitf;
@@ -3306,12 +3392,12 @@ int SetInChIExtInputByExtOrigAtData( OAD_Polymer     *orp,
     if (orv)
     {
         int nn;
-        *iiv = (inchi_Input_V3000 *) inchi_calloc( 1, sizeof( OAD_V3000 ) );
+        *iiv = (inchi_Input_V3000 *) inchi_calloc( 1, sizeof(inchi_Input_V3000) ); /* djb-rwth: fixing the incorrect type of variable */
         if (!*iiv)
         {
             err = 9001; goto exitf;
         }
-        memset( *iiv, 0, sizeof( **iiv ) );
+        memset( *iiv, 0, sizeof( **iiv ) ); /* djb-rwth: memset_s C11/Annex K variant? */
 
         ( *iiv )->n_collections = orv->n_collections;
         ( *iiv )->n_haptic_bonds = orv->n_haptic_bonds;
@@ -3332,7 +3418,11 @@ int SetInChIExtInputByExtOrigAtData( OAD_Polymer     *orp,
                 err = 9001;
                 goto exitf;
             }
+#if USE_BCF
+            memcpy_s( ( *iiv )->atom_index_orig, (long long)nat + 1, orv->atom_index_orig, nat ); /* djb-rwth: function replaced with its safe C11 variant */
+#else
             memcpy( ( *iiv )->atom_index_orig, orv->atom_index_orig, nat );
+#endif
         }
         if (orv->atom_index_fin)
         {
@@ -3342,7 +3432,11 @@ int SetInChIExtInputByExtOrigAtData( OAD_Polymer     *orp,
                 err = 9001;
                 goto exitf;
             }
+#if USE_BCF
+            memcpy_s( ( *iiv )->atom_index_fin, (long long)nat + 1, orv->atom_index_fin, nat ); /* djb-rwth: function replaced with its safe C11 variant */
+#else
             memcpy( ( *iiv )->atom_index_fin, orv->atom_index_fin, nat );
+#endif
         }
         if (orv->n_haptic_bonds && orv->lists_haptic_bonds)
         {
