@@ -45,6 +45,7 @@
 #include "e_mode.h"
 
 #include "../../../../INCHI_BASE/src/inchi_api.h"
+#include "../../../../INCHI_BASE/src/bcf_s.h"
 
 #include "e_ctl_data.h"
 #include "e_comdef.h"
@@ -99,8 +100,8 @@ inchi_Atom* mol_to_inchi_Atom( MOL_DATA* mol_data, int *num_atoms, int *num_bond
     *num_atoms = *num_bonds = 0;
     /* check if MOLfile contains atoms */
     if (!mol_data || !mol_data->ctab.MolAtom ||
-         0 < mol_data->ctab.nNumberOfBonds && !mol_data->ctab.MolBond ||
-         0 >= ( *num_atoms = mol_data->ctab.nNumberOfAtoms ))
+         (0 < mol_data->ctab.nNumberOfBonds && !mol_data->ctab.MolBond) ||
+         0 >= ( *num_atoms = mol_data->ctab.nNumberOfAtoms )) /* djb-rwth: addressing LLVM warning */
     {
 /* MOLFILE_ERR_SET (*err, 0, "Empty structure"); */
         goto exit_function; /*  no structure */
@@ -173,15 +174,22 @@ inchi_Atom* mol_to_inchi_Atom( MOL_DATA* mol_data, int *num_atoms, int *num_bond
             {
                 char szMsg[64];
                 *err |= 4; /*  too large number of bonds. Some bonds ignored. */
-                sprintf( szMsg, "Atom '%s' has more than %d bonds",
-                                at[a1].num_bonds >= MAXVAL ? at[a1].elname : at[a2].elname, MAXVAL );
+#if USE_BCF
+                sprintf_s( szMsg, sizeof(szMsg) + 1, "Atom '%s' has more than %d bonds", at[a1].num_bonds >= MAXVAL ? at[a1].elname : at[a2].elname, MAXVAL ); /* djb-rwth: function replaced with its safe C11 variant */
+#else
+                sprintf( szMsg, "Atom '%s' has more than %d bonds", at[a1].num_bonds >= MAXVAL ? at[a1].elname : at[a2].elname, MAXVAL );
+#endif
                 MOLFILE_ERR_SET( *err, 0, szMsg );
                 continue;
             }
         if (cBondType < MIN_INPUT_BOND_TYPE || cBondType > MAX_INPUT_BOND_TYPE)
         {
             char szBondType[16];
+#if USE_BCF
+            sprintf_s( szBondType, sizeof(szBondType) + 1, "%d", cBondType ); /* djb-rwth: function replaced with its safe C11 variant */
+#else
             sprintf( szBondType, "%d", cBondType );
+#endif
             cBondType = 1;
             MOLFILE_ERR_SET( *err, 0, "Unrecognized bond type:" );
             MOLFILE_ERR_SET( *err, 0, szBondType );
@@ -235,7 +243,7 @@ inchi_Atom* mol_to_inchi_Atom( MOL_DATA* mol_data, int *num_atoms, int *num_bond
             ( mol_data->ctab.MolAtom[a1].cValence != 15 || at[a1].num_bonds ))
         {
 /* Molfile contains special valence => calculate number of H */
-            memset( num_bond_type, 0, sizeof( num_bond_type ) );
+            memset( num_bond_type, 0, sizeof( num_bond_type ) ); /* djb-rwth: memset_s C11/Annex K variant? */
             valence = mol_data->ctab.MolAtom[a1].cValence; /*  save atom valence if available */
             for (n1 = 0; n1 < at[a1].num_bonds; n1++)
             {
@@ -333,8 +341,8 @@ int mol_to_inchi_Atom_xyz( MOL_DATA* mol_data, int num_atoms, inchi_Atom* at, in
     /*  *err = 0; */
     /* check if MOLfile contains atoms */
     if (!mol_data || !mol_data->ctab.MolAtom ||
-         0 < mol_data->ctab.nNumberOfBonds && !mol_data->ctab.MolBond ||
-         0 >= ( num_atoms = mol_data->ctab.nNumberOfAtoms ))
+         (0 < mol_data->ctab.nNumberOfBonds && !mol_data->ctab.MolBond) ||
+         0 >= ( num_atoms = mol_data->ctab.nNumberOfAtoms )) /* djb-rwth: addressing LLVM warning */
     {
         goto exit_function; /*  no structure */
     }
@@ -448,17 +456,17 @@ int mol_to_inchi_Atom_xyz( MOL_DATA* mol_data, int num_atoms, inchi_Atom* at, in
         average_bond_length /= (double) num_bonds;
         if (average_bond_length * coeff > MAX_STDATA_AVE_BOND_LENGTH)
         {
-            coeff = MAX_STDATA_AVE_BOND_LENGTH / average_bond_length; /* avoid too long bonds */
+            coeff = MAX_STDATA_AVE_BOND_LENGTH / average_bond_length; /* avoid too long bonds */ /* djb-rwth: ignoring LLVM warning: value used */
         }
         else
             if (average_bond_length * coeff < macheps)
             {
-                coeff = 1.0; /* all lengths are of zero length */
+                coeff = 1.0; /* all lengths are of zero length */ /* djb-rwth: ignoring LLVM warning: value used */
             }
             else
                 if (average_bond_length * coeff < MIN_STDATA_AVE_BOND_LENGTH)
                 {
-                    coeff = MIN_STDATA_AVE_BOND_LENGTH / average_bond_length; /* avoid too short bonds */
+                    coeff = MIN_STDATA_AVE_BOND_LENGTH / average_bond_length; /* avoid too short bonds */ /* djb-rwth: ignoring LLVM warning: value used */
                 }
     }
 #if( NORMALIZE_INP_COORD == 1 )
@@ -535,7 +543,7 @@ int MolfileToInchi_Atom( FILE *inp_molfile, int bDoNotAddH, inchi_Atom **at, int
         pOnlyHeaderBlock = NULL;
         if (*at && max_num_at)
         {
-            memset( *at, 0, max_num_at * sizeof( **at ) );
+            memset( *at, 0, max_num_at * sizeof( **at ) ); /* djb-rwth: memset_s C11/Annex K variant? */
         }
     }
     else
@@ -720,26 +728,35 @@ int e_MolfileToInchi_Input( FILE *inp_molfile, inchi_InputEx *orig_at_data, int 
                             orig_at_data->num_atoms = num_inp_atoms_new;
                         }
                         else
-                            if (orig_at_data->atom = e_CreateInchi_Atom( nNumAtoms ))
+                            if ((orig_at_data->atom = e_CreateInchi_Atom( nNumAtoms ))) /* djb-rwth: addressing LLVM warning */
                             {
 /*  switch at_new <--> orig_at_data->at; */
                                 if (orig_at_data->num_atoms)
                                 {
+#if USE_BCF
+                                    memcpy_s( orig_at_data->atom, (long long)(orig_at_data->num_atoms)*sizeof(orig_at_data->atom[0]) + 1 ,at_old, orig_at_data->num_atoms * sizeof( orig_at_data->atom[0] ) ); /* djb-rwth: function replaced with its safe C11 variant */
+#else
                                     memcpy( orig_at_data->atom, at_old, orig_at_data->num_atoms * sizeof( orig_at_data->atom[0] ) );
+#endif
                                     /*  adjust numbering in the newly read structure */
                                     for (i = 0; i < num_inp_atoms_new; i++)
                                     {
-                                        for (j = 0; j < at_new[i].num_bonds; j++)
+                                        if (at_new) /* djb-rwth: fixing a NULL pointer dereference */
                                         {
-                                            at_new[i].neighbor[j] += orig_at_data->num_atoms;
+                                            for (j = 0; j < at_new[i].num_bonds; j++)
+                                            {
+                                                at_new[i].neighbor[j] += orig_at_data->num_atoms;
+                                            }
                                         }
                                     }
                                 }
                                 e_FreeInchi_Atom( &at_old );
                                 /*  copy newly read structure */
-                                memcpy( orig_at_data->atom + orig_at_data->num_atoms,
-                                        at_new,
-                                        num_inp_atoms_new * sizeof( orig_at_data->atom[0] ) );
+#if USE_BCF
+                                memcpy_s( orig_at_data->atom + orig_at_data->num_atoms, (long long)num_inp_atoms_new*sizeof(orig_at_data->atom[0]) + 1, at_new, num_inp_atoms_new * sizeof( orig_at_data->atom[0] ) ); /* djb-rwth: function replaced with its safe C11 variant */
+#else
+                                memcpy( orig_at_data->atom + orig_at_data->num_atoms, at_new, num_inp_atoms_new * sizeof( orig_at_data->atom[0] ) );
+#endif
                                 /*  add other things */
                                 orig_at_data->num_atoms += num_inp_atoms_new;
                             }

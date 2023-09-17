@@ -46,6 +46,7 @@
 #include "e_ichisize.h"
 #include "e_ichitime.h"
 #include "../../../../INCHI_BASE/src/inchi_api.h"
+#include "../../../../INCHI_BASE/src/bcf_s.h"
 #include "e_ctl_data.h"
 #include "e_readstru.h"
 #include "e_ichi_io.h"
@@ -92,7 +93,7 @@ int e_ReadStructure( STRUCT_DATA *sd,
         vABParityUnknown = AB_PARITY_UNKN;
     }
 
-    memset( sd, 0, sizeof( *sd ) );
+    memset( sd, 0, sizeof( *sd ) ); /* djb-rwth: memset_s C11/Annex K variant? */
     switch (ip->nInputType)
     {
         case INPUT_MOLFILE:
@@ -108,11 +109,19 @@ int e_ReadStructure( STRUCT_DATA *sd,
                     if (( p = strrchr( ip->pSdfValue, '+' ) ) &&
                          '[' == *( p - 1 ) && 0 < ( n = strtol( p + 1, &q, 10 ) ) && q[0] && ']' == q[0] && !q[1])
                     {
+#if USE_BCF
+                        sprintf_s( p + 1, (long long)n + 2, "%d]", n + 1 ); /* djb-rwth: function replaced with its safe C11 variant */
+#else
                         sprintf( p + 1, "%d]", n + 1 );
+#endif
                     }
                     else
                     {
+#if USE_BCF
+                        strcat_s( ip->pSdfValue, sizeof(ip->pSdfValue) + 1, " [+1]" ); /* djb-rwth: function replaced with its safe C11 variant */
+#else
                         strcat( ip->pSdfValue, " [+1]" );
+#endif
                     }
                 }
                 e_inchiTimeGet( &ulTStart );
@@ -121,7 +130,7 @@ int e_ReadStructure( STRUCT_DATA *sd,
                 nRet2 = e_MolfileToInchi_Input( inp_file->f, pInp, ip->bMergeAllInputStructures,
                                    ip->bDoNotAddH, ip->bAllowEmptyStructure,
                                    ip->pSdfLabel, ip->pSdfValue, &ip->lSdfId, &ip->lMolfileNumber,
-                                   &InpAtomFlags, &sd->nStructReadError, sd->pStrErrStruct );
+                                   &InpAtomFlags, &sd->nStructReadError, sd->pStrErrStruct ); /* djb-rwth: ignoring LLVM warning: variable used to store function return value */
 
                 sd->bChiralFlag |= InpAtomFlags;
                 if (!ip->bGetSdfileId || ip->lSdfId == 999999) ip->lSdfId = 0;
@@ -161,11 +170,19 @@ int e_ReadStructure( STRUCT_DATA *sd,
                     if (( p = strrchr( ip->pSdfValue, '+' ) ) &&
                          '[' == *( p - 1 ) && 0 < ( n = strtol( p + 1, &q, 10 ) ) && q[0] && ']' == q[0] && !q[1])
                     {
+#if USE_BCF
+                        sprintf_s( p + 1, (long long)n + 2, "%d]", n + 1 ); /* djb-rwth: function replaced with its safe C11 variant */
+#else
                         sprintf( p + 1, "%d]", n + 1 );
+#endif
                     }
                     else
                     {
+#if USE_BCF
+                        strcat_s( ip->pSdfValue, sizeof(ip->pSdfValue) + 1, " [+1]" ); /* djb-rwth: function replaced with its safe C11 variant */
+#else
                         strcat( ip->pSdfValue, " [+1]" );
+#endif
                     }
                 }
                 e_inchiTimeGet( &ulTStart );
@@ -175,7 +192,7 @@ int e_ReadStructure( STRUCT_DATA *sd,
                                                 ip->bDoNotAddH, vABParityUnknown,
                                                 ip->nInputType, ip->pSdfLabel, ip->pSdfValue,
                                                 &ip->lMolfileNumber, &InpAtomFlags,
-                                                &sd->nStructReadError, sd->pStrErrStruct );
+                                                &sd->nStructReadError, sd->pStrErrStruct ); /* djb-rwth: ignoring LLVM warning: variable used to store function return value */
                 /*if ( !ip->bGetSdfileId || ip->lSdfId == 999999) ip->lSdfId = 0;*/
                 sd->bChiralFlag |= InpAtomFlags;
                 sd->fPtrEnd = ( inp_file->f == stdin ) ? -1 : ftell( inp_file->f );

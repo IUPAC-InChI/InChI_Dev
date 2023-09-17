@@ -39,6 +39,7 @@
 #include "e_mode.h"
 
 #include "../../../../INCHI_BASE/src/inchi_api.h"
+#include "../../../../INCHI_BASE/src/bcf_s.h"
 
 #include "e_inchi_atom.h"
 #include "e_ichisize.h"
@@ -181,7 +182,7 @@ void e_FreeInchi_Input( inchi_InputEx *inp_at_data )
         inchi_free(v3000);
     }
 
-    memset( inp_at_data, 0, sizeof( *inp_at_data ) );
+    memset( inp_at_data, 0, sizeof( *inp_at_data ) ); /* djb-rwth: memset_s C11/Annex K variant? */
 }
 
 

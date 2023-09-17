@@ -41,6 +41,7 @@
 #include "e_mode.h"
 
 #include "../../../../INCHI_BASE/src/inchi_api.h"
+#include "../../../../INCHI_BASE/src/bcf_s.h"
 
 #include "e_ichitime.h"
 #include "e_ichisize.h"
@@ -54,12 +55,12 @@
 int extract_ChargeRadical( char *elname, int *pnRadical, int *pnCharge )
 {
     char *q, *r, *p;
-    int  nCharge = 0, nRad = 0, charge_len = 0, k, nVal, nSign, nLastSign = 1, len;
+    int  nCharge = 0, nRad = 0, charge_len = 0, k, nVal, nSign, nLastSign = 1; /* djb-rwth: removing redundant variables */
 
     p = elname;
 
     /*  extract radicals & charges */
-    while (q = strpbrk( p, "+-^" ))
+    while ((q = strpbrk( p, "+-^" ))) /* djb-rwth: addressing LLVM warning */
     {
         switch (*q)
         {
@@ -70,7 +71,7 @@ int extract_ChargeRadical( char *elname, int *pnRadical, int *pnCharge )
                     nVal += ( nLastSign = nSign );
                     charge_len++;
                 }
-                if (nSign = (int) strtol( q + k, &r, 10 ))
+                if ((nSign = (int) strtol( q + k, &r, 10 ))) /* djb-rwth: addressing LLVM warning */
                 { /*  fixed 12-5-2001 */
                     nVal += nLastSign * ( nSign - 1 );
                 }
@@ -88,15 +89,19 @@ int extract_ChargeRadical( char *elname, int *pnRadical, int *pnCharge )
                 }
                 break;
         }
+#if USE_BCF
+        memmove_s( q, strlen(q + charge_len) + 2, q + charge_len, strlen( q + charge_len ) + 1 ); /* djb-rwth: function replaced with its safe C11 variant */
+#else
         memmove( q, q + charge_len, strlen( q + charge_len ) + 1 );
+#endif
     }
-    len = strlen( p );
+    /* djb-rwth: removing redundant code */
     /*  radical */
     if (( q = strrchr( p, ':' ) ) && !q[1])
     {
         nRad = RADICAL_SINGLET;
         q[0] = '\0';
-        len--;
+        /* djb-rwth: removing redundant code */
     }
     else
     {
@@ -104,7 +109,7 @@ int extract_ChargeRadical( char *elname, int *pnRadical, int *pnCharge )
         {
             nRad++;
             q[0] = '\0';
-            len--;
+            /* djb-rwth: removing redundant code */
         }
 
         nRad = nRad == 1 ? RADICAL_DOUBLET :
@@ -132,7 +137,11 @@ int normalize_name( char* name )
         {
             if (n > 0)
             {
-                memmove( (void*) &name[i - n], (void*) &name[i], len - i + 1 );
+#if USE_BCF
+                memmove_s( (void*) &name[i - n], (long long)len - i + 2, (void*) &name[i], (long long)len - i + 1 ); /* djb-rwth: cast operator added; function replaced with its safe C11 variant */
+#else
+                memmove( (void*) &name[i - n], (void*) &name[i], (long long)len - i + 1 ); /* djb-rwth: cast operator added */
+#endif
                 i -= n;
                 len -= n;
             }
@@ -183,7 +192,7 @@ int e_mystrncpy( char *target, const char *source, unsigned maxlen )
 
     if (target == NULL || maxlen == 0 || source == NULL)
         return 0;
-    if (p = (const char*) memchr( source, 0, maxlen ))
+    if ((p = (const char*) memchr( source, 0, maxlen ))) /* djb-rwth: addressing LLVM warning */
     {
         len = p - source; /*  maxlen does not include the found zero termination */
     }
@@ -192,9 +201,13 @@ int e_mystrncpy( char *target, const char *source, unsigned maxlen )
         len = maxlen - 1; /*  reduced length does not include one more byte for zero termination */
     }
     if (len)
+#if USE_BCF
+        memmove_s(target, (long long)len + 1, source, len); /* djb-rwth: function replaced with its safe C11 variant */
+#else
         memmove( target, source, len );
+#endif
     /* target[len] = '\0'; */
-    memset( target + len, 0, maxlen - len ); /*  zero termination */
+    memset( target + len, 0, maxlen - len ); /*  zero termination */ /* djb-rwth: memset_s C11/Annex K variant? */
     return 1;
 }
 /************************************************************************/
@@ -207,7 +220,14 @@ char* e_LtrimRtrim( char *p, int* nLen )
         for (i = 0; i < len && __isascii( p[i] ) && isspace( p[i] ); i++)
             ;
         if (i)
-            (memmove) ( p, p + i, ( len -= i ) + 1 );
+        {
+            len -= i; /* djb-rwth: avoiding l-value error */
+#if USE_BCF
+            memmove_s(p, (long long)len + 2, p + i, (long long)len + 1); /* djb-rwth: cast operator added; function replaced with its safe C11 variant */
+#else
+            memmove(p, p + i, (long long)len + 1); /* djb-rwth: cast operator added */
+#endif
+        }
         for (; 0 < len && __isascii( p[len - 1] ) && isspace( p[len - 1] ); len--)
             ;
         p[len] = '\0';
@@ -372,8 +392,8 @@ long InchiTimeMsecDiff( e_inchiTime *TickEnd, e_inchiTime *TickStart )
         FillMaxMinClock( );
         if (!TickEnd || !TickStart)
             return 0;
-        if (TickEnd->clockTime >= 0 && TickStart->clockTime >= 0 ||
-             TickEnd->clockTime <= 0 && TickStart->clockTime <= 0)
+        if ((TickEnd->clockTime >= 0 && TickStart->clockTime >= 0) ||
+             (TickEnd->clockTime <= 0 && TickStart->clockTime <= 0)) /* djb-rwth: addressing LLVM warnings */
         {
             delta = TickEnd->clockTime - TickStart->clockTime;
         }
@@ -471,8 +491,8 @@ int bInchiTimeIsOver( e_inchiTime *TickStart )
         if (!TickStart)
             return 0;
         clockCurrTime = InchiClock( );
-        if (clockCurrTime >= 0 && TickStart->clockTime >= 0 ||
-             clockCurrTime <= 0 && TickStart->clockTime <= 0)
+        if ((clockCurrTime >= 0 && TickStart->clockTime >= 0) ||
+             (clockCurrTime <= 0 && TickStart->clockTime <= 0)) /* djb-rwth: addressing LLVM warnings */
         {
             return ( clockCurrTime > TickStart->clockTime );
         }
@@ -617,8 +637,8 @@ long e_inchiTimeMsecDiff( e_inchiTime *TickEnd, e_inchiTime *TickStart )
         FillMaxMinClock( );
         if (!TickEnd || !TickStart)
             return 0;
-        if (TickEnd->clockTime >= 0 && TickStart->clockTime >= 0 ||
-             TickEnd->clockTime <= 0 && TickStart->clockTime <= 0)
+        if ((TickEnd->clockTime >= 0 && TickStart->clockTime >= 0) ||
+             (TickEnd->clockTime <= 0 && TickStart->clockTime <= 0)) /* djb-rwth: addressing LLVM warnings */
         {
             delta = TickEnd->clockTime - TickStart->clockTime;
         }

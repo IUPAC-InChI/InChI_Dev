@@ -73,6 +73,7 @@ Activated if (CREATE_INCHI_STEP_BY_STEP==1) [e_mode.h]
 #include <time.h>
 
 #include "e_mode.h"
+#include "../../../../INCHI_BASE/src/bcf_s.h"
 #ifdef CREATE_INCHI_STEP_BY_STEP
 
 #include "e_ctl_data.h"

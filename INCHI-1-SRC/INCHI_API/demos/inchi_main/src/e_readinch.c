@@ -46,6 +46,7 @@
 #include "e_mode.h"
 
 #include "../../../../INCHI_BASE/src/inchi_api.h"
+#include "../../../../INCHI_BASE/src/bcf_s.h"
 
 #include "e_ichisize.h"
 #include "e_ctl_data.h"
