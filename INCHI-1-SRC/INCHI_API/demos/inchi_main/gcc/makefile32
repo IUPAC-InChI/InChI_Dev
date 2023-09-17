@@ -183,7 +183,8 @@ runichi3.o	\
 runichi4.o	\
 sha2.o	\
 strutil.o	\
-util.o
+util.o  \
+bcf_s.o
 # === InChI Library link rule =========
 $(INCHI_LIB_PATHNAME).so$(VERSION): $(INCHI_LIB_OBJS)
 	$(SHARED_LINK) $(SHARED_LINK_PARM) -m32 -o $(INCHI_LIB_PATHNAME).so$(VERSION)	\
