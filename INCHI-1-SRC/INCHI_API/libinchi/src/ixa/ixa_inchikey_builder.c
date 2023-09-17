@@ -34,6 +34,7 @@
 
 #include "../../../../INCHI_BASE/src/mode.h"
 #include "../../../../INCHI_BASE/src/inchi_api.h"
+#include "../../../../INCHI_BASE/src/bcf_s.h"
 #include "ixa_status.h"
 #include <stdlib.h>
 #include <string.h>
@@ -78,7 +79,7 @@ IXA_INCHIKEYBUILDER_HANDLE INCHI_DECL IXA_INCHIKEYBUILDER_Create( IXA_STATUS_HAN
         return NULL;
     }
 
-    memset( key_builder, 0, sizeof( INCHIKEYBUILDER ) );
+    memset( key_builder, 0, sizeof( INCHIKEYBUILDER ) ); /* djb-rwth: memset_s C11/Annex K variant? */
     return KEYBUILDER_Pack( key_builder );
 }
 
@@ -114,7 +115,11 @@ void INCHI_DECL IXA_INCHIKEYBUILDER_SetInChI( IXA_STATUS_HANDLE hStatus,
         return;
     }
 
+#if USE_BCF
+    strcpy_s( key_builder->inchi, strlen(pInChI) + 1, pInChI ); /* djb-rwth: function replaced with its safe C11 variant */
+#else
     strcpy( key_builder->inchi, pInChI );
+#endif
     key_builder->dirty = 1;
 }
 

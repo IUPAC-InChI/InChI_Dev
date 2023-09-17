@@ -42,6 +42,7 @@
 #include "../../../../INCHI_BASE/src/inchi_api.h"
 
 #include "../../../../INCHI_BASE/src/ichi_io.h"
+#include "../../../../INCHI_BASE/src/bcf_s.h"
 
 #include "ixa_mol.h"
 #include "ixa_status.h"
@@ -63,12 +64,13 @@ static const char* Elements[] =
 };
 
 
-/****************************************************************************/
+/* djb-rwth: removing redundant code */
+/****************************************************************************
 static int GetStereo( IXA_BOND_TYPE type,
                       IXA_BOND_WEDGE direction,
                       IXA_BOND_WEDGE reverse_direction )
 {
-    if (type == IXA_BOND_TYPE_SINGLE /*INCHI_BOND_TYPE_SINGLE*/)
+    if (type == IXA_BOND_TYPE_SINGLE ) //INCHI_BOND_TYPE_SINGLE
     {
         switch (direction)
         {
@@ -103,7 +105,7 @@ static int GetStereo( IXA_BOND_TYPE type,
         return INCHI_BOND_STEREO_DOUBLE_EITHER;
     }
 }
-
+*****************************************************************************/
 
 /****************************************************************************/
 static int GetVertexCount( IXA_STATUS_HANDLE hStatus,
@@ -125,28 +127,28 @@ static int GetVertexCount( IXA_STATUS_HANDLE hStatus,
 /****************************************************************************/
 static IXA_ATOMID MOL_PackAtom( int vAtomIndex )
 {
-    return (IXA_ATOMID) ( (size_t) ( vAtomIndex + 1 ) );
+    return (IXA_ATOMID) ( (size_t) ( (long long)vAtomIndex + 1 ) ); /* djb-rwth: cast operator added */
 }
 
 
 /****************************************************************************/
 static IXA_BONDID MOL_PackBond( int vBondIndex )
 {
-    return (IXA_BONDID) ( (size_t) ( vBondIndex + 1 ) );
+    return (IXA_BONDID) ( (size_t) ( (long long)vBondIndex + 1 ) ); /* djb-rwth: cast operator added */
 }
 
 
 /****************************************************************************/
 static IXA_STEREOID MOL_PackStereo( int vStereoIndex )
 {
-    return (IXA_STEREOID) ( (size_t) ( vStereoIndex + 1 ) );
+    return (IXA_STEREOID) ( (size_t) ( (long long)vStereoIndex + 1 ) ); /* djb-rwth: cast operator added */
 }
 
 
 /****************************************************************************/
 static IXA_POLYMERUNITID MOL_PackPolymerUnit( int vPunitIndex )
 {
-    return (IXA_POLYMERUNITID) ( (size_t) ( vPunitIndex + 1 ) );
+    return (IXA_POLYMERUNITID) ( (size_t) ( (long long)vPunitIndex + 1 ) ); /* djb-rwth: cast operator added */
 }
 
 
@@ -391,7 +393,7 @@ void MOL_Clear( INCHIMOL* pMolecule )
 
     MOL_ClearExtMolData( pMolecule->polymer, pMolecule->v3000 );
 
-    memset( pMolecule, 0, sizeof( INCHIMOL ) );
+    memset( pMolecule, 0, sizeof( INCHIMOL ) ); /* djb-rwth: memset_s C11/Annex K variant? */
 }
 
 
@@ -449,7 +451,11 @@ static IXA_ATOMID MOL_CreateAtom( IXA_STATUS_HANDLE hStatus, INCHIMOL *pMolecule
             STATUS_PushMessage( hStatus, IXA_STATUS_ERROR, "Out of memory" );
             return IXA_ATOMID_INVALID;
         }
+#if USE_BCF
+        memcpy_s( temp, (long long)(pMolecule->atom_count)*sizeof(INCHIMOL_ATOM) + 1, pMolecule->atoms, pMolecule->atom_count * sizeof( INCHIMOL_ATOM ) ); /* djb-rwth: function replaced with its safe C11 variant */
+#else
         memcpy( temp, pMolecule->atoms, pMolecule->atom_count * sizeof( INCHIMOL_ATOM ) );
+#endif
         inchi_free( pMolecule->atoms );
         pMolecule->atoms = temp;
         pMolecule->reserved_atom_count = new_size;
@@ -526,7 +532,7 @@ static int MOL_CreateStereo( IXA_STATUS_HANDLE hStatus,
         pMolecule->stereo_count = 0;
         for (k = pMolecule->stereo_count; k < pMolecule->reserved_stereo_count; k++)
         {
-            memset(&(pMolecule->stereos)[k], 0, sizeof(INCHIMOL_STEREO));
+            memset(&(pMolecule->stereos)[k], 0, sizeof(INCHIMOL_STEREO)); /* djb-rwth: memset_s C11/Annex K variant? */
         }
     }
     else if (pMolecule->stereo_count == pMolecule->reserved_stereo_count)
@@ -546,10 +552,14 @@ static int MOL_CreateStereo( IXA_STATUS_HANDLE hStatus,
             STATUS_PushMessage( hStatus, IXA_STATUS_ERROR, "Out of memory" );
             return -1;
         }
+#if USE_BCF
+        memcpy_s(temp, (long long)(pMolecule->stereo_count)*sizeof(INCHIMOL_STEREO) + 1, pMolecule->stereos, pMolecule->stereo_count * sizeof(INCHIMOL_STEREO)); /* djb-rwth: function replaced with its safe C11 variant */
+#else
         memcpy(temp, pMolecule->stereos, pMolecule->stereo_count * sizeof(INCHIMOL_STEREO));
+#endif
         for (k = pMolecule->stereo_count; k < new_size; k++)
         {
-            memset(&temp[k], 0, sizeof(INCHIMOL_STEREO));
+            memset(&temp[k], 0, sizeof(INCHIMOL_STEREO)); /* djb-rwth: memset_s C11/Annex K variant? */
         }
         inchi_free(pMolecule->stereos);
         pMolecule->stereos = temp;
@@ -595,60 +605,69 @@ static IXA_POLYMERUNITID MOL_CreatePolymerUnit( IXA_STATUS_HANDLE hStatus,
     if (!pMolecule->polymer)
     {
         /* The very first visit */
-        pMolecule->polymer = (INCHIMOL_POLYMER *) inchi_calloc( 1, sizeof( INCHIMOL_POLYMER ) );
-        memset( pMolecule->polymer, 0, sizeof( INCHIMOL_POLYMER ) );
-        pMolecule->polymer->n = 0;
-    }
-
-    if ( !pMolecule->polymer->units )
-    {
-        /* First visit; continued  */
-        temp = (INCHIMOL_SGROUP**) inchi_calloc( INCHIMOL_POLYMERUNITS_START_SIZE, sizeof( INCHIMOL_SGROUP* ) );
-        if (!temp)
+        pMolecule->polymer = (INCHIMOL_POLYMER*)inchi_calloc(1, sizeof(INCHIMOL_POLYMER));
+        if (pMolecule->polymer)
         {
-            STATUS_PushMessage( hStatus, IXA_STATUS_ERROR, "Out of memory" );
+            memset(pMolecule->polymer, 0, sizeof(INCHIMOL_POLYMER)); /* djb-rwth: memset_s C11/Annex K variant? */
+            pMolecule->polymer->n = 0;
+        }
+    }
+    if (pMolecule->polymer) /* djb-rwth: fixing a NULL pointer dereference */
+    {
+        if (!pMolecule->polymer->units)
+        {
+            /* First visit; continued  */
+            temp = (INCHIMOL_SGROUP**)inchi_calloc(INCHIMOL_POLYMERUNITS_START_SIZE, sizeof(INCHIMOL_SGROUP*));
+            if (!temp)
+            {
+                STATUS_PushMessage(hStatus, IXA_STATUS_ERROR, "Out of memory");
+                return IXA_POLYMERUNITID_INVALID;
+            }
+            pMolecule->polymer->units = temp;
+            pMolecule->reserved_sgroup_count = INCHIMOL_POLYMERUNITS_START_SIZE;
+            pMolecule->sgroup_count = 0;
+        }
+        else if (pMolecule->sgroup_count == pMolecule->reserved_sgroup_count)
+        {
+            int new_size = MOL_GuessNewSize(pMolecule->reserved_sgroup_count,
+                INCHIMOL_POLYMERUNITS_START_SIZE,
+                INCHIMOL_MAX_POLYMERUNITS);
+            if (new_size < 0)
+            {
+                STATUS_PushMessage(hStatus, IXA_STATUS_ERROR, "Out of memory");
+                return IXA_POLYMERUNITID_INVALID;
+            }
+            temp = (INCHIMOL_SGROUP**)inchi_calloc(new_size, sizeof(INCHIMOL_SGROUP*));
+            if (!temp)
+            {
+                STATUS_PushMessage(hStatus, IXA_STATUS_ERROR, "Out of memory");
+                return IXA_POLYMERUNITID_INVALID;
+            }
+            if (pMolecule->polymer->units)
+            {
+#if USE_BCF
+                memcpy_s(temp, (long long)(pMolecule->sgroup_count)*sizeof(INCHIMOL_SGROUP*) + 1, pMolecule->polymer->units, pMolecule->sgroup_count * sizeof(INCHIMOL_SGROUP*)); /* djb-rwth: function replaced with its safe C11 variant */
+#else
+                memcpy(temp, pMolecule->polymer->units, pMolecule->sgroup_count * sizeof(INCHIMOL_SGROUP*));
+#endif
+                inchi_free(pMolecule->polymer->units);
+            }
+            pMolecule->polymer->units = temp;
+            pMolecule->reserved_sgroup_count = new_size;
+        }
+
+        temp_ptr = (INCHIMOL_SGROUP*)inchi_calloc(1, sizeof(INCHIMOL_SGROUP));
+        if (!temp_ptr)
+        {
+            STATUS_PushMessage(hStatus, IXA_STATUS_ERROR, "Out of memory");
             return IXA_POLYMERUNITID_INVALID;
         }
-        pMolecule->polymer->units = temp;
-        pMolecule->reserved_sgroup_count = INCHIMOL_POLYMERUNITS_START_SIZE;
-        pMolecule->sgroup_count = 0;
-    }
-    else if (pMolecule->sgroup_count == pMolecule->reserved_sgroup_count)
-    {
-        int new_size = MOL_GuessNewSize(pMolecule->reserved_sgroup_count,
-                                        INCHIMOL_POLYMERUNITS_START_SIZE,
-                                        INCHIMOL_MAX_POLYMERUNITS);
-        if (new_size<0)
-        {
-            STATUS_PushMessage( hStatus, IXA_STATUS_ERROR, "Out of memory" );
-            return IXA_POLYMERUNITID_INVALID;
-        }
-        temp = (INCHIMOL_SGROUP**) inchi_calloc( new_size, sizeof( INCHIMOL_SGROUP* ) );
-        if (!temp)
-        {
-            STATUS_PushMessage( hStatus, IXA_STATUS_ERROR, "Out of memory" );
-            return IXA_POLYMERUNITID_INVALID;
-        }
-        if (pMolecule->polymer->units)
-        {
-            memcpy( temp, pMolecule->polymer->units, pMolecule->sgroup_count * sizeof( INCHIMOL_SGROUP* ) );
-            inchi_free( pMolecule->polymer->units );
-        }
-        pMolecule->polymer->units = temp;
-        pMolecule->reserved_sgroup_count = new_size;
-    }
+        memset(temp_ptr, 0, sizeof(INCHIMOL_SGROUP)); /* djb-rwth: memset_s C11/Annex K variant? */
+        inchi_free((pMolecule->polymer->units)[pMolecule->sgroup_count]);
+        pMolecule->polymer->units[pMolecule->sgroup_count] = temp_ptr;
 
-    temp_ptr = (INCHIMOL_SGROUP*) inchi_calloc( 1, sizeof( INCHIMOL_SGROUP ) );
-    if (!temp_ptr)
-    {
-        STATUS_PushMessage( hStatus, IXA_STATUS_ERROR, "Out of memory" );
-        return IXA_POLYMERUNITID_INVALID;
+        pMolecule->polymer->n++;
     }
-    memset( temp_ptr, 0, sizeof( INCHIMOL_SGROUP ) );
-    inchi_free( ( pMolecule->polymer->units )[pMolecule->sgroup_count] );
-    pMolecule->polymer->units[pMolecule->sgroup_count] = temp_ptr;
-
-    pMolecule->polymer->n++;
     return MOL_PackPolymerUnit( pMolecule->sgroup_count++ );
 }
 
@@ -721,7 +740,7 @@ IXA_MOL_HANDLE INCHI_DECL IXA_MOL_Create( IXA_STATUS_HANDLE hStatus )
         return NULL;
     }
 
-    memset( molecule, 0, sizeof( INCHIMOL ) );
+    memset( molecule, 0, sizeof( INCHIMOL ) ); /* djb-rwth: memset_s C11/Annex K variant? */
     return MOL_Pack( molecule );
 }
 
@@ -1440,7 +1459,11 @@ int INCHI_DECL IXA_MOL_ReserveSpace( IXA_STATUS_HANDLE hStatus,
             STATUS_PushMessage( hStatus, IXA_STATUS_ERROR, "Out of memory" );
             return 0;
         }
+#if USE_BCF
+        memcpy_s( tempa, (long long)(molecule->atom_count)*sizeof(INCHIMOL_ATOM) + 1, molecule->atoms, molecule->atom_count * sizeof( INCHIMOL_ATOM ) ); /* djb-rwth: function replaced with its safe C11 variant */
+#else
         memcpy( tempa, molecule->atoms, molecule->atom_count * sizeof( INCHIMOL_ATOM ) );
+#endif
         inchi_free( molecule->atoms );
         molecule->atoms = tempa;
         molecule->reserved_atom_count = num_atoms;
@@ -1453,7 +1476,11 @@ int INCHI_DECL IXA_MOL_ReserveSpace( IXA_STATUS_HANDLE hStatus,
             STATUS_PushMessage( hStatus, IXA_STATUS_ERROR, "Out of memory" );
             return 0;
         }
+#if USE_BCF
+        memcpy_s( tempb, (long long)(molecule->bond_count)*sizeof(INCHIMOL_BOND) + 1, molecule->bonds, molecule->bond_count * sizeof( INCHIMOL_BOND ) ); /* djb-rwth: function replaced with its safe C11 variant */
+#else
         memcpy( tempb, molecule->bonds, molecule->bond_count * sizeof( INCHIMOL_BOND ) );
+#endif
         inchi_free( molecule->bonds );
         molecule->bonds = tempb;
         molecule->reserved_bond_count = num_bonds;
@@ -1466,7 +1493,11 @@ int INCHI_DECL IXA_MOL_ReserveSpace( IXA_STATUS_HANDLE hStatus,
             STATUS_PushMessage( hStatus, IXA_STATUS_ERROR, "Out of memory" );
             return 0;
         }
+#if USE_BCF
+        memcpy_s( temps, (long long)(molecule->stereo_count)*sizeof(INCHIMOL_STEREO) + 1, molecule->stereos, molecule->stereo_count * sizeof( INCHIMOL_STEREO ) ); /* djb-rwth: function replaced with its safe C11 variant */
+#else
         memcpy( temps, molecule->stereos, molecule->stereo_count * sizeof( INCHIMOL_STEREO ) );
+#endif
         inchi_free( molecule->stereos );
         molecule->stereos = temps;
         molecule->reserved_stereo_count = num_stereos;
@@ -1566,7 +1597,11 @@ IXA_BONDID INCHI_DECL IXA_MOL_CreateBond( IXA_STATUS_HANDLE hStatus,
             STATUS_PushMessage( hStatus, IXA_STATUS_ERROR, "Out of memory" );
             return IXA_BONDID_INVALID;
         }
+#if USE_BCF
+        memcpy_s( temp, (long long)(molecule->bond_count)*sizeof(INCHIMOL_BOND) + 1, molecule->bonds, molecule->bond_count * sizeof( INCHIMOL_BOND ) ); /* djb-rwth: function replaced with its safe C11 variant */
+#else
         memcpy( temp, molecule->bonds, molecule->bond_count * sizeof( INCHIMOL_BOND ) );
+#endif
         inchi_free( molecule->bonds );
         molecule->bonds = temp;
         molecule->reserved_bond_count = new_size;
@@ -2380,9 +2415,15 @@ void INCHI_DECL IXA_MOL_SetPolymerUnit( IXA_STATUS_HANDLE hStatus,
     sgrouptr->na        = vna;
     sgrouptr->nb        = vnb;
 
-    memcpy( sgrouptr->xbr1, vxbr1, sizeof(vxbr1[0])*4 );
-    memcpy( sgrouptr->xbr1, vxbr2, sizeof(vxbr2[0])*4 );
-    memcpy( sgrouptr->smt, vsmt, sizeof(vsmt[0])* 80 );
+#if USE_BCF
+    memcpy_s( sgrouptr->xbr1, sizeof(vxbr1[0])*4, vxbr1, sizeof(vxbr1[0])*4 ); /* djb-rwth: function replaced with its safe C11 variant */
+    memcpy_s( sgrouptr->xbr1, sizeof(vxbr2[0])*4, vxbr2, sizeof(vxbr2[0])*4 ); /* djb-rwth: function replaced with its safe C11 variant */
+    memcpy_s( sgrouptr->smt, sizeof(vsmt[0])*80, vsmt, sizeof(vsmt[0])* 80 ); /* djb-rwth: function replaced with its safe C11 variant */
+#else
+    memcpy(sgrouptr->xbr1, vxbr1, sizeof(vxbr1[0]) * 4);
+    memcpy(sgrouptr->xbr1, vxbr2, sizeof(vxbr2[0]) * 4);
+    memcpy(sgrouptr->smt, vsmt, sizeof(vsmt[0]) * 80);
+#endif
 
     temp = (int *) inchi_calloc( vna, sizeof( int ) );
     if (!temp)
@@ -2390,16 +2431,24 @@ void INCHI_DECL IXA_MOL_SetPolymerUnit( IXA_STATUS_HANDLE hStatus,
         STATUS_PushMessage( hStatus, IXA_STATUS_ERROR, "Out of memory in IXA_MOL_SetPolymerUnit" );
         return;
     }
+#if USE_BCF
+    memcpy_s( temp, (long long)vna*sizeof(valist[0]) + 1, valist, vna * sizeof( valist[0] ) ); /* djb-rwth: function replaced with its safe C11 variant; cast operator added */
+#else
     memcpy( temp, valist, vna * sizeof( valist[0] ) );
+#endif
     inchi_free( sgrouptr->alist );
     sgrouptr->alist = temp;
-    temp = (int *) inchi_calloc( 2*vnb, sizeof( vblist[0]) );
+    temp = (int *) inchi_calloc( 2*(long long)vnb, sizeof( vblist[0]) ); /* djb-rwth: cast operator added */
     if (!temp)
     {
         STATUS_PushMessage( hStatus, IXA_STATUS_ERROR, "Out of memory in IXA_MOL_SetPolymerUnit" );
         return;
     }
-    memcpy( temp, vblist, 2*vnb * sizeof( vblist[0] ) );
+#if USE_BCF
+    memcpy_s( temp, 2*(long long)vnb*sizeof(vblist[0]) + 1, vblist, 2*(long long)vnb * sizeof( vblist[0] ) ); /* djb-rwth: cast operator added; function replaced with its safe C11 variant */
+#else
+    memcpy( temp, vblist, 2*(long long)vnb * sizeof( vblist[0] ) ); /* djb-rwth: cast operator added */
+#endif
     inchi_free( sgrouptr->blist );
     sgrouptr->blist = temp;
 
@@ -2448,7 +2497,7 @@ int  IXA_MOL_SetExtMolDataByInChIExtInput( IXA_STATUS_HANDLE    hStatus,
                 STATUS_PushMessage( hStatus, IXA_STATUS_ERROR, "Polymer data error, no memory " );
                 return IXA_EXT_POLYMER_INVALID;
             }
-            memset( molecule->polymer->units, 0, sizeof( *( molecule->polymer->units ) ) );
+            memset( molecule->polymer->units, 0, sizeof( *( molecule->polymer->units ) ) ); /* djb-rwth: memset_s C11/Annex K variant? */
 
             molecule->polymer->n = n;
 
@@ -2462,7 +2511,7 @@ int  IXA_MOL_SetExtMolDataByInChIExtInput( IXA_STATUS_HANDLE    hStatus,
                     STATUS_PushMessage( hStatus, IXA_STATUS_ERROR, "Polymer data error, no memory " );
                     return IXA_EXT_POLYMER_INVALID;
                 }
-                memset( unitk, 0, sizeof( *unitk ) );
+                memset( unitk, 0, sizeof( *unitk ) ); /* djb-rwth: memset_s C11/Annex K variant? */
 
                 unitk->id = groupk->id;
                 unitk->type = groupk->type;
@@ -2475,7 +2524,11 @@ int  IXA_MOL_SetExtMolDataByInChIExtInput( IXA_STATUS_HANDLE    hStatus,
                     unitk->xbr1[q] = groupk->xbr1[q];
                     unitk->xbr2[q] = groupk->xbr2[q];
                 }
+#if USE_BCF
+                strcpy_s( unitk->smt, sizeof(unitk->smt) + 1, groupk->smt ); /* djb-rwth: function replaced with its safe C11 variant */
+#else
                 strcpy( unitk->smt, groupk->smt );
+#endif
                 unitk->na = groupk->na;
                 unitk->alist = (int *) inchi_calloc( unitk->na, sizeof( int ) );
                 if (!unitk->alist)
@@ -2490,7 +2543,7 @@ int  IXA_MOL_SetExtMolDataByInChIExtInput( IXA_STATUS_HANDLE    hStatus,
                 unitk->nb = groupk->nb;
                 if (unitk->nb > 0)
                 {
-                    unitk->blist = (int *) inchi_calloc( 2 * unitk->nb, sizeof( int ) );
+                    unitk->blist = (int *) inchi_calloc( 2 * (long long)unitk->nb, sizeof( int ) ); /* djb-rwth: cast operator added */
                     if (!unitk->blist)
                     {
                         STATUS_PushMessage( hStatus, IXA_STATUS_ERROR, "Polymer data error, no memory" );
@@ -2521,7 +2574,7 @@ int  IXA_MOL_SetExtMolDataByInChIExtInput( IXA_STATUS_HANDLE    hStatus,
             STATUS_PushMessage( hStatus, IXA_STATUS_ERROR, "V3000 data error, no memory" );
             return IXA_EXT_V3000_INVALID;
         }
-        memset( molecule->v3000, 0, sizeof( *molecule->v3000 ) );
+        memset( molecule->v3000, 0, sizeof( *molecule->v3000 ) ); /* djb-rwth: memset_s C11/Annex K variant? */
 
         molecule->v3000->n_collections = v3000->n_collections;
         molecule->v3000->n_haptic_bonds = v3000->n_haptic_bonds;
@@ -2542,7 +2595,11 @@ int  IXA_MOL_SetExtMolDataByInChIExtInput( IXA_STATUS_HANDLE    hStatus,
                 STATUS_PushMessage( hStatus, IXA_STATUS_ERROR, "V3000 data error, no memory" );
                 return IXA_EXT_V3000_INVALID;
             }
+#if USE_BCF
+            memcpy_s(molecule->v3000->atom_index_orig, (long long)nat + 1, v3000->atom_index_orig, nat); /* djb-rwth: function replaced with its safe C11 variant */
+#else
             memcpy( molecule->v3000->atom_index_orig, v3000->atom_index_orig, nat );
+#endif
         }
         if (v3000->atom_index_fin)
         {
@@ -2552,7 +2609,11 @@ int  IXA_MOL_SetExtMolDataByInChIExtInput( IXA_STATUS_HANDLE    hStatus,
                 STATUS_PushMessage( hStatus, IXA_STATUS_ERROR, "V3000 data error, no memory" );
                 return IXA_EXT_V3000_INVALID;
             }
+#if USE_BCF
+            memcpy_s( molecule->v3000->atom_index_fin, (long long)nat + 1, v3000->atom_index_fin, nat ); /* djb-rwth: function replaced with its safe C11 variant */
+#else
             memcpy( molecule->v3000->atom_index_fin, v3000->atom_index_fin, nat );
+#endif
         }
         if (v3000->n_haptic_bonds && v3000->lists_haptic_bonds)
         {

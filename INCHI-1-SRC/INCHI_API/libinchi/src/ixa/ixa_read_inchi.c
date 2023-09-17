@@ -37,6 +37,7 @@
 #include "../../../../INCHI_BASE/src/mode.h"
 #include "../../../../INCHI_BASE/src/inchi_api.h"
 #include "../../../../INCHI_BASE/src/util.h"
+#include "../../../../INCHI_BASE/src/bcf_s.h"
 #include "ixa_mol.h"
 #include "ixa_status.h"
 

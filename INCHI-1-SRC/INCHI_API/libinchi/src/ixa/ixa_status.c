@@ -34,6 +34,7 @@
 
 #include "../../../../INCHI_BASE/src/mode.h"
 #include "../../../../INCHI_BASE/src/inchi_api.h"
+#include "../../../../INCHI_BASE/src/bcf_s.h"
 #include "ixa_status.h"
 #include <string.h>
 #include <stdarg.h>
@@ -174,7 +175,11 @@ void STATUS_PushMessage( IXA_STATUS_HANDLE hStatus,
     /* VC6 insists on having _vsnprintf */
     size = _vsnprintf( buffer, sizeof( buffer ), pFormat, arguments ) + 1;
 #else
+#if USE_BCF
+    size = vsnprintf_s( buffer, sizeof(buffer), sizeof( buffer ), pFormat, arguments ) + 1; /* djb-rwth: function replaced with its safe C11 variant */
+#else
     size = vsnprintf( buffer, sizeof( buffer ), pFormat, arguments ) + 1;
+#endif
 #endif
     va_end( arguments );
 
@@ -192,7 +197,11 @@ void STATUS_PushMessage( IXA_STATUS_HANDLE hStatus,
     item->message = (char *) inchi_malloc( size );
     if (item->message)
     {
+#if USE_BCF
+        strcpy_s( item->message, (long long)size, buffer ); /* djb-rwth: function replaced with its safe C11 variant; cast operator added */
+#else
         strcpy( item->message, buffer );
+#endif
     }
 }
 

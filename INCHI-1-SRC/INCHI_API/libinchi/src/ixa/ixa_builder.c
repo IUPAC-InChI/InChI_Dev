@@ -35,6 +35,7 @@
 #include "../../../../INCHI_BASE/src/mode.h"
 #include "../../../../INCHI_BASE/src/inchi_api.h"
 #include "../../../../INCHI_BASE/src/inpdef.h"
+#include "../../../../INCHI_BASE/src/bcf_s.h"
 #include "ixa_status.h"
 #include "ixa_mol.h"
 #include <ctype.h>
@@ -435,9 +436,17 @@ static void AppendOption( char *pString,
 {
     if (pString[0] != '\0')
     {
-        strcat( pString, " " );
+#if USE_BCF
+        strcat_s( pString, sizeof(pString) + 1, " "); /* djb-rwth: function replaced with its safe C11 variant */
+#else
+        strcat(pString, " "); strcat(pString, " ");
+#endif
     }
-    strcat( pString, pOption );
+#if USE_BCF
+    strcat_s( pString, strlen(pOption) + 1, pOption); /* djb-rwth: function replaced with its safe C11 variant */
+#else
+    strcat(pString, pOption);
+#endif
 }
 
 
@@ -616,7 +625,11 @@ static void BUILDER_Update( IXA_STATUS_HANDLE hStatus,
     }
     if (pBuilder->option_WMnumber > 0)
     {
+#if USE_BCF
+        sprintf_s( buffer, sizeof(buffer) + 1, OPTION_PREFIX "WM%ld", (long)pBuilder->option_WMnumber ); /* djb-rwth: function replaced with its safe C11 variant */
+#else
         sprintf( buffer, OPTION_PREFIX "WM%ld", (long)pBuilder->option_WMnumber );
+#endif
         AppendOption( options, buffer );
     }
     if (pBuilder->option_WarnOnEmptyStructure)
@@ -761,7 +774,11 @@ static void BUILDER_Update( IXA_STATUS_HANDLE hStatus,
         if (output.szInChI)
         {
             pBuilder->inchi = (char *) inchi_malloc( strlen( output.szInChI ) + 1 );
+#if USE_BCF
+            strcpy_s( pBuilder->inchi, strlen(output.szInChI) + 1, output.szInChI ); /* djb-rwth: function replaced with its safe C11 variant */
+#else
             strcpy( pBuilder->inchi, output.szInChI );
+#endif
         }
 
         inchi_free( pBuilder->auxinfo );
@@ -769,7 +786,11 @@ static void BUILDER_Update( IXA_STATUS_HANDLE hStatus,
         if (output.szAuxInfo)
         {
             pBuilder->auxinfo = (char *) inchi_malloc( strlen( output.szAuxInfo ) + 1 );
+#if USE_BCF
+            strcpy_s( pBuilder->auxinfo, strlen(output.szAuxInfo) + 1, output.szAuxInfo ); /* djb-rwth: function replaced with its safe C11 variant */
+#else
             strcpy( pBuilder->auxinfo, output.szAuxInfo );
+#endif
         }
 
         inchi_free( pBuilder->log );
@@ -777,7 +798,11 @@ static void BUILDER_Update( IXA_STATUS_HANDLE hStatus,
         if (output.szLog)
         {
             pBuilder->log = (char *) inchi_malloc( strlen( output.szLog ) + 1 );
+#if USE_BCF
+            strcpy_s( pBuilder->log, strlen(output.szLog) + 1, output.szLog ); /* djb-rwth: function replaced with its safe C11 variant */
+#else
             strcpy( pBuilder->log, output.szLog );
+#endif
         }
     }
 
@@ -797,7 +822,7 @@ IXA_INCHIBUILDER_HANDLE INCHI_DECL IXA_INCHIBUILDER_Create( IXA_STATUS_HANDLE hS
         return NULL;
     }
 
-    memset( &builder->molecule, 0, sizeof( builder->molecule ) );
+    memset( &builder->molecule, 0, sizeof( builder->molecule ) ); /* djb-rwth: memset_s C11/Annex K variant? */
     BUILDER_ClearOptions( builder );
     builder->dirty = IXA_FALSE;
     builder->inchi = NULL;
@@ -879,7 +904,11 @@ void INCHI_DECL IXA_INCHIBUILDER_SetMolecule( IXA_STATUS_HANDLE hStatus,
             {
                 return;
             }
+#if USE_BCF
+            strcpy_s( builder->molecule.atom[atom_index].elname, strlen(element) + 1, element); /* djb-rwth: function replaced with its safe C11 variant */
+#else
             strcpy( builder->molecule.atom[atom_index].elname, element );
+#endif
             builder->molecule.atom[atom_index].x = IXA_MOL_GetAtomX( hStatus, hMolecule, atom );
             if (IXA_STATUS_HasError( hStatus ))
             {
@@ -1261,10 +1290,10 @@ void INCHI_DECL IXA_INCHIBUILDER_SetMolecule( IXA_STATUS_HANDLE hStatus,
                 case IXA_STEREO_TOPOLOGY_ANTIRECTANGLE:
                 {
                     IXA_ATOMID central_atom;
-                    IXA_ATOMID internal1;
+                    IXA_ATOMID internal1 = NULL; /* djb-rwth: fixing uninitialised value in 5th call of IsRectOrAntiRectCentre */
                     IXA_ATOMID vertex1a;
                     IXA_ATOMID vertex1b;
-                    IXA_ATOMID internal2;
+                    IXA_ATOMID internal2 = NULL; /* djb-rwth: fixing uninitialised value in 8th call of IsRectOrAntiRectCentre */
                     IXA_ATOMID vertex2a;
                     IXA_ATOMID vertex2b;
                     IXA_BOOL   flag;
@@ -1402,7 +1431,7 @@ void INCHI_DECL IXA_INCHIBUILDER_SetMolecule( IXA_STATUS_HANDLE hStatus,
                         STATUS_PushMessage( hStatus, IXA_STATUS_ERROR, "Out of memory" );
                         return;
                     }
-                    memset( builder->molecule.polymer->units, 0, sizeof( *( builder->molecule.polymer->units ) ) );
+                    memset( builder->molecule.polymer->units, 0, sizeof( *( builder->molecule.polymer->units ) ) ); /* djb-rwth: memset_s C11/Annex K variant? */
                 }
                 for (k = 0; k < builder->molecule.polymer->n; k++)
                 {
@@ -1414,7 +1443,7 @@ void INCHI_DECL IXA_INCHIBUILDER_SetMolecule( IXA_STATUS_HANDLE hStatus,
                         STATUS_PushMessage( hStatus, IXA_STATUS_ERROR, "Out of memory" );
                         return;
                     }
-                    memset( unitk, 0, sizeof( *unitk ) );
+                    memset( unitk, 0, sizeof( *unitk ) ); /* djb-rwth: memset_s C11/Annex K variant? */
 
                     unitk->id = groupk->id;
                     unitk->type = groupk->type;
@@ -1427,7 +1456,11 @@ void INCHI_DECL IXA_INCHIBUILDER_SetMolecule( IXA_STATUS_HANDLE hStatus,
                         unitk->xbr1[q] = groupk->xbr1[q];
                         unitk->xbr2[q] = groupk->xbr2[q];
                     }
+#if USE_BCF
+                    strcpy_s( unitk->smt, sizeof(unitk->smt) + 1, groupk->smt ); /* djb-rwth: function replaced with its safe C11 variant */
+#else
                     strcpy( unitk->smt, groupk->smt );
+#endif
                     unitk->na = groupk->na;
                     unitk->alist = (int *) inchi_calloc( unitk->na, sizeof( int ) );
                     if (!unitk->alist)
@@ -1442,7 +1475,7 @@ void INCHI_DECL IXA_INCHIBUILDER_SetMolecule( IXA_STATUS_HANDLE hStatus,
                     unitk->nb = groupk->nb;
                     if (unitk->nb > 0)
                     {
-                        unitk->blist = (int *) inchi_calloc( 2 * unitk->nb, sizeof( int ) );
+                        unitk->blist = (int *) inchi_calloc( 2 * (long long)unitk->nb, sizeof( int ) ); /* djb-rwth: cast operator added */
                         if (!unitk->blist)
                         {
                             STATUS_PushMessage( hStatus, IXA_STATUS_ERROR, "Out of memory" );
@@ -1471,7 +1504,7 @@ void INCHI_DECL IXA_INCHIBUILDER_SetMolecule( IXA_STATUS_HANDLE hStatus,
                     STATUS_PushMessage( hStatus, IXA_STATUS_ERROR, "Out of memory" );
                     return;
                 }
-                memset( builder->molecule.v3000, 0, sizeof( inchi_Input_V3000 ) );
+                memset( builder->molecule.v3000, 0, sizeof( inchi_Input_V3000 ) ); /* djb-rwth: memset_s C11/Annex K variant? */
 
                 builder->molecule.v3000->n_collections = molecule->v3000->n_collections;
                 builder->molecule.v3000->n_haptic_bonds = molecule->v3000->n_haptic_bonds;
@@ -1492,7 +1525,11 @@ void INCHI_DECL IXA_INCHIBUILDER_SetMolecule( IXA_STATUS_HANDLE hStatus,
                         STATUS_PushMessage( hStatus, IXA_STATUS_ERROR, "Out of memory" );
                         return;
                     }
+#if USE_BCF
+                    memcpy_s( builder->molecule.v3000->atom_index_orig, (long long)nat + 1, molecule->v3000->atom_index_orig, nat ); /* djb-rwth: function replaced with its safe C11 variant; cast operator added */
+#else
                     memcpy( builder->molecule.v3000->atom_index_orig, molecule->v3000->atom_index_orig, nat );
+#endif
                 }
                 if (molecule->v3000->atom_index_fin)
                 {
@@ -1502,7 +1539,11 @@ void INCHI_DECL IXA_INCHIBUILDER_SetMolecule( IXA_STATUS_HANDLE hStatus,
                         STATUS_PushMessage( hStatus, IXA_STATUS_ERROR, "Out of memory" );
                         return;
                     }
+#if USE_BCF
+                    memcpy_s( builder->molecule.v3000->atom_index_fin, (long long)nat + 1, molecule->v3000->atom_index_fin, nat ); /* djb-rwth: function replaced with its safe C11 variant; cast operator added */
+#else
                     memcpy( builder->molecule.v3000->atom_index_fin, molecule->v3000->atom_index_fin, nat );
+#endif
                 }
                 if (molecule->v3000->n_haptic_bonds && molecule->v3000->lists_haptic_bonds)
                 {
@@ -1862,7 +1903,7 @@ IXA_BOOL INCHI_DECL IXA_INCHIBUILDER_CheckOption( IXA_STATUS_HANDLE hStatus,
     }
     else if (vOption == IXA_INCHIBUILDER_OPTION_Polymers)
     {
-        builder->option_Polymers;
+        val = builder->option_Polymers; /* djb-rwth: lvalue added */
     }
     else if (vOption == IXA_INCHIBUILDER_OPTION_Polymers105)
     {
