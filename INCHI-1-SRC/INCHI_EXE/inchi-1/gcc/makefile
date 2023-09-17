@@ -95,7 +95,7 @@ $(P_LIBR)/util.c	\
 $(P_MAIN)/dispstru.c	\
 $(P_MAIN)/mol2atom.c	\
 $(P_MAIN)/ichimain.c	\
-$(P_MAIN)/bcf_s.c
+$(P_LIBR)/bcf_s.c
 #
 INCHI_OBJS = ichi_bns.o	\
 ichi_io.o	\
