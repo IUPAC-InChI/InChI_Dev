@@ -29,7 +29,7 @@ endif
 INCHI_LIB_PATHNAME = $(LIB_DIR)/$(INCHI_LIB_NAME)
 # === Main program name ====
 ifndef API_CALLER_NAME
-  ifndef CALLER_IS_MOL2INCHI
+  ifndef CALLER_IS_MOL2INCHI 
   API_CALLER_NAME = inchi_main$
   else
   API_CALLER_NAME = mol2inchi$
@@ -72,7 +72,7 @@ ifndef C_OPTIONS
   ifndef CALLER_IS_MOL2INCHI
 	C_OPTIONS = -std=c11 -ansi -O3 -c
   else
-	C_OPTIONS = -std= c11 -O3 -c
+	C_OPTIONS = -std=c11 -O3 -c  
   endif
   ifdef ISLINUX
 	ifndef C_SO_OPTIONS
@@ -180,7 +180,8 @@ runichi3.o	\
 runichi4.o	\
 sha2.o	\
 strutil.o	\
-util.o
+util.o \
+bcf_s.o
 # === InChI Library link rule =========
 $(INCHI_LIB_PATHNAME).so$(VERSION): $(INCHI_LIB_OBJS)
 	$(SHARED_LINK) $(SHARED_LINK_PARM) -o $(INCHI_LIB_PATHNAME).so$(VERSION)	\
@@ -194,7 +195,3 @@ $(INCHI_LIB_PATHNAME).so$(MAIN_VERSION)
 	$(C_COMPILER) $(C_SO_OPTIONS) $(C_OPTIONS) $<
 %.o: $(P_BASE)%.c
 	$(C_COMPILER) $(C_SO_OPTIONS) $(C_OPTIONS) $<
-
-.PHONY: clean
-clean:
-	rm -f $(INCHI_LIB_OBJS)
