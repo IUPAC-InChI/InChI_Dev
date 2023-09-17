@@ -61,7 +61,7 @@
 
 #include <string.h>
 
-#include "bcf_s.h"
+#include "../../../INCHI_BASE/src/bcf_s.h"
 
 /* Font size */
 #define FONT_NAME "Arial"     /* "MS Sans Serif"; */
@@ -1437,7 +1437,7 @@ int MoveHydrogenAtomToTheLeft( char *s,int  start, int  H )
             return start; /* too long string */
         }
 #if USE_BCF
-        memcpy_s( szBuffer, sizeof(szBuffer) + len, pH, len ); /* djb-rwth: function replaced with its safe C11 variant */
+        memcpy_s( szBuffer, sizeof(szBuffer), pH, len ); /* djb-rwth: function replaced with its safe C11 variant */
         memmove_s( s + len, sizeof(s) + len, s, pH - s); /* djb-rwth: function replaced with its safe C11 variant */
         memmove_s( s, sizeof(s) + len, szBuffer, len ); /* djb-rwth: function replaced with its safe C11 variant */
 #else

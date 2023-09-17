@@ -73,7 +73,7 @@
 #include "../../../INCHI_BASE/src/inchi_api.h"
 #endif
 
-#include "bcf_s.h"
+#include "../../../INCHI_BASE/src/bcf_s.h"
 
 int ret_val; /* djb-rwth: variable added for return value */
 
@@ -1464,9 +1464,9 @@ void shuffle(void *obj, size_t nmemb, size_t size)
     {
         size_t k = rrand((int)n--);
 #if USE_BCF
-        memcpy_s(temp, sizeof(temp) + size, BYTE(obj) + n*size, size); /* djb-rwth: function replaced with its safe C11 variant */
-        memcpy_s(BYTE(obj) + n*size, sizeof(BYTE(obj)) + size, BYTE(obj) + k*size, size); /* djb-rwth: function replaced with its safe C11 variant */
-        memcpy_s(BYTE(obj) + k*size, sizeof(BYTE(obj)) + size, temp, size); /* djb-rwth: function replaced with its safe C11 variant */
+        memcpy_s(temp, size, BYTE(obj) + n*size, size); /* djb-rwth: function replaced with its safe C11 variant */
+        memcpy_s(BYTE(obj) + n*size, size, BYTE(obj) + k*size, size); /* djb-rwth: function replaced with its safe C11 variant */
+        memcpy_s(BYTE(obj) + k*size, size, temp, size); /* djb-rwth: function replaced with its safe C11 variant */
 #else
         memcpy(temp, BYTE(obj) + n * size, size);
         memcpy(BYTE(obj) + n * size, BYTE(obj) + k * size, size);
