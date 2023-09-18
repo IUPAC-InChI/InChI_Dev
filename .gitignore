@@ -2,8 +2,8 @@
 *.so*
 *.log
 *_regression.sqlite
-tests/data/pubchem/*.sdf.gz
-tests/data/pubchem/*.sqlite
+INCHI-1-TEST/data/pubchem/*.sdf.gz
+INCHI-1-TEST/data/pubchem/*.sqlite
 __pycache__
 .pytest_cache
 */test/datasets

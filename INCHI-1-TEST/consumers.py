@@ -1,8 +1,8 @@
 import ctypes
 from typing import Callable
 from sdf_pipeline import utils
-from tests.inchi_api import make_inchi_from_molfile_text
-from tests.config import INCHI_API_PARAMETERS
+from .inchi_api import make_inchi_from_molfile_text
+from .config import INCHI_API_PARAMETERS
 
 
 def regression_consumer(

@@ -9,7 +9,7 @@ Alternatively, you can run the tests in a plain Docker container.
 Build a Docker image from the [Dockerfile](../Dockerfile) with
 
 ```Shell
-docker build -t inchi-tests ./tests
+docker build -t inchi-tests ./INCHI-1-TEST
 ```
 , and subsequently drop into a terminal in the Docker container by running
 
@@ -30,21 +30,21 @@ docker run --rm -v $(pwd):/inchi inchi-tests bash -c "cd inchi && <command>"
 
 In the following instructions `<dataset>` refers to either `ci`
 (i.e, continuous integration, aka the tests running on GitHub) or `pubchem`.
-The `ci` data already lives in the repository (the `mcule.sdf.gz` and `inchi.sdf.gz` files under `tests/data/ci`).
+The `ci` data already lives in the repository (the `mcule.sdf.gz` and `inchi.sdf.gz` files under `INCHI-1-TEST/data/ci`).
 The `pubchem` data doesn't live in the repository since it's too large.
 You can download the `pubchem` data from https://ftp.ncbi.nlm.nih.gov/pubchem/Compound/CURRENT-Full/SDF/ by running
 
 ```Shell
-python -m tests.data.pubchem.download
+python -m INCHI-1-TEST.data.pubchem.download
 ```
 
 ## Compute reference
 
 ```Shell
-python -m tests.compute_regression_reference <dataset>
+python -m INCHI-1-TEST.compute_regression_reference <dataset>
 ```
 downloads `libinchi.so.1.06.00`, the shared library belonging to the current stable InChI release,
-and generates an `<SDF>.regression_reference.sqlite` file for each SDF under `tests/data/<dataset>`.
+and generates an `<SDF>.regression_reference.sqlite` file for each SDF under `INCHI-1-TEST/data/<dataset>`.
 The `sqlite` file contains a table with the InChI strings for each molfile.
 
 For example,
@@ -58,12 +58,12 @@ For example,
 ## Run tests
 
 ```Shell
-python -m tests.run_regression_tests <dataset>
+python -m INCHI-1-TEST.run_regression_tests <dataset>
 ```
 compiles the shared library `libinchi.so.dev` from the current state of the repository.
-It then uses this library to compute the InChI strings for each molfile in each SDF under `tests/data/<dataset>`.
+It then uses this library to compute the InChI strings for each molfile in each SDF under `INCHI-1-TEST/data/<dataset>`.
 Those strings are compared with the corresponding reference.
-Failed comparisons are logged to `<datetime>.regression.sqlite`,
+Failed comparisons are logged to `<datetime>.regression.sqlite` (where `<datetime>` reflects the start of the test run),
 as `<current result> != <reference result>`.
 
 For example,

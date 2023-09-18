@@ -3,8 +3,8 @@ import subprocess
 from functools import partial
 from typing import Final
 from sdf_pipeline import drivers, utils
-from tests.consumers import regression_consumer
-from tests.config import (
+from .consumers import regression_consumer
+from .config import (
     INCHI_REFERENCE_LIB_PATH,
     DATASETS,
     TEST_PATH,
