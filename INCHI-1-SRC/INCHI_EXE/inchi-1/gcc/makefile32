@@ -29,54 +29,54 @@ P_INCL = -I$(P_MAIN) -I$(P_BASE)
 C_COMPILER_OPTIONS = $(P_INCL) -m32 -ansi -DCOMPILE_ANSI_ONLY -DTARGET_EXE_STANDALONE -O3 -c
 CPP_COMPILER_OPTIONS = $(P_INCL) -m32 -D_LIB -DTARGET_EXE_STANDALONE -ansi -O3 -frtti -c
 LINKER_OPTIONS = -m32
-INCHI_SRCS = $(P_LIBR)/ichi_bns.c	\
-$(P_LIBR)/ichi_io.c	\
-$(P_LIBR)/ichican2.c	\
-$(P_LIBR)/ichicano.c	\
-$(P_LIBR)/ichicans.c	\
-$(P_LIBR)/ichierr.c	\
-$(P_LIBR)/ichiprt3.c	\
-$(P_LIBR)/ichiisot.c	\
-$(P_LIBR)/ichimake.c	\
-$(P_LIBR)/ichiqueu.c	\
-$(P_LIBR)/ichiring.c	\
-$(P_LIBR)/ichierr.c	\
-$(P_LIBR)/ichimap1.c	\
-$(P_LIBR)/ichimap2.c	\
-$(P_LIBR)/ichimap4.c	\
-$(P_LIBR)/ichimak2.c	\
-$(P_LIBR)/ichinorm.c	\
-$(P_LIBR)/ichiparm.c	\
-$(P_LIBR)/ichiprt1.c	\
-$(P_LIBR)/ichiprt2.c	\
-$(P_LIBR)/ichirvr1.c	\
-$(P_LIBR)/ichirvr2.c	\
-$(P_LIBR)/ichirvr3.c	\
-$(P_LIBR)/ichirvr4.c	\
-$(P_LIBR)/ichirvr5.c	\
-$(P_LIBR)/ichirvr6.c	\
-$(P_LIBR)/ichirvr7.c	\
-$(P_LIBR)/ichisort.c	\
-$(P_LIBR)/ichister.c	\
-$(P_LIBR)/ichitaut.c	\
-$(P_LIBR)/ikey_base26.c	\
-$(P_LIBR)/ikey_dll.c	\
-$(P_LIBR)/mol_fmt1.c	\
-$(P_LIBR)/mol_fmt2.c	\
-$(P_LIBR)/mol_fmt3.c	\
-$(P_LIBR)/mol_fmt4.c	\
-$(P_MAIN)/readinch.c	\
-$(P_LIBR)/runichi.c	\
-$(P_LIBR)/runichi2.c	\
-$(P_LIBR)/runichi3.c	\
-$(P_LIBR)/runichi4.c	\
-$(P_LIBR)/sha2.c	\
-$(P_LIBR)/strutil.c	\
-$(P_LIBR)/util.c	\
+INCHI_SRCS = $(P_BASE)/ichi_bns.c	\
+$(P_BASE)/ichi_io.c	\
+$(P_BASE)/ichican2.c	\
+$(P_BASE)/ichicano.c	\
+$(P_BASE)/ichicans.c	\
+$(P_BASE)/ichierr.c	\
+$(P_BASE)/ichiprt3.c	\
+$(P_BASE)/ichiisot.c	\
+$(P_BASE)/ichimake.c	\
+$(P_BASE)/ichiqueu.c	\
+$(P_BASE)/ichiring.c	\
+$(P_BASE)/ichierr.c	\
+$(P_BASE)/ichimap1.c	\
+$(P_BASE)/ichimap2.c	\
+$(P_BASE)/ichimap4.c	\
+$(P_BASE)/ichimak2.c	\
+$(P_BASE)/ichinorm.c	\
+$(P_BASE)/ichiparm.c	\
+$(P_BASE)/ichiprt1.c	\
+$(P_BASE)/ichiprt2.c	\
+$(P_BASE)/ichirvr1.c	\
+$(P_BASE)/ichirvr2.c	\
+$(P_BASE)/ichirvr3.c	\
+$(P_BASE)/ichirvr4.c	\
+$(P_BASE)/ichirvr5.c	\
+$(P_BASE)/ichirvr6.c	\
+$(P_BASE)/ichirvr7.c	\
+$(P_BASE)/ichisort.c	\
+$(P_BASE)/ichister.c	\
+$(P_BASE)/ichitaut.c	\
+$(P_BASE)/ikey_base26.c	\
+$(P_BASE)/ikey_dll.c	\
+$(P_BASE)/mol_fmt1.c	\
+$(P_BASE)/mol_fmt2.c	\
+$(P_BASE)/mol_fmt3.c	\
+$(P_BASE)/mol_fmt4.c	\
+$(P_BASE)/readinch.c	\
+$(P_BASE)/runichi.c	\
+$(P_BASE)/runichi2.c	\
+$(P_BASE)/runichi3.c	\
+$(P_BASE)/runichi4.c	\
+$(P_BASE)/sha2.c	\
+$(P_BASE)/strutil.c	\
+$(P_BASE)/util.c	\
 $(P_MAIN)/dispstru.c	\
-$(P_MAIN)/mol2atom.c	\
+$(P_BASE)/mol2atom.c	\
 $(P_MAIN)/ichimain.c	\
-$(P_LIBR)/bcf_s.c
+$(P_BASE)/bcf_s.c
 #
 INCHI_OBJS = ichi_bns.o	\
 ichi_io.o	\
