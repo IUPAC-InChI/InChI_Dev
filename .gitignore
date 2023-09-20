@@ -9,3 +9,4 @@ __pycache__
 */test/datasets
 */test/expected-results
 */test/results
+.vscode/
