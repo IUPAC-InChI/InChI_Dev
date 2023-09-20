@@ -2,7 +2,7 @@ import ctypes
 import subprocess
 from functools import partial
 from typing import Final
-from sdf_pipeline import drivers, utils
+from sdf_pipeline import drivers
 from .consumers import regression_consumer
 from .config import (
     INCHI_LIB_PATH,
@@ -11,7 +11,8 @@ from .config import (
     N_PROCESSES,
     get_molfile_id,
     get_dataset_arg,
-    show_progress,
+    get_progress,
+    get_current_time,
 )
 
 
@@ -20,7 +21,7 @@ if __name__ == "__main__":
 
     subprocess.run(f"{TEST_PATH}/compile_inchi_lib.sh", check=True)
 
-    time = utils.get_current_time()
+    time = get_current_time()
     INCHI_LIB: Final = ctypes.CDLL(str(INCHI_LIB_PATH))
     exit_code = 0
     sdf_paths = list(DATASETS[dataset]["sdf_paths"])
@@ -42,6 +43,6 @@ if __name__ == "__main__":
                 number_of_consumer_processes=N_PROCESSES,
             ),
         )
-        show_progress(i + 1, n_sdf)
+        print(f"{get_progress(i + 1, n_sdf)}; Ran regression tests on {sdf_path.name}.")
 
     raise SystemExit(exit_code)

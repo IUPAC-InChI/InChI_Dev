@@ -3,8 +3,8 @@ import os
 import argparse
 from typing import Final, Callable
 from pathlib import Path
+from datetime import datetime
 from sdf_pipeline.pubchem import get_id as _get_pubchem_id
-from sdf_pipeline.utils import get_current_time
 
 
 def get_molfile_id(sdf_path: Path) -> Callable:
@@ -45,10 +45,12 @@ def get_dataset_arg() -> str:
     return dataset
 
 
-def show_progress(current: int, total: int) -> None:
-    print(
-        f"{get_current_time()}: Processed {current}/{total} ({current / total * 100:.2f}%) SDFs"
-    )
+def get_current_time():
+    return datetime.now().isoformat(timespec="seconds")
+
+
+def get_progress(current: int, total: int) -> None:
+    return f"{get_current_time()}: Processed {current}/{total} ({current / total * 100:.2f}%) SDFs"
 
 
 INCHI_API_PARAMETERS: Final[str] = ""
