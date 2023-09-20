@@ -1,7 +1,7 @@
 *.o
 *.so*
 *.log
-*_regression.sqlite
+*_regression_test.sqlite
 INCHI-1-TEST/data/pubchem/*.sdf.gz
 INCHI-1-TEST/data/pubchem/*.sqlite
 __pycache__

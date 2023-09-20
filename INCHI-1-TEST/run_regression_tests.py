@@ -26,7 +26,7 @@ if __name__ == "__main__":
     exit_code = 0
     sdf_paths = list(DATASETS[dataset]["sdf_paths"])
     log_path = DATASETS[dataset]["log_path"].joinpath(
-        f"{datetime.now().strftime('%Y%m%dT%H%M%S')}_regression.sqlite"
+        f"{datetime.now().strftime('%Y%m%dT%H%M%S')}_regression_test.sqlite"
     )
     n_sdf = len(sdf_paths)
     print(
