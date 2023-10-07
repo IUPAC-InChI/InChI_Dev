@@ -1,7 +1,7 @@
 /*
  * International Chemical Identifier (InChI)
  * Version 1
- * Software version 1.06
+ * Software version 1.07
  * December 15, 2020
  *
  * The InChI library and programs are free software developed under the
@@ -880,7 +880,7 @@ void e_inchi_swap( char *a, char *b, size_t width )
 int e_insertions_sort( void *base,
                        size_t num,
                        size_t width,
-                       int( *compare )( const void *e1, const void *e2 ) )
+                       int( *compare )( const void*, const void* ) ) /* djb-rwth: types of variables are sufficient */
 {
     int* i;
     int* j;
@@ -934,15 +934,18 @@ int e_insertions_sort( void *base,
 #define MPY_SINE              3.00
 #define MAX_EDGE_RATIO        6.00   /*  max max/min edge ratio for a tetrahedra close to a parallelogram  */
 #endif
+
+#define ARR_DIM 3 /* djb-rwth: default dimension of arrays */
+
 /*  local prototypes */
 static double e_get_z_coord( inchi_Atom* at, int cur_atom, int neigh_no, int *nType, int bPointedEdgeStereo );
 static double e_len3( const double c[] );
 static double e_len2( const double c[] );
-static double* e_diff3( const double a[], const double b[], double result[] );
-static double* e_add3( const double a[], const double b[], double result[] );
-static double* e_mult3( const double a[], double b, double result[] );
-static double* e_copy3( const double a[], double result[] );
-static double* e_change_sign3( const double a[], double result[] );
+static void* e_diff3( const double a[], const double b[], double result[] );
+static void e_add3( const double a[], const double b[], double result[] );
+static void e_mult3( const double a[], double b, double result[] );
+/* static double* e_copy3(const double a[], double result[]); */
+static void e_change_sign3( const double a[], double result[] );
 static double e_dot_prod3( const double a[], const double b[] );
 static int e_dot_prodchar3( const S_CHAR a[], const S_CHAR b[] );
 static double* e_cross_prod3( const double a[], const double b[], double result[] );
@@ -1041,21 +1044,33 @@ double e_get_z_coord( inchi_Atom* at, int cur_atom, int neigh_no, int *nType, in
 
 /* djb-rwth: all mathematical functions have to be rewritten as the function arguments are arrays of various dimensions */
 /****************************************************************************/
-double e_len3( const double c[] )
+double e_len3( const double c[] ) /* djb-rwth: avoiding uninitialised values */
 {
-    return sqrt( c[0] * c[0] + c[1] * c[1] + c[2] * c[2] );
+    double tmpar[ARR_DIM] = { 0.0 };
+#if USE_BCF
+    memcpy_s(tmpar, sizeof(tmpar), c, ARR_DIM * sizeof(c[0]));
+#else
+    memcpy(tmpar, c, ARR_DIM * sizeof(c[0]));
+#endif
+    return sqrt(pow(tmpar[0], 2.0) + pow(tmpar[1], 2.0) + pow(tmpar[2], 2.0));
 }
 
 
 /****************************************************************************/
-double e_len2( const double c[] )
+double e_len2( const double c[] ) /* djb-rwth: avoiding uninitialised values */
 {
-    return sqrt( c[0] * c[0] + c[1] * c[1] );
+    double tmpar[ARR_DIM - 1] = { 0,0 };
+#if USE_BCF
+    memcpy_s(tmpar, sizeof(tmpar), c, (ARR_DIM - 1) * sizeof(c[0]));
+#else
+    memcpy(tmpar, c, (ARR_DIM - 1) * sizeof(c[0]));
+#endif
+    return sqrt(pow(tmpar[0], 2.0) + pow(tmpar[1], 2.0));
 }
 
 
 /****************************************************************************/
-double* e_diff3( const double a[], const double b[], double result[] )
+void* e_diff3( const double a[], const double b[], double result[] ) /* djb-rwth: changed function type */
 {
 
     result[0] = a[0] - b[0];
@@ -1067,29 +1082,29 @@ double* e_diff3( const double a[], const double b[], double result[] )
 
 
 /****************************************************************************/
-double* e_add3( const double a[], const double b[], double result[] )
+void e_add3( const double a[], const double b[], double result[] ) /* djb-rwth: changed function type */
 {
     result[0] = a[0] + b[0];
     result[1] = a[1] + b[1];
     result[2] = a[2] + b[2];
 
-    return result;
+    /* return result; */
 }
 
 
 /****************************************************************************/
-double* e_mult3( const double a[], double b, double result[] )
+void e_mult3( const double a[], double b, double result[] ) /* djb-rwth: changed function type */
 {
     result[0] = a[0] * b;
     result[1] = a[1] * b;
     result[2] = a[2] * b;
 
-    return result;
+    /* return result; */
 }
 
 
 /****************************************************************************/
-double* e_copy3( const double a[], double result[] )
+/* double* e_copy3(const double a[], double result[]) -- djb-rwth: removing the function completely
 {
     result[0] = a[0];
     result[1] = a[1];
@@ -1097,30 +1112,30 @@ double* e_copy3( const double a[], double result[] )
 
     return result;
 }
-
+*/
 
 /****************************************************************************/
-double* e_change_sign3( const double a[], double result[] )
+void e_change_sign3( const double a[], double result[] ) /* djb-rwth: changed function type */
 {
     result[0] = -a[0];
     result[1] = -a[1];
     result[2] = -a[2];
 
-    return result;
+    /* return result; */
 }
 
 
 /****************************************************************************/
 double e_dot_prod3( const double a[], const double b[] )
 {
-    return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+    return a[0]*b[0] + a[1]*b[1] + a[2]*b[2];
 }
 
 
 /****************************************************************************/
 int e_dot_prodchar3( const S_CHAR a[], const S_CHAR b[] )
 {
-    int prod = ( (int) a[0] * (int) b[0] + (int) a[1] * (int) b[1] + (int) a[2] * (int) b[2] ) / 100;
+    int prod = ( (int)a[0]*(int)b[0] + (int)a[1]*(int)b[1] + (int)a[2]*(int)b[2] ) / 100;
     if (prod > 100)
     {
         prod = 100;
@@ -2796,7 +2811,12 @@ int e_half_stereo_bond_parity( inchi_Atom *at,
     /*  find at_coord in the new basis of {pnt[p0], pnt[p1], pnt[p2]} */
     for (j = 0; j < 3; j++)
     {
-        e_copy3( at_coord[j], temp );
+        /* e_copy3(at_coord[j], temp); -- djb-rwth: removing copy3 function */
+#if USE_BCF
+        memcpy_s(temp, sizeof(temp), at_coord[j], sizeof(at_coord[j]));
+#else
+        memcpy(temp, at_coord[j], sizeof(at_coord[j]));
+#endif
         for (k = 0; k < 3; k++)
         {
             at_coord[j][k] = e_dot_prod3( temp, pnt[( k + p0 ) % 3] );
@@ -3493,7 +3513,12 @@ int e_set_stereo_atom_parity( Stereo0D *pStereo,
             else
             {
                 /*  we have enough information to find implicit hydrogen coordinates */
-                e_copy3( sum_xyz, at_coord[j] );
+                /* e_copy3(sum_xyz, at_coord[j]); -- djb-rwth: removing copy3 function */
+#if USE_BCF
+                memcpy_s(at_coord[j], sizeof(at_coord[j]), sum_xyz, sizeof(sum_xyz));
+#else
+                memcpy(at_coord[j], sum_xyz, sizeof(sum_xyz));
+#endif
                 e_change_sign3( at_coord[j], at_coord[j] );
                 z = e_len3( at_coord[j] );
                 /* Comparing the original bond lengths to lenghts derived from normalized to 1 */
