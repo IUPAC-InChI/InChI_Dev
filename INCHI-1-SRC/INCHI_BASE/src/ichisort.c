@@ -1,7 +1,7 @@
 /*
 * International Chemical Identifier (InChI)
 * Version 1
-* Software version 1.06
+* Software version 1.07
 * December 15, 2020
 *
 * The InChI library and programs are free software developed under the
@@ -297,7 +297,7 @@ void inchi_swap( char *a, char *b, size_t width )
 int insertions_sort( void *pCG,
                      void *base,
                      size_t num, size_t width,
-                     int( *compare )( const void *e1, const void *e2, void * ) )
+                     int( *compare )( const void *, const void *, void * ) ) /* djb-rwth: types of variables are sufficient */
 {
     char *i, *j, *pk = (char*) base;
     int  num_trans = 0;

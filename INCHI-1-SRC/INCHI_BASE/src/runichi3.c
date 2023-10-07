@@ -1,7 +1,7 @@
 /*
  * International Chemical Identifier (InChI)
  * Version 1
- * Software version 1.06
+ * Software version 1.07
  * December 15, 2020
  *
  * The InChI library and programs are free software developed under the
@@ -4115,7 +4115,7 @@ void OAD_PolymerUnit_SortBackboneBondsAndSetSeniors( OAD_PolymerUnit *u,
         }
     }
 
-    /* v. 1.06 (1.05+) : place senior atom the first ("left") in the senior bond */
+    /* v. 1.05+ : place senior atom the first ("left") in the senior bond */
     if (OAD_Polymer_IsFirstAtomRankLower( u->bkbonds[*senior_bond][0], u->bkbonds[*senior_bond][1], aprops ) == 1)
     {
         int tmp = u->bkbonds[*senior_bond][0];

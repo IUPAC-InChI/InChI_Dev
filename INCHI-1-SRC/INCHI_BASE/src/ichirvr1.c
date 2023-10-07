@@ -1,7 +1,7 @@
 /*
  * International Chemical Identifier (InChI)
  * Version 1
- * Software version 1.06
+ * Software version 1.07
  * December 15, 2020
  *
  * The InChI library and programs are free software developed under the

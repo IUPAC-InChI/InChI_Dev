@@ -1,7 +1,7 @@
 /*
  * International Chemical Identifier (InChI)
  * Version 1
- * Software version 1.06
+ * Software version 1.07
  * December 15, 2020
  *
  * The InChI library and programs are free software developed under the
@@ -5232,7 +5232,7 @@ void EditINCHI_HidePolymerZz(INCHI_IOSTREAM *out, int n_pzz, int n_zy)
         {
             if (s[i] == '(')
             {
-                /* Software version 1.06 : skip pattern "(cap,cap-bkbonds)" but not "(cap-end, cap-end)" */
+                /* Software version 1.07 : skip pattern "(cap,cap-bkbonds)" but not "(cap-end, cap-end)" */
                 const char *q;
                 const char *p = out->s.pStr + i + 1;
                 AT_NUMB ia = (AT_NUMB) inchi_strtol(p, &q, 10); /* make compiler happy: */ /* djb-rwth: removing redundant code; ignoring LLVM warning: variable used to store function return value */

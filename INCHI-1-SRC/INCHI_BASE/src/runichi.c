@@ -1,7 +1,7 @@
 /*
 * International Chemical Identifier (InChI)
 * Version 1
-* Software version 1.06
+* Software version 1.07
 * December 15, 2020
 *
 * The InChI library and programs are free software developed under the
@@ -2038,7 +2038,7 @@ int CreateOneComponentINChI( CANON_GLOBALS      *pCG,
  Extended-functionality version of ProcessOneStructure
 
  able to handle both polymer related and unrelated pseudoelement atoms
- and to perform advanced polymer treatment (v. 1.06)
+ and to perform advanced polymer treatment (v. 1.06+)
  ****************************************************************************/
 int ProcessOneStructureEx( struct tagINCHI_CLOCK    *ic,
                            struct tagCANON_GLOBALS  *CG,

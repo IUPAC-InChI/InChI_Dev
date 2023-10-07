@@ -1,7 +1,7 @@
 /*
  * International Chemical Identifier (InChI)
  * Version 1
- * Software version 1.06
+ * Software version 1.07
  * December 15, 2020
  *
  * The InChI library and programs are free software developed under the
@@ -2192,7 +2192,7 @@ long abctol( const char *szString, char **q )
                     goto exit_function;
                 }
                 else
-                /* Software version 1.06 ^^^*/
+                /* Software version 1.07 ^^^*/
                     val *= ALPHA_BASE;  /* @1.06 fuzz testing caused overflow here! */
             }
             else

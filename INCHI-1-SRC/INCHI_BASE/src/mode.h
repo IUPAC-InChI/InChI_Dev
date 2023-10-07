@@ -1,7 +1,7 @@
 /*
  * International Chemical Identifier (InChI)
  * Version 1
- * Software version 1.06
+ * Software version 1.07
  * December 15, 2020
  *
  * The InChI library and programs are free software developed under the
@@ -64,26 +64,26 @@
 #ifdef      RENUMBER_ATOMS_AND_RECALC_V106
 /* Comment the next line to print all renumbering changing the initial InChIKey */
 #define STOP_AFTER_FIRST_CHANGE_ON_RENUMBERING 1
-#define APP_DESCRIPTION "InChI version 1, Software v. 1.061 (inchi-1 executable)"
+#define APP_DESCRIPTION "InChI version 1, Software v. 1.07 (inchi-1 executable)"
 /*#define APP_DESCRIPTION "InChI version 1, Software v. 1.06-PT6 (inchi-1 executable) \n*** INTERNAL TEST MODE: ATOM RENUMBERING TEST IS ACTIVE ***"*/
 #else
-#define APP_DESCRIPTION "InChI version 1, Software v. 1.061 (inchi-1 executable)***"
+#define APP_DESCRIPTION "InChI version 1, Software v. 1.07 (inchi-1 executable)***"
 /*#define APP_DESCRIPTION "InChI version 1, Software v. 1.06-PT6 (inchi-1 executable) \n*** UNOFFICIAL TEST VERSION: 6 PT TAUTO RULES AVAILABLE ***"*/
 #endif
 
 #elif defined(TARGET_API_LIB)
-#define APP_DESCRIPTION "InChI version 1, Software v. 1.061 (API Library)"
+#define APP_DESCRIPTION "InChI version 1, Software v. 1.07 (API Library)"
 
 #elif defined(TARGET_EXE_USING_API)
 #ifndef APP_DESCRIPTION
-#define APP_DESCRIPTION "InChI version 1, Software v. 1.061 (executable calling API Library)"
+#define APP_DESCRIPTION "InChI version 1, Software v. 1.07 (executable calling API Library)"
 #endif
 
 #elif defined(TARGET_LIB_FOR_WINCHI)
-#define APP_DESCRIPTION "InChI version 1, Software v. 1.061 (Library for wInChI GUI executable)"
+#define APP_DESCRIPTION "InChI version 1, Software v. 1.07 (Library for wInChI GUI executable)"
 
 #elif defined(TARGET_WINCHI)
-#define APP_DESCRIPTION "InChI version 1, Software v. 1.061 (wInChI GUI executable)"
+#define APP_DESCRIPTION "InChI version 1, Software v. 1.07 (wInChI GUI executable)"
 
 #else
 #error  No build target #defined, pls check compiler options... (TARGET_EXE_STANDALONE|TARGET_API_LIB|TARGET_EXE_USING_API|TARGET_LIB_FOR_WINCHI)
@@ -347,7 +347,7 @@ extern "C" {
                                         /* atom in aromatic ring */
 
 
-/* Software version 1.06 */
+/* Software version 1.07 */
 
 /* INTENTIONALLY DISABLE 1.06 FIXES */
 /*#define DISABLE_106_FIXES 1  */
@@ -1222,9 +1222,9 @@ do {\
 #endif
 
 #define POLYMERS_NO 0		/* ignore polymers										*/
-#define POLYMERS_MODERN 1	/* current (1.06) way to treat polymers with Zz			*/
-#define POLYMERS_LEGACY 2	/* 1.05 mode, no explicit Zz (internally they are here) */
-#define POLYMERS_LEGACY_PLUS 3	/* 1.05 mode with an addition of that in all
+#define POLYMERS_MODERN 1	/* v. 1.06+ way to treat polymers with Zz			*/
+#define POLYMERS_LEGACY 2	/* v. 1.05 mode, no explicit Zz (internally they are here) */
+#define POLYMERS_LEGACY_PLUS 3	/* v. 1.05 mode with an addition of that in all
                                    frame-shiftable-bistar-CRUs their backbone bonds 
                                    are reordered in descending seniority order. 
                                    Used as hidden 1st pass in 1.06 treatment		*/

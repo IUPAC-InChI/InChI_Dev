@@ -1,7 +1,7 @@
 /*
 * International Chemical Identifier (InChI)
 * Version 1
-* Software version 1.06
+* Software version 1.07
 * December 15, 2020
 *
 * The InChI library and programs are free software developed under the
@@ -51,6 +51,8 @@
 #define    ZTYPE_3D       3
 #define    ZTYPE_EITHER   9999
 
+#define ARR_DIM 3 /* djb-rwth: default dimension of arrays */
+
 /*  criteria for ill-defined */
 #define MIN_ANGLE             0.10    /*  5.73 degrees */ /* treshold for proximity to in-line angle of 180 deg */
 #define MIN_SINE              0.03    /*min edge/plane angle in case the tetrahedra has significantly different edge length */
@@ -80,11 +82,11 @@ static int save_a_stereo_bond( int z_prod, int result_action,
 static double get_z_coord( inp_ATOM* at, int cur_atom, int neigh_no, int *nType, int bPointedEdgeStereo );
 static double len3( const double c[] );
 static double len2( const double c[] );
-static double* diff3( const double a[], const double b[], double result[] );
-static double* add3( const double a[], const double b[], double result[] );
-static double* mult3( const double a[], double b, double result[] );
-static double* copy3( const double a[], double result[] );
-static double* change_sign3( const double a[], double result[] );
+static void* diff3( const double a[], const double b[], double result[] );
+static void add3( const double a[], const double b[], double result[] );
+static void mult3( const double a[], double b, double result[] );
+/* static double* copy3(const double a[], double result[]); */
+static void change_sign3( const double a[], double result[] );
 double dot_prod3( const double a[], const double b[] );
 static int dot_prodchar3( const S_CHAR a[], const S_CHAR b[] );
 static double triple_prod( double a[], double b[], double c[], double *sine_value );
@@ -130,7 +132,7 @@ int FixSb0DParities( inp_ATOM *at, /* inp_ATOM *at_removed_H, int num_removed_H,
 /****************************************************************************/
 int comp_AT_NUMB( const void* a1, const void* a2, void *p )
 {
-    return ( int )*(const AT_NUMB*) a1 - ( int )*(const AT_NUMB*) a2;
+    return (int)(*(const AT_NUMB*)a1) - (int)(*(const AT_NUMB*)a2);
 }
 
 
@@ -208,23 +210,34 @@ double get_z_coord( inp_ATOM* at,
     return z;
 }
 
-/* djb-rwth: all mathematical functions have to be rewritten as the function arguments are arrays of various dimensions */
 /****************************************************************************/
-double len3( const double c[] )
+double len3( const double c[] ) /* djb-rwth: avoiding uninitialised values */
 {
-    return sqrt( c[0] * c[0] + c[1] * c[1] + c[2] * c[2] );
+    double tmpar[ARR_DIM] = { 0.0 };
+#if USE_BCF
+    memcpy_s(tmpar, sizeof(tmpar), c, ARR_DIM * sizeof(c[0]));
+#else
+    memcpy(tmpar, c, ARR_DIM * sizeof(c[0]));
+#endif
+    return sqrt(pow(tmpar[0],2.0) + pow(tmpar[1],2.0) + pow(tmpar[2],2.0) );
 }
 
 
 /****************************************************************************/
-double len2( const double c[] )
+double len2( const double c[] ) /* djb-rwth: avoiding uninitialised values */
 {
-    return sqrt( c[0] * c[0] + c[1] * c[1] );
+    double tmpar[ARR_DIM - 1] = { 0,0 };
+#if USE_BCF
+    memcpy_s(tmpar, sizeof(tmpar), c, (ARR_DIM - 1) * sizeof(c[0]));
+#else
+    memcpy(tmpar, c, (ARR_DIM - 1) * sizeof(c[0]));
+#endif
+    return sqrt(pow(tmpar[0],2.0) + pow(tmpar[1],2.0));
 }
 
 
 /****************************************************************************/
-double* diff3( const double a[], const double b[], double result[] )
+void* diff3( const double a[], const double b[], double result[] ) /* djb-rwth: changed function type */
 {
 
     result[0] = a[0] - b[0];
@@ -236,60 +249,60 @@ double* diff3( const double a[], const double b[], double result[] )
 
 
 /****************************************************************************/
-double* add3( const double a[], const double b[], double result[] )
+void add3( const double a[], const double b[], double result[] ) /* djb-rwth: changed function type */
 {
     result[0] = a[0] + b[0];
     result[1] = a[1] + b[1];
     result[2] = a[2] + b[2];
 
-    return result;
+    /* return result; */
 }
 
 
 /****************************************************************************/
-double* mult3( const double a[], double b, double result[] )
+void mult3( const double a[], double b, double result[] ) /* djb-rwth: changed function type */
 {
     result[0] = a[0] * b;
     result[1] = a[1] * b;
     result[2] = a[2] * b;
 
-    return result;
+    /* return result; */
 }
 
 
 /****************************************************************************/
-double* copy3( const double a[], double result[] )
+/* double* copy3(const double a[], double result[]) -- djb-rwth: removing the function completely
 {
     result[0] = a[0];
     result[1] = a[1];
     result[2] = a[2];
 
     return result;
-}
+} */
 
 
 /****************************************************************************/
-double* change_sign3( const double a[], double result[] )
+void change_sign3( const double a[], double result[] ) /* djb-rwth: changed function type */
 {
     result[0] = -a[0];
     result[1] = -a[1];
     result[2] = -a[2];
 
-    return result;
+    /* return result; */
 }
 
 
 /****************************************************************************/
 double dot_prod3( const double a[], const double b[] )
 {
-    return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+    return a[0]*b[0] + a[1]*b[1] + a[2]*b[2];
 }
 
 
 /****************************************************************************/
 int dot_prodchar3( const S_CHAR a[], const S_CHAR b[] )
 {
-    int prod = ( (int) a[0] * (int) b[0] + (int) a[1] * (int) b[1] + (int) a[2] * (int) b[2] ) / 100;
+    int prod = ( (int)a[0]*(int)b[0] + (int)a[1]*(int)b[1] + (int)a[2]*(int)b[2] ) / 100;
     if (prod > 100)
     {
         prod = 100;
@@ -307,7 +320,7 @@ int dot_prodchar3( const S_CHAR a[], const S_CHAR b[] )
 
 
 /****************************************************************************/
-double* cross_prod3( const double a[], const double b[], double result[] )
+void* cross_prod3( const double a[], const double b[], double result[] ) /* djb-rwth: changed function type */
 {
     double tmp[3];
 
@@ -2400,7 +2413,12 @@ int half_stereo_bond_parity( inp_ATOM *at,
     /*  find at_coord in the new basis of {pnt[p0], pnt[p1], pnt[p2]} */
     for (j = 0; j < 3; j++)
     {
-        copy3( at_coord[j], temp );
+        /* copy3(at_coord[j], temp);-- djb-rwth: removing copy3 function */
+#if USE_BCF
+        memcpy_s(temp, sizeof(temp), at_coord[j], sizeof(at_coord[j]));
+#else
+        memcpy(temp, at_coord[j], sizeof(at_coord[j]));
+#endif
         for (k = 0; k < 3; k++)
         {
             at_coord[j][k] = dot_prod3( temp, pnt[( k + p0 ) % 3] );
@@ -4128,7 +4146,12 @@ int set_stereo_atom_parity( CANON_GLOBALS *pCG,
                 at_coord[j][1] = -sum_y;
                 at_coord[j][2] = -sum_z;
                 */
-                copy3( sum_xyz, at_coord[j] );
+                /* copy3(sum_xyz, at_coord[j]); -- djb-rwth: removing copy3 function */
+#if USE_BCF
+                memcpy_s(at_coord[j], sizeof(at_coord[j]), sum_xyz, sizeof(sum_xyz));
+#else
+                memcpy(at_coord[j], sum_xyz, sizeof(sum_xyz));
+#endif
                 change_sign3( at_coord[j], at_coord[j] );
                 z = len3( at_coord[j] );
 #if ( FIX_STEREO_SCALING_BUG == 1 )

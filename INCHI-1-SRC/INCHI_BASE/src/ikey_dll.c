@@ -1,7 +1,7 @@
 /*
  * International Chemical Identifier (InChI)
  * Version 1
- * Software version 1.06
+ * Software version 1.07
  * December 15, 2020
  *
  * The InChI library and programs are free software developed under the
@@ -140,7 +140,7 @@ int INCHI_DECL GetINCHIKeyFromINCHI( const char* szINCHISource,
 
 
 
-    if (NULL != szXtra1) /* Software version 1.06 added check to fix bug with NULL szXtra, thanks to WDI */
+    if (NULL != szXtra1) /* Software version 1.07 added check to fix bug with NULL szXtra, thanks to WDI */
     {
         szXtra1[0] = '\0';
     }
