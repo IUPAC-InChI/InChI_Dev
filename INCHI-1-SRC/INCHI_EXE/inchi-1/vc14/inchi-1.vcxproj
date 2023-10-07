@@ -185,6 +185,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\INCHI_BASE\src\bcf_s.c" />
     <ClCompile Include="..\..\..\INCHI_BASE\src\ichican2.c" />
     <ClCompile Include="..\..\..\INCHI_BASE\src\ichicano.c" />
     <ClCompile Include="..\..\..\INCHI_BASE\src\ichicans.c" />
@@ -231,11 +232,11 @@
     <ClCompile Include="..\..\..\INCHI_BASE\src\sha2.c" />
     <ClCompile Include="..\..\..\INCHI_BASE\src\strutil.c" />
     <ClCompile Include="..\..\..\INCHI_BASE\src\util.c" />
-    <ClCompile Include="..\src\bcf_s.c" />
     <ClCompile Include="..\src\dispstru.c" />
     <ClCompile Include="..\src\ichimain.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\INCHI_BASE\src\bcf_s.h" />
     <ClInclude Include="..\..\..\INCHI_BASE\src\extr_ct.h" />
     <ClInclude Include="..\..\..\INCHI_BASE\src\ichi.h" />
     <ClInclude Include="..\..\..\INCHI_BASE\src\ichicano.h" />
@@ -267,7 +268,6 @@
     <ClInclude Include="..\..\..\INCHI_BASE\src\sha2.h" />
     <ClInclude Include="..\..\..\INCHI_BASE\src\strutil.h" />
     <ClInclude Include="..\..\..\INCHI_BASE\src\util.h" />
-    <ClInclude Include="..\src\bcf_s.h" />
     <ClInclude Include="..\src\dispstru.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
