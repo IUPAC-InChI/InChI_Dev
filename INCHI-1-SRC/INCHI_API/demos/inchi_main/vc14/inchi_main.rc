@@ -7,7 +7,7 @@
 //
 // Generated from the TEXTINCLUDE 2 resource.
 //
-#include "afxres.h"
+#include <windows.h>
 
 /////////////////////////////////////////////////////////////////////////////
 #undef APSTUDIO_READONLY_SYMBOLS
@@ -41,12 +41,12 @@ BEGIN
     BEGIN
         BLOCK "040904b0"
         BEGIN
-            VALUE "Comments", "IUPAC International Chemical Identifier (InChI) version 1, Software version 1.06, December 2020. Demo app inchi_main"
+            VALUE "Comments", "IUPAC International Chemical Identifier (InChI) version 1, Software version 1.07, December 2020. Demo app inchi_main"
             VALUE "FileDescription", " Demo app inchi_main"
             VALUE "FileVersion", "1.0.6.0"
             VALUE "InternalName", "inchi_main.exe"
             VALUE "OriginalFilename", "inchi_main.exe"
-            VALUE "ProductName", "IUPAC International Chemical Identifier (InChI) version 1, Software version 1.06, December 2020. Demo app inchi_main"
+            VALUE "ProductName", "IUPAC International Chemical Identifier (InChI) version 1, Software version 1.07, December 2020. Demo app inchi_main"
             VALUE "ProductVersion", "1.0.6.0"
         END
     END
