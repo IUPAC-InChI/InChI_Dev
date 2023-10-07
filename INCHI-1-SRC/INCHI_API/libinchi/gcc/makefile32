@@ -5,8 +5,16 @@
 #CREATE_MAIN = 1
 # Comment out the next line to create mol2inchi executable (otherwise, inchi_maiin is created)
 #CALLER_IS_MOL2INCHI = 1
-# or define ISLINUX in command line: make ISLINUX=1
-ISLINUX = 1
+# or define OS_ID in command line: make OS_ID=1
+ifeq ($(OS),Windows_NT)
+	OS_ID = 0
+else
+	UNAME_S := $(shell uname -s)
+	ifeq ($(UNAME_S),Linux)
+		OS_ID = 1
+	endif
+# djb-rwth: other OSs should be numbered accordingly
+endif
 # Linux fpic option: replace -fPIC with -fpic if the latter works
 # Comment out "LINUX_Z_RELRO =" if -z relro is not supported
 # These options are needed to avoid the following SELinux message:
@@ -14,42 +22,46 @@ ISLINUX = 1
 # In addition, inchi.map restricts set of expoorted from .so
 # functions to those which belong to InChI API
 LINUX_MAP = ,--version-script=libinchi.map
-ifdef ISLINUX
-LINUX_FPIC  = -fPIC
-LINUX_Z_RELRO = ,-z,relro
+ifneq ($(OS_ID),0)
+	LINUX_FPIC  = -fPIC
+	LINUX_Z_RELRO = ,-z,relro
 endif
 # === version ===
-MAIN_VERSION = .1
-VERSION = $(MAIN_VERSION).06.00
+ifneq ($(OS_ID),0)
+	MAIN_VERSION = .1
+	VERSION = $(MAIN_VERSION).07
+endif
 # === executable & library directory ===
 ifndef LIB_DIR
-  LIB_DIR = ../../bin/Linux/32bit
+	LIB_DIR = ../../bin/Linux/32bit
 endif
 # === InChI Library name ===
 ifndef INCHI_LIB_NAME
-  INCHI_LIB_NAME = libinchi
+	INCHI_LIB_NAME = libinchi
 endif
 INCHI_LIB_PATHNAME = $(LIB_DIR)/$(INCHI_LIB_NAME)
 # === Main program name ====
 ifndef API_CALLER_NAME
-  ifndef CALLER_IS_MOL2INCHI 
-  API_CALLER_NAME = inchi_main$
-  else
-  API_CALLER_NAME = mol2inchi$
-  endif
+	ifndef CALLER_IS_MOL2INCHI 
+	API_CALLER_NAME = inchi_main
+	else
+	API_CALLER_NAME = mol2inchi
+	endif
 endif
 API_CALLER_PATHNAME = $(LIB_DIR)/$(API_CALLER_NAME)
 # === Linker to create (Shared) InChI library ====
 ifndef SHARED_LINK
-  SHARED_LINK = gcc -shared
+	SHARED_LINK = gcc -shared
 endif
 # === Linker to create Main program =====
 ifndef LINKER
-  ifdef ISLINUX
-	 LINKER_CWD_PATH = -Wl,-R,""
-  endif
-  LINKER = gcc -s $(LINKER_CWD_PATH)
+	ifdef OS_ID
+# djb-rwth: avoiding the use of LD_LIBRARY_PATH by adding LIB_DIR to runtime library search path
+	LINKER_CWD_PATH = -Wl,-R,"",-rpath=$(LIB_DIR)
+	endif
+	LINKER = gcc -s $(LINKER_CWD_PATH)
 endif
+# djb-rwth: space for shared link parameters SHARED_LINK_PARMS
 ifndef P_LIBR
 	P_LIBR = ../../libinchi/src/
 endif
@@ -57,34 +69,38 @@ ifndef P_LIBR_IXA
 	P_LIBR_IXA = ../../libinchi/src/ixa/
 endif
 ifndef P_BASE
-  P_BASE = ../../../INCHI_BASE/src/
+	P_BASE = ../../../INCHI_BASE/src/
 endif
 ifndef P_MAIN
-  ifndef CALLER_IS_MOL2INCHI
+	ifndef CALLER_IS_MOL2INCHI
 	P_MAIN = ../src/
-  else
+	else
 	P_MAIN = ../src/
-  endif
+	endif
 endif
 # === C Compiler ===============
 ifndef C_COMPILER
-  C_COMPILER = gcc
+	C_COMPILER = gcc
 endif
 # === C Compiler Options =======
 ifndef C_OPTIONS
-  ifndef CALLER_IS_MOL2INCHI
-	C_OPTIONS = -m32 -ansi -O3 -c
-  else
-	C_OPTIONS = -m32 -O3 -c  
-  endif
-  ifdef ISLINUX
+	ifndef CALLER_IS_MOL2INCHI
+	C_OPTIONS = -std=c11 -m32 -ansi -O3 -c
+	else
+	C_OPTIONS = -std=c11 -m32 -O3 -c
+	endif
+	ifneq ($(OS_ID),0)
 	ifndef C_SO_OPTIONS
 		C_SO_OPTIONS = $(LINUX_FPIC) -DTARGET_API_LIB -DCOMPILE_ANSI_ONLY
 	endif
-  endif
-  ifndef C_MAIN_OPTIONS
+	else
+	ifndef C_SO_OPTIONS
+		C_SO_OPTIONS = -DBUILD_LINK_AS_DLL -DTARGET_API_LIB
+	endif
+	endif
+	ifndef C_MAIN_OPTIONS
 	C_MAIN_OPTIONS = -DBUILD_LINK_AS_DLL -DTARGET_EXE_USING_API
-  endif
+	endif
 endif
 ifdef CREATE_MAIN
 ifndef CALLER_IS_MOL2INCHI
@@ -119,9 +135,17 @@ getcputime.o	\
 moreutil.o
 endif
 # === InChI Main Link rule ================
+ifneq ($(OS_ID),0)
+# djb-rwth: linking to .so on Linux
 $(API_CALLER_PATHNAME) : $(API_CALLER_OBJS) $(INCHI_LIB_PATHNAME).so$(VERSION)
-	$(LINKER) -m32 -o $(API_CALLER_PATHNAME) $(API_CALLER_OBJS) \
-  $(INCHI_LIB_PATHNAME).so$(VERSION) -lm
+	$(LINKER) -o $(API_CALLER_PATHNAME) $(API_CALLER_OBJS) \
+$(INCHI_LIB_PATHNAME).so$(VERSION) -lm
+else
+# djb-rwth: linking to .dll on Windows
+$(API_CALLER_PATHNAME) : $(API_CALLER_OBJS) $(INCHI_LIB_PATHNAME).dll$(VERSION)
+	$(LINKER) -o $(API_CALLER_PATHNAME) $(API_CALLER_OBJS) \
+$(INCHI_LIB_PATHNAME).dll$(VERSION) -lm
+endif
 # === InChI Main compile rule ============
 %.o: $(P_MAIN)%.c
 	$(C_COMPILER) $(C_MAIN_OPTIONS) $(C_OPTIONS) $<
@@ -186,10 +210,19 @@ strutil.o	\
 util.o  \
 bcf_s.o
 # === InChI Library link rule =========
+ifneq ($(OS_ID),0)
+# djb-rwth: creating .so on Linux
 $(INCHI_LIB_PATHNAME).so$(VERSION): $(INCHI_LIB_OBJS)
-	$(SHARED_LINK) $(SHARED_LINK_PARM) -m32 -o $(INCHI_LIB_PATHNAME).so$(VERSION)	\
-$(INCHI_LIB_OBJS) -Wl$(LINUX_MAP)$(LINUX_Z_RELRO),-soname,$(INCHI_LIB_NAME).so$(MAIN_VERSION) -lm
-	ln -fs $(INCHI_LIB_NAME).so$(VERSION)	\
+	$(SHARED_LINK) $(SHARED_LINK_PARM) -o $(INCHI_LIB_PATHNAME).so$(VERSION)	\
+$(INCHI_LIB_OBJS) -Wl$(LINUX_MAP)$(LINUX_Z_RELRO),-soname,$(INCHI_LIB_NAME).so$(VERSION) -lm
+else
+# djb-rwth: creating .dll on Windows
+$(INCHI_LIB_PATHNAME).dll$(VERSION): $(INCHI_LIB_OBJS)
+	$(SHARED_LINK) $(SHARED_LINK_PARM) -o $(INCHI_LIB_PATHNAME).dll$(VERSION)	\
+$(INCHI_LIB_OBJS) -Wl$(LINUX_MAP),-soname,$(INCHI_LIB_NAME).dll$(VERSION) -Wl,--subsystem,windows -lm
+endif
+# djb-rwth: no forceful linking is required if .so version extensions are the same
+#	ln -fs $(INCHI_LIB_NAME).so$(VERSION)	\
 $(INCHI_LIB_PATHNAME).so$(MAIN_VERSION)
 # === InChI Library compile rule =========
 %.o: $(P_LIBR)%.c
