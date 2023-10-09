@@ -229,3 +229,7 @@ $(INCHI_LIB_PATHNAME).so$(MAIN_VERSION)
 	$(C_COMPILER) $(C_SO_OPTIONS) $(C_OPTIONS) $<
 %.o: $(P_BASE)%.c
 	$(C_COMPILER) $(C_SO_OPTIONS) $(C_OPTIONS) $<
+	
+.PHONY: clean
+clean:
+	rm -f $(INCHI_LIB_OBJS)
