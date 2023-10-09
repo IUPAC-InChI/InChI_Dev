@@ -2,7 +2,7 @@
  * International Chemical Identifier (InChI)
  * Version 1
  * Software version 1.07
- * December 15, 2020
+ * 07/10/2023
  *
  * The InChI library and programs are free software developed under the
  * auspices of the International Union of Pure and Applied Chemistry (IUPAC).
@@ -387,7 +387,7 @@ extern "C" {
 #define FIX_GAF_2019_1 1
 #define FIX_GAF_2019_2 1
 
-/* v. 1.06 December 2020 */
+/* v. 1.06 October 2023 */
 /*  Sep-Dec 2020 Fixed oss-fuzz issues:
     25604 25607 25609 25618 25726 25727 25728 25730 25731 25735
     25736 25737 25741 25830 25835 26514 27901 27903 27905
