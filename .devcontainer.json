@@ -8,9 +8,11 @@
             "settings": {
                 "terminal.integrated.scrollback": 5000,
                 "editor.formatOnSave": true,
-                "editor.formatOnSaveMode": "file",
-                "python.formatting.provider": "black",
-                "python.linting.mypyEnabled": true
+                "python": {
+                    "editor.defaultFormatter": "ms-python.black-formatter",
+                    "testing.unittestEnabled": false,
+                    "testing.pytestEnabled": true
+                }
             },
             "extensions": [
                 "ms-vscode.cpptools",
@@ -20,13 +22,17 @@
                 "streetsidesoftware.code-spell-checker",
                 "ms-python.python",
                 "ms-python.vscode-pylance",
+                "ms-python.black-formatter",
+                "ms-python.mypy-type-checker",
+                "ms-python.flake8",
                 "KevinRose.vsc-python-indent",
                 "ms-vscode.makefile-tools",
                 "GitHub.vscode-github-actions",
                 "ms-azuretools.vscode-docker",
-                "GitHub.copilot"
+                "GitHub.copilot",
+                "qwtel.sqlite-viewer"
             ]
         }
     },
-    "postCreateCommand": "pip install --upgrade pip && pip install black mypy git+https://github.com/TUCAN-nest/SDF-pipeline.git"
+    "postCreateCommand": "pip install --upgrade pip && pip install git+https://github.com/TUCAN-nest/SDF-pipeline.git"
 }
