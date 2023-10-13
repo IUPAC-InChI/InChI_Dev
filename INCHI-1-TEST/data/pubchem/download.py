@@ -1,10 +1,13 @@
-from sdf_pipeline import pubchem
-from sdf_pipeline.utils import get_current_time
-from pathlib import Path
-
+"""https://depth-first.com/articles/2010/02/09/big-data-in-chemistry-mirroring-pubchem-the-easy-way-part-2/"""
+import subprocess
+import shlex
+from ...config import get_dataset_arg, DATASETS
 
 if __name__ == "__main__":
-    for sdf_path in pubchem.download_all_sdf(
-        destination_directory=Path(__file__).parent.absolute()
-    ):
-        print(f"{get_current_time()}: Downloaded {sdf_path}")
+    dataset = get_dataset_arg()
+    
+    download_command = f"wget --mirror --directory-prefix {DATASETS[dataset]['log_path']} " + \
+        "--no-directories --continue --accept '*.sdf.gz,*.sdf.gz.md5' " + \
+        f"ftp://ftp.ncbi.nlm.nih.gov/pubchem/{DATASETS[dataset]['download_path']}/SDF/" 
+        
+    subprocess.run(shlex.split(download_command), check=True)

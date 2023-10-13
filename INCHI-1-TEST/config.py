@@ -4,7 +4,6 @@ import argparse
 from typing import Final, Callable
 from pathlib import Path
 from datetime import datetime
-from sdf_pipeline.pubchem import get_id as _get_pubchem_id
 
 
 def get_molfile_id(sdf_path: Path) -> Callable:
@@ -27,18 +26,21 @@ def _get_mcule_id(molfile: str) -> str:
     molfile_id = molfile_id_match.group(1).strip() if molfile_id_match else ""
 
     return molfile_id
+    
+def _get_pubchem_id(molfile: str) -> str:
+    return molfile.split()[0].strip()
 
 
 def get_dataset_arg() -> str:
     parser = argparse.ArgumentParser(
-        description="Choose a dataset {ci, pubchem}",
+        description="Choose a dataset from {ci, pubchem_compound, pubchem_compound3d, pubchem_substance}",
     )
     parser.add_argument(
         "dataset",
-        choices=["ci", "pubchem"],
+        choices=["ci", "pubchem_compound", "pubchem_compound3d", "pubchem_substance"],
         type=str,
         nargs=1,
-        help="Choose a dataset from {ci, pubchem}",
+        help="Choose a dataset from {ci, pubchem_compound, pubchem_compound3d, pubchem_substance}",
     )
     (dataset,) = parser.parse_args().dataset
 
@@ -49,7 +51,7 @@ def get_current_time():
     return datetime.now().isoformat(timespec="seconds")
 
 
-def get_progress(current: int, total: int) -> None:
+def get_progress(current: int, total: int) -> str:
     return f"{get_current_time()}: Processed {current}/{total} ({current / total * 100:.2f}%) SDFs"
 
 
@@ -66,8 +68,23 @@ DATASETS: Final[dict] = {
         "sdf_paths": TEST_PATH.joinpath("data/ci").glob("*.sdf.gz"),
         "log_path": TEST_PATH.joinpath("data/ci/"),
     },
-    "pubchem": {
-        "sdf_paths": TEST_PATH.joinpath("data/pubchem").glob("*.sdf.gz"),
-        "log_path": TEST_PATH.joinpath("data/pubchem/"),
+    "pubchem_compound": {
+        "sdf_paths": TEST_PATH.joinpath("data/pubchem/compound").glob("*.sdf.gz"),
+        "log_path": TEST_PATH.joinpath("data/pubchem/compound"),
+        "download_path": "Compound/CURRENT-Full",
+    },
+    "pubchem_compound3d": {
+        "sdf_paths": TEST_PATH.joinpath("data/pubchem/compound3d").glob("*.sdf.gz"),
+        "log_path": TEST_PATH.joinpath("data/pubchem/compound3d"),
+        "download_path": "Compound_3D/01_conf_per_cmpd",
+    },
+    "pubchem_substance": {
+        "sdf_paths": TEST_PATH.joinpath("data/pubchem/substance").glob("*.sdf.gz"),
+        "log_path": TEST_PATH.joinpath("data/pubchem/substance"),
+        "download_path": "Substance/CURRENT-Full",
     },
 }
+
+
+
+

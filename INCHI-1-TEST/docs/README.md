@@ -29,13 +29,19 @@ docker run --rm -v $(pwd):/inchi inchi-tests bash -c "cd inchi && <command>"
 ## Datasets
 
 In the following instructions `<dataset>` refers to either `ci`
-(i.e, continuous integration, aka the tests running on GitHub) or `pubchem`.
+(i.e, continuous integration, aka the tests running on GitHub), or `pubchem_<subset>` (<subset> can be either `compound`, `compound3d`, or `substance`).
 The `ci` data already lives in the repository (the `mcule.sdf.gz` and `inchi.sdf.gz` files under `INCHI-1-TEST/data/ci`).
-The `pubchem` data doesn't live in the repository since it's too large.
-You can download the `pubchem` data from https://ftp.ncbi.nlm.nih.gov/pubchem/Compound/CURRENT-Full/SDF/ by running
+The `pubchem_<subset>` data doesn't live in the repository since it's too large.
+You can download the `pubchem_<subset>` data from https://ftp.ncbi.nlm.nih.gov/pubchem/ by running
 
 ```Shell
-python -m INCHI-1-TEST.data.pubchem.download
+python -m INCHI-1-TEST.data.pubchem.download pubchem_<subset>
+```
+
+On completion of the download, validate the integrity of `pubchem_<subset>` (i.e., make sure the downloads aren't corrupted) by running
+
+```Shell
+python -m INCHI-1-TEST.data.pubchem.validate pubchem_<subset>
 ```
 
 ## Compute reference
