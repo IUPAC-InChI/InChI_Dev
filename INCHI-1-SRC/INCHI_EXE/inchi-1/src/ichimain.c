@@ -76,7 +76,7 @@
 int ret_val; /* djb-rwth: variable added for return value */
 
 /*(@nnuk : Nauman Ullah Khan) :: Enable logging by default */
-int g_loggingEnabled = 1;
+int g_loggingEnabled = 1;     /*Change to zero (0) if print outputs not needed otherwise keep it one (1)*/
 
 /*(@nnuk : Nauman Ullah Khan) :: Function that enables logging */
 void enableLogging() {
