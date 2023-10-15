@@ -3268,7 +3268,11 @@ int OutputINCHI_VersionAndKind( INCHI_IOSTREAM   *out_file,
         inchi_strbuf_printf( strbuf, "S" );
     }
 
-    inchi_ios_print_nodisplay( out_file, "%s%s", strbuf->pStr, pLF );
+    inchi_ios_print_nodisplay( out_file, "%s%s", strbuf->pStr, pLF );                  /*(@nnuk : Nauman Ullah Khan) :: The InChI version and kind are fetched with the help of a pointer "strbuf" to the structure containing the string*/
+
+    LOG("\n################### (L3273:ichiprt1.c) ###########################\n");
+    LOG("This is the InChI version & Kind : %s\n", strbuf->pStr);
+    LOG("####################################################################\n");
 
     return 0;
 }
@@ -3309,7 +3313,11 @@ int OutputINCHI_MainLayerFormula( CANON_GLOBALS    *pCG,
                 return -1;
             }
         }
-        inchi_ios_print_nodisplay( out_file, "%s%s", strbuf->pStr, pLF );
+        inchi_ios_print_nodisplay( out_file, "%s%s", strbuf->pStr, pLF );              /*(@nnuk : Nauman Ullah Khan) :: The InChI main layer Chemical formula is fetched with the help of a pointer "strbuf" to the structure containing the string*/
+
+        LOG("\n#################### (L3318:ichiprt1.c) ##########################\n");
+        LOG("This is the Chemical formula : %s\n", strbuf->pStr);
+        LOG("####################################################################\n");
     }
 
     return 0;
@@ -3343,7 +3351,11 @@ int OutputINCHI_MainLayerConnections( CANON_GLOBALS    *pCG,
         {
             return 1; /* pStr overfow */
         }
-        inchi_ios_print_nodisplay( out_file, "%s%s", strbuf->pStr, pLF );
+        inchi_ios_print_nodisplay( out_file, "%s%s", strbuf->pStr, pLF );                       /*(@nnuk : Nauman Ullah Khan) :: The InChI connections layer is fetched with the help of a pointer "strbuf" to the structure containing the string*/
+
+        LOG("\n##################### (L3356:ichiprt1.c) #########################\n");
+        LOG("This is the Connection Layer : %s\n", strbuf->pStr);
+        LOG("####################################################################\n");
     }
 
     return 0;
@@ -3378,7 +3390,11 @@ int OutputINCHI_MainLayerHydrogens( CANON_GLOBALS    *pCG,
             {
                 return 1;
             }
-            inchi_ios_print_nodisplay( out_file, "%s%s", strbuf->pStr, pLF );
+            inchi_ios_print_nodisplay( out_file, "%s%s", strbuf->pStr, pLF );               /*(@nnuk : Nauman Ullah Khan) :: The InChI hydrogen layer is fetched with the help of a pointer "strbuf" to the structure containing the string*/
+
+            LOG("\n###################### (L3395:ichiprt1.c) ########################\n");
+            LOG("This is the Hydrogen Layer : %s\n", strbuf->pStr);
+            LOG("####################################################################\n");
         }
     }
 
@@ -3416,7 +3432,7 @@ int OutputINCHI_ChargeAndRemovedAddedProtonsLayers( CANON_GLOBALS    *pCG,
         {
             return 1;
         }
-        inchi_ios_print_nodisplay( out_file, "%s%s", strbuf->pStr, pLF );
+        inchi_ios_print_nodisplay( out_file, "%s%s", strbuf->pStr, pLF );                   /*(@nnuk : Nauman Ullah Khan) :: The InChI charge layer is fetched with the help of a pointer "strbuf" to the structure containing the string*/
     }
 
     /* removed protons */
@@ -3435,7 +3451,7 @@ int OutputINCHI_ChargeAndRemovedAddedProtonsLayers( CANON_GLOBALS    *pCG,
             {
                 return 1;
             }
-            inchi_ios_print_nodisplay( out_file, "%s%s", strbuf->pStr, pLF );
+            inchi_ios_print_nodisplay( out_file, "%s%s", strbuf->pStr, pLF );               /*(@nnuk : Nauman Ullah Khan) :: The InChI protons layer is fetched with the help of a pointer "strbuf" to the structure containing the string*/
         }
         else
         {
@@ -4161,7 +4177,11 @@ static int OutputINCHI_PolymerLayer( CANON_GLOBALS *pCG,
                 inchi_strbuf_printf(strbuf, ";");
             }
         }
-        inchi_ios_print_nodisplay(out_file, "%s%s", strbuf->pStr, pLF);
+        inchi_ios_print_nodisplay(out_file, "%s%s", strbuf->pStr, pLF);               /*(@nnuk : Nauman Ullah Khan) :: The InChI polymer layer is fetched with the help of a pointer "strbuf" to the structure containing the string*/
+
+        LOG("\n******************* (L4182:ichiprt1.c) ********************\n");
+        LOG("Polymer Layer start: %s\n", strbuf->pStr);
+        LOG("\n***********************************************************\n");
 
     exit_function:
         if (cano_nums)

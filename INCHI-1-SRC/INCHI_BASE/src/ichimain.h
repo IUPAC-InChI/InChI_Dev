@@ -62,6 +62,15 @@ typedef struct tagLine
 int rrand( int m );
 void shuffle( void *obj, size_t nmemb, size_t size );
 
+/*(@nnuk : Nauman Ullah Khan) :: Functionality used to control print statements in Command Line Tool */
+extern int g_loggingEnabled;
+
+#define LOG(format, ...) \
+    do { \
+        if (g_loggingEnabled) { \
+            printf(format, ##__VA_ARGS__); \
+        } \
+    } while (0)
 
 /* STRUCT_DATA */
 

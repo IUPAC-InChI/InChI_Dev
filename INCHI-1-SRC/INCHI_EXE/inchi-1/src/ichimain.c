@@ -56,7 +56,7 @@
 
 
 #ifdef _WIN32
-    #include <crtdbg.h>
+#include <crtdbg.h>
 #endif
 #include "../../../INCHI_BASE/src/ichitime.h"
 #include "../../../INCHI_BASE/src/incomdef.h"
@@ -76,6 +76,19 @@
 #include "../../../INCHI_BASE/src/bcf_s.h"
 
 int ret_val; /* djb-rwth: variable added for return value */
+
+/*(@nnuk : Nauman Ullah Khan) :: Enable logging by default */
+int g_loggingEnabled = 1;
+
+/*(@nnuk : Nauman Ullah Khan) :: Function that enables logging */
+void enableLogging() {
+    g_loggingEnabled = 1; /*(@nnuk : Nauman Ullah Khan) :: Logging enabled */
+}
+
+/*(@nnuk : Nauman Ullah Khan) :: Function that disables logging */
+void disableLogging() {
+    g_loggingEnabled = 0; /*(@nnuk : Nauman Ullah Khan) :: Logging disabled */
+}
 
  /*  Console-specific */
 
@@ -221,6 +234,16 @@ int main( int argc, char *argv[] )
 /**** IF IN AMI MODE, main() STARTS HERE ****/
     int i, ret = 0, ami = 0; /* djb-rwth: ignoring LLVM warning: variable used to store function return value */
 
+    /*(@nnuk: Nauman Ullah Khan) :: Condition check to either show print commands on the command line tool as output or not */
+    if (g_loggingEnabled == 1)
+    {
+        enableLogging(); // Enable logging
+    }
+    else
+    {
+        disableLogging(); // Disable logging
+    }
+
     /* Check if multiple inputs expected */
     for (i = 1; i < argc; i++)
     {
@@ -331,7 +354,7 @@ int ProcessMultipleInputFiles( int argc, char *argv[] )
     }
 
 #if( BUILD_WITH_AMI == 1 && defined( _MSC_VER ) && MSC_AMI == 1 )
-    if ((pName = strrchr( fn_ins[0], INCHI_PATH_DELIM ))) /* djb-rwth: addressing LLVM warning */
+    if ((pName = strrchr(fn_ins[0], INCHI_PATH_DELIM))) /* djb-rwth: addressing LLVM warning */
     {
         pName++;
         lenPath = pName - fn_ins[0];
@@ -357,8 +380,8 @@ int ProcessMultipleInputFiles( int argc, char *argv[] )
             continue;
         }
 #if USE_BCF
-        memcpy_s( pathname, sizeof(pathname) + lenPath, fn_ins[0], lenPath ); /* djb-rwth: function replaced with its safe C11 variant */
-        strcpy_s( pathname + lenPath, sizeof(pathname), file_info.name); /* djb-rwth: function replaced with its safe C11 variant */
+        memcpy_s(pathname, sizeof(pathname) + lenPath, fn_ins[0], lenPath); /* djb-rwth: function replaced with its safe C11 variant */
+        strcpy_s(pathname + lenPath, sizeof(pathname), file_info.name); /* djb-rwth: function replaced with its safe C11 variant */
 #else
         memcpy(pathname, fn_ins[0], lenPath);
         strcpy(pathname + lenPath, file_info.name);
@@ -395,8 +418,8 @@ int ProcessMultipleInputFiles( int argc, char *argv[] )
             if (fn_out)
             {
 #if USE_BCF
-                strcpy_s( fn_out, sizeof(fn_out) + sizeof(fn_in), fn_in); /* djb-rwth: function replaced with its safe C11 variant */
-                strcat_s( fn_out, sizeof(fn_out), ".txt" ); /* djb-rwth: function replaced with its safe C11 variant */
+                strcpy_s(fn_out, sizeof(pathname), fn_in); /* djb-rwth: function replaced with its safe C11 variant */
+                strcat_s(fn_out, sizeof(pathname), ".txt"); /* djb-rwth: function replaced with its safe C11 variant */
 #else
                 strcpy(fn_out, fn_in);
                 strcat(fn_out, ".txt");
@@ -422,8 +445,8 @@ int ProcessMultipleInputFiles( int argc, char *argv[] )
             if (fn_log)
             {
 #if USE_BCF
-                strcpy_s( fn_log, sizeof(fn_log) + sizeof(fn_in), fn_in); /* djb-rwth: function replaced with its safe C11 variant */
-                strcat_s( fn_log, sizeof(fn_log), ".log" ); /* djb-rwth: function replaced with its safe C11 variant */
+                strcpy_s(fn_log, sizeof(pathname), fn_in); /* djb-rwth: function replaced with its safe C11 variant */
+                strcat_s(fn_log, sizeof(pathname), ".log"); /* djb-rwth: function replaced with its safe C11 variant */
 #else
                 strcpy(fn_log, fn_in);
                 strcat(fn_log, ".log");
@@ -448,8 +471,8 @@ int ProcessMultipleInputFiles( int argc, char *argv[] )
             if (fn_prb)
             {
 #if USE_BCF
-                strcpy_s( fn_prb, sizeof(fn_prb) + sizeof(fn_in), fn_in); /* djb-rwth: function replaced with its safe C11 variant */
-                strcat_s( fn_prb, sizeof(fn_prb), ".prb"); /* djb-rwth: function replaced with its safe C11 variant */
+                strcpy_s(fn_prb, sizeof(pathname), fn_in); /* djb-rwth: function replaced with its safe C11 variant */
+                strcat_s(fn_prb, sizeof(pathname), ".prb"); /* djb-rwth: function replaced with its safe C11 variant */
 #else
                 strcpy(fn_prb, fn_in);
                 strcat(fn_prb, ".prb");
@@ -637,7 +660,7 @@ int ProcessSingleInputFile( int argc, char *argv[] )
     inchi_ios_init( pout, inchi_ios_type, NULL );
     inchi_ios_init( plog, inchi_ios_type, stdout );
     inchi_ios_init( pprb, inchi_ios_type, NULL );
-    memset( strbuf, 0, sizeof(*strbuf) ); /* djb-rwth: memset_s C11/Annex K variant?; dereferencing strbuf */
+    memset(strbuf, 0, sizeof(*strbuf)); /* djb-rwth: memset_s C11/Annex K variant?; dereferencing strbuf */
 
 
 
@@ -650,14 +673,14 @@ int ProcessSingleInputFile( int argc, char *argv[] )
     }
 
     /*  original input structure */
-    memset( orig_inp_data, 0, sizeof(*orig_inp_data) ); /* djb-rwth: memset_s C11/Annex K variant? */
-    memset( prep_inp_data, 0, 2 * sizeof(*prep_inp_data) ); /* djb-rwth: memset_s C11/Annex K variant? */
-    memset( pINChI, 0, sizeof(pINChI) ); /* djb-rwth: memset_s C11/Annex K variant? */
-    memset( pINChI_Aux, 0, sizeof(pINChI_Aux) ); /* djb-rwth: memset_s C11/Annex K variant? */
-    memset( szSdfDataValue, 0, sizeof(szSdfDataValue) ); /* djb-rwth: memset_s C11/Annex K variant? */
+    memset(orig_inp_data, 0, sizeof(*orig_inp_data)); /* djb-rwth: memset_s C11/Annex K variant? */
+    memset(prep_inp_data, 0, 2 * sizeof(*prep_inp_data)); /* djb-rwth: memset_s C11/Annex K variant? */
+    memset(pINChI, 0, sizeof(pINChI)); /* djb-rwth: memset_s C11/Annex K variant? */
+    memset(pINChI_Aux, 0, sizeof(pINChI_Aux)); /* djb-rwth: memset_s C11/Annex K variant? */
+    memset(szSdfDataValue, 0, sizeof(szSdfDataValue)); /* djb-rwth: memset_s C11/Annex K variant? */
 
-    memset( &CG, 0, sizeof(CG) ); /* djb-rwth: memset_s C11/Annex K variant? */
-    memset( &ic, 0, sizeof(ic) ); /* djb-rwth: memset_s C11/Annex K variant? */
+    memset(&CG, 0, sizeof(CG)); /* djb-rwth: memset_s C11/Annex K variant? */
+    memset(&ic, 0, sizeof(ic)); /* djb-rwth: memset_s C11/Annex K variant? */
 
     plog->f = stderr;
 
@@ -789,7 +812,7 @@ int ProcessSingleInputFile( int argc, char *argv[] )
     ulTotalProcessingTime = 0;
     if (pStructPtrs)
     {
-        memset( pStructPtrs, 0, sizeof(pStructPtrs[0]) ); /* djb-rwth: memset_s C11/Annex K variant? */
+        memset(pStructPtrs, 0, sizeof(pStructPtrs[0])); /* djb-rwth: memset_s C11/Annex K variant? */
     }
     output_error_inchi = ip->bINChIOutputOptions2 & INCHI_OUT_INCHI_GEN_ERROR;
 
@@ -1362,7 +1385,7 @@ int CalcAndPrintINCHIAndINCHIKEY( struct tagINCHI_CLOCK *ic,
                 inchi_ios_print( pout, "InChIHash=%-s", ik_string );
             }
 #if USE_BCF
-            strcpy_s( ikey, sizeof(ikey) + sizeof(ik_string), ik_string); /* djb-rwth: function replaced with its safe C11 variant */
+            strcpy_s(ikey, sizeof(ikey) + sizeof(ik_string), ik_string); /* djb-rwth: function replaced with its safe C11 variant */
 #else
             strcpy(ikey, ik_string);
 #endif
