@@ -1238,7 +1238,6 @@ int FillOutINChI( INChI *pINChI,
 
             LOG("\n*********************************************************************************************************\n");
 
-
             for (; i < num_at_tg; i++)
             {
                 pCanonRank[pCanonOrd[i]] = (AT_NUMB) ( i + 1 );

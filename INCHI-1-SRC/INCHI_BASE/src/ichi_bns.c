@@ -5351,6 +5351,9 @@ int mark_alt_bonds_and_taut_groups( struct tagINCHI_CLOCK   *ic,
     int nAtTypeTotals[ATTOT_ARRAY_LEN];
     int nNumOrigTotAtoms;
 
+    /*(@nnuk : Nauman Ullah Khan) :: Variable for checking (De)protonation status */
+    int at_prot;
+
     BN_AATG  aatg;
     BN_AATG *pAATG = &aatg;
 
@@ -5367,9 +5370,9 @@ int mark_alt_bonds_and_taut_groups( struct tagINCHI_CLOCK   *ic,
 
     /*(@nnuk : Nauman Ullah Khan) */
     LOG("\n############# Initial state before (De)Protonation (L5369:ichi_bns.c) ###############\n");
-    for (int i = 0; i < num_atoms; i++)
+    for (at_prot = 0; at_prot < num_atoms; at_prot++)
     {
-        LOG("Atom %d: Element: %s, Num_H: %d, Charge: %hhd, Radical: %d\n", i, at[i].elname, at[i].num_H, at[i].charge, at[i].radical);
+        LOG("Atom %d: Element: %s, Num_H: %d, Charge: %hhd, Radical: %d\n", at_prot, at[at_prot].elname, at[at_prot].num_H, at[at_prot].charge, at[at_prot].radical);
     }
     LOG("\n#####################################################################################\n");
 
@@ -6006,9 +6009,9 @@ int mark_alt_bonds_and_taut_groups( struct tagINCHI_CLOCK   *ic,
 
     /*(@nnuk : Nauman Ullah Khan) */
     LOG("\n################# Modified state after (De)Protonation (L6008:ichi_bns.c) ################\n");
-    for (int i = 0; i < num_atoms; i++)
+    for (at_prot = 0; at_prot < num_atoms; at_prot++)
     {
-        LOG("Atom %d: Element: %s, Num_H: %d, Charge: %hhd, Radical: %d\n", i, at[i].elname, at[i].num_H, at[i].charge, at[i].radical);
+        LOG("Atom %d: Element: %s, Num_H: %d, Charge: %hhd, Radical: %d\n", at_prot, at[at_prot].elname, at[at_prot].num_H, at[at_prot].charge, at[at_prot].radical);
     }
     LOG("\n##########################################################################################\n");
 
