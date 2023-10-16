@@ -993,18 +993,6 @@ void WriteCoord( char *str, double x )
 
 */
 
-/*
-* (@nnuk : Nauman Ullah Khan)
-* The modified Internal Chemical Structure is created here with
-* information regarding the canonical numbering of the atoms.
-* The method below is divided into two parts where one part deals
-* with the canonical numbering of input including stereo information
-* and the other part holds the information for canonical numbering
-* with input having no stereo information in it.
-* It is important to note here that the canonicalization procedures
-* show connection to stereo information everywhere, which might indicate
-* that they are fully connected within code.
-*/
 
 /****************************************************************************
     Serialization: one-component InChI
@@ -1180,18 +1168,11 @@ int FillOutINChI( INChI *pINChI,
             }
         }
 
-        LOG("************************** Canonical Ordering with Stereo (L1183:ichimak2.c) ***************************\n");
         for (i = 0; i < num_atoms; i++)
         {
             pINChI_Aux->nOrigAtNosInCanonOrdInv[i] = at[pCanonOrdInv[i]].orig_at_number;
-            pINChI_Aux->nOrigAtNosInCanonOrd[i] = at[pCanonOrd[i]].orig_at_number;              /*(@nnuk : Nauman Ullah Khan) :: Array holding the information for stereo based canonical numbering of atoms*/
-
-            LOG("Atom Nr: %d, Canonical Numbering Normal: %d, Element Name: %s\n", i + 1, at[pCanonOrd[i]].orig_at_number, at[i].elname);
-
+            pINChI_Aux->nOrigAtNosInCanonOrd[i] = at[pCanonOrd[i]].orig_at_number;
         }
-
-        LOG("\n******************************************************************************************************\n");
-
 
         if (bUseNumberingInv)
         {
@@ -1225,19 +1206,11 @@ int FillOutINChI( INChI *pINChI,
 
         if (pCanonOrd && pCanonRank)
         {
-            LOG("************************** Canonical Ordering without Stereo (L1228:ichimak2.c) ***************************\n");
-
             for (i = 0; i < num_atoms; i++)
             {
                 pCanonRank[pCanonOrd[i]] = (AT_NUMB) ( i + 1 );
-                pOrigNosInCanonOrd[i] = at[pCanonOrd[i]].orig_at_number;              /*(@nnuk : Nauman Ullah Khan) :: Array holding the information for non-stereo based canonical numbering of atoms*/
-
-                LOG("Atom Nr: %d, Canonical Numbering Normal: %d, Element Name: %s\n", i + 1, at[pCanonOrd[i]].orig_at_number, at[i].elname);
-
+                pOrigNosInCanonOrd[i] = at[pCanonOrd[i]].orig_at_number;
             }
-
-            LOG("\n*********************************************************************************************************\n");
-
             for (; i < num_at_tg; i++)
             {
                 pCanonRank[pCanonOrd[i]] = (AT_NUMB) ( i + 1 );

@@ -41,7 +41,7 @@
 #include "util.h"
 #include "strutil.h"
 #include "inchi_api.h"
-#include "ichimain.h"
+
 #include "bcf_s.h"
 
 /*
@@ -322,15 +322,6 @@ int CreateOrigInpDataFromMolfile( INCHI_IOSTREAM *inp_file,
     return orig_at_data ? orig_at_data->num_inp_atoms : nNumAtoms;
 }
 
-/*
-* (@nnuk : Nauman Ullah Khan)
-* This method basically reads in Molfile data from
-* the Molfile and then stores the block information
-* into an already defined structure in the form of
-* an array. "mfdata" pointer is used in the method
-* to to store the Molfile data into the specidied
-* structure.
-*/
 
 /****************************************************************************
 ReadMolfileToInpAtoms
@@ -537,15 +528,6 @@ int ReadMolfileToInpAtoms( INCHI_IOSTREAM *inp_file,
     return num_atoms;
 }
 
-/*
-* (@nnuk : Nauman Ullah Khan)
-* After reading in the Molfile, the data is used to create
-* an internal chemical representation of the chemical compound.
-* A structure is defined in C, "inp_ATOM", that holds a number
-* of variables depending on the different properties of a molfile.
-* For example, information regarding atom number, element name,
-* coordinates, charge, radicals etc. are stored seperately.
-*/
 
 /****************************************************************************
 Make Inp Atoms From Molfile Data
@@ -566,17 +548,8 @@ inp_ATOM* MakeInpAtomsFromMolfileData( MOL_FMT_DATA* mfdata,
 
     *err = 0;
 
-    /*
-    * (@nnuk : Nauman Ullah Khan)
-    * Information for atoms, taken from the "mfdata" C structure.
-    */
     *num_atoms = mfdata->ctab.n_atoms;
     *num_bonds = 0;
-
-    /*(@nnuk : Nauman Ullah Khan) */
-    LOG("\n############### (L577:mol2atom.c) ################\n");
-    LOG("Number of atoms : %d\n", *num_atoms);
-    LOG("####################################################\n");
 
     if (MolfileHasNoChemStruc( mfdata ))
     {
@@ -599,10 +572,6 @@ inp_ATOM* MakeInpAtomsFromMolfileData( MOL_FMT_DATA* mfdata,
     }
 
     /* Copy atoms info */
-
-    /*(@nnuk : Nauman Ullah Khan) */
-    LOG("\n##################### Atoms Data #########################\n");
-
     for (i = 0; i < *num_atoms; i++)
     {
 
@@ -610,11 +579,6 @@ inp_ATOM* MakeInpAtomsFromMolfileData( MOL_FMT_DATA* mfdata,
         /* at[i].chem_bonds_valence = mfdata->ctab.atoms[i].valence; */
         /*  MOLfile valence; will change */
 
-        /*
-        * (@nnuk : Nauman Ullah Khan)
-        * Information about the atom number, isotopes, charge and
-        * radical present in "ctab" inside respective arrays.
-        */
         at[i].orig_at_number = (AT_NUMB) ( i + 1 );
         at[i].iso_atw_diff = mfdata->ctab.atoms[i].mass_difference;
         at[i].charge = mfdata->ctab.atoms[i].charge;
@@ -707,12 +671,6 @@ inp_ATOM* MakeInpAtomsFromMolfileData( MOL_FMT_DATA* mfdata,
                 }
             }
         }
-
-        /*(@nnuk : Nauman Ullah Khan) */
-        LOG("\n############################## (L712:mol2atom.c) #####################################\n");
-        LOG("Atom %d: element=%s, x=%f, y=%f, z=%f, chrg=%d, rad=%d, iso=%d\n", i, at[i].elname, at[i].x, at[i].y, at[i].z, at[i].charge, at[i].radical, at[i].iso_atw_diff);
-        LOG("########################################################################################\n");
-
     } /* eof copy atom info */
 
 
@@ -736,16 +694,9 @@ inp_ATOM* MakeInpAtomsFromMolfileData( MOL_FMT_DATA* mfdata,
 
 
       /* Copy bond info */
-
-    LOG("\n######################### Bonds Data ###############################\n");
-
     for (i = 0, bonds = 0; i < mfdata->ctab.n_bonds; i++)
     {
-        /*
-        * (@nnuk : Nauman Ullah Khan)
-        * Information regarding bond properties is stored in the
-        * respective arrays in the "ctab" variable.
-        */
+
         bond_stereo = mfdata->ctab.bonds[i].bond_stereo;
         bond_type = mfdata->ctab.bonds[i].bond_type;
 
@@ -764,11 +715,6 @@ inp_ATOM* MakeInpAtomsFromMolfileData( MOL_FMT_DATA* mfdata,
         /*  check for multiple bonds between same atoms */
         p1 = is_in_the_list( at[a1].neighbor, (AT_NUMB) a2, at[a1].valence );
         p2 = is_in_the_list( at[a2].neighbor, (AT_NUMB) a1, at[a2].valence );
-
-        /*(@nnuk : Nauman Ullah Khan) */
-        LOG("\n################## (L769:mol2atom.c) ##################\n");
-        LOG("Valence = %d\n", at[i].valence);
-        LOG("#########################################################\n");
 
         if (( p1 || p2 ) && ( p1 || at[a1].valence < MAXVAL ) && ( p2 || at[a2].valence < MAXVAL ))
         {
@@ -855,12 +801,6 @@ inp_ATOM* MakeInpAtomsFromMolfileData( MOL_FMT_DATA* mfdata,
                 continue;
             }
         }
-
-        /*(@nnuk : Nauman Ullah Khan) */
-        LOG("\n################ (L860:mol2atom.c) ##################\n");
-        LOG("Bond %d: atom1=%d, atom2=%d, type=%d, stereo=%d\n", i, a1, a2, bond_type, bond_stereo);
-        LOG("#######################################################\n");
-
     } /* eof copy bond info */
 
     *num_bonds = bonds;

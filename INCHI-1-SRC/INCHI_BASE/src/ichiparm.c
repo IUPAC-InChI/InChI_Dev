@@ -2787,7 +2787,7 @@ void HelpCommandLineParms(INCHI_IOSTREAM* f)
 #ifndef TARGET_EXE_USING_API
     inchi_ios_print_nodisplay(f, "  OutErrInChI On fail, print empty InChI (default: nothing)\n");
 #endif
-#if ( defined(_WIN32) && defined(_MSC_VER) && !defined(COMPILE_ANSI_ONLY) && !defined(TARGET_API_LIB) )
+#if ( defined(_WIN32) && !defined(COMPILE_ANSI_ONLY) && !defined(TARGET_API_LIB) ) /* djb-rwth: check if this is working on GCC for Windows */
     inchi_ios_print_nodisplay(f, "  D           Display the structures\n");
     inchi_ios_print_nodisplay(f, "  EQU         Display sets of identical components\n");
     inchi_ios_print_nodisplay(f, "  Fnumber     Set display Font size in number of points\n");

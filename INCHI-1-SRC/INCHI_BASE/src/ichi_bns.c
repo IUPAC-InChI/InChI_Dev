@@ -50,7 +50,7 @@ Normalization related procedures
 #include "util.h"
 #include "ichister.h"
 #include "ichi_bns.h"
-#include "ichimain.h"
+
 #include "bcf_s.h"
 
 #define BNS_MARK_ONLY_BLOCKS        1  /* 1 => find only blocks, do not search for ring systems */
@@ -5308,15 +5308,6 @@ exit_function:
     return ret;
 }
 
-/*
-* (@nnuk : Nauman Ullah Khan)
-* This method deals with the allocation of Balanced Network Data structures.
-* Variables from BN Struct and BN Data are used for replacing alternating
-* bonds with single bonds with various conditions for tautomers and aromatic
-* bonds. Process of protonation and De-protonation is also carried out with
-* the help of below (in the code) mentioned priciples on specific compounds.
-* Normalization also performed on salt charge groups.
-*/
 
 /****************************************************************************
 Main normalization procedure
@@ -5351,9 +5342,6 @@ int mark_alt_bonds_and_taut_groups( struct tagINCHI_CLOCK   *ic,
     int nAtTypeTotals[ATTOT_ARRAY_LEN];
     int nNumOrigTotAtoms;
 
-    /*(@nnuk : Nauman Ullah Khan) :: Variable for checking (De)protonation status */
-    int at_prot;
-
     BN_AATG  aatg;
     BN_AATG *pAATG = &aatg;
 
@@ -5368,13 +5356,6 @@ int mark_alt_bonds_and_taut_groups( struct tagINCHI_CLOCK   *ic,
     memset( s_group_info, 0, sizeof( *s_group_info ) ); /* djb-rwth: memset_s C11/Annex K variant? */
     memset( pAATG, 0, sizeof( *pAATG ) ); /* djb-rwth: memset_s C11/Annex K variant? */
 
-    /*(@nnuk : Nauman Ullah Khan) */
-    LOG("\n############# Initial state before (De)Protonation (L5369:ichi_bns.c) ###############\n");
-    for (at_prot = 0; at_prot < num_atoms; at_prot++)
-    {
-        LOG("Atom %d: Element: %s, Num_H: %d, Charge: %hhd, Radical: %d\n", at_prot, at[at_prot].elname, at[at_prot].num_H, at[at_prot].charge, at[at_prot].radical);
-    }
-    LOG("\n#####################################################################################\n");
 
 #ifdef FIX_AROM_RADICAL        /* Added 2011-05-09 IPl */
     for (i = 0; i < num_atoms; i++)
@@ -6006,14 +5987,6 @@ int mark_alt_bonds_and_taut_groups( struct tagINCHI_CLOCK   *ic,
         bError = BNS_OUT_OF_RAM;
         /*printf("BNS_OUT_OF_RAM-3\n");*/
     }
-
-    /*(@nnuk : Nauman Ullah Khan) */
-    LOG("\n################# Modified state after (De)Protonation (L6008:ichi_bns.c) ################\n");
-    for (at_prot = 0; at_prot < num_atoms; at_prot++)
-    {
-        LOG("Atom %d: Element: %s, Num_H: %d, Charge: %hhd, Radical: %d\n", at_prot, at[at_prot].elname, at[at_prot].num_H, at[at_prot].charge, at[at_prot].radical);
-    }
-    LOG("\n##########################################################################################\n");
 
 exit_function:
 
@@ -8868,15 +8841,6 @@ reinit_BNS:
     return bError ? bError : ret_val ? ret_val : ( bSuccess + 4 * nDelta );
 }
 
-/*
-* (@nnuk : Nauman Ullah Khan)
-* The Internal Chemical Structure is read and translated to
-* a chemical structure that is understood by the normalization
-* procedures for further processing. It is important to note
-* in Normalization is that we see a change in naming convention
-* from previous step. The Internal Chemical Structure in
-* Normalization has "vertices" as "atoms" and "edges"  as bonds.
-*/
 
 /****************************************************************************/
 BN_STRUCT* AllocateAndInitBnStruct( inp_ATOM *at,
@@ -8909,11 +8873,6 @@ BN_STRUCT* AllocateAndInitBnStruct( inp_ATOM *at,
 
     for (i = 0, num_bonds = 0; i < num_atoms; i++)
     {
-        /*(@nnuk : Nauman Ullah Khan) */
-        LOG("\n################# (L8910:ichi_bns.c) ###################\n");
-        LOG("Number of changed bonds (Start): %d\n", num_changed_bonds);
-        LOG("\n########################################################\n");
-
         num_bonds += at[i].valence;
 #if ( BNS_RAD_SEARCH == 1 )
         num_rad += ( at[i].radical == RADICAL_DOUBLET );
@@ -8977,24 +8936,13 @@ BN_STRUCT* AllocateAndInitBnStruct( inp_ATOM *at,
     pBNS->nMaxAddAtoms = nMaxAddAtoms;
     pBNS->nMaxAddEdges = nMaxAddEdges;
 
-    /*
-    * (@nnuk : Nauman Ullah Khan)
-    * A pointer "pBNS" pointing to a variable "num_vertices" which is equal
-    * to "num_atoms", which is number of atoms. It is one of the property
-    * translated from Internal Chemical structure to a Normalization Structure.
-    */
     pBNS->num_vertices = num_atoms;     /*  current number of vertices, a sum of
                                         pBNS->num_atoms
                                         pBNS->num_t_groups
                                         pBNS->num_added_atoms           */
     pBNS->max_vertices = max_vertices;
 
-    /*
-    * (@nnuk : Nauman Ullah Khan)
-    * A pointer "pBNS" pointing to a variable "num_bonds" which is equal
-    * to "num_bonds", which is number of bonds aka edges. It is one of the property
-    * translated from Internal Chemical structure to a Normalization Structure.
-    */
+
     pBNS->num_bonds = num_bonds;        /* number of real edges (bonds)         */
     pBNS->max_edges = max_edges;
     pBNS->max_iedges = max_iedges;
@@ -9100,14 +9048,6 @@ BN_STRUCT* AllocateAndInitBnStruct( inp_ATOM *at,
 
     pBNS->num_edges = n_edges;   /* number of edges */
     pBNS->num_added_edges = 0;
-
-    /*(@nnuk : Nauman Ullah Khan) */
-    LOG("\n################# (L9102:ichi_bns.c) ################\n");
-    for (i = 0, num_bonds = 0; i < num_atoms; i++) {
-
-        LOG("Element : %s, Number of changed bonds (End): %d\n", at[i].elname, *pNum_changed_bonds);
-    }
-    LOG("\n#####################################################\n");
 
     pBNS->tot_st_cap = tot_st_cap;
     pBNS->tot_st_flow = tot_st_flow;
