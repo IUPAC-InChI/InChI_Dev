@@ -2,7 +2,7 @@
  * International Chemical Identifier (InChI)
  * Version 1
  * Software version 1.06
- * December 15, 2020
+ * 07/10/2023
  *
  * The InChI library and programs are free software developed under the
  * auspices of the International Union of Pure and Applied Chemistry (IUPAC).
@@ -47,7 +47,7 @@
 #endif
 #endif
 
-#include "../../INCHI_BASE/src/mode.h"
+#include "../../../INCHI_BASE/src/mode.h"
 
 #if( BUILD_WITH_AMI == 1 && defined( _MSC_VER ) && MSC_AMI == 1 )
 #include <malloc.h>
@@ -70,14 +70,12 @@
 #include "../../../INCHI_BASE/src/ichicomp.h"
 #include "../../../INCHI_BASE/src/ichi_io.h"
 #ifdef TARGET_EXE_STANDALONE
-#include "../../INCHI_BASE/src/inchi_api.h"
+#include "../../../INCHI_BASE/src/inchi_api.h"
 #endif
 
+#include "../../../INCHI_BASE/src/bcf_s.h"
+
 int ret_val; /* djb-rwth: variable added for return value */
-
-/*(@nnuk : Nauman Ullah Khan) :: Enable logging by default */
-int g_loggingEnabled = 1;     /*Change to zero (0) if print outputs not needed otherwise keep it one (1)*/
-
 
  /*  Console-specific */
 
@@ -98,7 +96,7 @@ int user_quit( struct tagINCHI_CLOCK *ic,
 #if ( !defined(TARGET_LIB_FOR_WINCHI) && defined(_WIN32) )
 
     int quit, enter, ret;
-    printf(msg);
+    printf("%s", msg); /* djb-rwth: format string added for security */
     if (ulMaxTime)
     {
         inchiTime  ulEndTime;
@@ -116,11 +114,11 @@ int user_quit( struct tagINCHI_CLOCK *ic,
     }
     while (1)
     {
-        quit = ('q' == (ret = _getch()) || 'Q' == ret || /*Esc*/ 27 == ret);
+        quit = ('q' == (ret = _getch()) || 'Q' == ret || /*Esc*/ 27 == ret); /* djb-rwth: ignoring LLVM warning: variable used to store function return value */
         enter = ('\r' == ret);
         if (ret == 0xE0)
         {
-            ret = _getch();
+            ret = _getch(); /* djb-rwth: ignoring LLVM warning: variable used to store function return value */
         }
         else
         {
@@ -131,7 +129,7 @@ int user_quit( struct tagINCHI_CLOCK *ic,
             break;
         }
         printf("\r");
-        printf(msg);
+        printf("%s", msg); /* djb-rwth: format string added for security */
     }
     _putch('\n');
 
@@ -221,7 +219,7 @@ int main( int argc, char *argv[] )
 /*************************/
 
 /**** IF IN AMI MODE, main() STARTS HERE ****/
-    int i, ret = 0, ami = 0;
+    int i, ret = 0, ami = 0; /* djb-rwth: ignoring LLVM warning: variable used to store function return value */
 
     /* Check if multiple inputs expected */
     for (i = 1; i < argc; i++)
@@ -238,11 +236,11 @@ int main( int argc, char *argv[] )
 
     if (ami)
     {
-        ret = ProcessMultipleInputFiles(argc, argv);
+        ret = ProcessMultipleInputFiles(argc, argv); /* djb-rwth: ignoring LLVM warning: variable used to store function return value */
     }
     else
     {
-        ret = ProcessSingleInputFile(argc, argv);
+        ret = ProcessSingleInputFile(argc, argv); /* djb-rwth: ignoring LLVM warning: variable used to store function return value */
     }
 
     return 0;
@@ -333,14 +331,14 @@ int ProcessMultipleInputFiles( int argc, char *argv[] )
     }
 
 #if( BUILD_WITH_AMI == 1 && defined( _MSC_VER ) && MSC_AMI == 1 )
-    if ((pName = strrchr( fn_ins[0], INCHI_PATH_DELIM ))) /* djb-rwth: addressing LLVM warning */
+    if ((pName = strrchr(fn_ins[0], INCHI_PATH_DELIM))) /* djb-rwth: addressing LLVM warning */
     {
         pName++;
         lenPath = pName - fn_ins[0];
     }
     else
     {
-        pName = fn_ins[0];
+        /* djb-rwth: removing redundant variables */
         lenPath = 0;
     }
     for (hFile = _findfirst( fn_ins[0], &file_info ), retFile = 0;
@@ -359,8 +357,8 @@ int ProcessMultipleInputFiles( int argc, char *argv[] )
             continue;
         }
 #if USE_BCF
-        memcpy_s( pathname, sizeof(pathname) + lenPath, fn_ins[0], lenPath ); /* djb-rwth: function replaced with its safe C11 variant */
-        strcpy_s( pathname + lenPath, sizeof(pathname), file_info.name); /* djb-rwth: function replaced with its safe C11 variant */
+        memcpy_s(pathname, sizeof(pathname) + lenPath, fn_ins[0], lenPath); /* djb-rwth: function replaced with its safe C11 variant */
+        strcpy_s(pathname + lenPath, sizeof(pathname), file_info.name); /* djb-rwth: function replaced with its safe C11 variant */
 #else
         memcpy(pathname, fn_ins[0], lenPath);
         strcpy(pathname + lenPath, file_info.name);
@@ -397,8 +395,8 @@ int ProcessMultipleInputFiles( int argc, char *argv[] )
             if (fn_out)
             {
 #if USE_BCF
-                strcpy_s( fn_out, sizeof(fn_out) + sizeof(fn_in), fn_in); /* djb-rwth: function replaced with its safe C11 variant */
-                strcat_s( fn_out, sizeof(fn_out), ".txt" ); /* djb-rwth: function replaced with its safe C11 variant */
+                strcpy_s(fn_out, sizeof(pathname), fn_in); /* djb-rwth: function replaced with its safe C11 variant */
+                strcat_s(fn_out, sizeof(pathname), ".txt"); /* djb-rwth: function replaced with its safe C11 variant */
 #else
                 strcpy(fn_out, fn_in);
                 strcat(fn_out, ".txt");
@@ -424,8 +422,8 @@ int ProcessMultipleInputFiles( int argc, char *argv[] )
             if (fn_log)
             {
 #if USE_BCF
-                strcpy_s( fn_log, sizeof(fn_log) + sizeof(fn_in), fn_in); /* djb-rwth: function replaced with its safe C11 variant */
-                strcat_s( fn_log, sizeof(fn_log), ".log" ); /* djb-rwth: function replaced with its safe C11 variant */
+                strcpy_s(fn_log, sizeof(pathname), fn_in); /* djb-rwth: function replaced with its safe C11 variant */
+                strcat_s(fn_log, sizeof(pathname), ".log"); /* djb-rwth: function replaced with its safe C11 variant */
 #else
                 strcpy(fn_log, fn_in);
                 strcat(fn_log, ".log");
@@ -450,8 +448,8 @@ int ProcessMultipleInputFiles( int argc, char *argv[] )
             if (fn_prb)
             {
 #if USE_BCF
-                strcpy_s( fn_prb, sizeof(fn_prb) + sizeof(fn_in), fn_in); /* djb-rwth: function replaced with its safe C11 variant */
-                strcat_s( fn_prb, sizeof(fn_prb), ".prb"); /* djb-rwth: function replaced with its safe C11 variant */
+                strcpy_s(fn_prb, sizeof(pathname), fn_in); /* djb-rwth: function replaced with its safe C11 variant */
+                strcat_s(fn_prb, sizeof(pathname), ".prb"); /* djb-rwth: function replaced with its safe C11 variant */
 #else
                 strcpy(fn_prb, fn_in);
                 strcat(fn_prb, ".prb");
@@ -531,10 +529,10 @@ int ProcessSingleInputFile( int argc, char *argv[] )
 /**** IF NOT IN AMI MODE, main() STARTS HERE ****/
 
     int bReleaseVersion = bRELEASE_VERSION;
-    const int nStrLen = INCHI_SEGM_BUFLEN;
+    /* djb-rwth: removing redundant variables */
     int   nRet = 0;
     int    i;
-    long num_err, num_output, num_inp;
+    long num_err, num_inp; /* djb-rwth: removing redundant variable */
     /* long rcPict[4] = {0,0,0,0}; */
     unsigned long  ulDisplTime = 0;    /*  infinite, milliseconds */
     unsigned long  ulTotalProcessingTime = 0;
@@ -592,7 +590,7 @@ int ProcessSingleInputFile( int argc, char *argv[] )
 #endif
 #endif
 
-
+#ifdef _WIN32
 #if ( TRACE_MEMORY_LEAKS == 1 )
     _CrtSetDbgFlag(_CRTDBG_CHECK_ALWAYS_DF | _CRTDBG_LEAK_CHECK_DF | _CRTDBG_ALLOC_MEM_DF);
     /* for execution outside the VC++ debugger uncomment one of the following two */
@@ -621,6 +619,7 @@ int ProcessSingleInputFile( int argc, char *argv[] )
         _controlfp(cw, MCW_EM);
     }
 #endif
+#endif
 
     sd->bUserQuit = 0;
 #if ( defined( _WIN32 ) && defined( _CONSOLE ) && !defined( COMPILE_ANSI_ONLY ) )
@@ -632,18 +631,18 @@ int ProcessSingleInputFile( int argc, char *argv[] )
 
     num_inp = 0;
     num_err = 0;
-    num_output = 0;
+    /* djb-rwth: removing redundant code */
 
     inchi_ios_init( inp_file, INCHI_IOS_TYPE_FILE, NULL );
     inchi_ios_init( pout, inchi_ios_type, NULL );
     inchi_ios_init( plog, inchi_ios_type, stdout );
     inchi_ios_init( pprb, inchi_ios_type, NULL );
-    memset( strbuf, 0, sizeof(*strbuf) ); /* djb-rwth: memset_s C11/Annex K variant?; dereferencing strbuf */
+    memset(strbuf, 0, sizeof(*strbuf)); /* djb-rwth: memset_s C11/Annex K variant?; dereferencing strbuf */
 
 
 
-    if (argc == 1 || argc == 2 && (argv[1][0] == INCHI_OPTION_PREFX) &&
-        (!strcmp(argv[1] + 1, "?") || !inchi_stricmp(argv[1] + 1, "help")))
+    if (argc == 1 || (argc == 2 && (argv[1][0] == INCHI_OPTION_PREFX) &&
+        (!strcmp(argv[1] + 1, "?") || !inchi_stricmp(argv[1] + 1, "help")))) /* djb-rwth: addressing LLVM warning */
     {
         HelpCommandLineParms( plog );
         inchi_ios_flush( plog );
@@ -651,14 +650,14 @@ int ProcessSingleInputFile( int argc, char *argv[] )
     }
 
     /*  original input structure */
-    memset( orig_inp_data, 0, sizeof(*orig_inp_data) ); /* djb-rwth: memset_s C11/Annex K variant? */
-    memset( prep_inp_data, 0, 2 * sizeof(*prep_inp_data) ); /* djb-rwth: memset_s C11/Annex K variant? */
-    memset( pINChI, 0, sizeof(pINChI) ); /* djb-rwth: memset_s C11/Annex K variant? */
-    memset( pINChI_Aux, 0, sizeof(pINChI_Aux) ); /* djb-rwth: memset_s C11/Annex K variant? */
-    memset( szSdfDataValue, 0, sizeof(szSdfDataValue) ); /* djb-rwth: memset_s C11/Annex K variant? */
+    memset(orig_inp_data, 0, sizeof(*orig_inp_data)); /* djb-rwth: memset_s C11/Annex K variant? */
+    memset(prep_inp_data, 0, 2 * sizeof(*prep_inp_data)); /* djb-rwth: memset_s C11/Annex K variant? */
+    memset(pINChI, 0, sizeof(pINChI)); /* djb-rwth: memset_s C11/Annex K variant? */
+    memset(pINChI_Aux, 0, sizeof(pINChI_Aux)); /* djb-rwth: memset_s C11/Annex K variant? */
+    memset(szSdfDataValue, 0, sizeof(szSdfDataValue)); /* djb-rwth: memset_s C11/Annex K variant? */
 
-    memset( &CG, 0, sizeof(CG) ); /* djb-rwth: memset_s C11/Annex K variant? */
-    memset( &ic, 0, sizeof(ic) ); /* djb-rwth: memset_s C11/Annex K variant? */
+    memset(&CG, 0, sizeof(CG)); /* djb-rwth: memset_s C11/Annex K variant? */
+    memset(&ic, 0, sizeof(ic)); /* djb-rwth: memset_s C11/Annex K variant? */
 
     plog->f = stderr;
 
@@ -716,7 +715,7 @@ int ProcessSingleInputFile( int argc, char *argv[] )
     if (may_get_inchi_string_input && ip->nInputType == INPUT_INCHI)
     {
         bInChI2Structure = 0 != (ip->bReadInChIOptions & READ_INCHI_TO_STRUCTURE);
-        memset(sd, 0, sizeof(*sd));
+        memset(sd, 0, sizeof(*sd)); /* djb-rwth: memset_s C11/Annex K variant? */
         if (bInChI2Structure)
         {
             /* loop through file lines here */
@@ -790,7 +789,7 @@ int ProcessSingleInputFile( int argc, char *argv[] )
     ulTotalProcessingTime = 0;
     if (pStructPtrs)
     {
-        memset( pStructPtrs, 0, sizeof(pStructPtrs[0]) ); /* djb-rwth: memset_s C11/Annex K variant? */
+        memset(pStructPtrs, 0, sizeof(pStructPtrs[0])); /* djb-rwth: memset_s C11/Annex K variant? */
     }
     output_error_inchi = ip->bINChIOutputOptions2 & INCHI_OUT_INCHI_GEN_ERROR;
 
@@ -805,9 +804,7 @@ int ProcessSingleInputFile( int argc, char *argv[] )
         int do_renumbering = 0;
         int next_action;
         int have_err_in_GetOneStructure = 0;
-        int dup_fail = 0;
-        ORIG_ATOM_DATA SavedOrigAtData; /* 0=> disconnected, 1=> original */
-        ORIG_ATOM_DATA *saved_orig_inp_data = &SavedOrigAtData;
+        /* djb-rwth: removing redundant variables */
         char ikey0[28];
         ikey0[0] = '\0';
 
@@ -1365,7 +1362,7 @@ int CalcAndPrintINCHIAndINCHIKEY( struct tagINCHI_CLOCK *ic,
                 inchi_ios_print( pout, "InChIHash=%-s", ik_string );
             }
 #if USE_BCF
-            strcpy_s( ikey, sizeof(ikey) + sizeof(ik_string), ik_string); /* djb-rwth: function replaced with its safe C11 variant */
+            strcpy_s(ikey, sizeof(ikey) + sizeof(ik_string), ik_string); /* djb-rwth: function replaced with its safe C11 variant */
 #else
             strcpy(ikey, ik_string);
 #endif
@@ -1466,11 +1463,21 @@ void shuffle(void *obj, size_t nmemb, size_t size)
     while (n > 1)
     {
         size_t k = rrand((int)n--);
-        memcpy(temp, BYTE(obj) + n*size, size);
-        memcpy(BYTE(obj) + n*size, BYTE(obj) + k*size, size);
-        memcpy(BYTE(obj) + k*size, temp, size);
+#if USE_BCF
+        memcpy_s(temp, size, BYTE(obj) + n*size, size); /* djb-rwth: function replaced with its safe C11 variant */
+        memcpy_s(BYTE(obj) + n*size, size, BYTE(obj) + k*size, size); /* djb-rwth: function replaced with its safe C11 variant */
+        memcpy_s(BYTE(obj) + k*size, size, temp, size); /* djb-rwth: function replaced with its safe C11 variant */
+#else
+        memcpy(temp, BYTE(obj) + n * size, size);
+        memcpy(BYTE(obj) + n * size, BYTE(obj) + k * size, size);
+        memcpy(BYTE(obj) + k * size, temp, size);
+#endif
     }
-    _free_dbg(temp, _NORMAL_BLOCK); /* djb-rwth: _free_dbg for _malloc_dbg must be used */
+#ifdef _WIN32
+    _free_dbg(temp, _NORMAL_BLOCK); /* djb-rwth: _free_dbg for _malloc_dbg must be used if Windows SDK is used */
+#else
+    free(temp); /* djb-rwth: otherwise just free */
+#endif
 }
 
 
@@ -1483,7 +1490,11 @@ void OrigAtData_Permute(ORIG_ATOM_DATA *permuted, ORIG_ATOM_DATA *saved, int *nu
     for (i = 0; i < nat; i++)
     {
         j = numbers[i];
+#if USE_BCF
+        memcpy_s(permuted->at + j, sizeof(permuted->at) + atsize, saved->at + i, atsize); /* djb-rwth: function replaced with its safe C11 variant */
+#else
         memcpy(permuted->at + j, saved->at + i, atsize);
+#endif
         for (k = 0; k < permuted->at[j].valence; k++)
         {
             permuted->at[j].neighbor[k] = numbers[permuted->at[j].neighbor[k]];
@@ -1653,7 +1664,7 @@ int RepeatedlyRenumberAtomsAndRecalcINCHI(struct tagINCHI_CLOCK* ic,
         OrigAtDataPolymer_DebugTrace(orig_inp_data->polymer);
 #endif
 
-        memset(saved_orig_inp_data, 0, sizeof(*saved_orig_inp_data));
+        memset(saved_orig_inp_data, 0, sizeof(*saved_orig_inp_data)); /* djb-rwth: memset_s C11/Annex K variant? */
         dup_fail = OrigAtData_Duplicate(saved_orig_inp_data, orig_inp_data);
 
         next_action = CalcAndPrintINCHIAndINCHIKEY(ic, CG, sd, ip, szTitle,
@@ -1683,7 +1694,7 @@ int RepeatedlyRenumberAtomsAndRecalcINCHI(struct tagINCHI_CLOCK* ic,
         {
             int irepeat = 0;
             int ndiff = 0;
-            int n_written_problems = 0;
+            /* djb-rwth: removing redundant variables */
             char ikey[28];
             ikey[0] = '\0';
             for (irepeat = 0; irepeat < nrepeat - 1; irepeat++)
@@ -1716,7 +1727,7 @@ int RepeatedlyRenumberAtomsAndRecalcINCHI(struct tagINCHI_CLOCK* ic,
                     {
                         if (strcmp(ikey, ikey0))
                         {
-                            int result, bINChIOutputOptions = ip->bINChIOutputOptions;
+                            int result, bINChIOutputOptions = ip->bINChIOutputOptions; /* djb-rwth: ignoring LLVM warning: variable used to store function return value */
                             ndiff++;
                             /*inchi_ios_eprint( plog, "!!! #%-ld-%05ld %s%s%s%s\tcurr %-s != %-s orig\n", *num_inp, irepeat + 2, SDF_LBL_VAL( ip->pSdfLabel, ip->pSdfValue ),  ikey, ikey0  );*/
                             /*inchi_ios_eprint( plog, "!!! %s%s%s%s renum#%05ld\t%-s != %-s\n", SDF_LBL_VAL( ip->pSdfLabel, ip->pSdfValue ), irepeat + 2, ikey, ikey0  );*/
@@ -1732,13 +1743,10 @@ int RepeatedlyRenumberAtomsAndRecalcINCHI(struct tagINCHI_CLOCK* ic,
                                 inchi_ios_eprint(plog, " %-d }\n\n", numbers[orig_inp_data->num_inp_atoms - 1] + 1);
                             }
                             ip->bINChIOutputOptions |= INCHI_OUT_SDFILE_ONLY;
-                            result = OrigAtData_SaveMolfile(orig_inp_data, sd, ip, *num_inp, pprb);
+                            result = OrigAtData_SaveMolfile(orig_inp_data, sd, ip, *num_inp, pprb); /* djb-rwth: ignoring LLVM warning: variable used to store function return value */
                             inchi_ios_flush(pprb);
                             ip->bINChIOutputOptions = bINChIOutputOptions;
-                            if (result == 0)
-                            {
-                                n_written_problems++;
-                            }
+                            /* djb-rwth: removing redundant code */
 #if 0
                             /* second pass, non-silent one */
                             FreeAllINChIArrays(pINChI, pINChI_Aux, sd->num_components);
