@@ -1,11 +1,12 @@
 InChI version 1, Software v. 1.07 (Library call example, classic API) 
-Windows 64-bit Build (MS VS 2017 or later) of Oct  5 2023 20:06:54
+Windows 64-bit Build (MS VS 2017 or later) of Oct 16 2023 05:18:02
 
 Opened log file 'InChI_TestSet_ext.sdf.log'
 Opened input file 'InChI_TestSet_ext.sdf'
 Opened output file 'InChI_TestSet_ext.sdf.txt'
 Opened problem file 'InChI_TestSet_ext.sdf.prb'
 Generating standard InChI
+Generating standard InChIKey
 Input format: MOLfile
 Output format: Plain text
 Full Aux. info
