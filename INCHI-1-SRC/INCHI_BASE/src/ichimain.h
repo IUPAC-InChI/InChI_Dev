@@ -37,6 +37,7 @@
 
 #include "strutil.h"
 #include "ichicomn.h"
+#include <stdio.h>
 
 #define ESC_KEY       27
 
@@ -68,7 +69,7 @@ extern int g_loggingEnabled;
 #define LOG(format, ...) \
     do { \
         if (g_loggingEnabled) { \
-            printf(format, ##__VA_ARGS__); \
+            fprintf(stdout, format, ##__VA_ARGS__); \
         } \
     } while (0)
 

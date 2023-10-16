@@ -78,15 +78,6 @@ int ret_val; /* djb-rwth: variable added for return value */
 /*(@nnuk : Nauman Ullah Khan) :: Enable logging by default */
 int g_loggingEnabled = 1;     /*Change to zero (0) if print outputs not needed otherwise keep it one (1)*/
 
-/*(@nnuk : Nauman Ullah Khan) :: Function that enables logging */
-void enableLogging() {
-    g_loggingEnabled = 1; /*(@nnuk : Nauman Ullah Khan) :: Logging enabled */
-}
-
-/*(@nnuk : Nauman Ullah Khan) :: Function that disables logging */
-void disableLogging() {
-    g_loggingEnabled = 0; /*(@nnuk : Nauman Ullah Khan) :: Logging disabled */
-}
 
  /*  Console-specific */
 
@@ -231,16 +222,6 @@ int main( int argc, char *argv[] )
 
 /**** IF IN AMI MODE, main() STARTS HERE ****/
     int i, ret = 0, ami = 0;
-
-    /*(@nnuk: Nauman Ullah Khan) :: Condition check to either show print commands on the command line tool as output or not */
-    if (g_loggingEnabled == 1)
-    {
-        enableLogging(); // Enable logging
-    }
-    else
-    {
-        disableLogging(); // Disable logging
-    }
 
     /* Check if multiple inputs expected */
     for (i = 1; i < argc; i++)
