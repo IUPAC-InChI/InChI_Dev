@@ -37,7 +37,7 @@
 #include <math.h>
 
 #include "mode.h"
-
+#include "logging.h"                        /*(@nnuk : Nauman Ullah Khan) :: Needed for logging functionality*/
 #include "ichister.h"
 #include "ichimain.h"
 #include "ichimake.h"
@@ -3354,7 +3354,7 @@ int OutputINCHI_MainLayerConnections( CANON_GLOBALS    *pCG,
         }
         inchi_ios_print_nodisplay( out_file, "%s%s", strbuf->pStr, pLF );                    /*(@nnuk : Nauman Ullah Khan) :: The InChI connections layer is fetched with the help of a pointer "strbuf" to the structure containing the string*/
 
-        LOG("\n##################### (L3356:ichiprt1.c) #########################\n");
+        LOG("\n##################### (L3357:ichiprt1.c) #########################\n");
         LOG("This is the Connection Layer : %s\n", strbuf->pStr);
         LOG("####################################################################\n");
     }
@@ -3393,7 +3393,7 @@ int OutputINCHI_MainLayerHydrogens( CANON_GLOBALS    *pCG,
             }
             inchi_ios_print_nodisplay( out_file, "%s%s", strbuf->pStr, pLF );                   /*(@nnuk : Nauman Ullah Khan) :: The InChI hydrogen layer is fetched with the help of a pointer "strbuf" to the structure containing the string*/
 
-            LOG("\n###################### (L3395:ichiprt1.c) ########################\n");
+            LOG("\n###################### (L3396:ichiprt1.c) ########################\n");
             LOG("This is the Hydrogen Layer : %s\n", strbuf->pStr);
             LOG("####################################################################\n");
 

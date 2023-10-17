@@ -35,8 +35,6 @@
 #ifndef _ICHIMAIN_H_
 #define _ICHIMAIN_H_
 
-#include <stdio.h>            /*(@nnuk : Nauman Ullah Khan) :: library needed for logging functionality*/
-
 #include "strutil.h"
 #include "ichicomn.h"
 
@@ -63,16 +61,6 @@ typedef struct tagLine
 #define BYTE(X) ((unsigned char *)(X))
 int rrand( int m );
 void shuffle( void *obj, size_t nmemb, size_t size );
-
-/*(@nnuk : Nauman Ullah Khan) :: Functionality used to control print statements in Command Line Tool */
-extern int g_loggingEnabled;
-
-#define LOG(format, ...) \
-    do { \
-        if (g_loggingEnabled) { \
-            fprintf(stdout, format, ##__VA_ARGS__); \
-        } \
-    } while (0)
 
 /* STRUCT_DATA */
 

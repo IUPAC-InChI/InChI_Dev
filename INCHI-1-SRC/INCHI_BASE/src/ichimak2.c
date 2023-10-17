@@ -33,7 +33,7 @@
 
 #include <stdlib.h>
 #include <string.h>
-
+#include "logging.h"                   /*(@nnuk : Nauman Ullah Khan) :: Needed for logging functionality*/
 #include "mode.h"
 #include "ichimain.h"
 #include "ichi_io.h"

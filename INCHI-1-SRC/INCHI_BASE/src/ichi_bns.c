@@ -50,8 +50,9 @@ Normalization related procedures
 #include "util.h"
 #include "ichister.h"
 #include "ichi_bns.h"
-#include "ichimain.h"          /*(@nnuk : Nauman Ullah Khan) :: Needed for logging functionality*/
+#include "ichimain.h"          
 #include "bcf_s.h"
+#include "logging.h"                   /*(@nnuk : Nauman Ullah Khan) :: Needed for logging functionality*/
 
 #define BNS_MARK_ONLY_BLOCKS        1  /* 1 => find only blocks, do not search for ring systems */
 #define ALLOW_ONLY_SIMPLE_ALT_PATH  0  /* 0 => allow alt. path to contain same bond 2 times (in opposite directions) */
@@ -5369,7 +5370,7 @@ int mark_alt_bonds_and_taut_groups( struct tagINCHI_CLOCK   *ic,
     memset( pAATG, 0, sizeof( *pAATG ) ); /* djb-rwth: memset_s C11/Annex K variant? */
 
     /*(@nnuk : Nauman Ullah Khan) */
-    LOG("\n############# Initial state before (De)Protonation (L5372:ichi_bns.c) ###############\n");
+    LOG("\n############# Initial state before (De)Protonation (L5373:ichi_bns.c) ###############\n");
     for (at_prot = 0; at_prot < num_atoms; at_prot++)
     {
         LOG("Atom %d: Element: %s, Num_H: %d, Charge: %hhd, Radical: %d\n", at_prot, at[at_prot].elname, at[at_prot].num_H, at[at_prot].charge, at[at_prot].radical);
@@ -6010,7 +6011,7 @@ int mark_alt_bonds_and_taut_groups( struct tagINCHI_CLOCK   *ic,
     }
 
     /*(@nnuk : Nauman Ullah Khan) */
-    LOG("\n################# Modified state after (De)Protonation (L6013:ichi_bns.c) ################\n");
+    LOG("\n################# Modified state after (De)Protonation (L6014:ichi_bns.c) ################\n");
     for (at_prot = 0; at_prot < num_atoms; at_prot++)
     {
         LOG("Atom %d: Element: %s, Num_H: %d, Charge: %hhd, Radical: %d\n", at_prot, at[at_prot].elname, at[at_prot].num_H, at[at_prot].charge, at[at_prot].radical);
@@ -8912,7 +8913,7 @@ BN_STRUCT* AllocateAndInitBnStruct( inp_ATOM *at,
     for (i = 0, num_bonds = 0; i < num_atoms; i++)
     {
         /*(@nnuk : Nauman Ullah Khan) */
-        LOG("\n################# (L8915:ichi_bns.c) ###################\n");
+        LOG("\n################# (L8916:ichi_bns.c) ###################\n");
         LOG("Number of changed bonds (Start): %d\n", num_changed_bonds);
         LOG("\n########################################################\n");
 
@@ -9104,7 +9105,7 @@ BN_STRUCT* AllocateAndInitBnStruct( inp_ATOM *at,
     pBNS->num_added_edges = 0;
 
     /*(@nnuk : Nauman Ullah Khan) */
-    LOG("\n################# (L9107:ichi_bns.c) ################\n");
+    LOG("\n################# (L9108:ichi_bns.c) ################\n");
     for (i = 0, num_bonds = 0; i < num_atoms; i++) {
 
         LOG("Element : %s, Number of changed bonds (End): %d\n", at[i].elname, *pNum_changed_bonds);

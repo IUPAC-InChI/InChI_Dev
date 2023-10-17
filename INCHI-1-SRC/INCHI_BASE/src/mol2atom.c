@@ -41,8 +41,8 @@
 #include "util.h"
 #include "strutil.h"
 #include "inchi_api.h"
-
-#include "ichimain.h"          /*(@nnuk : Nauman Ullah Khan) :: Needed for logging functionality*/
+#include "logging.h"              /*(@nnuk : Nauman Ullah Khan) :: Needed for logging functionality*/
+#include "ichimain.h"
 
 #include "bcf_s.h"
 
@@ -576,7 +576,7 @@ inp_ATOM* MakeInpAtomsFromMolfileData( MOL_FMT_DATA* mfdata,
     *num_bonds = 0;
 
     /*(@nnuk : Nauman Ullah Khan) */
-    LOG("\n############### (L577:mol2atom.c) ################\n");
+    LOG("\n############### (L579:mol2atom.c) ################\n");
     LOG("Number of atoms : %d\n", *num_atoms);
     LOG("####################################################\n");
 
@@ -711,7 +711,7 @@ inp_ATOM* MakeInpAtomsFromMolfileData( MOL_FMT_DATA* mfdata,
         }
 
         /*(@nnuk : Nauman Ullah Khan) */
-        LOG("\n############################## (L712:mol2atom.c) #####################################\n");
+        LOG("\n############################## (L714:mol2atom.c) #####################################\n");
         LOG("Atom %d: element=%s, x=%f, y=%f, z=%f, chrg=%d, rad=%d, iso=%d\n", i, at[i].elname, at[i].x, at[i].y, at[i].z, at[i].charge, at[i].radical, at[i].iso_atw_diff);
         LOG("########################################################################################\n");
 
@@ -768,7 +768,7 @@ inp_ATOM* MakeInpAtomsFromMolfileData( MOL_FMT_DATA* mfdata,
         p2 = is_in_the_list( at[a2].neighbor, (AT_NUMB) a1, at[a2].valence );
 
         /*(@nnuk : Nauman Ullah Khan) */
-        LOG("\n################## (L769:mol2atom.c) ##################\n");
+        LOG("\n################## (L771:mol2atom.c) ##################\n");
         LOG("Valence = %d\n", at[i].valence);
         LOG("#########################################################\n");
 
@@ -859,7 +859,7 @@ inp_ATOM* MakeInpAtomsFromMolfileData( MOL_FMT_DATA* mfdata,
         }
 
         /*(@nnuk : Nauman Ullah Khan) */
-        LOG("\n################ (L860:mol2atom.c) ##################\n");
+        LOG("\n################ (L862:mol2atom.c) ##################\n");
         LOG("Bond %d: atom1=%d, atom2=%d, type=%d, stereo=%d\n", i, a1, a2, bond_type, bond_stereo);
         LOG("#######################################################\n");
 
