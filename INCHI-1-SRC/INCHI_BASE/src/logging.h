@@ -35,16 +35,12 @@
 #ifndef LOGGING_H
 #define LOGGING_H
 
-#include <stdio.h>
+#define LOGGING 1                 /*Change to zero (0) if print outputs not needed otherwise keep it one (1)*/
 
-/*(@nnuk : Nauman Ullah Khan) :: Functionality used to control print statements in Command Line Tool */
-extern int g_loggingEnabled;
+#if LOGGING
+#define LOG(format, ...) printf(format, __VA_ARGS__)
+#else
+#define LOG(format, ...) do {} while (0)
+#endif
 
-#define LOG(format, ...) \
-    do { \
-        if (g_loggingEnabled) { \
-            fprintf(stdout, format, ##__VA_ARGS__); \
-        } \
-    } while (0)
-
-#endif // LOGGING_H
+#endif /* LOGGING_H */
