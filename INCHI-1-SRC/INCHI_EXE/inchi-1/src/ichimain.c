@@ -58,7 +58,7 @@
 #ifdef _WIN32
 #include <crtdbg.h>
 #endif
-#include "../../../INCHI_BASE/src/logging.h"                  /*(@nnuk : Nauman Ullah Khan) :: Needed for logging functionality*/
+
 #include "../../../INCHI_BASE/src/ichitime.h"
 #include "../../../INCHI_BASE/src/incomdef.h"
 #include "../../../INCHI_BASE/src/ichidrp.h"

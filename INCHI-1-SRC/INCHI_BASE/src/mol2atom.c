@@ -576,9 +576,9 @@ inp_ATOM* MakeInpAtomsFromMolfileData( MOL_FMT_DATA* mfdata,
     *num_bonds = 0;
 
     /*(@nnuk : Nauman Ullah Khan) */
-    LOG("\n############### (L579:mol2atom.c) ################\n");
-    LOG("Number of atoms : %d\n", *num_atoms);
-    LOG("####################################################\n");
+    LOG_NO_ARGS("\n############### (L579:mol2atom.c) ################\n");
+    LOG_MULT_ARGS("Number of atoms : %d\n", *num_atoms);
+    LOG_NO_ARGS("####################################################\n");
 
     if (MolfileHasNoChemStruc( mfdata ))
     {
@@ -603,7 +603,7 @@ inp_ATOM* MakeInpAtomsFromMolfileData( MOL_FMT_DATA* mfdata,
     /* Copy atoms info */
 
     /*(@nnuk : Nauman Ullah Khan) */
-    LOG("\n##################### Atoms Data #########################\n");
+    LOG_NO_ARGS("\n##################### Atoms Data #########################\n");
 
     for (i = 0; i < *num_atoms; i++)
     {
@@ -711,9 +711,9 @@ inp_ATOM* MakeInpAtomsFromMolfileData( MOL_FMT_DATA* mfdata,
         }
 
         /*(@nnuk : Nauman Ullah Khan) */
-        LOG("\n############################## (L714:mol2atom.c) #####################################\n");
-        LOG("Atom %d: element=%s, x=%f, y=%f, z=%f, chrg=%d, rad=%d, iso=%d\n", i, at[i].elname, at[i].x, at[i].y, at[i].z, at[i].charge, at[i].radical, at[i].iso_atw_diff);
-        LOG("########################################################################################\n");
+        LOG_NO_ARGS("\n############################## (L714:mol2atom.c) #####################################\n");
+        LOG_MULT_ARGS("Atom %d: element=%s, x=%f, y=%f, z=%f, chrg=%d, rad=%d, iso=%d\n", i, at[i].elname, at[i].x, at[i].y, at[i].z, at[i].charge, at[i].radical, at[i].iso_atw_diff);
+        LOG_NO_ARGS("########################################################################################\n");
 
     } /* eof copy atom info */
 
@@ -739,7 +739,7 @@ inp_ATOM* MakeInpAtomsFromMolfileData( MOL_FMT_DATA* mfdata,
 
       /* Copy bond info */
 
-    LOG("\n######################### Bonds Data ###############################\n");
+    LOG_NO_ARGS("\n######################### Bonds Data ###############################\n");
 
     for (i = 0, bonds = 0; i < mfdata->ctab.n_bonds; i++)
     {
@@ -768,9 +768,9 @@ inp_ATOM* MakeInpAtomsFromMolfileData( MOL_FMT_DATA* mfdata,
         p2 = is_in_the_list( at[a2].neighbor, (AT_NUMB) a1, at[a2].valence );
 
         /*(@nnuk : Nauman Ullah Khan) */
-        LOG("\n################## (L771:mol2atom.c) ##################\n");
-        LOG("Valence = %d\n", at[i].valence);
-        LOG("#########################################################\n");
+        LOG_NO_ARGS("\n################## (L771:mol2atom.c) ##################\n");
+        LOG_MULT_ARGS("Valence = %d\n", at[i].valence);
+        LOG_NO_ARGS("#########################################################\n");
 
         if (( p1 || p2 ) && ( p1 || at[a1].valence < MAXVAL ) && ( p2 || at[a2].valence < MAXVAL ))
         {
@@ -859,9 +859,9 @@ inp_ATOM* MakeInpAtomsFromMolfileData( MOL_FMT_DATA* mfdata,
         }
 
         /*(@nnuk : Nauman Ullah Khan) */
-        LOG("\n################ (L862:mol2atom.c) ##################\n");
-        LOG("Bond %d: atom1=%d, atom2=%d, type=%d, stereo=%d\n", i, a1, a2, bond_type, bond_stereo);
-        LOG("#######################################################\n");
+        LOG_NO_ARGS("\n################ (L862:mol2atom.c) ##################\n");
+        LOG_MULT_ARGS("Bond %d: atom1=%d, atom2=%d, type=%d, stereo=%d\n", i, a1, a2, bond_type, bond_stereo);
+        LOG_NO_ARGS("#######################################################\n");
 
     } /* eof copy bond info */
 

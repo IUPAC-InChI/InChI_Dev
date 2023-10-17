@@ -35,12 +35,14 @@
 #ifndef LOGGING_H
 #define LOGGING_H
 
-#define LOGGING 1                 /*Change to zero (0) if print outputs not needed otherwise keep it one (1)*/
+#define LOGGING_ENABLED 0            /*(@nnuk : Nauman Ullah Khan) :: Change to zero (0) if print outputs not needed otherwise keep it one (1)*/
 
-#if LOGGING
-#define LOG(format, ...) printf(format, __VA_ARGS__)
+#if LOGGING_ENABLED
+#define LOG_NO_ARGS(message) printf("%s\n", message)
+#define LOG_MULT_ARGS(format, ...) printf(format, __VA_ARGS__)
 #else
-#define LOG(format, ...) do {} while (0)
+#define LOG_NO_ARGS(message)
+#define LOG_MULT_ARGS(format, ...)
 #endif
 
 #endif /* LOGGING_H */

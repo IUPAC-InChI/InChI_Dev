@@ -1180,16 +1180,16 @@ int FillOutINChI( INChI *pINChI,
             }
         }
 
-        LOG("************************** Canonical Ordering with Stereo (L1183:ichimak2.c) ***************************\n");
+        LOG_NO_ARGS("************************** Canonical Ordering with Stereo (L1183:ichimak2.c) ***************************\n");
         for (i = 0; i < num_atoms; i++)
         {
             pINChI_Aux->nOrigAtNosInCanonOrdInv[i] = at[pCanonOrdInv[i]].orig_at_number;
             pINChI_Aux->nOrigAtNosInCanonOrd[i] = at[pCanonOrd[i]].orig_at_number;                   /*(@nnuk : Nauman Ullah Khan) :: Array holding the information for stereo based canonical numbering of atoms*/
 
-            LOG("Atom Nr: %d, Canonical Numbering Normal: %d, Element Name: %s\n", i + 1, at[pCanonOrd[i]].orig_at_number, at[i].elname);
+            LOG_MULT_ARGS("Atom Nr: %d, Canonical Numbering Normal: %d, Element Name: %s\n", i + 1, at[pCanonOrd[i]].orig_at_number, at[i].elname);
         }
 
-        LOG("\n******************************************************************************************************\n");
+        LOG_NO_ARGS("\n******************************************************************************************************\n");
 
         if (bUseNumberingInv)
         {
@@ -1223,17 +1223,17 @@ int FillOutINChI( INChI *pINChI,
 
         if (pCanonOrd && pCanonRank)
         {
-            LOG("************************** Canonical Ordering without Stereo (L1226:ichimak2.c) ***************************\n");
+            LOG_NO_ARGS("************************** Canonical Ordering without Stereo (L1226:ichimak2.c) ***************************\n");
 
             for (i = 0; i < num_atoms; i++)
             {
                 pCanonRank[pCanonOrd[i]] = (AT_NUMB) ( i + 1 );
                 pOrigNosInCanonOrd[i] = at[pCanonOrd[i]].orig_at_number;                 /*(@nnuk : Nauman Ullah Khan) :: Array holding the information for non-stereo based canonical numbering of atoms*/
 
-                LOG("Atom Nr: %d, Canonical Numbering Normal: %d, Element Name: %s\n", i + 1, at[pCanonOrd[i]].orig_at_number, at[i].elname);
+                LOG_MULT_ARGS("Atom Nr: %d, Canonical Numbering Normal: %d, Element Name: %s\n", i + 1, at[pCanonOrd[i]].orig_at_number, at[i].elname);
             }
 
-            LOG("\n*********************************************************************************************************\n");
+            LOG_NO_ARGS("\n*********************************************************************************************************\n");
 
             for (; i < num_at_tg; i++)
             {

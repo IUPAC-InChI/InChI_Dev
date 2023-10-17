@@ -3270,9 +3270,9 @@ int OutputINCHI_VersionAndKind( INCHI_IOSTREAM   *out_file,
 
     inchi_ios_print_nodisplay( out_file, "%s%s", strbuf->pStr, pLF );                    /*(@nnuk : Nauman Ullah Khan) :: The InChI version and kind are fetched with the help of a pointer "strbuf" to the structure containing the string*/
 
-    LOG("\n################### (L3273:ichiprt1.c) ###########################\n");
-    LOG("This is the InChI version & Kind : %s\n", strbuf->pStr);
-    LOG("####################################################################\n");
+    LOG_NO_ARGS("\n################### (L3273:ichiprt1.c) ###########################\n");
+    LOG_MULT_ARGS("This is the InChI version & Kind : %s\n", strbuf->pStr);
+    LOG_NO_ARGS("####################################################################\n");
 
     return 0;
 }
@@ -3315,9 +3315,9 @@ int OutputINCHI_MainLayerFormula( CANON_GLOBALS    *pCG,
         }
         inchi_ios_print_nodisplay( out_file, "%s%s", strbuf->pStr, pLF );                /*(@nnuk : Nauman Ullah Khan) :: The InChI main layer Chemical formula is fetched with the help of a pointer "strbuf" to the structure containing the string*/
 
-        LOG("\n#################### (L3318:ichiprt1.c) ##########################\n");
-        LOG("This is the Chemical formula : %s\n", strbuf->pStr);
-        LOG("####################################################################\n");
+        LOG_NO_ARGS("\n#################### (L3318:ichiprt1.c) ##########################\n");
+        LOG_MULT_ARGS("This is the Chemical formula : %s\n", strbuf->pStr);
+        LOG_NO_ARGS("####################################################################\n");
 
     }
 
@@ -3354,9 +3354,9 @@ int OutputINCHI_MainLayerConnections( CANON_GLOBALS    *pCG,
         }
         inchi_ios_print_nodisplay( out_file, "%s%s", strbuf->pStr, pLF );                    /*(@nnuk : Nauman Ullah Khan) :: The InChI connections layer is fetched with the help of a pointer "strbuf" to the structure containing the string*/
 
-        LOG("\n##################### (L3357:ichiprt1.c) #########################\n");
-        LOG("This is the Connection Layer : %s\n", strbuf->pStr);
-        LOG("####################################################################\n");
+        LOG_NO_ARGS("\n##################### (L3357:ichiprt1.c) #########################\n");
+        LOG_MULT_ARGS("This is the Connection Layer : %s\n", strbuf->pStr);
+        LOG_NO_ARGS("####################################################################\n");
     }
 
     return 0;
@@ -3393,9 +3393,9 @@ int OutputINCHI_MainLayerHydrogens( CANON_GLOBALS    *pCG,
             }
             inchi_ios_print_nodisplay( out_file, "%s%s", strbuf->pStr, pLF );                   /*(@nnuk : Nauman Ullah Khan) :: The InChI hydrogen layer is fetched with the help of a pointer "strbuf" to the structure containing the string*/
 
-            LOG("\n###################### (L3396:ichiprt1.c) ########################\n");
-            LOG("This is the Hydrogen Layer : %s\n", strbuf->pStr);
-            LOG("####################################################################\n");
+            LOG_NO_ARGS("\n###################### (L3396:ichiprt1.c) ########################\n");
+            LOG_MULT_ARGS("This is the Hydrogen Layer : %s\n", strbuf->pStr);
+            LOG_NO_ARGS("####################################################################\n");
 
         }
     }
@@ -4181,9 +4181,9 @@ static int OutputINCHI_PolymerLayer( CANON_GLOBALS *pCG,
         }
         inchi_ios_print_nodisplay(out_file, "%s%s", strbuf->pStr, pLF);                     /*(@nnuk : Nauman Ullah Khan) :: The InChI polymer layer is fetched with the help of a pointer "strbuf" to the structure containing the string*/
 
-        LOG("\n******************* (L4184:ichiprt1.c) ********************\n");
-        LOG("Polymer Layer start: %s\n", strbuf->pStr);
-        LOG("\n***********************************************************\n");
+        LOG_NO_ARGS("\n******************* (L4184:ichiprt1.c) ********************\n");
+        LOG_MULT_ARGS("Polymer Layer start: %s\n", strbuf->pStr);
+        LOG_NO_ARGS("\n***********************************************************\n");
 
     exit_function:
         if (cano_nums)
