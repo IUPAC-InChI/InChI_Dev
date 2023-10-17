@@ -43,7 +43,7 @@ extern int g_loggingEnabled;
 #define LOG(format, ...) \
     do { \
         if (g_loggingEnabled) { \
-            fprintf(stdout, format, __VA_ARGS__); \
+            fprintf(stdout, format, ##__VA_ARGS__); \
         } \
     } while (0)
 
