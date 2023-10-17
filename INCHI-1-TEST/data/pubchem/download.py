@@ -5,9 +5,11 @@ from ...config import get_dataset_arg, DATASETS
 
 if __name__ == "__main__":
     dataset = get_dataset_arg()
-    
-    download_command = f"wget --mirror --directory-prefix {DATASETS[dataset]['log_path']} " + \
-        "--no-directories --continue --accept '*.sdf.gz,*.sdf.gz.md5' " + \
-        f"ftp://ftp.ncbi.nlm.nih.gov/pubchem/{DATASETS[dataset]['download_path']}/SDF/" 
-        
+
+    download_command = (
+        f"wget --mirror --directory-prefix {DATASETS[dataset]['log_path']} "
+        + "--no-directories --continue --accept '*.sdf.gz,*.sdf.gz.md5' "
+        + f"ftp://ftp.ncbi.nlm.nih.gov/pubchem/{DATASETS[dataset]['download_path']}/SDF/"
+    )
+
     subprocess.run(shlex.split(download_command), check=True)

@@ -26,7 +26,8 @@ def _get_mcule_id(molfile: str) -> str:
     molfile_id = molfile_id_match.group(1).strip() if molfile_id_match else ""
 
     return molfile_id
-    
+
+
 def _get_pubchem_id(molfile: str) -> str:
     return molfile.split()[0].strip()
 
@@ -84,7 +85,3 @@ DATASETS: Final[dict] = {
         "download_path": "Substance/CURRENT-Full",
     },
 }
-
-
-
-
