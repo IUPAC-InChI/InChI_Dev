@@ -55,7 +55,7 @@ def make_inchi_from_molfile_text(
     # We passed Python buffer_strings casted to char *, not real pointers
     # so they could not be initialized with NULL (as they would be in C).
     # Therefore, if say szLog or szMessage were actually not used in libinchi.dll
-    # and were not allocated, they should be massaged to become NULL at the end,
+    # and were not allocated, they should be messaged to become NULL at the end,
     # in order to avoid unnecessary/illegal freeing upon call in FreeINCHI().
     if not inchi:
         c_inchi_output.szInChI = None
