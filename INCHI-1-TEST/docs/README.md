@@ -16,6 +16,7 @@ docker build -t inchi-tests ./INCHI-1-TEST
 ```Shell
 docker run --rm -it -v $(pwd):/inchi inchi-tests bash
 ```
+In a Windows terminal, wrap the argument to `-v` in quotation marks: `"$(pwd):/inchi"`.
 
 From the `inchi` directory in the Docker container you can run the commands from the
 instructions below.
@@ -67,9 +68,9 @@ For example,
 python -m INCHI-1-TEST.run_regression_tests <dataset>
 ```
 compiles the shared library `libinchi.so.dev` from the current state of the repository.
-It then uses this library to compute the InChI strings for each molfile in each SDF under `INCHI-1-TEST/data/<dataset>`.
+It then uses this library to compute the InChI strings and keys for each molfile in each SDF under `INCHI-1-TEST/data/<dataset>`.
 Those strings are compared with the corresponding reference.
-Failed comparisons are logged to `<datetime>.regression.sqlite` (where `<datetime>` reflects the start of the test run),
+Failed comparisons are logged to `<datetime>.regression_test.log` (where `<datetime>` reflects the start of the test run),
 as `<current result> != <reference result>`.
 
 For example,
