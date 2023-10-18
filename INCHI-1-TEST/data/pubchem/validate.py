@@ -1,13 +1,17 @@
 import hashlib
-from ...config import get_dataset_arg, DATASETS
+from ...config import get_dataset_arg, DATASETS, get_progress
 
 
 if __name__ == "__main__":
     dataset = get_dataset_arg()
     sdf_paths = list(DATASETS[dataset]["sdf_paths"])
+    n_sdf = len(sdf_paths)
 
-    for sdf_path in sdf_paths:
-        with open(sdf_path.with_suffix(".gz"), "rb") as sdf_file:
+    for i, sdf_path in enumerate(sdf_paths):
+        with open(sdf_path, "rb") as sdf_file:
+            print(
+                f"{get_progress(i + 1, n_sdf)}; Validating integrity of {sdf_path.name}."
+            )
             local_hash = hashlib.file_digest(sdf_file, "md5").hexdigest()
             try:
                 with open(sdf_path.with_suffix(".gz.md5"), "r") as md5_file:
