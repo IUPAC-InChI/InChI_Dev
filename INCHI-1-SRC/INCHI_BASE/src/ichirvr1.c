@@ -4586,21 +4586,21 @@ int comp_cc_cand( const void *a1, const void *a2 )
     const CC_CAND *p2 = (const CC_CAND *) a2;
     int            ret;
 
-    if (ret = (int) p2->cMetal - (int) p1->cMetal)
+    if ((ret = (int) p2->cMetal - (int) p1->cMetal)) /* djb-rwth: addressing LLVM warning */
         return ret; /* metal first */
-    if (ret = (int) p2->cNumBondsToMetal - (int) p1->cNumBondsToMetal)
+    if ((ret = (int) p2->cNumBondsToMetal - (int) p1->cNumBondsToMetal)) /* djb-rwth: addressing LLVM warning */
         return ret; /* connected to metal first */
-    if (ret = (int) p2->cPeriodicRowNumber - (int) p1->cPeriodicRowNumber)
+    if ((ret = (int) p2->cPeriodicRowNumber - (int) p1->cPeriodicRowNumber)) /* djb-rwth: addressing LLVM warning */
         return ret; /* heaviest first */
-    if (ret = (int) p2->num_bonds - (int) p1->num_bonds)
+    if ((ret = (int) p2->num_bonds - (int) p1->num_bonds)) /* djb-rwth: addressing LLVM warning */
         return ret; /* more bonds first */
-    if (ret = (int) p1->chem_valence - (int) p2->chem_valence)
+    if ((ret = (int) p1->chem_valence - (int) p2->chem_valence)) /* djb-rwth: addressing LLVM warning */
         return ret; /* less bond order first */
-    if (!p1->cNumValenceElectrons && p2->cNumValenceElectrons)
+    if ((!p1->cNumValenceElectrons && p2->cNumValenceElectrons)) /* djb-rwth: addressing LLVM warning */
         return -1; /* no valence electrons first */
-    if (!p2->cNumValenceElectrons && p1->cNumValenceElectrons)
+    if ((!p2->cNumValenceElectrons && p1->cNumValenceElectrons)) /* djb-rwth: addressing LLVM warning */
         return -1; /* no valence electrons first */
-    if ((int) p2->cNumValenceElectrons - (int) p1->cNumValenceElectrons)
+    if (((int) p2->cNumValenceElectrons - (int) p1->cNumValenceElectrons)) /* djb-rwth: addressing LLVM warning */
         return ret; /* more valence electrons first */
     ret = (int) p2->iat - (int) p1->iat; /* greater canon number first */
 
