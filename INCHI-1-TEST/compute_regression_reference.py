@@ -48,7 +48,7 @@ if __name__ == "__main__":
         )
         if reference_path.exists():
             logging.info(
-                f"{get_progress(i, n_sdf)}; Not re-computing reference for {sdf_path.name}."
+                f"{get_progress(i + 1, n_sdf)}; Not re-computing reference for {sdf_path.name}."
             )
             continue
         exit_code = max(
