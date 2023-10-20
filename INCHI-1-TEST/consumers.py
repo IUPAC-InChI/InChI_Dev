@@ -16,7 +16,7 @@ def regression_consumer(
 
     return drivers.ConsumerResult(
         get_molfile_id(molfile),
-        f"consumer: regression; parameters: {INCHI_API_PARAMETERS}",
+        json.dumps({"consumer": "regression", "parameters": INCHI_API_PARAMETERS}),
         json.dumps(
             {
                 "inchi": inchi_string,
