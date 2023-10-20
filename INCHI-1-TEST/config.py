@@ -15,7 +15,7 @@ def get_molfile_id(sdf_path: Path) -> Callable:
 
 
 def _get_inchi_id(molfile: str) -> str:
-    molfile_id = molfile.splitlines()[-2].strip()
+    molfile_id = molfile.splitlines()[-3].strip()
 
     return molfile_id
 
