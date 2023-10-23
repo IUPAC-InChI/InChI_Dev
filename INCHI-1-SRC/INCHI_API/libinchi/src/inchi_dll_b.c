@@ -231,21 +231,24 @@ int INCHI_DECL MakeINCHIFromMolfileText( const char *moltext,
                    InChI string anyway, here is the last chance  */
                 result->szInChI = (char *) inchi_malloc( 12 * sizeof( char ) );
                 rsz = 12;
-                if (ip->bINChIOutputOptions & INCHI_OUT_STDINCHI)
+                if (result->szInChI) /* djb-rwth: fixing possible NULL pointer dereferencing */
                 {
+                    if (ip->bINChIOutputOptions & INCHI_OUT_STDINCHI) 
+                    {
 #if USE_BCF
-                    strcpy_s(result->szInChI, rsz, "InChI=1S//"); /* djb-rwth: function replaced with its safe C11 variant */
+                        strcpy_s(result->szInChI, rsz, "InChI=1S//"); /* djb-rwth: function replaced with its safe C11 variant */
 #else
-                    strcpy(result->szInChI, "InChI=1S//");
+                        strcpy(result->szInChI, "InChI=1S//");
 #endif
-                }
-                else
-                {
+                    }
+                    else
+                    {
 #if USE_BCF
-                    strcpy_s( result->szInChI, rsz, "InChI=1//"); /* djb-rwth: function replaced with its safe C11 variant */
+                        strcpy_s(result->szInChI, rsz, "InChI=1//"); /* djb-rwth: function replaced with its safe C11 variant */
 #else
-                    strcpy( result->szInChI, "InChI=1//" );
+                        strcpy(result->szInChI, "InChI=1//");
 #endif
+                    }
                 }
             }
         }
