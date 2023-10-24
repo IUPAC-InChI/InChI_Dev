@@ -25,7 +25,7 @@ if __name__ == "__main__":
 
     INCHI_LIB: Final = ctypes.CDLL(str(INCHI_LIB_PATH))
     exit_code = 0
-    sdf_paths = list(DATASETS[dataset]["sdf_paths"])
+    sdf_paths = DATASETS[dataset]["sdf_paths"]
     log_path = DATASETS[dataset]["log_path"].joinpath(
         f"{datetime.now().strftime('%Y%m%dT%H%M%S')}_regression_test.log"
     )

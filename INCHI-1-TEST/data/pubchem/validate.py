@@ -4,7 +4,7 @@ from ...config import get_dataset_arg, DATASETS, get_progress
 
 if __name__ == "__main__":
     dataset = get_dataset_arg()
-    sdf_paths = list(DATASETS[dataset]["sdf_paths"])
+    sdf_paths = DATASETS[dataset]["sdf_paths"]
     n_sdf = len(sdf_paths)
 
     for i, sdf_path in enumerate(sdf_paths):

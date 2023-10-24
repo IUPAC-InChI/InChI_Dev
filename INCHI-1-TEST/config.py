@@ -66,21 +66,27 @@ N_PROCESSES: Final[int] = len(
 
 DATASETS: Final[dict] = {
     "ci": {
-        "sdf_paths": TEST_PATH.joinpath("data/ci").glob("*.sdf.gz"),
+        "sdf_paths": sorted(TEST_PATH.joinpath("data/ci").glob("*.sdf.gz")),
         "log_path": TEST_PATH.joinpath("data/ci/"),
     },
     "pubchem_compound": {
-        "sdf_paths": TEST_PATH.joinpath("data/pubchem/compound").glob("*.sdf.gz"),
+        "sdf_paths": sorted(
+            TEST_PATH.joinpath("data/pubchem/compound").glob("*.sdf.gz")
+        ),
         "log_path": TEST_PATH.joinpath("data/pubchem/compound"),
         "download_path": "Compound/CURRENT-Full",
     },
     "pubchem_compound3d": {
-        "sdf_paths": TEST_PATH.joinpath("data/pubchem/compound3d").glob("*.sdf.gz"),
+        "sdf_paths": sorted(
+            TEST_PATH.joinpath("data/pubchem/compound3d").glob("*.sdf.gz")
+        ),
         "log_path": TEST_PATH.joinpath("data/pubchem/compound3d"),
         "download_path": "Compound_3D/01_conf_per_cmpd",
     },
     "pubchem_substance": {
-        "sdf_paths": TEST_PATH.joinpath("data/pubchem/substance").glob("*.sdf.gz"),
+        "sdf_paths": sorted(
+            TEST_PATH.joinpath("data/pubchem/substance").glob("*.sdf.gz")
+        ),
         "log_path": TEST_PATH.joinpath("data/pubchem/substance"),
         "download_path": "Substance/CURRENT-Full",
     },
