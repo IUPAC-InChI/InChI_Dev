@@ -157,4 +157,4 @@ This can be done in several ways:
 
 ## Branches
 * `main`: final debugged core files/projects
-* `master`: original files as received from Igor/Gerd
+* `original`: original files as received from Igor/Gerd
