@@ -118,7 +118,7 @@ For other C compilers, `makefile/makefile32` files are provided in the following
 
 If `makefile/makefile32` is used for compiling `libinchi` on Microsoft<sup>&reg;</sup> Windows, `libinchi.dll` is now generated instead of `libinchi.so.1.07`.
 
-In order to further improve code security, [bounds checking functions](https://wiki.sei.cmu.edu/confluence/pages/viewpage.action?pageId=87151942) (see Annex K of [C11 standard](https://en.cppreference.com/w/c/11)) can be optionally used in `InChI v.1.07`. Since a number of C compilers (e.g. `GNU GCC`) do not support bounds checking functions, they can be installed using some of the third-party open-source libraries such as:
+In order to further improve code security, [bounds checking functions](https://wiki.sei.cmu.edu/confluence/display/c/Scope) (see Annex K of [C11 standard](https://en.cppreference.com/w/c/11)) can be optionally used in `InChI v.1.07`. Since a number of C compilers (e.g. `GNU GCC`) do not support bounds checking functions, they can be installed using some of the third-party open-source libraries such as:
 
 - [safec libc extension with all C11 Annex K functions](https://github.com/rurban/safeclib) -- actively maintained
 - [Safe C lib](https://sourceforge.net/projects/safeclib/)
