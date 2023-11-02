@@ -6,3 +6,8 @@
 * `test_dev`: final debugged core files/projects
 * `master`: original files as received from Igor/Gerd
  
+<table>
+<tr>
+ HTML works!
+</tr>
+</table>
