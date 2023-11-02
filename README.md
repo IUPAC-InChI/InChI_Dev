@@ -2,6 +2,10 @@
 
  ![CI](https://github.com/IUPAC-InChI/InChI_Dev/actions/workflows/ci.yml/badge.svg)
 
+## Branches
+* `main`: final debugged core files/projects
+* `original`: original files as received from Igor/Gerd
+
 ## Using precompiled binaries
 Precompiled binaries (executable, `.dll/.so` and ELF files) are located in the following folders:
 <br />
@@ -132,7 +136,7 @@ If API version of `InChI v.1.07` is compiled using `Clang/LLVM` on `Linux` OS, `
 This can be done in several ways:
 
 - `LD_LIBRARY_PATH` can be set temporarily:
-  - by running a script file `ldlp_fix.sh` (located in `/INCHI_API/bin/Linux`) with command `. ldlp_fix.sh` or command `source ldlp_fix.sh`; path to `libinchi.so.1.07` can be edited in `ldlp_fix.sh`
+  - by running a shell script file `ldlp_fix.sh` (located in `/INCHI_API/bin/Linux`) with command `. ldlp_fix.sh` or command `source ldlp_fix.sh`; path to `libinchi.so.1.07` can be edited in `ldlp_fix.sh`
   - using command line interface:
   
     ```
@@ -155,6 +159,3 @@ This can be done in several ways:
       and then running `sudo ldconfig`.
 <br />
 
-## Branches
-* `main`: final debugged core files/projects
-* `original`: original files as received from Igor/Gerd
