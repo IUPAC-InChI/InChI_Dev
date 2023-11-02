@@ -126,7 +126,7 @@ In order to further improve code security, [bounds checking functions](https://w
 
 The use of bounds checking functions in `InChI v.1.07` can be disabled in `bcf_s.h` by setting the constant `USE_BCF` to `0`.
 
-In case `GCC` is used to compile `InChI v.1.07`, ==`GCC` version `11.x` is recommended== at this point, since compiling any `InChI` version (incl. `v.1.07` and `v.1.06`) using `GCC` versions `12.x` and `13.x` can produce very rare segmentation errors whilst processing several [PubChem](https://pubchem.ncbi.nlm.nih.gov/) structures. This issue will be fixed in the forthcoming update of `InChI v.1.07`.
+In case `GCC` is used to compile `InChI v.1.07`, `GCC` version `11.x` is recommended, since compiling any `InChI` version (incl. `v.1.07` and `v.1.06`) using `GCC` versions `12.x` and `13.x` can produce very rare segmentation errors whilst processing several [PubChem](https://pubchem.ncbi.nlm.nih.gov/) structures. This issue will be fixed in the forthcoming update of `InChI v.1.07`.
 
 If API version of `InChI v.1.07` is compiled using `Clang/LLVM` on `Linux` OS, `LD_LIBRARY_PATH` should be set either temporarily or permanently before `inchi_main` ELF file is used.
 This can be done in several ways:
