@@ -578,9 +578,6 @@ int is_element_a_metal( char szEl[] )
 
 /*****************************************************************************/
 
-
-
-/****************************************************************************/
 int InchiToInchiAtom( INCHI_IOSTREAM *inp_file,
                       inchi_Stereo0D **stereo0D,
                       int *num_stereo0D,
@@ -674,7 +671,7 @@ int InchiToInchiAtom( INCHI_IOSTREAM *inp_file,
 
         if (nInputType == INPUT_INCHI_PLAIN)
         {
-            inchi_free(szNextLine);
+            
             bHeaderRead = hk = 0; /* djb-rwth: ignoring LLVM warning: value used */
 
             while (0 < ( res = inchi_ios_getsTab( szLine, INCHI_LINE_LEN - 1, inp_file, &bTooLongLine ) ))
@@ -1942,7 +1939,6 @@ int InchiToInchiAtom( INCHI_IOSTREAM *inp_file,
                 else if ( (bHeaderRead && !memcmp( szLine, sStructMsgXmlErr, sizeof(sStructMsgXmlErr) - 1) ) ||
                      (bHeaderRead && !memcmp( szLine, sStructMsgXmlErrFatal, sizeof(sStructMsgXmlErrFatal) - 1) ) ) /* djb-rwth: fixed incorrectly written operators */
                 {
-                    inchi_free(szNextLine); /* djb-rwth: avoiding memory leak */
                     /* djb-rwth: remaining block from the above condition */
                     if (bHeaderRead && !memcmp(szLine, sStructMsgXmlErr, sizeof(sStructMsgXmlErr) - 1))
                     {
@@ -1976,7 +1972,6 @@ int InchiToInchiAtom( INCHI_IOSTREAM *inp_file,
                 }
                 else if (bHeaderRead && !memcmp( szLine, sStructAuxXmlEnd, sizeof( sStructAuxXmlEnd ) - 1 ))
                 {
-                    inchi_free(szNextLine); /* djb-rwth: avoiding memory leak */
                     *err = INCHI_INP_ERROR_ERR;
                     num_atoms = INCHI_INP_ERROR_RET;
                     TREAT_ERR( *err, 0, "Missing reversibility info" );
@@ -1989,7 +1984,6 @@ int InchiToInchiAtom( INCHI_IOSTREAM *inp_file,
                     res = inchi_ios_gets( szLine, INCHI_LINE_LEN - 1, inp_file, &bTooLongLine );
                     if (res <= 0)
                     {
-                        inchi_free(szNextLine); /* djb-rwth: avoiding memory leak */
                         num_atoms = INCHI_INP_EOF_RET; /* no data, probably end of file */
                         *err = INCHI_INP_EOF_ERR;
                         goto bypass_end_of_INChI;
@@ -2005,7 +1999,6 @@ int InchiToInchiAtom( INCHI_IOSTREAM *inp_file,
                     {
                         num_atoms = INCHI_INP_EOF_RET; /* no data */
                         *err = INCHI_INP_EOF_ERR;
-                        inchi_free(szNextLine); /* djb-rwth: avoiding memory leak */
                         goto bypass_end_of_INChI;
                     }
                     p = szLine;
@@ -2014,7 +2007,6 @@ int InchiToInchiAtom( INCHI_IOSTREAM *inp_file,
                     {
                         num_atoms = INCHI_INP_EOF_RET; /* no atom data */
                         *err = INCHI_INP_EOF_ERR;
-                        inchi_free(szNextLine); /* djb-rwth: avoiding memory leak */
                         goto bypass_end_of_INChI;
                     }
                     p = q;
@@ -2051,7 +2043,6 @@ int InchiToInchiAtom( INCHI_IOSTREAM *inp_file,
                             num_atoms = INCHI_INP_FATAL_RET; /* fatal error: cannot allocate */
                             *err = INCHI_INP_FATAL_ERR;
                             TREAT_ERR( *err, 0, "Out of RAM" );
-                            inchi_free(szNextLine); /* djb-rwth: avoiding memory leak */
                             goto bypass_end_of_INChI;
                         }
                     }
@@ -2076,8 +2067,6 @@ int InchiToInchiAtom( INCHI_IOSTREAM *inp_file,
                             num_atoms = INCHI_INP_FATAL_RET; /* fatal error: cannot allocate */
                             *err = INCHI_INP_FATAL_ERR;
                             TREAT_ERR( *err, 0, "Out of RAM" );
-                            inchi_free(szNextLine); /* djb-rwth: avoiding memory leak */
-                            inchi_free(atom); /* djb-rwth: avoiding memory leak */
                             goto bypass_end_of_INChI;
                         }
                     }
@@ -2128,8 +2117,6 @@ int InchiToInchiAtom( INCHI_IOSTREAM *inp_file,
                             num_atoms = INCHI_INP_ERROR_RET; /* was 0, error */
                             *err = INCHI_INP_ERROR_ERR;     /* 40 */
                             TREAT_ERR( *err, 0, "Wrong atoms data" );
-                            inchi_free(szNextLine); /* djb-rwth: avoiding memory leak */
-                            inchi_free(atom); /* djb-rwth: avoiding memory leak */
                             goto bypass_end_of_INChI;
                         }
                         atom[i].elname[0] = *p++;
@@ -2237,8 +2224,6 @@ int InchiToInchiAtom( INCHI_IOSTREAM *inp_file,
                         num_atoms = INCHI_INP_ERROR_RET; /* error */
                         *err = INCHI_INP_ERROR_ERR;
                         TREAT_ERR( *err, 0, "Wrong number of atoms" );
-                        inchi_free(atom); /* djb-rwth: avoiding memory leak */
-                        inchi_free(szNextLine); /* djb-rwth: avoiding memory leak */
                         goto bypass_end_of_INChI;
                     }
 
@@ -3072,8 +3057,6 @@ int InchiToInchiAtom( INCHI_IOSTREAM *inp_file,
                 }
             }
 
-            inchi_free(szNextLine); /* djb-rwth: avoiding memory leak */
-
             if (atom_stereo0D)
                 FreeInchi_Stereo0D(&atom_stereo0D);
 
@@ -3132,8 +3115,8 @@ int InchiToInchiAtom( INCHI_IOSTREAM *inp_file,
     }
 
     /* djb-rwth: avoiding memory leak */
+    inchi_free(atom);
     inchi_free(szLine);
     inchi_free(szNextLine);
     return num_atoms;
 }
-
