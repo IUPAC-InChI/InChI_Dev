@@ -31,6 +31,8 @@
  *
  */
 
+#include <stdio.h> /* djb-rwth: required for vsnprintf */
+/* int vsnprintf (char* s, size_t n, const char* format, va_list arg); */
 
 #include "../../../../INCHI_BASE/src/mode.h"
 #include "../../../../INCHI_BASE/src/inchi_api.h"
