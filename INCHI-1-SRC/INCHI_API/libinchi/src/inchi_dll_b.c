@@ -231,24 +231,21 @@ int INCHI_DECL MakeINCHIFromMolfileText( const char *moltext,
                    InChI string anyway, here is the last chance  */
                 result->szInChI = (char *) inchi_malloc( 12 * sizeof( char ) );
                 rsz = 12;
-                if (result->szInChI) /* djb-rwth: fixing possible NULL pointer dereferencing */
+                if (ip->bINChIOutputOptions & INCHI_OUT_STDINCHI)
                 {
-                    if (ip->bINChIOutputOptions & INCHI_OUT_STDINCHI) 
-                    {
 #if USE_BCF
-                        strcpy_s(result->szInChI, rsz, "InChI=1S//"); /* djb-rwth: function replaced with its safe C11 variant */
+                    strcpy_s(result->szInChI, rsz, "InChI=1S//"); /* djb-rwth: function replaced with its safe C11 variant */
 #else
-                        strcpy(result->szInChI, "InChI=1S//");
+                    strcpy(result->szInChI, "InChI=1S//");
 #endif
-                    }
-                    else
-                    {
+                }
+                else
+                {
 #if USE_BCF
-                        strcpy_s(result->szInChI, rsz, "InChI=1//"); /* djb-rwth: function replaced with its safe C11 variant */
+                    strcpy_s( result->szInChI, rsz, "InChI=1//"); /* djb-rwth: function replaced with its safe C11 variant */
 #else
-                        strcpy(result->szInChI, "InChI=1//");
+                    strcpy( result->szInChI, "InChI=1//" );
 #endif
-                    }
                 }
             }
         }
@@ -625,7 +622,7 @@ int InchiToInchiAtom( INCHI_IOSTREAM *inp_file,
     const  char *sToken;
     int  lToken;
 
-    /* djb-rwth: overall stack size used in this function was too large so heap has to be used */
+    /* djb-rwth: overall stack size used in this function was too large so heap has to be used; so_R */
     szLine = (char*)malloc(INCHI_LINE_LEN);
     szNextLine = (char*)malloc(INCHI_LINE_ADD);
 
@@ -680,7 +677,7 @@ int InchiToInchiAtom( INCHI_IOSTREAM *inp_file,
             inchi_free(szNextLine);
             bHeaderRead = hk = 0; /* djb-rwth: ignoring LLVM warning: value used */
 
-            while (0 < ( res = inchi_ios_getsTab( szLine, sizeof( szLine ) - 1, inp_file, &bTooLongLine ) ))
+            while (0 < ( res = inchi_ios_getsTab( szLine, INCHI_LINE_LEN - 1, inp_file, &bTooLongLine ) ))
             {
 
                 /********************* find and interpret structure header ************/
@@ -798,7 +795,7 @@ int InchiToInchiAtom( INCHI_IOSTREAM *inp_file,
                     /* search for sToken in the line; load next segments of the line if sToken has not found */
 
                     p = FindToken( inp_file, &bTooLongLine, sToken, lToken,
-                                   szLine, sizeof( szLine ), p, &res );
+                                   szLine, INCHI_LINE_LEN, p, &res );
 
                     if (!p)
                     {
@@ -819,7 +816,7 @@ int InchiToInchiAtom( INCHI_IOSTREAM *inp_file,
                         {
 
                             p = LoadLine( inp_file, &bTooLongLine, &bItemIsOver, &s,
-                                          szLine, sizeof( szLine ), INCHI_LINE_ADD, p, &res );
+                                          szLine, INCHI_LINE_LEN, INCHI_LINE_ADD, p, &res );
 
                             if (!i)
                             {
@@ -1031,7 +1028,7 @@ int InchiToInchiAtom( INCHI_IOSTREAM *inp_file,
                     /* search for sToken in the line; load next segments of the line if sToken has not found */
 
                     p = FindToken( inp_file, &bTooLongLine, sToken, lToken,
-                                   szLine, sizeof( szLine ), p, &res );
+                                   szLine, INCHI_LINE_LEN, p, &res );
 
                     if (!p)
                     {
@@ -1055,14 +1052,14 @@ int InchiToInchiAtom( INCHI_IOSTREAM *inp_file,
                             /* needed because the next '/' may be still out of szLine */
 
                             p = LoadLine( inp_file, &bTooLongLine, &bItemIsOver, &s,
-                                          szLine, sizeof( szLine ), INCHI_LINE_ADD, p, &res );
+                                          szLine, INCHI_LINE_LEN, INCHI_LINE_ADD, p, &res );
                         }
 
                         while (i < num_atoms)
                         {
 
                             p = LoadLine( inp_file, &bTooLongLine, &bItemIsOver, &s,
-                                          szLine, sizeof( szLine ), INCHI_LINE_ADD, p, &res );
+                                          szLine, INCHI_LINE_LEN, INCHI_LINE_ADD, p, &res );
 
                             if (i >= num_atoms || (s && p >= s)) /* djb-rwth: addressing LLVM warning */
                             {
@@ -1290,7 +1287,7 @@ int InchiToInchiAtom( INCHI_IOSTREAM *inp_file,
                     /* search for sToken in the line; load next segments of the line if sToken has not found */
 
                     p = FindToken( inp_file, &bTooLongLine, sToken, lToken,
-                                   szLine, sizeof( szLine ), p, &res );
+                                   szLine, INCHI_LINE_LEN, p, &res );
 
                     if (!p)
                     {
@@ -1322,7 +1319,7 @@ int InchiToInchiAtom( INCHI_IOSTREAM *inp_file,
                         {
 
                             p = LoadLine( inp_file, &bTooLongLine, &bItemIsOver, &s,
-                                          szLine, sizeof( szLine ), INCHI_LINE_ADD, p, &res );
+                                          szLine, INCHI_LINE_LEN, INCHI_LINE_ADD, p, &res );
 
                             if (i >= num_atoms || (s && p >= s)) /* djb-rwth: addressing LLVM warning */
                             {
@@ -1821,7 +1818,7 @@ int InchiToInchiAtom( INCHI_IOSTREAM *inp_file,
             }
 
             while (bTooLongLine &&
-                    0 < inchi_ios_getsTab1( szLine, sizeof( szLine ) - 1, inp_file, &bTooLongLine ))
+                    0 < inchi_ios_getsTab1( szLine, INCHI_LINE_LEN - 1, inp_file, &bTooLongLine ))
             {
                 ;
             }
@@ -1877,7 +1874,7 @@ int InchiToInchiAtom( INCHI_IOSTREAM *inp_file,
             static const char sStructAuxXmlEnd[] = "</identifier.auxiliary-info";
             int         bInTheAuxInfo = 0;
 
-            while (0 < ( res = inchi_ios_gets( szLine, sizeof( szLine ) - 1, inp_file, &bTooLongLine ) ))
+            while (0 < ( res = inchi_ios_gets( szLine, INCHI_LINE_LEN - 1, inp_file, &bTooLongLine ) ))
             {
                 /********************* find and interpret structure header ************/
 
@@ -1948,9 +1945,15 @@ int InchiToInchiAtom( INCHI_IOSTREAM *inp_file,
                     inchi_free(szNextLine); /* djb-rwth: avoiding memory leak */
                     /* djb-rwth: remaining block from the above condition */
                     if (bHeaderRead && !memcmp(szLine, sStructMsgXmlErr, sizeof(sStructMsgXmlErr) - 1))
+                    {
                         bFatal = 0;
+                        len = sizeof(sStructMsgXmlErr) - 1;
+                    }
                     if (bHeaderRead && !memcmp(szLine, sStructMsgXmlErrFatal, sizeof(sStructMsgXmlErrFatal) - 1))
+                    {
                         bFatal = 1;
+                        len = sizeof(sStructMsgXmlErrFatal) - 1;
+                    } 
                     p = szLine + len;
                     q = strchr( p, '\"' );
                     if (q && !bFindNext)
@@ -1983,7 +1986,7 @@ int InchiToInchiAtom( INCHI_IOSTREAM *inp_file,
                 {
                     /***********************  atoms xml ***************************/
                     num_struct = 1;
-                    res = inchi_ios_gets( szLine, sizeof( szLine ) - 1, inp_file, &bTooLongLine );
+                    res = inchi_ios_gets( szLine, INCHI_LINE_LEN - 1, inp_file, &bTooLongLine );
                     if (res <= 0)
                     {
                         inchi_free(szNextLine); /* djb-rwth: avoiding memory leak */
@@ -1997,7 +2000,7 @@ int InchiToInchiAtom( INCHI_IOSTREAM *inp_file,
                         continue;
                     }
                     /* read (the head of) the atoms line */
-                    res = inchi_ios_gets( szLine, sizeof( szLine ) - 1, inp_file, &bTooLongLine );
+                    res = inchi_ios_gets( szLine, INCHI_LINE_LEN - 1, inp_file, &bTooLongLine );
                     if (res <= 0)
                     {
                         num_atoms = INCHI_INP_EOF_RET; /* no data */
@@ -2087,10 +2090,10 @@ int InchiToInchiAtom( INCHI_IOSTREAM *inp_file,
                     while (i < num_atoms)
                     {
                         pos = p - szLine;
-                        if (!bItemIsOver && ( int )sizeof( szLine ) - res + pos > ( int )sizeof( szNextLine ))
+                        if (!bItemIsOver && ( int )INCHI_LINE_LEN - res + pos > ( int )INCHI_LINE_ADD)
                         {
                             /* load next line if possible */
-                            res2 = inchi_ios_gets( szNextLine, sizeof( szNextLine ) - 1, inp_file, &bTooLongLine2 );
+                            res2 = inchi_ios_gets( szNextLine, INCHI_LINE_ADD - 1, inp_file, &bTooLongLine2 );
                             if (res2 > 0 && memcmp( szNextLine, sStructRevXmlRevAtEnd, sizeof( sStructRevXmlRevAtEnd ) - 1 ))
                             {
                                 if (pos)
@@ -2241,7 +2244,7 @@ int InchiToInchiAtom( INCHI_IOSTREAM *inp_file,
 
                     /********************** bonds xml ****************************/
 
-                    res = inchi_ios_gets( szLine, sizeof( szLine ) - 1, inp_file, &bTooLongLine );
+                    res = inchi_ios_gets( szLine, INCHI_LINE_LEN - 1, inp_file, &bTooLongLine );
                     if (res <= 0)
                     {
                         num_atoms = 0; /* no data */
@@ -2255,7 +2258,7 @@ int InchiToInchiAtom( INCHI_IOSTREAM *inp_file,
 
                     /* read (the head of) the xml bonds line */
 
-                    res = inchi_ios_gets( szLine, sizeof( szLine ) - 1, inp_file, &bTooLongLine );
+                    res = inchi_ios_gets( szLine, INCHI_LINE_LEN - 1, inp_file, &bTooLongLine );
 
                     if (res <= 0)
                     {
@@ -2282,11 +2285,11 @@ int InchiToInchiAtom( INCHI_IOSTREAM *inp_file,
                     {
                         pos = p - szLine;
                         if (!bItemIsOver &&
-                            ( int )sizeof( szLine ) - res + pos > ( int )sizeof( szNextLine ))
+                            ( int )INCHI_LINE_LEN - res + pos > ( int )INCHI_LINE_ADD)
                         {
                             /* load next line if possible */
 
-                            res2 = inchi_ios_gets( szNextLine, sizeof( szNextLine ) - 1, inp_file, &bTooLongLine2 );
+                            res2 = inchi_ios_gets( szNextLine, INCHI_LINE_ADD - 1, inp_file, &bTooLongLine2 );
 
                             if (res2 > 0 && memcmp( szNextLine, sStructRevXmlRevBnEnd, sizeof( sStructRevXmlRevBnEnd ) - 1 ))
                             {
@@ -2532,13 +2535,13 @@ int InchiToInchiAtom( INCHI_IOSTREAM *inp_file,
                     if (pszCoord)
                     {
                         memset( pszCoord, ' ', inchi_max( num_atoms, 1 ) * sizeof( MOL_COORD ) ); /* djb-rwth: memset_s C11/Annex K variant? */
-                        res = inchi_ios_gets( szLine, sizeof( szLine ) - 1, inp_file, &bTooLongLine );
+                        res = inchi_ios_gets( szLine, INCHI_LINE_LEN - 1, inp_file, &bTooLongLine );
 
                         if (res <= 0 ||
                              /* compare the header */
                              memcmp( szLine, sStructRevXmlRevXYZ, sizeof( sStructRevXmlRevXYZ ) - 1 ) ||
                              /* read (the head of) the coordinates (xml) line */
-                             0 >= ( res = inchi_ios_gets( szLine, sizeof( szLine ) - 1, inp_file, &bTooLongLine ) ))
+                             0 >= ( res = inchi_ios_gets( szLine, INCHI_LINE_LEN - 1, inp_file, &bTooLongLine ) ))
                         {
                             num_atoms = INCHI_INP_ERROR_RET; /* error in input data: atoms, bonds & coord must be present together */
                             *err = INCHI_INP_ERROR_ERR;
@@ -2564,12 +2567,12 @@ int InchiToInchiAtom( INCHI_IOSTREAM *inp_file,
                             pos = p - szLine;
 
                             if (!bItemIsOver &&
-                                ( int )sizeof( szLine ) - res + pos > ( int )sizeof( szNextLine ))
+                                ( int )INCHI_LINE_LEN - res + pos > ( int )INCHI_LINE_ADD)
                             {
 
                                 /* load next line if possible */
 
-                                res2 = inchi_ios_gets( szNextLine, sizeof( szNextLine ) - 1, inp_file, &bTooLongLine2 );
+                                res2 = inchi_ios_gets( szNextLine, INCHI_LINE_ADD - 1, inp_file, &bTooLongLine2 );
 
                                 if (res2 > 0 && memcmp( szNextLine, sStructRevXmlRevXYZEnd, sizeof( sStructRevXmlRevXYZEnd ) - 1 ))
                                 {
@@ -3110,7 +3113,7 @@ int InchiToInchiAtom( INCHI_IOSTREAM *inp_file,
                 num_struct++;
             }
 
-            while (num_struct > 0 && 0 < inchi_ios_gets( szLine, sizeof( szLine ) - 1, inp_file, &bTooLongLine ))
+            while (num_struct > 0 && 0 < inchi_ios_gets( szLine, INCHI_LINE_LEN - 1, inp_file, &bTooLongLine ))
             {
                 if (!memcmp( szLine, sStructHdrXmlEnd, sizeof( sStructHdrXmlEnd ) - 1 ))
                 {
