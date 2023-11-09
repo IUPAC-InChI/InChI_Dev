@@ -1610,9 +1610,15 @@ int INChITo_Atom( INCHI_IOSTREAM *inp_molfile, MOL_COORD **szCoord,
                 {
                     /* djb-rwth: remaining block from the above condition */
                     if (bHeaderRead && !memcmp(szLine, sStructMsgXmlErr, sizeof(sStructMsgXmlErr) - 1))
+                    {
                         bFatal = 0;
+                        len = sizeof(sStructMsgXmlErr) - 1;
+                    }
                     if (bHeaderRead && !memcmp(szLine, sStructMsgXmlErrFatal, sizeof(sStructMsgXmlErrFatal) - 1))
+                    {
                         bFatal = 1;
+                        len = sizeof(sStructMsgXmlErrFatal) - 1;
+                    }
                     p = szLine + len;
                     q = strchr( p, '\"' );
                     if (q && !bFindNext)
