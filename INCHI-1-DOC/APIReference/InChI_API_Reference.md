@@ -1,10 +1,10 @@
 **IUPAC International Chemical Identifier (InChI)**
 
-**InChI version 1, Software version 1.06**
+**InChI version 1, Software version 1.07Beta**
 
 # **API Reference**
 
-Last revision date: December 15, 2020
+Last revision date: November 15, 2023
 
 
 
@@ -14,9 +14,9 @@ Last revision date: December 15, 2020
 
 ## Overview
 
-The current version of InChI Identifier is 1; the current stable version of the InChI software is 1.06 which replaces the previous version 1.05.
+The current version of InChI Identifier is 1; the current stable version of the InChI software is 1.07Beta which replaces the previous version 1.06.
 
-InChI Software v. 1.06 includes several additions and modifucations to previous versions; it is a combination of “bugfix release” and “feature release”.
+InChI Software v. 1.07Beta includes several additions and modifucations to previous versions; it is a combination of “bugfix release” and “feature release”.
 
 The most important modifications are:
 \- added support of pseudoelement “Zz” atoms;
@@ -24,9 +24,9 @@ The most important modifications are:
 \- security fixes.
 Many other minor additions, changes and bugfixes was introduced.  
 
-This document provides a brief API reference for InChI Software v. 1.06. 
+This document provides a brief API reference for InChI Software v. 1.07Beta. 
 
-Please note that new features/modifications are marked as "new in v. 1.06" below.
+Please note that new features/modifications are marked as "new in v. 1.07Beta" below.
 
 For more details on the related data structures/parameters see inchi_api.h header file in the InChI Software source code).
 
@@ -90,8 +90,8 @@ Options supplied to GetINCHI in inchi_Input.szOptions should be preceded by ‘/
 | Miscellaneous                                                |                                                              |                                                              |
 | AuxNone                                                      | Omit  auxiliary information                                  | Include                                                      |
 | Wnumber                                                      | Set  time-out per structure in seconds; W0 means unlimited   | The  default value is unlimited                              |
-| Wmnumber                                                     | (new in v. 1.06)  Set  time-out per structure in milliseconds; W0 means unlimited | The  default value is unlimited                              |
-| NoWarnings                                                   | (new in v. 1.06)  Suppress  all warning messages(default: show) | Output warnings as usual                                     |
+| Wmnumber                                                     | Set  time-out per structure in milliseconds; W0 means unlimited | The  default value is unlimited                              |
+| NoWarnings                                                   | Suppress  all warning messages(default: show) | Output warnings as usual                                     |
 | OutputSDF                                                    | Output  SDfile instead of InChI                              | -                                                            |
 | WarnOnEmptyStructure                                         | Warn  and produce empty InChI for empty structure            | Just skip empty structure                                    |
 | SaveOpt                                                      | Save  custom InChI creation options (non-standard InChI)     | Do not save custom opts                                      |
@@ -146,13 +146,6 @@ Options supplied to GetINCHIEx in inchi_InputEx.szOptions should be preceded by 
 | Option         | Meaning                                                      | Default  behavior <br />(if no option supplied)  |
 | -------------- | ------------------------------------------------------------ | ------------------------------------------------ |
 | LooseTSACheck  | (new in v. 1.06) Relax strictness of tetrahedral stereo ambiguity check for stereo atoms in (large) rings | Use strict criteria (as in v. 1.05 and previous) |
-| Polymers       | Experimental support of simple polymers, current mode        | Disabled                                         |
-| Polymers105    | (new in v. 1.06) Experimental support of simple polymers in  legacy v. 1.05 mode | Disabled                                         |
-| NoFrameShift   | (new in v. 1.06) Disable polymer CRU frame shift             | Attempt CRU frame shift                          |
-| FoldCRU        | (new in v. 1.06)In  polymer treatment, try to fold constitutional repeating units which  themselves contain repeats | Disabled                                         |
-| NPZz           | (new in v. 1.06) Allow  non-polymer Zz pseudo element atoms  | Disabled                                         |
-| SAtZZ          | (new in v. 1.06) Allow  stereo at atoms connected to Zz      | Disabled                                         |
-| LargeMolecules | Experimental support of molecules up to  32767 atoms         | Disabled                                         |
 
  
 
