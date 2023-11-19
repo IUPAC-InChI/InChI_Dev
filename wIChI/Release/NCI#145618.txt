@@ -1,6 +1,0 @@
-<IChI version="0.9Beta">
-
- <structure number="1" id.name="" id.value="">
-  <message type="error" value="Can't interpret atom block line"/>
- </structure>
-</IChI>
