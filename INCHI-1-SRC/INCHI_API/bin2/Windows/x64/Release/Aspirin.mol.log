@@ -1,17 +1,0 @@
-InChI version 1, Software v. 1.07 (Library call example, classic API) 
-Windows 64-bit Build (MS VS 2017 or later) of Oct 16 2023 05:18:02
-
-Opened log file 'Aspirin.mol.log'
-Opened input file 'Aspirin.mol'
-Opened output file 'Aspirin.mol.txt'
-Opened problem file 'Aspirin.mol.prb'
-Generating standard InChI
-Generating standard InChIKey
-Input format: MOLfile
-Output format: Plain text
-Full Aux. info
-Timeout per structure: 60000 msec
-Up to 1024 atoms per structure
-
-Structure 2 could not be read: Detected end of file. 
-Processed 1 structure, 0 errors.
