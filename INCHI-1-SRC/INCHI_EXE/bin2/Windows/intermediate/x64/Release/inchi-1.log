@@ -1,0 +1,59 @@
+﻿  Microsoft (R) C/C++ Optimizing Compiler Version 19.37.32826.1 for x64
+  Copyright (C) Microsoft Corporation.  All rights reserved.
+  cl /c /I../../common /I../../main /I../../cmlpp /I../../ICHI_LIB /Zi /W3 /WX- /diagnostics:column /O2 /Oi /GL /D WIN32 /D WIN64 /D NDEBUG /D _CONSOLE /D ADD_CMLPP=0 /D ADD_AMI_MODE=1 /D TARGET_EXE_STANDALONE=1 /Gm- /EHsc /MT /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"../../bin2/Windows/intermediate/x64/Release\\" /Fd"../../bin2/Windows/intermediate/x64/Release\vc143.pdb" /external:W3 /Gd /TC /FC /errorReport:prompt ..\..\..\INCHI_BASE\src\bcf_s.c ..\..\..\INCHI_BASE\src\ichican2.c ..\..\..\INCHI_BASE\src\ichicano.c ..\..\..\INCHI_BASE\src\ichicans.c ..\..\..\INCHI_BASE\src\ichierr.c ..\..\..\INCHI_BASE\src\ichiisot.c ..\..\..\INCHI_BASE\src\ichimak2.c ..\..\..\INCHI_BASE\src\ichimake.c ..\..\..\INCHI_BASE\src\ichimap1.c ..\..\..\INCHI_BASE\src\ichimap2.c ..\..\..\INCHI_BASE\src\ichimap4.c ..\..\..\INCHI_BASE\src\ichinorm.c ..\..\..\INCHI_BASE\src\ichiparm.c ..\..\..\INCHI_BASE\src\ichiprt1.c ..\..\..\INCHI_BASE\src\ichiprt2.c ..\..\..\INCHI_BASE\src\ichiprt3.c ..\..\..\INCHI_BASE\src\ichiqueu.c ..\..\..\INCHI_BASE\src\ichiread.c ..\..\..\INCHI_BASE\src\ichiring.c ..\..\..\INCHI_BASE\src\ichirvr1.c ..\..\..\INCHI_BASE\src\ichirvr2.c ..\..\..\INCHI_BASE\src\ichirvr3.c ..\..\..\INCHI_BASE\src\ichirvr4.c ..\..\..\INCHI_BASE\src\ichirvr5.c ..\..\..\INCHI_BASE\src\ichirvr6.c ..\..\..\INCHI_BASE\src\ichirvr7.c ..\..\..\INCHI_BASE\src\ichisort.c ..\..\..\INCHI_BASE\src\ichister.c ..\..\..\INCHI_BASE\src\ichitaut.c ..\..\..\INCHI_BASE\src\ichi_bns.c ..\..\..\INCHI_BASE\src\ichi_io.c ..\..\..\INCHI_BASE\src\ikey_base26.c ..\..\..\INCHI_BASE\src\ikey_dll.c ..\..\..\INCHI_BASE\src\inchi_gui.c ..\..\..\INCHI_BASE\src\mol2atom.c ..\..\..\INCHI_BASE\src\mol_fmt1.c ..\..\..\INCHI_BASE\src\mol_fmt2.c ..\..\..\INCHI_BASE\src\mol_fmt3.c ..\..\..\INCHI_BASE\src\mol_fmt4.c ..\..\..\INCHI_BASE\src\readinch.c ..\..\..\INCHI_BASE\src\runichi.c ..\..\..\INCHI_BASE\src\runichi2.c ..\..\..\INCHI_BASE\src\runichi3.c ..\..\..\INCHI_BASE\src\runichi4.c ..\..\..\INCHI_BASE\src\sha2.c ..\..\..\INCHI_BASE\src\strutil.c ..\..\..\INCHI_BASE\src\util.c ..\src\dispstru.c ..\src\ichimain.c
+  bcf_s.c
+  ichican2.c
+  ichicano.c
+  ichicans.c
+  ichierr.c
+  ichiisot.c
+  ichimak2.c
+  ichimake.c
+  ichimap1.c
+  ichimap2.c
+  ichimap4.c
+  ichinorm.c
+  ichiparm.c
+  ichiprt1.c
+  ichiprt2.c
+  ichiprt3.c
+  ichiqueu.c
+  ichiread.c
+  ichiring.c
+  ichirvr1.c
+  Compiling...
+  ichirvr2.c
+  ichirvr3.c
+  ichirvr4.c
+  ichirvr5.c
+  ichirvr6.c
+  ichirvr7.c
+  ichisort.c
+  ichister.c
+  ichitaut.c
+  ichi_bns.c
+  ichi_io.c
+  ikey_base26.c
+  ikey_dll.c
+  inchi_gui.c
+  mol2atom.c
+  mol_fmt1.c
+  mol_fmt2.c
+  mol_fmt3.c
+  mol_fmt4.c
+  readinch.c
+  Compiling...
+  runichi.c
+  runichi2.c
+  runichi3.c
+  runichi4.c
+  sha2.c
+  strutil.c
+  util.c
+  dispstru.c
+  ichimain.c
+  Generating code
+  Previous IPDB not found, fall back to full compilation.
+  All 1252 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  Finished generating code
+  inchi-1.vcxproj -> D:\Posao\code\dev_bcf\INCHI_EXE\bin2\Windows\x64\Release\inchi-1.exe
