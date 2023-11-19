@@ -1,5 +1,0 @@
-void CWINChIDoc::ProcessInput(BOOL bBatch, int how)
-void CDlgInchiOption::GetOptions(CStringArray& Opt) const
-void DlgOptions::GetOptions(CStringArray& Opt) const
-
-
