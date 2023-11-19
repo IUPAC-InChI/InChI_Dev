@@ -1,4 +1,7 @@
-# `InChI v.1.07 (Beta)` release notes
+# `InChI v.1.07-Beta1` release notes
+
+Release dates:
+- <em>Beta1</em>: 20/11/2023
 
  ![CI](https://github.com/IUPAC-InChI/InChI_Dev/actions/workflows/ci.yml/badge.svg)
 
@@ -7,7 +10,7 @@
 * `original`: original files as received from Igor/Gerd
 
 ## Using precompiled binaries
-Precompiled binaries (executable, `.dll/.so` and ELF files) are located in the following folders:
+64-bit and 32-bit precompiled binaries (executable, `.dll/.so` and ELF files) are located in the following folders:
 <br />
 <table id="Win">
   <tr>
@@ -15,13 +18,13 @@ Precompiled binaries (executable, `.dll/.so` and ELF files) are located in the f
   </tr>
   <tr>
     <td>
-      <strong>Files</strong>
+      <strong>Files</strong> (given in compressed <code>.zip</code> format)
+    </td>
+    <td>
+      <strong>Location(s)</strong>
     </td>
     <td>
       <strong>Compiler</strong>
-    </td>
-    <td>
-      <strong>Folder</strong>
     </td>
   </tr>
   <tc>
@@ -29,37 +32,37 @@ Precompiled binaries (executable, `.dll/.so` and ELF files) are located in the f
       <code>inchi-1.exe</code>
     </td>
     <td>
-      <code>Microsoft<sup>&reg;</sup> Visual Studio C++ (MSVC)/Clang/LLVM</code>
+      <em>64-bit</em>: <code>INCHI-1-BIN/windows/64bit</code>
     </td>
     <td>
-      <code>/INCHI_EXE/bin2/Windows/x64/Release</code>
+      <code>Microsoft<sup>&reg;</sup> Visual Studio C++ (MSVC)</code>
     </td>
   </tr>
   <tr>
     <td>
-      <code>GCC/Clang(LLVM)</code>
+      <em>32-bit</em>: <code>INCHI-1-BIN/windows/32bit</code>
     </td>
     <td>
-      <code>/INCHI_EXE/bin/Linux</code>
+      <code>MinGW-w64/GCC</code>
     </td>
   </tr>
   <tc>
     <td rowspan="2">
-      <code>libinchi.dll</code> + corresponding <code>inchi_main.exe</code>
+      <code>libinchi.dll</code><br /> + corresponding <code>inchi_main.exe</code>
     </td>
     <td>
-      <code>Microsoft<sup>&reg;</sup> Visual Studio C++ (MSVC)/Clang/LLVM</code>
+      <em>64-bit</em>: <code>INCHI-1-BIN/windows/64bit/dll</code>
     </td>
     <td>
-      <code>/INCHI_API/bin2/Windows/x64/Release</code>
+      <code>Microsoft<sup>&reg;</sup> Visual Studio C++ (MSVC)</code>
     </td>
   </tr>
   <tr>
     <td>
-      <code>GCC/Clang(LLVM)</code>
+      <em>32-bit</em>: <code>INCHI-1-BIN/windows/32bit/dll</code>
     </td>
     <td>
-      <code>/INCHI_API/bin/Linux</code>
+      <code>MinGW-w64/GCC</code>
     </td>
   </tr>
 </table>
@@ -70,13 +73,13 @@ Precompiled binaries (executable, `.dll/.so` and ELF files) are located in the f
   </tr>
   <tr>
     <td>
-      <strong>Files</strong>
+      <strong>Files</strong> (given in compressed <code>.gz</code> format)
+    </td>
+    <td>
+      <strong>Location(s)</strong>
     </td>
     <td>
       <strong>Compiler</strong>
-    </td>
-    <td>
-      <strong>Folder</strong>
     </td>
   </tr>
   <tc>
@@ -84,39 +87,42 @@ Precompiled binaries (executable, `.dll/.so` and ELF files) are located in the f
       <code>inchi-1</code> (ELF file)
     </td>
     <td>
-      <code>GCC/Clang(LLVM)</code>
+      <em>64-bit</em>: <code>INCHI-1-BIN/linux/64bit/</code><br />
+      <em>32-bit</em>: <code>INCHI-1-BIN/linux/32bit/</code>
     </td>
     <td>
-      <code>/INCHI_EXE/bin/Linux</code>
+      <code>GCC</code>
     </td>
   </tr>
   <tc>
     <td>
-      <code>libinchi.so.1.07</code> + corresponding <code>inchi_main</code> (ELF file)
+      <code>libinchi.so.1.07</code><br /> + corresponding <code>inchi_main</code> (ELF file)
     </td>
     <td>
-      <code>GCC/Clang(LLVM)</code>
+      <em>64-bit</em>: <code>INCHI-1-BIN/linux/64bit/so/</code><br />
+      <em>32-bit</em>: <code>INCHI-1-BIN/linux/32bit/so/</code>
     </td>
     <td>
-      <code>/INCHI_API/bin/Linux</code>
+      <code>GCC</code>
     </td>
   </tr>
 </table>
+<!--Please note that 32-bit binaries have to be compiled from the source, although the use of 64-bit versions is highly recommended.-->
 <br />
 
 ## Compiling `InChI v.1.07` from source
 
 Project files for Microsoft<sup>&reg;</sup> `Visual C++ (MSVC)/Clang/LLVM` users are provided for both command line and API versions of `InChI v.1.07`. The project files are located in the following folders:
 
-- `/INCHI_EXE/inchi-1/vc14` (command line version)
-- `/INCHI_API/demos/inchi_main/vc14` (API version consisting of `libinchi.dll` and its corresponding executable `inchi_main.exe`)
-- `/INCHI_API/libinchi/vc14` (`libinchi.dll` only).
+- `INCHI-1-SRC/INCHI_EXE/inchi-1/vc14` (command line version)
+- `INCHI-1-SRC/INCHI_API/demos/inchi_main/vc14` (API version consisting of `libinchi.dll` and its corresponding executable `inchi_main.exe`)
+- `INCHI-1-SRC/INCHI_API/libinchi/vc14` (API version consisting only of `libinchi.dll`).
 
 For other C compilers, `makefile/makefile32` files are provided in the following folders:
 
-- `/INCHI_EXE/inchi-1/gcc` (command line version)
-- `/INCHI_API/demos/inchi_main/gcc` (API version consisting of `libinchi.dll/libinchi.so.1.07` and its corresponding executable/ELF `inchi_main.exe/inchi_main`)
-- `/INCHI_API/libinchi/gcc` (`libinchi.dll/libinchi.so.1.07` only).
+- `INCHI-1-SRC/INCHI_EXE/inchi-1/gcc` (command line version)
+- `INCHI-1-SRC/INCHI_API/demos/inchi_main/gcc` (API version consisting of `libinchi.dll/libinchi.so.1.07` and its corresponding executable/ELF `inchi_main.exe/inchi_main`)
+- `INCHI-1-SRC/INCHI_API/libinchi/gcc` (API version consisting only of `libinchi.dll/libinchi.so.1.07`).
 
 `makefile/makefile32` files are configured to detect OSs automatically, so it is no longer needed to specify OS explicitly or run batch/bash script(s) before compiling. If both `GCC` and `Clang/LLVM` compilers are detected, `GCC` is used by default; setting `Clang/LLVM` as default compiler can be done simply by changing `CCN` parameter from `1` to `2` in `makefile/makefile32`.
 
@@ -130,32 +136,86 @@ In order to further improve code security, [bounds checking functions](https://w
 
 The use of bounds checking functions in `InChI v.1.07` can be disabled in `bcf_s.h` by setting the constant `USE_BCF` to `0`.
 
-In case `GCC` is used to compile `InChI v.1.07`, `GCC` version `11.x` is recommended, since compiling any `InChI` version (incl. `v.1.07` and `v.1.06`) using `GCC` versions `12.x` and `13.x` can produce very rare segmentation errors whilst processing several [PubChem](https://pubchem.ncbi.nlm.nih.gov/) structures. This issue will be fixed in the forthcoming update of `InChI v.1.07`.
+If you wish to use [Intel<sup>&reg;</sup> oneAPI Threading Building Blocks (oneTBB)](https://github.com/oneapi-src/oneTBB), please follow the instructions given in header files `mode.h` and `tbbmalloc_proxy.h`. Please note that the [pre-compiled binaries](#using-precompiled-binaries) mentioned in the previous section do not use `oneTBB`.
 
-If API version of `InChI v.1.07` is compiled using `Clang/LLVM` on `Linux` OS, `LD_LIBRARY_PATH` should be set either temporarily or permanently before `inchi_main` ELF file is used.
-This can be done in several ways:
+### Known issues
 
-- `LD_LIBRARY_PATH` can be set temporarily:
-  - by running a shell script file `ldlp_fix.sh` (located in `/INCHI_API/bin/Linux`) with command `. ldlp_fix.sh` or command `source ldlp_fix.sh`; path to `libinchi.so.1.07` can be edited in `ldlp_fix.sh`
-  - using command line interface:
+1. In case `GCC` is used to compile `InChI v.1.07`, `GCC` version `11.x` is recommended, since compiling any `InChI` version (incl. `v.1.07` and `v.1.06`) using `GCC` versions `12.x` and `13.x` can produce very rare segmentation errors whilst processing several [PubChem](https://pubchem.ncbi.nlm.nih.gov/) structures. This issue is expected to be fixed in the forthcoming update of `InChI v.1.07`.
+
+2. If API version (i.e. `libinchi.so.1.07` and `inchi_main` ELF file) is compiled using `Clang/LLVM` on `Linux` OS, and `libinchi.so.1.07` cannot be found by `inchi_main`, `LD_LIBRARY_PATH` should be set either temporarily or permanently before `inchi_main` ELF file is used.
+   It might be worth trying to change the value of `LINKER_CWD_PATH` to `-Wl,-R,"",-rpath,$(LIB_DIR)` (i.e. replacing `=` with `,`) in corresponding `makefile/makefile32`; however, please note that during our tests, this option failed to generate `libinchi.so.1.07` with `Clang/LLVM` on Linux
+More reliably, `LD_LIBRARY_PATH` can be set in several ways:
+
+   - Temporarily:
   
-    ```
-    export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/path/to/libinchi.so.1.07
-    ```
+     - by running a shell script `ldlp_fix.sh` (located in `/INCHI_API/bin/Linux`) with either of these two commands:
+       - `. ldlp_fix.sh` 
+       - `source ldlp_fix.sh`;
 
-- `LD_LIBRARY_PATH` can be set permanently:
-  - by adding the following line in `~/.bashrc`:
+        path to `libinchi.so.1.07` can be edited in `ldlp_fix.sh`
+     - using command line interface:
+     
+       ```
+       export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/path/to/libinchi.so.1.07
+       ```
 
-      ```
-      LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/path/to/libinchi.so.1.07"
-      ```
+   - Permanently:
+     - by adding the following line in `~/.bashrc`:
 
-  - by adding the `libinchi.so.1.07` path to `ld.so.conf`, which means adding a file `/etc/ld.so.conf.d/local.conf` containing just one line:
+         ```
+         LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/path/to/libinchi.so.1.07"
+         ```
 
-      ```
-      path/to/libinchi.so.1.07
-      ```
+     - by adding the `libinchi.so.1.07` path to `ld.so.conf`, which means adding a file `/etc/ld.so.conf.d/local.conf` containing just one line:
 
-      and then running `sudo ldconfig`.
+         ```
+         path/to/libinchi.so.1.07
+         ```
+
+         and then running `sudo ldconfig`.
+    
+    - Open-source utility [patchelf](https://github.com/NixOS/patchelf) can also be of use.
+  
+    If a similar issue occurs on MacOS<sup>&reg;</sup>, one of the above solutions should be applied for setting `DYLD_LIBRARY_PATH` and/or `DYLD_FALLBACK_LIBRARY_PATH` (which behave like `LD_LIBRARY_PATH`).
 <br />
 
+## Experimental features under development
+
+Some of the experimental/engineering/hidden options featured in `InChI 1.07` which are known to be not fully functional are:
+
+- In command line version:
+
+  -  `MERGE`       Use bMergeAllInputStructures
+  -  `DSB`         Use REQ_MODE_NO_ALT_SBONDS
+  -  `NOHDR`       Use bNoStructLabels
+  -  `NOUUSB`      Use REQ_MODE_SB_IGN_ALL_UU
+  -  `NOUUSC`      Use REQ_MODE_SC_IGN_ALL_UU
+  -  `FixRad`      Set bFixAdjacentRad
+  -  `DoneOnly`    Set bIgnoreUnchanged
+  -  `DISCONSALT:0|1`     Set bDisconnectSalts
+  -  `DISCONMETAL:0|1`    Set bDisconnectCoord
+  -  `DISCONMETALCHKVAL:0|1` Set bDisconnectCoordChkVal
+  -  `RECONMETAL:0|1`     Set bReconnectCoord
+  -  `MERGESALTTG:0|1`    Set bMergeSaltTGroups
+  -  `UNCHARGEDACIDS:0|1` Set bUnchargedAcidTaut
+  -  `ACIDTAUT:0|1|2`     Set bAcidTautomerism
+  -  `AUXINFO:0|1|2`      Set AuxInfo print options
+  -  `SDFID`       ...
+  -  `PLAINP`      ....
+  -  `ANNPLAIN`    ....
+
+- In API/`.dll`/`.so` version:
+  -  `PT_22_00`    Account for PT_22_00 tautomerism (experimental)
+  -  `PT_16_00`    Account for PT_16_00 tautomerism (experimental)
+  -  `PT_06_00`    Account for PT_06_00 tautomerism (experimental)
+  -  `PT_39_00`    Account for PT_39_00 tautomerism (experimental)
+  -  `PT_13_00`    Account for PT_13_00 tautomerism (experimental)
+  -  `PT_18_00`    Account for PT_18_00 tautomerism (experimental)
+  -  `Polymers105` Allow processing of polymers (experimental, legacy mode of v. 1.05)
+  -  `NoEdits`     Disable polymer CRU frame shift and folding
+  -  `NPZz`        Allow non-polymer-related Zz atoms (pseudo element placeholders)
+  -  `SAtZz`       Allow stereo at atoms connected to Zz(default: disabled)
+  -  `InChI2Struct` Test mode: Mol/SDfile -> InChI -> Structure -> (InChI+AuxInfo) -- produces `Fatal Error 3` just like in `InChI v.1.06`
+  -  `InChI2InChI`  Convert  Convert InChI string(s) into InChI string(s) -- produces `Fatal Error 3` just like in `InChI v.1.06`
+
+Please refrain from using the above mentioned options as they might not function properly, or will not be recognised. Regular updates with regard to their functionality will be posted on this page.
