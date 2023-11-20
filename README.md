@@ -3,12 +3,6 @@
 Release dates:
 - <em>Beta1</em>: 20/11/2023
 
- ![CI](https://github.com/IUPAC-InChI/InChI_Dev/actions/workflows/ci.yml/badge.svg)
-
-## Branches
-* `main`: final debugged core files/projects
-* `original`: original files as received from Igor/Gerd
-
 ## Using precompiled binaries
 64-bit and 32-bit precompiled binaries (executable, `.dll/.so` and ELF files) are located in the following folders:
 <br />
@@ -185,6 +179,14 @@ Some of the experimental/engineering/hidden options featured in `InChI 1.07` whi
 
 - In command line version:
 
+   - <em>32-bit</em> <code>Microsoft<sup>&reg;</sup> Visual Studio C++ (MSVC) Win32</code> compiler-specific issue with the following options:
+
+      - `AMI`         Allow multiple input files (wildcards supported)
+      - `AMIOutStd`   Write output to stdout (in AMI mode)
+      - `AMILogStd`   Write log to stderr (in AMI mode)
+      - `AMIPrbNone`  Suppress creation of problem files (in AMI mode)
+  
+<!-- 
   -  `MERGE`       Use bMergeAllInputStructures
   -  `DSB`         Use REQ_MODE_NO_ALT_SBONDS
   -  `NOHDR`       Use bNoStructLabels
@@ -203,7 +205,7 @@ Some of the experimental/engineering/hidden options featured in `InChI 1.07` whi
   -  `SDFID`       ...
   -  `PLAINP`      ....
   -  `ANNPLAIN`    ....
-
+-->
 - In API/`.dll`/`.so` version:
   -  `PT_22_00`    Account for PT_22_00 tautomerism (experimental)
   -  `PT_16_00`    Account for PT_16_00 tautomerism (experimental)
