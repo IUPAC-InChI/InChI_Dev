@@ -3,8 +3,6 @@
 Release dates:
 - <em>Beta1</em>: 20/11/2023
 
- ![CI](https://github.com/IUPAC-InChI/InChI_Dev/actions/workflows/ci.yml/badge.svg)
-
 ## Branches
 * `main`: final debugged core files/projects
 * `original`: original files as received from Igor/Gerd
