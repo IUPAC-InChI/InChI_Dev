@@ -128,7 +128,7 @@ In order to further improve code security, [bounds checking functions](https://w
 - [Safe C lib](https://sourceforge.net/projects/safeclib/)
 - [Implementation of C11 Annex K "Bounds-checking interfaces" ISO/IEC 9899:2011](https://github.com/sbaresearch/slibc)
 
-The use of bounds checking functions in `InChI v.1.07` can be disabled in `bcf_s.h` by setting the constant `USE_BCF` to `0`.
+The use of bounds checking functions in `InChI v.1.07` can be enabled/disabled in `bcf_s.h`.
 
 If you wish to use [Intel<sup>&reg;</sup> oneAPI Threading Building Blocks (oneTBB)](https://github.com/oneapi-src/oneTBB), please follow the instructions given in header files `mode.h` and `tbbmalloc_proxy.h`. Please note that the [pre-compiled binaries](#using-precompiled-binaries) mentioned in the previous section do not use `oneTBB`.
 
@@ -185,6 +185,8 @@ Some of the experimental/engineering/hidden options featured in `InChI 1.07` whi
       - `AMIOutStd`   Write output to stdout (in AMI mode)
       - `AMILogStd`   Write log to stderr (in AMI mode)
       - `AMIPrbNone`  Suppress creation of problem files (in AMI mode)
+  
+<!-- 
   -  `MERGE`       Use bMergeAllInputStructures
   -  `DSB`         Use REQ_MODE_NO_ALT_SBONDS
   -  `NOHDR`       Use bNoStructLabels
@@ -203,7 +205,7 @@ Some of the experimental/engineering/hidden options featured in `InChI 1.07` whi
   -  `SDFID`       ...
   -  `PLAINP`      ....
   -  `ANNPLAIN`    ....
-
+-->
 - In API/`.dll`/`.so` version:
   -  `PT_22_00`    Account for PT_22_00 tautomerism (experimental)
   -  `PT_16_00`    Account for PT_16_00 tautomerism (experimental)
