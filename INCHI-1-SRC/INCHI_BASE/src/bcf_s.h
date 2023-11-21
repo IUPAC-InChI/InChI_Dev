@@ -21,7 +21,8 @@
 #endif
 
 #if (USE_BCF_GCC || USE_BCF_MS)
-#define USE_BCF 1
+/* djb-rwth: change the following parameter to 1 (or other unsigned integer) to use bounds-checking functions */
+#define USE_BCF 0
 #endif
 
 #if USE_BCF
