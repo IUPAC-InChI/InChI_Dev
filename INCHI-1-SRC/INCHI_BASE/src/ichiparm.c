@@ -1802,7 +1802,7 @@ int ReadCommandLineParms(int argc,
                 if ((sz = (char*)inchi_malloc(((long long)len + 1) * sizeof(sz[0])))) /* djb-rwth: cast operator added; addressing LLVM warning; cast operator added */
                 {
 #if USE_BCF
-                    strcpy_s(sz, (long long)len + 1 + strlen(p_prev), p_prev); /* djb-rwth: function replaced with its safe C11 variant; cast operator added */
+                    strcpy_s(sz, strlen(p_prev) + 1, p_prev); /* djb-rwth: function replaced with its safe C11 variant; cast operator added */
 #else
                     strcpy(sz, p);
 #endif
@@ -1810,7 +1810,7 @@ int ReadCommandLineParms(int argc,
                     if (pLastExt)
                     {
 #if USE_BCF
-                        strcpy_s(sz + (pLastExt - p_prev), (long long)len + 1 + sizeof(szOutNameExt), szOutNameExt[i - 1]); /* djb-rwth: function replaced with its safe C11 variant; cast operator added */
+                        strcpy_s(sz + (pLastExt - p_prev), strlen(szOutNameExt[i-1]) + 1, szOutNameExt[i - 1]); /* djb-rwth: function replaced with its safe C11 variant; cast operator added */
 #else
                         strcpy(sz + (pLastExt - p), szOutNameExt[i - 1]);
 #endif

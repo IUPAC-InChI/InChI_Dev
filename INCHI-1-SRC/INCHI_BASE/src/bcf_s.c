@@ -67,3 +67,13 @@ int memset_usc(void* v, size_t smax, int c, size_t n)
 
     return 0;
 }
+
+int max_3(int a, int b, int c)
+{
+    if ((a > b) && (a > c))
+        return a;
+    else if ((b > a) && (b > c))
+        return b;
+    else
+        return c;
+}

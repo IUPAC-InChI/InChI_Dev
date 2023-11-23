@@ -3203,7 +3203,7 @@ int AddOneMsg( char *szMsg,
 #endif
             used_len += len_to_copy;
 #if USE_BCF
-            strcpy_s( szMsg + used_len, sizeof(szMsg) + 1, ellip ); /* djb-rwth: function replaced with its safe C11 variant */
+            strcpy_s( szMsg + used_len, strlen(ellip) + 1, ellip ); /* djb-rwth: function replaced with its safe C11 variant */
 #else
             strcpy(szMsg + used_len, ellip);
 #endif
@@ -3243,7 +3243,7 @@ int FillOutCompareMessage( char *szMsg, int nLenMsg, INCHI_MODE bits[] )
             if (bits[bMobileH])
             {
 #if USE_BCF
-                strcpy_s( szOneMsg, sizeof(szOneMsg), bMobileH == TAUT_YES ? " Mobile-H(" : " Fixed-H(" ); /* djb-rwth: function replaced with its safe C11 variant */
+                strcpy_s( szOneMsg, 12, bMobileH == TAUT_YES ? " Mobile-H(" : " Fixed-H(" ); /* djb-rwth: function replaced with its safe C11 variant */
 #else
                 strcpy(szOneMsg, bMobileH == TAUT_YES ? " Mobile-H(" : " Fixed-H(");
 #endif

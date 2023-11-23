@@ -2084,6 +2084,7 @@ char *szGetTag( const INCHI_TAG *Tag,
                 int             *bAlways )
 {
     int i, j, bit, num, len;
+    int stl1, stl2, dstsz;
     if (0 < nTag && nTag < 3)
     {
         /* no plain text comments: pick up the last tag */
@@ -2097,7 +2098,10 @@ char *szGetTag( const INCHI_TAG *Tag,
         if (j >= 0)
         {
 #if USE_BCF
-            strcpy_s( szTag, sizeof(szTag) + 1, nTag == 1 ? Tag[j].szXmlLabel : nTag == 2 ? Tag[j].szPlainLabel : "???" ); /* djb-rwth: function replaced with its safe C11 variant */
+            stl1 = strlen(Tag[j].szXmlLabel) + 1;
+            stl2 = strlen(Tag[j].szPlainLabel) + 1;
+            dstsz = max_3(stl1, stl2, 5);
+            strcpy_s( szTag, dstsz, nTag == 1 ? Tag[j].szXmlLabel : nTag == 2 ? Tag[j].szPlainLabel : "???" ); /* djb-rwth: function replaced with its safe C11 variant */
 #else
             strcpy(szTag, nTag == 1 ? Tag[j].szXmlLabel : nTag == 2 ? Tag[j].szPlainLabel : "???");
 #endif
@@ -2122,7 +2126,7 @@ char *szGetTag( const INCHI_TAG *Tag,
                     if (num++)
                     {
 #if USE_BCF
-                        strcat_s( szTag, strlen(szTag) + 3, ":" ); /* djb-rwth: function replaced with its safe C11 variant */
+                        strcat_s( szTag, strlen(szTag) + 4, ":" ); /* djb-rwth: function replaced with its safe C11 variant */
 #else
                         strcat(szTag, ":");
 #endif
@@ -2137,7 +2141,7 @@ char *szGetTag( const INCHI_TAG *Tag,
             if (num)
             {
 #if USE_BCF
-                strcat_s( szTag, strlen(szTag) + 3, "}" ); /* djb-rwth: function replaced with its safe C11 variant */
+                strcat_s( szTag, strlen(szTag) + 4, "}" ); /* djb-rwth: function replaced with its safe C11 variant */
 #else
                 strcat(szTag, "}");
 #endif
@@ -2156,7 +2160,7 @@ char *szGetTag( const INCHI_TAG *Tag,
                 else
                 {
 #if USE_BCF
-                    strcpy_s( szTag, sizeof(szTag) + 1, Tag[j].szPlainLabel ); /* djb-rwth: function replaced with its safe C11 variant */
+                    strcpy_s( szTag, strlen(Tag[j].szPlainLabel) + 1, Tag[j].szPlainLabel ); /* djb-rwth: function replaced with its safe C11 variant */
 #else
                     strcpy(szTag, Tag[j].szPlainLabel);
 #endif
@@ -2166,7 +2170,7 @@ char *szGetTag( const INCHI_TAG *Tag,
             else
             {
 #if USE_BCF
-                strcpy_s( szTag, sizeof(szTag) + 1, "???" ); /* djb-rwth: function replaced with its safe C11 variant */
+                strcpy_s( szTag, 5, "???" ); /* djb-rwth: function replaced with its safe C11 variant */
 #else
                 strcpy(szTag, "???");
 #endif
@@ -2174,7 +2178,7 @@ char *szGetTag( const INCHI_TAG *Tag,
             return szTag;
         }
 #if USE_BCF
-    strcpy_s( szTag, sizeof(szTag) + 1, "???" ); /* djb-rwth: function replaced with its safe C11 variant */
+    strcpy_s( szTag, 5, "???" ); /* djb-rwth: function replaced with its safe C11 variant */
 #else
     strcpy(szTag, "???");
 #endif
@@ -2267,7 +2271,7 @@ int CleanOrigCoord( MOL_COORD szCoord, int delim )
         if (MIN_BOND_LENGTH > fabs( coord ))
         {
 #if USE_BCF
-            strcpy_s( szVal, sizeof(szVal) + 1, "0" ); /* djb-rwth: function replaced with its safe C11 variant */
+            strcpy_s( szVal, 3, "0" ); /* djb-rwth: function replaced with its safe C11 variant */
 #else
             strcpy(szVal, "0");
 #endif
@@ -2289,7 +2293,7 @@ int CleanOrigCoord( MOL_COORD szCoord, int delim )
                 {
                     /* new exp; update the length */
 #if USE_BCF
-                    len = last + 1 + sprintf_s( szVal + last + 1, sizeof(szVal) + 1, "%d", e); /* print exp without leading zeroes and '+' */ /* djb-rwth: function replaced with its safe C11 variant */
+                    len = last + 1 + sprintf_s( szVal + last + 1, sizeof(e) + 1, "%d", e); /* print exp without leading zeroes and '+' */ /* djb-rwth: function replaced with its safe C11 variant */
 #else
                     len = last + 1 + sprintf(szVal + last + 1, "%d", e); /* print exp without leading zeroes and '+' */
 #endif
@@ -2473,7 +2477,7 @@ int WriteOrigAtoms( CANON_GLOBALS *pCG,
     if (0 == *i)
     {
 #if USE_BCF
-        cur_len = sprintf_s( szBuf, sizeof(szBuf)*2 + 1, "%d%s", num_inp_atoms,
+        cur_len = sprintf_s( szBuf, sizeof(num_inp_atoms) + 3, "%d%s", num_inp_atoms,
             ( sd->bChiralFlag & FLAG_INP_AT_CHIRAL ) ? "c" :
             ( sd->bChiralFlag & FLAG_INP_AT_NONCHIRAL ) ? "n" : "" ); /* djb-rwth: function replaced with its safe C11 variant */
 #else
@@ -5648,7 +5652,7 @@ void MergeZzInStrHillFormulaComponent(char *s)
             n += n2;
             offset = (int)(pd - s);
 #if USE_BCF
-            sprintf_s(s+offset, sizeof(s) + 1, "%d", n); /* djb-rwth: function replaced with its safe C11 variant */
+            sprintf_s(s+offset, sizeof(n) + 1, "%d", n); /* djb-rwth: function replaced with its safe C11 variant */
 #else
             sprintf(s + offset, "%d", n);
 #endif

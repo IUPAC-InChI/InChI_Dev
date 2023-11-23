@@ -9689,7 +9689,7 @@ int nFillOutProtonMobileH( INChI *pInChI )
         return RI_ERR_ALLOC; /* alloc failure */
     }
 #if USE_BCF
-    strcpy_s( pInChI->szHillFormula, strlen("H") + 1, "H"); /* djb-rwth: function replaced with its safe C11 variant */
+    strcpy_s( pInChI->szHillFormula, 2, "H"); /* djb-rwth: function replaced with its safe C11 variant */
 #else 
     strcpy(pInChI->szHillFormula, "H");
 #endif 

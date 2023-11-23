@@ -500,7 +500,7 @@ int inchi_ios_print( INCHI_IOSTREAM * ios, const char* lpszFormat, ... )
                         if (ios->s.nUsedLength > 0)
                         {
 #if USE_BCF
-                            memcpy_s( new_str, sizeof (new_str)* (ios->s.nUsedLength), ios->s.pStr, sizeof( new_str[0] )* ios->s.nUsedLength ); /* djb-rwth: function replaced with its safe C11 variant */
+                            memcpy_s( new_str, sizeof (new_str[0]) * (ios->s.nUsedLength) + 1, ios->s.pStr, sizeof(new_str[0]) * ios->s.nUsedLength); /* djb-rwth: function replaced with its safe C11 variant */
 #else
                             memcpy(new_str, ios->s.pStr, sizeof(new_str[0]) * ios->s.nUsedLength);
 #endif
@@ -636,7 +636,7 @@ int inchi_ios_print_nodisplay( INCHI_IOSTREAM * ios,
                         if (ios->s.nUsedLength > 0)
                         {
 #if USE_BCF
-                            memcpy_s( new_str, sizeof(new_str)*(ios->s.nUsedLength), ios->s.pStr, sizeof(new_str[0]) * ios->s.nUsedLength); /* djb-rwth: function replaced with its safe C11 variant */
+                            memcpy_s( new_str, sizeof(new_str[0]) * (ios->s.nUsedLength) + 1, ios->s.pStr, sizeof(new_str[0]) * ios->s.nUsedLength); /* djb-rwth: function replaced with its safe C11 variant */
 #else
                             memcpy(new_str, ios->s.pStr, sizeof(new_str[0]) * ios->s.nUsedLength);
 #endif
@@ -703,7 +703,7 @@ int inchi_ios_flush_not_displayed( INCHI_IOSTREAM * ios )
     }
 
 #if USE_BCF
-    strcpy_s( obuf, sizeof obuf, ios->s.pStr ); /* djb-rwth: function replaced with its safe C11 variant */
+    strcpy_s( obuf, strlen(ios->s.pStr) + 1, ios->s.pStr); /* djb-rwth: function replaced with its safe C11 variant */
 #else
     strcpy(obuf, ios->s.pStr);
 #endif
@@ -753,7 +753,7 @@ int inchi_ios_eprint( INCHI_IOSTREAM * ios, const char* lpszFormat, ... )
                         if (ios->s.nUsedLength > 0)
                         {
 #if USE_BCF
-                            memcpy_s( new_str, sizeof(new_str)*(ios->s.nUsedLength), ios->s.pStr, sizeof( new_str[0] )* ios->s.nUsedLength ); /* djb-rwth: function replaced with its safe C11 variant */
+                            memcpy_s( new_str, sizeof(new_str[0]) * (ios->s.nUsedLength) + 1, ios->s.pStr, sizeof(new_str[0]) * ios->s.nUsedLength); /* djb-rwth: function replaced with its safe C11 variant */
 #else
                             memcpy(new_str, ios->s.pStr, sizeof(new_str[0]) * ios->s.nUsedLength);
 #endif
@@ -865,7 +865,7 @@ int inchi_vfprintf( FILE* f, const char* lpszFormat, va_list argList )
                 /*  output is longer than the console line */
                 /* Fixed bug: (CONSOLE_LINE_LEN-4) --> (CONSOLE_LINE_LEN-4-1) 11-22-08 IPl */
 #if USE_BCF
-                strcpy_s(szLine + CONSOLE_LINE_LEN - 5, sizeof (szLine) + CONSOLE_LINE_LEN, "...\r"); /* djb-rwth: function replaced with its safe C11 variant */
+                strcpy_s(szLine + CONSOLE_LINE_LEN - 5, 6, "...\r"); /* djb-rwth: function replaced with its safe C11 variant */
 #else
                 strcpy(szLine + CONSOLE_LINE_LEN - 5, "...\r");
 #endif
@@ -1520,7 +1520,7 @@ int inchi_strbuf_update( INCHI_IOS_STRING *buf, int new_addition_size )
             if (buf->nUsedLength > 0)
             {
 #if USE_BCF
-                memcpy_s( new_str, sizeof(new_str)*buf->nUsedLength, buf->pStr, sizeof( new_str[0] )* buf->nUsedLength ); /* djb-rwth: memset_s C11/Annex K variant? */
+                memcpy_s( new_str, sizeof(new_str[0]) * (buf->nUsedLength) + 1, buf->pStr, sizeof(new_str[0]) * buf->nUsedLength); /* djb-rwth: memset_s C11/Annex K variant? */
 #else
                 memcpy(new_str, buf->pStr, sizeof(new_str[0]) * buf->nUsedLength);
 #endif
