@@ -244,7 +244,7 @@ int INCHI_DECL MakeINCHIFromMolfileText( const char *moltext,
                     else
                     {
 #if USE_BCF
-                        strcpy_s(result->szInChI, rsz, "InChI=1//"); /* djb-rwth: function replaced with its safe C11 variant */
+                        strcpy_s(result->szInChI, (long long)rsz - 1, "InChI=1//"); /* djb-rwth: function replaced with its safe C11 variant */
 #else
                         strcpy(result->szInChI, "InChI=1//");
 #endif

@@ -200,7 +200,7 @@ void STATUS_PushMessage( IXA_STATUS_HANDLE hStatus,
     if (item->message)
     {
 #if USE_BCF
-        strcpy_s( item->message, (long long)size, buffer ); /* djb-rwth: function replaced with its safe C11 variant; cast operator added */
+        strcpy_s( item->message, strlen(buffer) + 1, buffer); /* djb-rwth: function replaced with its safe C11 variant; cast operator added */
 #else
         strcpy( item->message, buffer );
 #endif
