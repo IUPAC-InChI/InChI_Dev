@@ -83,10 +83,10 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>../../bin2/Windows/$(Platform)/$(Configuration)/</OutDir>
-    <IntDir>C:/tmp2/vs14/bin2/Windows/$(Platform)/$(Configuration)/$(TargetName).tmp\</IntDir>
+    <IntDir>../../bin2/Windows/intermediate/$(Platform)/$(Configuration)\</IntDir>
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>$(IncludePath)</IncludePath>
-    <LibraryPath>C:\proglib\TBB\Win32;C:\Program Files %28x86%29\Visual Leak Detector\lib\Win32;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>../../bin2/Windows/$(Platform)/$(Configuration)/</OutDir>
@@ -155,7 +155,8 @@
       <PrecompiledHeader />
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <CompileAs>CompileAsC</CompileAs>
+      <CompileAs>Default</CompileAs>
+      <OmitFramePointers />
     </ClCompile>
     <Link>
       <OutputFile>../../bin2/Windows/$(Platform)/$(Configuration)/libinchi.dll</OutputFile>
@@ -167,7 +168,8 @@
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <TargetMachine>MachineX86</TargetMachine>
-      <AdditionalLibraryDirectories>../../tbb/Windows/$(Platform)/$(Configuration)/</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>
+      </AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
