@@ -143,13 +143,13 @@ int AddMOLfileError( char *pStrErr, const char *szMsg )
                 if (pStrErr[lenStrErr - 1] != ':')
                 {
 #if USE_BCF
-                    strcat_s(pStrErr, (long long)lenStrErr + 3, ";"); /* djb-rwth: function replaced with its safe C11 variant */
+                    strcat_s(pStrErr, (long long)lenStrErr + 4, ";"); /* djb-rwth: function replaced with its safe C11 variant */
 #else
                     strcat( pStrErr, ";" );
 #endif
                 }
 #if USE_BCF 
-                strcat_s(pStrErr, (long long)lenStrErr + 3, " "); /* djb-rwth: function replaced with its safe C11 variant */
+                strcat_s(pStrErr, (long long)lenStrErr + 4, " "); /* djb-rwth: function replaced with its safe C11 variant */
 #else
                 strcat( pStrErr, " " );
 #endif
@@ -169,7 +169,7 @@ int AddMOLfileError( char *pStrErr, const char *szMsg )
         if (lenStrErr + 3 < STR_ERR_LEN)
         {
 #if USE_BCF
-            strcat_s( pStrErr, (long long)lenStrErr + 5, "..."); /* djb-rwth: function replaced with its safe C11 variant */
+            strcat_s( pStrErr, (long long)lenStrErr + 6, "..."); /* djb-rwth: function replaced with its safe C11 variant */
 #else
             strcat( pStrErr, "..." );
 #endif
@@ -943,7 +943,7 @@ int read_properties_block( MOL_CTAB* ctab,
                 else
                 {
 #if USE_BCF
-                    strcpy_s( MolAtom->szAtomSymbol, sizeof(MolAtom->szAtomSymbol) + 1, "???" ); /* djb-rwth: function replaced with its safe C11 variant */
+                    strcpy_s( MolAtom->szAtomSymbol, 5, "???" ); /* djb-rwth: function replaced with its safe C11 variant */
 #else
                     strcpy( MolAtom->szAtomSymbol, "???" );
 #endif
