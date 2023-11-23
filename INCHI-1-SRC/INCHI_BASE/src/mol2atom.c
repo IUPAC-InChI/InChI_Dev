@@ -1271,7 +1271,7 @@ int DuplicateInfoAtomData( INF_ATOM_DATA *inf_at_data_to,
         if (inf_at_data_to->pStereoFlags && inf_at_data_from->pStereoFlags)
         {
 #if USE_BCF
-            memcpy_s( inf_at_data_to->pStereoFlags, sizeof(inf_at_data_to->pStereoFlags)*((long long)inf_at_data_from->num_components + 1) + 1, inf_at_data_from->pStereoFlags,
+            memcpy_s( inf_at_data_to->pStereoFlags, sizeof(inf_at_data_to->pStereoFlags[0]) * ((long long)inf_at_data_from->num_components + 1) + 1, inf_at_data_from->pStereoFlags,
                 ( (long long)inf_at_data_from->num_components + 1 ) * sizeof( inf_at_data_to->pStereoFlags[0] ) ); /* djb-rwth: cast operator added; function replaced with its safe C11 variant */
 #else
             memcpy(inf_at_data_to->pStereoFlags, inf_at_data_from->pStereoFlags,
@@ -1469,7 +1469,7 @@ int SetExtOrigAtDataByMolfileExtInput( MOL_FMT_DATA* mfdata,
                 unitk->xbr2[q] = groupk->xbr2[q];
             }
 #if USE_BCF
-            strcpy_s( unitk->smt, sizeof(unitk->smt) + 1, groupk->smt); /* djb-rwth: function replaced with its safe C11 variant */
+            strcpy_s( unitk->smt, strlen(groupk->smt) + 1, groupk->smt); /* djb-rwth: function replaced with its safe C11 variant */
 #else
             strcpy(unitk->smt, groupk->smt);
 #endif
@@ -1557,7 +1557,7 @@ int SetExtOrigAtDataByMolfileExtInput( MOL_FMT_DATA* mfdata,
                 goto exit_function;
             }
 #if USE_BCF
-            memcpy_s( pv->atom_index_orig, sizeof(pv->atom_index_orig) + 1, mpv->atom_index_orig, mfdata->ctab.n_atoms); /* djb-rwth: function replaced with its safe C11 variant */
+            memcpy_s( pv->atom_index_orig, mfdata->ctab.n_atoms  + 1, mpv->atom_index_orig, mfdata->ctab.n_atoms); /* djb-rwth: function replaced with its safe C11 variant */
 #else
             memcpy(pv->atom_index_orig, mpv->atom_index_orig, mfdata->ctab.n_atoms);
 #endif
@@ -1571,7 +1571,7 @@ int SetExtOrigAtDataByMolfileExtInput( MOL_FMT_DATA* mfdata,
                 goto exit_function;
             }
 #if USE_BCF
-            memcpy_s( pv->atom_index_fin, sizeof(pv->atom_index_fin) + 1, mpv->atom_index_fin, mfdata->ctab.n_atoms); /* djb-rwth: function replaced with its safe C11 variant */
+            memcpy_s( pv->atom_index_fin, mfdata->ctab.n_atoms + 1, mpv->atom_index_fin, mfdata->ctab.n_atoms); /* djb-rwth: function replaced with its safe C11 variant */
 #else
             memcpy(pv->atom_index_fin, mpv->atom_index_fin, mfdata->ctab.n_atoms);
 #endif

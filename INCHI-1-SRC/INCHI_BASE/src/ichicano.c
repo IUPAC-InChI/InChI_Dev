@@ -1336,7 +1336,7 @@ int FixCanonEquivalenceInfo( CANON_GLOBALS *pCG,
     if (bChangeCurrRank)
     {
 #if USE_BCF
-        memcpy_s( nCurrRank, sizeof(nCurrRank)*num_at_tg, nTempRank, num_at_tg * sizeof( nCurrRank[0] ) ); /* djb-rwth: function replaced with its safe C11 variant */
+        memcpy_s( nCurrRank, sizeof(nCurrRank[0]) * num_at_tg + 1, nTempRank, num_at_tg * sizeof(nCurrRank[0])); /* djb-rwth: function replaced with its safe C11 variant */
 #else
         memcpy(nCurrRank, nTempRank, num_at_tg * sizeof(nCurrRank[0]));
 #endif
@@ -1561,7 +1561,7 @@ VII. Optimize isotopic stereo descriptors (optimized)
 
     /* linear CT, H */
 #if USE_BCF
-    memcpy_s( pCS->LinearCT, sizeof(pCS->LinearCT)*(ftcn->nLenLinearCt), ftcn->LinearCt, ftcn->nLenLinearCt * sizeof( pCS->LinearCT[0] ) ); /* djb-rwth: function replaced with its safe C11 variant */
+    memcpy_s( pCS->LinearCT, sizeof(pCS->LinearCT[0]) * (ftcn->nLenLinearCt) + 1, ftcn->LinearCt, ftcn->nLenLinearCt * sizeof(pCS->LinearCT[0])); /* djb-rwth: function replaced with its safe C11 variant */
 #else
     memcpy(pCS->LinearCT, ftcn->LinearCt, ftcn->nLenLinearCt * sizeof(pCS->LinearCT[0]));
 #endif
@@ -1594,7 +1594,7 @@ VII. Optimize isotopic stereo descriptors (optimized)
     if (pCS->nCanonOrd)
     {
 #if USE_BCF
-        memcpy_s( pCS->nCanonOrd, sizeof(pCS->nCanonOrd)*num_at_tg, ftcn->PartitionCt.AtNumber, num_at_tg * sizeof(pCS->nCanonOrd[0])); /* djb-rwth: function replaced with its safe C11 variant */
+        memcpy_s( pCS->nCanonOrd, sizeof(pCS->nCanonOrd[0]) * num_at_tg + 1, ftcn->PartitionCt.AtNumber, num_at_tg * sizeof(pCS->nCanonOrd[0])); /* djb-rwth: function replaced with its safe C11 variant */
 #else
         memcpy(pCS->nCanonOrd, ftcn->PartitionCt.AtNumber, num_at_tg * sizeof(pCS->nCanonOrd[0]));
 #endif
@@ -1616,7 +1616,7 @@ VII. Optimize isotopic stereo descriptors (optimized)
         if (pCS->nSymmRankIsotopic)
         {
 #if USE_BCF
-            memcpy_s( pCS->nSymmRankIsotopic, sizeof(pCS->nSymmRankIsotopic)*num_at_tg, ftcn->nSymmRankCtIso, num_at_tg * sizeof(pCS->nSymmRankIsotopic[0])); /* djb-rwth: function replaced with its safe C11 variant */
+            memcpy_s( pCS->nSymmRankIsotopic, sizeof(pCS->nSymmRankIsotopic[0]) * num_at_tg + 1, ftcn->nSymmRankCtIso, num_at_tg * sizeof(pCS->nSymmRankIsotopic[0])); /* djb-rwth: function replaced with its safe C11 variant */
 #else
             memcpy(pCS->nSymmRankIsotopic, ftcn->nSymmRankCtIso, num_at_tg * sizeof(pCS->nSymmRankIsotopic[0]));
 #endif
@@ -1624,7 +1624,7 @@ VII. Optimize isotopic stereo descriptors (optimized)
         if (pCS->nCanonOrdIsotopic)
         {
 #if USE_BCF
-            memcpy_s( pCS->nCanonOrdIsotopic, sizeof(pCS->nCanonOrdIsotopic)*num_at_tg, ftcn->PartitionCtIso.AtNumber, num_at_tg * sizeof(pCS->nCanonOrdIsotopic[0])); /* djb-rwth: function replaced with its safe C11 variant */
+            memcpy_s( pCS->nCanonOrdIsotopic, sizeof(pCS->nCanonOrdIsotopic[0]) * num_at_tg + 1, ftcn->PartitionCtIso.AtNumber, num_at_tg * sizeof(pCS->nCanonOrdIsotopic[0])); /* djb-rwth: function replaced with its safe C11 variant */
 #else
             memcpy(pCS->nCanonOrdIsotopic, ftcn->PartitionCtIso.AtNumber, num_at_tg * sizeof(pCS->nCanonOrdIsotopic[0]));
 #endif
@@ -1684,7 +1684,7 @@ VII. Optimize isotopic stereo descriptors (optimized)
             if (pCS->nSymmRankTaut)
             {
 #if USE_BCF
-                memcpy_s( pCS->nSymmRankTaut, sizeof(pCS->nSymmRankTaut)*num_t_groups, tSymmRank, num_t_groups * sizeof( pCS->nSymmRank[0] ) ); /* fixed 5-23-02 */ /* djb-rwth: function replaced with its safe C11 variant */
+                memcpy_s( pCS->nSymmRankTaut, sizeof(pCS->nSymmRankTaut[0]) * num_t_groups + 1, tSymmRank, num_t_groups * sizeof(pCS->nSymmRank[0])); /* fixed 5-23-02 */ /* djb-rwth: function replaced with its safe C11 variant */
 #else
                 memcpy(pCS->nSymmRankTaut, tSymmRank, num_t_groups * sizeof(pCS->nSymmRank[0])); /* fixed 5-23-02 */
 #endif
@@ -1692,7 +1692,7 @@ VII. Optimize isotopic stereo descriptors (optimized)
             if (pCS->nCanonOrdTaut)
             {
 #if USE_BCF
-                memcpy_s( pCS->nCanonOrdTaut, sizeof(pCS->nCanonOrdTaut)*num_t_groups, tGroupNumber, num_t_groups * sizeof(pCS->nCanonOrdTaut[0])); /* djb-rwth: function replaced with its safe C11 variant */
+                memcpy_s( pCS->nCanonOrdTaut, sizeof(pCS->nCanonOrdTaut[0]) * num_t_groups + 1, tGroupNumber, num_t_groups * sizeof(pCS->nCanonOrdTaut[0])); /* djb-rwth: function replaced with its safe C11 variant */
 #else
                 memcpy(pCS->nCanonOrdTaut, tGroupNumber, num_t_groups * sizeof(pCS->nCanonOrdTaut[0]));
 #endif
@@ -1707,13 +1707,13 @@ VII. Optimize isotopic stereo descriptors (optimized)
                 if (pCS->nSymmRankIsotopicTaut)
                 {
 #if USE_BCF
-                    memcpy_s( pCS->nSymmRankIsotopicTaut, sizeof(pCS->nSymmRankIsotopicTaut)*num_t_groups, tiSymmRank, num_t_groups * sizeof( pCS->nSymmRankIsotopicTaut[0] ) ); /* djb-rwth: function replaced with its safe C11 variant */
+                    memcpy_s( pCS->nSymmRankIsotopicTaut, sizeof(pCS->nSymmRankIsotopicTaut[0]) * num_t_groups + 1, tiSymmRank, num_t_groups * sizeof(pCS->nSymmRankIsotopicTaut[0])); /* djb-rwth: function replaced with its safe C11 variant */
 #else
                     memcpy(pCS->nSymmRankIsotopicTaut, tiSymmRank, num_t_groups * sizeof(pCS->nSymmRankIsotopicTaut[0]));
 #endif
                 }
 #if USE_BCF
-                memcpy_s( pCS->nCanonOrdIsotopicTaut, sizeof(pCS->nCanonOrdIsotopicTaut)*num_t_groups, tiGroupNumber, num_t_groups * sizeof(pCS->nCanonOrdIsotopicTaut[0])); /* djb-rwth: function replaced with its safe C11 variant */
+                memcpy_s( pCS->nCanonOrdIsotopicTaut, sizeof(pCS->nCanonOrdIsotopicTaut[0])* num_t_groups + 1, tiGroupNumber, num_t_groups * sizeof(pCS->nCanonOrdIsotopicTaut[0])); /* djb-rwth: function replaced with its safe C11 variant */
 #else
                 memcpy(pCS->nCanonOrdIsotopicTaut, tiGroupNumber, num_t_groups * sizeof(pCS->nCanonOrdIsotopicTaut[0]));
 #endif
@@ -1725,7 +1725,7 @@ VII. Optimize isotopic stereo descriptors (optimized)
     if (pCS->LinearCT2)
     {
 #if USE_BCF
-        memcpy_s( pCS->LinearCT2, sizeof(pCS->LinearCT2)*(pCS->nLenLinearCT), pCS->LinearCT, sizeof(pCS->LinearCT2[0]) * pCS->nLenLinearCT); /* djb-rwth: function replaced with its safe C11 variant */
+        memcpy_s( pCS->LinearCT2, sizeof(pCS->LinearCT2[0])* (pCS->nLenLinearCT) + 1, pCS->LinearCT, sizeof(pCS->LinearCT2[0])* pCS->nLenLinearCT); /* djb-rwth: function replaced with its safe C11 variant */
 #else
         memcpy(pCS->LinearCT2, pCS->LinearCT, sizeof(pCS->LinearCT2[0])* pCS->nLenLinearCT);
 #endif
@@ -1829,9 +1829,9 @@ VII. Optimize isotopic stereo descriptors (optimized)
 
         /* initial ranking for non-isotopic mapping */
 #if USE_BCF
-        memcpy_s( nAtomNumber, sizeof(nAtomNumber)*num_at_tg, ftcn->PartitionCt.AtNumber, num_at_tg * sizeof( nAtomNumber[0] ) ); /* djb-rwth: function replaced with its safe C11 variant */
-        memcpy_s( nRank, sizeof(nRank)*num_at_tg, ftcn->PartitionCt.Rank, num_at_tg * sizeof( nRank[0] ) ); /* djb-rwth: function replaced with its safe C11 variant */
-        memcpy_s( nSymmRank, sizeof(nSymmRank)*num_at_tg, ftcn->nSymmRankCt, num_at_tg * sizeof( nSymmRank[0] ) ); /* djb-rwth: function replaced with its safe C11 variant */
+        memcpy_s( nAtomNumber, sizeof(nAtomNumber[0])* num_at_tg + 1, ftcn->PartitionCt.AtNumber, num_at_tg * sizeof(nAtomNumber[0])); /* djb-rwth: function replaced with its safe C11 variant */
+        memcpy_s( nRank, sizeof(nRank[0])* num_at_tg + 1, ftcn->PartitionCt.Rank, num_at_tg * sizeof(nRank[0])); /* djb-rwth: function replaced with its safe C11 variant */
+        memcpy_s( nSymmRank, sizeof(nSymmRank[0])* num_at_tg + 1, ftcn->nSymmRankCt, num_at_tg * sizeof(nSymmRank[0])); /* djb-rwth: function replaced with its safe C11 variant */
 #else
         memcpy(nAtomNumber, ftcn->PartitionCt.AtNumber, num_at_tg * sizeof(nAtomNumber[0]));
         memcpy(nRank, ftcn->PartitionCt.Rank, num_at_tg * sizeof(nRank[0]));
@@ -1846,7 +1846,7 @@ VII. Optimize isotopic stereo descriptors (optimized)
                                                  NULL );
         /* atom numbers in canonical order */
 #if USE_BCF
-        memcpy_s( pCS->nPrevAtomNumber, sizeof(pCS->nPrevAtomNumber)*num_at_tg, ftcn->PartitionCt.AtNumber, num_at_tg * sizeof( nAtomNumber[0] ) ); /* djb-rwth: function replaced with its safe C11 variant */
+        memcpy_s( pCS->nPrevAtomNumber, sizeof(nAtomNumber[0])*num_at_tg + 1, ftcn->PartitionCt.AtNumber, num_at_tg * sizeof( nAtomNumber[0] ) ); /* djb-rwth: function replaced with its safe C11 variant */
 #else
         memcpy(pCS->nPrevAtomNumber, ftcn->PartitionCt.AtNumber, num_at_tg * sizeof(nAtomNumber[0]));
 #endif
@@ -2019,7 +2019,7 @@ VII. Optimize isotopic stereo descriptors (optimized)
                     AT_NUMB *tGroupNumber = t_group_info1->tGroupNumber;
                     /*AT_NUMB *tiSymmRank        = tGroupNumber + TGSO_SYMM_IRANK*num_t_groups; */
 #if USE_BCF
-                    memcpy_s( pCS->nCanonOrdStereoTaut, sizeof(pCS->nCanonOrdStereoTaut)*num_t_groups, tGroupNumber, num_t_groups * sizeof( pCS->nCanonOrdStereoTaut[0] ) ); /* djb-rwth: function replaced with its safe C11 variant */
+                    memcpy_s( pCS->nCanonOrdStereoTaut, sizeof(pCS->nCanonOrdStereoTaut[0]) * num_t_groups + 1, tGroupNumber, num_t_groups * sizeof(pCS->nCanonOrdStereoTaut[0])); /* djb-rwth: function replaced with its safe C11 variant */
 #else
                     memcpy(pCS->nCanonOrdStereoTaut, tGroupNumber, num_t_groups * sizeof(pCS->nCanonOrdStereoTaut[0]));
 #endif
@@ -2072,15 +2072,15 @@ VII. Optimize isotopic stereo descriptors (optimized)
         {
             /* copy previous results, the canonical stereo CT */
 #if USE_BCF
-            memcpy_s( pCS->LinearCTStereoDble, sizeof(pCS->LinearCTStereoDble)*(pCS->nLenLinearCTStereoDble), pCS2->LinearCTStereoDble, pCS->nLenLinearCTStereoDble * sizeof(pCS->LinearCTStereoDble[0])); /* djb-rwth: function replaced with its safe C11 variant */
-            memcpy_s( pCS->LinearCTStereoCarb, sizeof(pCS->LinearCTStereoCarb)*(pCS->nLenLinearCTStereoCarb), pCS2->LinearCTStereoCarb, pCS->nLenLinearCTStereoCarb * sizeof(pCS->LinearCTStereoCarb[0])); /* djb-rwth: function replaced with its safe C11 variant */
+            memcpy_s( pCS->LinearCTStereoDble, sizeof(pCS->LinearCTStereoDble[0]) * (pCS->nLenLinearCTStereoDble) + 1, pCS2->LinearCTStereoDble, pCS->nLenLinearCTStereoDble * sizeof(pCS->LinearCTStereoDble[0])); /* djb-rwth: function replaced with its safe C11 variant */
+            memcpy_s( pCS->LinearCTStereoCarb, sizeof(pCS->LinearCTStereoCarb[0])* (pCS->nLenLinearCTStereoCarb) + 1, pCS2->LinearCTStereoCarb, pCS->nLenLinearCTStereoCarb * sizeof(pCS->LinearCTStereoCarb[0])); /* djb-rwth: function replaced with its safe C11 variant */
 #else
             memcpy(pCS->LinearCTStereoDble, pCS2->LinearCTStereoDble, pCS->nLenLinearCTStereoDble * sizeof(pCS->LinearCTStereoDble[0]));
             memcpy(pCS->LinearCTStereoCarb, pCS2->LinearCTStereoCarb, pCS->nLenLinearCTStereoCarb * sizeof(pCS->LinearCTStereoCarb[0]));
 #endif
         }
 #if USE_BCF
-        memcpy_s( nCanonRankStereoInv, sizeof(nCanonRankStereoInv)*num_max, nCanonRankStereo, num_max * sizeof( nCanonRankStereoInv[0] ) ); /* djb-rwth: function replaced with its safe C11 variant */
+        memcpy_s( nCanonRankStereoInv, sizeof(nCanonRankStereoInv[0])* num_max + 1, nCanonRankStereo, num_max * sizeof(nCanonRankStereoInv[0])); /* djb-rwth: function replaced with its safe C11 variant */
 #else
         memcpy(nCanonRankStereoInv, nCanonRankStereo, num_max * sizeof(nCanonRankStereoInv[0]));
 #endif
@@ -2088,7 +2088,7 @@ VII. Optimize isotopic stereo descriptors (optimized)
         {
             /* in case there is nothing to invert */
 #if USE_BCF
-            memcpy_s( pCS->nCanonOrdStereoInv, sizeof(pCS->nCanonOrdStereoInv)*num_at_tg, pCS->nCanonOrdStereo, num_at_tg * sizeof(pCS->nCanonOrdStereoInv[0])); /* djb-rwth: function replaced with its safe C11 variant */
+            memcpy_s( pCS->nCanonOrdStereoInv, sizeof(pCS->nCanonOrdStereoInv[0])* num_at_tg + 1, pCS->nCanonOrdStereo, num_at_tg * sizeof(pCS->nCanonOrdStereoInv[0])); /* djb-rwth: function replaced with its safe C11 variant */
 #else
             memcpy(pCS->nCanonOrdStereoInv, pCS->nCanonOrdStereo, num_at_tg * sizeof(pCS->nCanonOrdStereoInv[0]));
 #endif
@@ -2293,9 +2293,9 @@ VII. Optimize isotopic stereo descriptors (optimized)
 
         /* Initial ranking for isotopic mapping */
 #if USE_BCF
-        memcpy_s( nAtomNumber, sizeof(nAtomNumber)*num_at_tg, ftcn->PartitionCtIso.AtNumber, num_at_tg * sizeof( nAtomNumber[0] ) ); /* djb-rwth: function replaced with its safe C11 variant */
-        memcpy_s( nRank, sizeof(nRank)*num_at_tg, ftcn->PartitionCtIso.Rank, num_at_tg * sizeof( nRank[0] ) ); /* djb-rwth: function replaced with its safe C11 variant */
-        memcpy_s( nSymmRank, sizeof(nSymmRank)*num_at_tg, ftcn->nSymmRankCtIso, num_at_tg * sizeof( nSymmRank[0] ) ); /* djb-rwth: function replaced with its safe C11 variant */
+        memcpy_s( nAtomNumber, sizeof(nAtomNumber[0])* num_at_tg + 1, ftcn->PartitionCtIso.AtNumber, num_at_tg * sizeof(nAtomNumber[0])); /* djb-rwth: function replaced with its safe C11 variant */
+        memcpy_s( nRank, sizeof(nRank[0])* num_at_tg + 1, ftcn->PartitionCtIso.Rank, num_at_tg * sizeof(nRank[0])); /* djb-rwth: function replaced with its safe C11 variant */
+        memcpy_s( nSymmRank, sizeof(nSymmRank[0])* num_at_tg + 1, ftcn->nSymmRankCtIso, num_at_tg * sizeof(nSymmRank[0])); /* djb-rwth: function replaced with its safe C11 variant */
 #else
         memcpy(nAtomNumber, ftcn->PartitionCtIso.AtNumber, num_at_tg * sizeof(nAtomNumber[0]));
         memcpy(nRank, ftcn->PartitionCtIso.Rank, num_at_tg * sizeof(nRank[0]));
@@ -2306,7 +2306,7 @@ VII. Optimize isotopic stereo descriptors (optimized)
                                            nRank, nTempRank /* out */, nAtomNumber /* in&out */, NULL );
 
 #if USE_BCF
-        memcpy_s( pCS->nPrevAtomNumber, sizeof(pCS->nPrevAtomNumber)*num_at_tg, ftcn->PartitionCtIso.AtNumber, num_at_tg * sizeof( nAtomNumber[0] ) ); /* djb-rwth: function replaced with its safe C11 variant */
+        memcpy_s( pCS->nPrevAtomNumber, sizeof(nAtomNumber[0])*num_at_tg + 1, ftcn->PartitionCtIso.AtNumber, num_at_tg * sizeof( nAtomNumber[0] ) ); /* djb-rwth: function replaced with its safe C11 variant */
 #else
         memcpy(pCS->nPrevAtomNumber, ftcn->PartitionCtIso.AtNumber, num_at_tg * sizeof(nAtomNumber[0]));
 #endif
@@ -2481,7 +2481,7 @@ VII. Optimize isotopic stereo descriptors (optimized)
                         AT_NUMB *tGroupNumber = t_group_info1->tGroupNumber;
                         /*AT_NUMB *tiSymmRank        = tGroupNumber + TGSO_SYMM_IRANK*num_t_groups; */
 #if USE_BCF
-                        memcpy_s( pCS->nCanonOrdIsotopicStereoTaut, sizeof(pCS->nCanonOrdIsotopicStereoTaut)*num_t_groups, tGroupNumber, num_t_groups * sizeof( pCS->nCanonOrdIsotopicStereoTaut[0] ) ); /* djb-rwth: function replaced with its safe C11 variant */
+                        memcpy_s( pCS->nCanonOrdIsotopicStereoTaut, sizeof(pCS->nCanonOrdIsotopicStereoTaut[0]) * num_t_groups + 1, tGroupNumber, num_t_groups * sizeof(pCS->nCanonOrdIsotopicStereoTaut[0])); /* djb-rwth: function replaced with its safe C11 variant */
 #else
                         memcpy(pCS->nCanonOrdIsotopicStereoTaut, tGroupNumber, num_t_groups * sizeof(pCS->nCanonOrdIsotopicStereoTaut[0]));
 #endif
@@ -2532,15 +2532,15 @@ VII. Optimize isotopic stereo descriptors (optimized)
         {
             /* copy previous results, the canonical stereo CT */
 #if USE_BCF
-            memcpy_s( pCS->LinearCTStereoDble, sizeof(pCS->LinearCTStereoDble)*(pCS->nLenLinearCTStereoDble), pCS2->LinearCTIsotopicStereoDble, pCS->nLenLinearCTStereoDble * sizeof( pCS->LinearCTStereoDble[0] ) ); /* djb-rwth: function replaced with its safe C11 variant */
-            memcpy_s( pCS->LinearCTStereoCarb, sizeof(pCS->LinearCTStereoCarb)*(pCS->nLenLinearCTStereoCarb), pCS2->LinearCTIsotopicStereoCarb, pCS->nLenLinearCTStereoCarb * sizeof(pCS->LinearCTStereoCarb[0])); /* djb-rwth: function replaced with its safe C11 variant */
+            memcpy_s( pCS->LinearCTStereoDble, sizeof(pCS->LinearCTStereoDble[0]) * (pCS->nLenLinearCTStereoDble), pCS2->LinearCTIsotopicStereoDble, pCS->nLenLinearCTStereoDble * sizeof(pCS->LinearCTStereoDble[0])); /* djb-rwth: function replaced with its safe C11 variant */
+            memcpy_s( pCS->LinearCTStereoCarb, sizeof(pCS->LinearCTStereoCarb[0]) * (pCS->nLenLinearCTStereoCarb), pCS2->LinearCTIsotopicStereoCarb, pCS->nLenLinearCTStereoCarb * sizeof(pCS->LinearCTStereoCarb[0])); /* djb-rwth: function replaced with its safe C11 variant */
 #else
             memcpy(pCS->LinearCTStereoDble, pCS2->LinearCTIsotopicStereoDble, pCS->nLenLinearCTStereoDble * sizeof(pCS->LinearCTStereoDble[0]));
             memcpy(pCS->LinearCTStereoCarb, pCS2->LinearCTIsotopicStereoCarb, pCS->nLenLinearCTStereoCarb * sizeof(pCS->LinearCTStereoCarb[0]));
 #endif
         }
 #if USE_BCF
-        memcpy_s( nCanonRankIsotopicStereoInv, sizeof(nCanonRankIsotopicStereoInv)*num_max, nCanonRankIsotopicStereo, num_max * sizeof( nCanonRankIsotopicStereoInv[0] ) ); /* djb-rwth: function replaced with its safe C11 variant */
+        memcpy_s( nCanonRankIsotopicStereoInv, sizeof(nCanonRankIsotopicStereoInv[0])* num_max + 1, nCanonRankIsotopicStereo, num_max * sizeof(nCanonRankIsotopicStereoInv[0])); /* djb-rwth: function replaced with its safe C11 variant */
 #else
         memcpy(nCanonRankIsotopicStereoInv, nCanonRankIsotopicStereo, num_max * sizeof(nCanonRankIsotopicStereoInv[0]));
 #endif
@@ -2548,7 +2548,7 @@ VII. Optimize isotopic stereo descriptors (optimized)
         {
             /* in case there is nothing to invert */
 #if USE_BCF
-            memcpy_s( pCS->nCanonOrdIsotopicStereoInv, sizeof(pCS->nCanonOrdIsotopicStereoInv)*num_at_tg, pCS->nCanonOrdIsotopicStereo, num_at_tg * sizeof( pCS->nCanonOrdIsotopicStereoInv[0] ) ); /* djb-rwth: function replaced with its safe C11 variant */
+            memcpy_s( pCS->nCanonOrdIsotopicStereoInv, sizeof(pCS->nCanonOrdIsotopicStereoInv[0])* num_at_tg + 1, pCS->nCanonOrdIsotopicStereo, num_at_tg * sizeof(pCS->nCanonOrdIsotopicStereoInv[0])); /* djb-rwth: function replaced with its safe C11 variant */
 #else
             memcpy(pCS->nCanonOrdIsotopicStereoInv, pCS->nCanonOrdIsotopicStereo, num_at_tg * sizeof(pCS->nCanonOrdIsotopicStereoInv[0]));
 #endif

@@ -283,7 +283,7 @@ int get_element_chemical_symbol( int nAtNum, char *szElement )
     {
         /* valid element symbol found */
 #if USE_BCF
-        strcpy_s(szElement, strlen(szElement) + 1 + strlen(ElData[nAtNum].szElName), ElData[nAtNum].szElName); /* djb-rwth: function replaced with its safe C11 variant */
+        strcpy_s(szElement, strlen(ElData[nAtNum].szElName) + 1, ElData[nAtNum].szElName); /* djb-rwth: function replaced with its safe C11 variant */
 #else
         strcpy(szElement, ElData[nAtNum].szElName);
 #endif
@@ -292,7 +292,7 @@ int get_element_chemical_symbol( int nAtNum, char *szElement )
 
     /* not found */
 #if USE_BCF
-    strcpy_s(szElement, strlen(szElement) + 4, "??"); /* djb-rwth: function replaced with its safe C11 variant */
+    strcpy_s(szElement, 4, "??"); /* djb-rwth: function replaced with its safe C11 variant */
 #else
     strcpy(szElement, "??");
 #endif
@@ -319,7 +319,7 @@ int get_element_or_pseudoelement_symbol( int nAtNum,
     {
         /* valid element symbol found */
 #if USE_BCF
-        strcpy_s(szElement, strlen(szElement) + 1 + strlen(ElData[nAtNum].szElName), ElData[nAtNum].szElName); /* djb-rwth: function replaced with its safe C11 variant */
+        strcpy_s(szElement, strlen(ElData[nAtNum].szElName) + 1, ElData[nAtNum].szElName); /* djb-rwth: function replaced with its safe C11 variant */
 #else
         strcpy(szElement, ElData[nAtNum].szElName);
 #endif
@@ -327,7 +327,7 @@ int get_element_or_pseudoelement_symbol( int nAtNum,
         if (!strcmp( szElement, "Zy" ))
         {
 #if USE_BCF
-            strcpy_s(szElement, strlen(szElement) + 4, "Zz"); /* djb-rwth: function replaced with its safe C11 variant */
+            strcpy_s(szElement, 4, "Zz"); /* djb-rwth: function replaced with its safe C11 variant */
 #else
             strcpy(szElement, "Zz");
 #endif
@@ -338,7 +338,7 @@ int get_element_or_pseudoelement_symbol( int nAtNum,
 
     /* not found */
 #if USE_BCF
-    strcpy_s(szElement, sizeof(szElement) + 4, "??"); /* djb-rwth: function replaced with its safe C11 variant */
+    strcpy_s(szElement, 4, "??"); /* djb-rwth: function replaced with its safe C11 variant */
 #else
     strcpy(szElement, "??");
 #endif
@@ -2036,7 +2036,7 @@ char *inchi__strdup( const char *string )
         if (p)
         {
 #if USE_BCF
-            strcpy_s(p, sizeof(p) + strlen(string) + 1, string); /* djb-rwth: function replaced with its safe C11 variant */
+            strcpy_s(p, strlen(string) + 1, string); /* djb-rwth: function replaced with its safe C11 variant */
 #else
             strcpy(p, string);
 #endif

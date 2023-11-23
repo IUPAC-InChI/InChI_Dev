@@ -215,7 +215,7 @@ double len3( const double c[] ) /* djb-rwth: avoiding uninitialised values */
 {
     double tmpar[ARR_DIM] = { 0.0 };
 #if USE_BCF
-    memcpy_s(tmpar, sizeof(tmpar), c, ARR_DIM * sizeof(c[0]));
+    memcpy_s(tmpar, ARR_DIM * sizeof(c[0]), c, ARR_DIM * sizeof(c[0]));
 #else
     memcpy(tmpar, c, ARR_DIM * sizeof(c[0]));
 #endif
@@ -228,7 +228,7 @@ double len2( const double c[] ) /* djb-rwth: avoiding uninitialised values */
 {
     double tmpar[ARR_DIM - 1] = { 0,0 };
 #if USE_BCF
-    memcpy_s(tmpar, sizeof(tmpar), c, (ARR_DIM - 1) * sizeof(c[0]));
+    memcpy_s(tmpar, (ARR_DIM - 1) * sizeof(c[0]), c, (ARR_DIM - 1) * sizeof(c[0]));
 #else
     memcpy(tmpar, c, (ARR_DIM - 1) * sizeof(c[0]));
 #endif
@@ -1971,7 +1971,7 @@ int FixSb0DParities( inp_ATOM *at,
                 if (bWrong_z_dir1)
                 {
 #if USE_BCF
-                    memcpy_s( z_dir1, 2*sizeof(z_dir) + 1, z_dir, sizeof( z_dir ) ); /* djb-rwth: function replaced with its safe C11 variant */
+                    memcpy_s( z_dir1, sizeof(z_dir) + 1, z_dir, sizeof( z_dir ) ); /* djb-rwth: function replaced with its safe C11 variant */
 #else
                     memcpy(z_dir1, z_dir, sizeof(z_dir));
 #endif
@@ -1979,7 +1979,7 @@ int FixSb0DParities( inp_ATOM *at,
                 else
                 {
 #if USE_BCF
-                    memcpy_s( z_dir2, 2*sizeof(z_dir) + 1, z_dir, sizeof( z_dir ) ); /* djb-rwth: function replaced with its safe C11 variant */
+                    memcpy_s( z_dir2, sizeof(z_dir) + 1, z_dir, sizeof( z_dir ) ); /* djb-rwth: function replaced with its safe C11 variant */
 #else
                     memcpy(z_dir2, z_dir, sizeof(z_dir));
 #endif
@@ -2415,7 +2415,7 @@ int half_stereo_bond_parity( inp_ATOM *at,
     {
         /* copy3(at_coord[j], temp);-- djb-rwth: removing copy3 function */
 #if USE_BCF
-        memcpy_s(temp, sizeof(temp), at_coord[j], sizeof(at_coord[j]));
+        memcpy_s(temp, sizeof(at_coord[j]), at_coord[j], sizeof(at_coord[j]));
 #else
         memcpy(temp, at_coord[j], sizeof(at_coord[j]));
 #endif
@@ -3602,7 +3602,7 @@ int set_stereo_bonds_parity( sp_ATOM *out_at,
                     {
                         out_at[at_1].parity = cur_parity;
 #if USE_BCF
-                        memcpy_s( out_at[at_1].z_dir, sizeof(out_at[at_1]) + 1, z_dir1, sizeof(out_at[0].z_dir)); /* djb-rwth: function replaced with its safe C11 variant */
+                        memcpy_s( out_at[at_1].z_dir, sizeof(out_at[0].z_dir) + 1, z_dir1, sizeof(out_at[0].z_dir)); /* djb-rwth: function replaced with its safe C11 variant */
 #else
                         memcpy(out_at[at_1].z_dir, z_dir1, sizeof(out_at[0].z_dir));
 #endif
@@ -3612,7 +3612,7 @@ int set_stereo_bonds_parity( sp_ATOM *out_at,
                     {
                         out_at[at_2].parity = next_parity;
 #if USE_BCF
-                        memcpy_s( out_at[at_2].z_dir, sizeof(out_at[at_2]) + 1, z_dir2, sizeof(out_at[0].z_dir)); /* djb-rwth: function replaced with its safe C11 variant */
+                        memcpy_s( out_at[at_2].z_dir, sizeof(out_at[0].z_dir) + 1, z_dir2, sizeof(out_at[0].z_dir)); /* djb-rwth: function replaced with its safe C11 variant */
 #else
                         memcpy(out_at[at_2].z_dir, z_dir2, sizeof(out_at[0].z_dir));
 #endif
@@ -4148,7 +4148,7 @@ int set_stereo_atom_parity( CANON_GLOBALS *pCG,
                 */
                 /* copy3(sum_xyz, at_coord[j]); -- djb-rwth: removing copy3 function */
 #if USE_BCF
-                memcpy_s(at_coord[j], sizeof(at_coord[j]), sum_xyz, sizeof(sum_xyz));
+                memcpy_s(at_coord[j], sizeof(sum_xyz) + 1, sum_xyz, sizeof(sum_xyz));
 #else
                 memcpy(at_coord[j], sum_xyz, sizeof(sum_xyz));
 #endif

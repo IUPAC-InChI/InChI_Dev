@@ -447,7 +447,7 @@ int MakeMult( int mult,
     if (len + len_delim < ( int )sizeof( szValue ))
     {
 #if USE_BCF
-        strcpy_s( szValue + len, strlen(szValue) + (long long)len_delim + 1, szTailingDelim); /* djb-rwth: function replaced with its safe C11 variant */
+        strcpy_s( szValue + len, (long long)len_delim + 1, szTailingDelim); /* djb-rwth: function replaced with its safe C11 variant */
 #else
         strcpy(szValue + len, szTailingDelim);
 #endif
@@ -937,7 +937,7 @@ int MakeHString( int              bAddDelim,
                                 else
                                 {
 #if USE_BCF
-                                    strcpy_s( szValue + len, sizeof(szValue) + strlen(pH), pH ); /* djb-rwth: function replaced with its safe C11 variant */
+                                    strcpy_s( szValue + len, strlen(pH) + 1, pH ); /* djb-rwth: function replaced with its safe C11 variant */
 #else
                                     strcpy(szValue + len, pH);
 #endif
@@ -1025,7 +1025,7 @@ int MakeHString( int              bAddDelim,
                         else
                         {
 #if USE_BCF
-                            strcpy_s( szValue + len, sizeof(szValue) + strlen(pH), pH ); /* djb-rwth: function replaced with its safe C11 variant */
+                            strcpy_s( szValue + len, strlen(pH) + 1, pH ); /* djb-rwth: function replaced with its safe C11 variant */
 #else
                             strcpy(szValue + len, pH);
 #endif
@@ -1214,7 +1214,7 @@ int MakeTautString( AT_NUMB          *LinearCT,
                                     break;
                                 case 1:
 #if USE_BCF
-                                    strcpy_s( szValue, sizeof(szValue) + strlen(p), p ); /* djb-rwth: function replaced with its safe C11 variant */
+                                    strcpy_s( szValue, strlen(p) + 1, p ); /* djb-rwth: function replaced with its safe C11 variant */
 #else
                                     strcpy(szValue, p);
 #endif
@@ -1691,7 +1691,7 @@ int MakeIsoAtomString( INChI_IsotopicAtom *IsotopicAtom,
                                     if (( int )sizeof( szValue ) - tot_len > 1)
                                     {
 #if USE_BCF
-                                        strcpy_s( p, sizeof(p) + sizeof(h), h[j - 2]); /* djb-rwth: function replaced with its safe C11 variant */
+                                        strcpy_s( p, strlen(h[j-2]) + 1, h[j - 2]); /* djb-rwth: function replaced with its safe C11 variant */
 #else
                                         strcpy(p, h[j - 2]);
 #endif
@@ -1822,7 +1822,7 @@ int MakeIsoTautString( INChI_IsotopicTGroup *IsotopicTGroup,
                                 if (( int )sizeof( szValue ) - tot_len > 1)
                                 {
 #if USE_BCF
-                                    strcpy_s( p, sizeof(p) + sizeof(h), h[j - 1] ); /* djb-rwth: function replaced with its safe C11 variant */
+                                    strcpy_s( p, strlen(h[j-1]) + 1, h[j - 1]); /* djb-rwth: function replaced with its safe C11 variant */
 #else
                                     strcpy(p, h[j - 1]);
 #endif
@@ -1922,7 +1922,7 @@ int MakeIsoHString( int              num_iso_H[],
                         if (( int )sizeof( szValue ) - tot_len > 1)
                         {
 #if USE_BCF
-                            strcpy_s( p, sizeof(p) + sizeof(h), h[j - 1] ); /* djb-rwth: function replaced with its safe C11 variant */
+                            strcpy_s( p, sizeof(h[j-1]) + 1, h[j - 1]); /* djb-rwth: function replaced with its safe C11 variant */
 #else
                             strcpy(p, h[j - 1]);
 #endif

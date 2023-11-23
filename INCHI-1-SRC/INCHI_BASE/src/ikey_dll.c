@@ -303,7 +303,7 @@ int INCHI_DECL GetINCHIKeyFromINCHI( const char* szINCHISource,
 
     /* Trim 'InChI=1[S]/' */
 #if USE_BCF
-    memcpy_s(smajor, sizeof(smajor) + ncp + 1, str + pos_slash1 + 1, ncp * sizeof(str[0])); /* djb-rwth: function replaced with its safe C11 variant */
+    memcpy_s(smajor, ncp * sizeof(str[0]) + 1, str + pos_slash1 + 1, ncp * sizeof(str[0])); /* djb-rwth: function replaced with its safe C11 variant */
 #else
     memcpy(smajor, str + pos_slash1 + 1, ncp * sizeof(str[0]));
 #endif
@@ -324,7 +324,7 @@ int INCHI_DECL GetINCHIKeyFromINCHI( const char* szINCHISource,
         }
 
 #if USE_BCF
-        memcpy_s(sproto, sizeof(sproto) + lenproto + 1, str + pos_slash1 + ncp + 1, lenproto * sizeof(str[0])); /* djb-rwth: function replaced with its safe C11 variant */
+        memcpy_s(sproto, lenproto * sizeof(str[0]) + 1, str + pos_slash1 + ncp + 1, lenproto * sizeof(str[0])); /* djb-rwth: function replaced with its safe C11 variant */
 #else
         memcpy(sproto, str + pos_slash1 + ncp + 1, lenproto * sizeof(str[0]));
 #endif        
@@ -368,7 +368,7 @@ int INCHI_DECL GetINCHIKeyFromINCHI( const char* szINCHISource,
     {
         ncp = slen - j;
 #if USE_BCF
-        memcpy_s(sminor, sizeof(sminor) + ncp + 1, str + j, (ncp) * sizeof(str[0]));
+        memcpy_s(sminor, (ncp) * sizeof(str[0]) + 1, str + j, (ncp) * sizeof(str[0]));
 #else
         memcpy(sminor, str + j, (ncp) * sizeof(str[0]));
 #endif
@@ -402,7 +402,7 @@ int INCHI_DECL GetINCHIKeyFromINCHI( const char* szINCHISource,
         base26_triplet_1(digest_major), base26_triplet_2(digest_major),
         base26_triplet_3(digest_major), base26_triplet_4(digest_major),
         base26_dublet_for_bits_56_to_64(digest_major)); /* djb-rwth: function replaced with its safe C11 variant */
-    strcat_s(szINCHIKey, strlen(szINCHIKey) + strlen(tmp) + 1, tmp); /* djb-rwth: function replaced with its safe C11 variant */
+    strcat_s(szINCHIKey, strlen(szINCHIKey) + strlen(tmp) + 3, tmp); /* djb-rwth: function replaced with its safe C11 variant */
 #else
     sprintf(tmp, "%-.3s%-.3s%-.3s%-.3s%-.2s",
         base26_triplet_1(digest_major), base26_triplet_2(digest_major),
@@ -425,7 +425,7 @@ int INCHI_DECL GetINCHIKeyFromINCHI( const char* szINCHISource,
     {
 #if USE_BCF
         strcpy_s(stmp, slen + 1, sminor); /* djb-rwth: function replaced with its safe C11 variant */
-        strcpy_s(sminor + slen, slen + 1, stmp); /* djb-rwth: function replaced with its safe C11 variant */
+        strcpy_s(sminor + slen, strlen(stmp) + 1, stmp); /* djb-rwth: function replaced with its safe C11 variant */
 #else
         strcpy(stmp, sminor);
         strcpy(sminor + slen, stmp);
@@ -439,7 +439,7 @@ int INCHI_DECL GetINCHIKeyFromINCHI( const char* szINCHISource,
 #endif
 
 #if USE_BCF
-    strcat_s(szINCHIKey, strlen(szINCHIKey) + 3, "-"); /* djb-rwth: function replaced with its safe C11 variant */
+    strcat_s(szINCHIKey, strlen(szINCHIKey) + 4, "-"); /* djb-rwth: function replaced with its safe C11 variant */
     sprintf_s(tmp, sizeof(tmp), "%-.3s%-.3s%-.2s",
         base26_triplet_1(digest_minor),
         base26_triplet_2(digest_minor),

@@ -459,7 +459,7 @@ int ReadTheStructure( struct tagINCHI_CLOCK *ic,
                     else
                     {
 #if USE_BCF
-                        strcat_s( ip->pSdfValue, strlen(ip->pSdfValue)*2 + 7, " [+1]" ); /* djb-rwth: function replaced with its safe C11 variant */
+                        strcat_s( ip->pSdfValue, strlen(ip->pSdfValue)*2 + 8, " [+1]" ); /* djb-rwth: function replaced with its safe C11 variant */
 #else
                         strcat(ip->pSdfValue, " [+1]");
 #endif
@@ -619,7 +619,7 @@ int ReadTheStructure( struct tagINCHI_CLOCK *ic,
                     else
                     {
 #if USE_BCF
-                        strcat_s( ip->pSdfValue, strlen(ip->pSdfValue)*2 + 7, " [+1]"); /* djb-rwth: function replaced with its safe C11 variant */
+                        strcat_s( ip->pSdfValue, strlen(ip->pSdfValue)*2 + 8, " [+1]"); /* djb-rwth: function replaced with its safe C11 variant */
 #else
                         strcat(ip->pSdfValue, " [+1]");
 #endif
@@ -1593,7 +1593,7 @@ int  POSEContext_Init(POSEContext *context,
     if (strlen(szTitle))
     {
 #if USE_BCF
-        strcpy_s(context->szTitle, sizeof(context->szTitle) + strlen(szTitle) + 1, szTitle); /* djb-rwth: function replaced with its safe C11 variant */
+        strcpy_s(context->szTitle, strlen(szTitle) + 1, szTitle); /* djb-rwth: function replaced with its safe C11 variant */
 #else
         strcpy(context->szTitle, szTitle);
 #endif

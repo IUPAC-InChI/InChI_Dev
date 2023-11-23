@@ -31,4 +31,6 @@ errno_t memset_ssc(void* v, rsize_t smax, int c, rsize_t n);
 int memset_usc(void* v, size_t smax, int c, size_t n);
 #endif
 
+int max_3(int a, int b, int c);
+
 #endif

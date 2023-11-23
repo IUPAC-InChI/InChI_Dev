@@ -986,7 +986,7 @@ int MolfileV3000ReadAtomsBlock( MOL_FMT_CTAB* ctab,
                 char szcoords[40];
 #if USE_BCF
                 sprintf_s( szcoords, sizeof(szcoords) + 1, "%10g%10g%10g", fx, fy, fz ); /* djb-rwth: function replaced with its safe C11 variant */
-                strcpy_s( ctab->coords[i], sizeof(szcoords) + 1, szcoords); /* djb-rwth: function replaced with its safe C11 variant */
+                strcpy_s( ctab->coords[i], strlen(szcoords) + 1, szcoords); /* djb-rwth: function replaced with its safe C11 variant */
 #else
                 sprintf(szcoords, "%10g%10g%10g", fx, fy, fz);
                 strcpy(ctab->coords[i], szcoords);

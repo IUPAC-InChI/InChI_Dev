@@ -2636,7 +2636,7 @@ int OAD_StructureEdits_Apply( STRUCT_DATA *sd,
             valen = new_at0->valence;
 #if USE_BCF
             memcpy_s(nbr0, sizeof(AT_NUMB)*valen + 1, new_at0->neighbor, valen*sizeof(AT_NUMB)); /* djb-rwth: function replaced with its safe C11 variant */
-            memcpy_s(btype0, sizeof(btype0) + valen + 1, new_at0->bond_type, valen);
+            memcpy_s(btype0, valen + 1, new_at0->bond_type, valen);
 #else
             memcpy(nbr0, new_at0->neighbor, valen * sizeof(AT_NUMB));
             memcpy(btype0, new_at0->bond_type, valen);
@@ -3198,7 +3198,7 @@ int mark_atoms_to_delete_or_renumber( ORIG_ATOM_DATA *orig_at_data,
     /* NB:	new/old ORIG_ATOM_DATA atom numbers are 0-based (==orig_number-1) 
             while those in ed->... are just 1-based orig_numbers */
     
-    for (i=0;i<max_atoms;i++)
+    for (i = 0; (size_t)i < max_atoms; i++)
     {
         at_renum[i] = i;
     }
@@ -3214,7 +3214,7 @@ int mark_atoms_to_delete_or_renumber( ORIG_ATOM_DATA *orig_at_data,
         {
             return _IS_ERROR;
         }
-        for (i = 0; i < max_atoms; i++)
+        for (i = 0; (size_t)i < max_atoms; i++)
         {
             int iatom = ed->del_atom->item[i] - 1;
             subgraf *sg = NULL;
@@ -3223,7 +3223,7 @@ int mark_atoms_to_delete_or_renumber( ORIG_ATOM_DATA *orig_at_data,
             {
                 break;
             }
-            for (j = 0; j < max_atoms; j++)
+            for (j = 0; (size_t)j < max_atoms; j++)
             {
                 atnums[j] = orig_at_data->at[j].orig_at_number; /*j+1;*/
             }

@@ -541,7 +541,7 @@ int IntArray_ReAlloc( INT_ARRAY *items )
                 (int *) inchi_calloc( (long long)items->allocated + (long long)items->increment, sizeof( items->item[0] ) ))) /* djb-rwth: cast operators added; addressing LLVM warning */
             {
 #if USE_BCF
-                memcpy_s( items->item, sizeof(items->item)*(items->used) + 1, p, items->used * sizeof(items->item[0])); /* djb-rwth: function replaced with its safe C11 variant */
+                memcpy_s( items->item, sizeof(items->item[0]) * (items->used) + 1, p, items->used * sizeof(items->item[0])); /* djb-rwth: function replaced with its safe C11 variant */
 #else
                 memcpy(items->item, p, items->used * sizeof(items->item[0]));
 #endif
@@ -1056,7 +1056,7 @@ int OrigAtData_WriteToSDfileAtomsBlock( const ORIG_ATOM_DATA *inp_at_data,
         {
             /* alias */
 #if USE_BCF
-            strcpy_s( elname, sizeof(elname) + 1, "C" ); /* djb-rwth: function replaced with its safe C11 variant */
+            strcpy_s( elname, 3, "C" ); /* djb-rwth: function replaced with its safe C11 variant */
 #else
             strcpy(elname, "C");
 #endif
@@ -1067,7 +1067,7 @@ int OrigAtData_WriteToSDfileAtomsBlock( const ORIG_ATOM_DATA *inp_at_data,
             if (nIsotopeH)
             {
 #if USE_BCF
-                strcpy_s( elname, sizeof(elname) + 1, bAtomsDT ? ( nIsotopeH == 1 ? "D" : "T" ) : "H" ); /* djb-rwth: function replaced with its safe C11 variant */
+                strcpy_s( elname, 3, bAtomsDT ? ( nIsotopeH == 1 ? "D" : "T" ) : "H" ); /* djb-rwth: function replaced with its safe C11 variant */
 #else
                 strcpy(elname, bAtomsDT ? (nIsotopeH == 1 ? "D" : "T") : "H");
 #endif
@@ -1443,7 +1443,7 @@ int OrigAtData_WriteToSDfileAdditionalLines( const ORIG_ATOM_DATA *inp_at_data,
 
 #if USE_BCF
                     sprintf_s(entry, sizeof(entry), " %3d %3d", i + 1, iso); /* djb-rwth: function replaced with its safe C11 variant */
-                    strcat_s(str_m, sizeof(str_m), entry); /* djb-rwth: function replaced with its safe C11 variant */
+                    strcat_s(str_m, strlen(str_m) + strlen(entry) + 3, entry); /* djb-rwth: function replaced with its safe C11 variant */
 #else
                     sprintf(entry, " %3d %3d", i + 1, iso);
                     strcat(str_m, entry);

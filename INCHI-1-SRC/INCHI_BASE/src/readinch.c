@@ -1255,7 +1255,7 @@ int InchiToInpAtom( INCHI_IOSTREAM *inp_file,
                                 if (q != NULL)
                                 {
 #if USE_BCF
-                                    memcpy_s(pszCoord[i] + LEN_COORD * (long long)k, sizeof(pszCoord[i]) + q - p + 1, p, q - p); /* djb-rwth: cast operator added; function replaced with its safe C11 variant */
+                                    memcpy_s(pszCoord[i] + LEN_COORD * (long long)k, q - p + 1, p, q - p); /* djb-rwth: cast operator added; function replaced with its safe C11 variant */
 #else
                                     memcpy(pszCoord[i] + LEN_COORD * (long long)k, p, q - p); /* djb-rwth: cast operator added */
 #endif

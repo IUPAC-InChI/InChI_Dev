@@ -850,7 +850,7 @@ int CurTreeReAlloc( CUR_TREE *cur_tree )
             if ((cur_tree->tree = (AT_NUMB *) inchi_calloc( (long long)cur_tree->max_len + (long long)cur_tree->incr_len, sizeof( cur_tree->tree[0] ) ))) /* djb-rwth: cast operators added; addressing LLVM warning */
             {
 #if USE_BCF
-                memcpy_s( cur_tree->tree, sizeof(cur_tree->tree)*(cur_tree->cur_len), p, cur_tree->cur_len * sizeof(cur_tree->tree[0])); /* djb-rwth: function replaced with its safe C11 variant */
+                memcpy_s( cur_tree->tree, sizeof(cur_tree->tree[0]) * (cur_tree->cur_len) + 1, p, cur_tree->cur_len * sizeof(cur_tree->tree[0])); /* djb-rwth: function replaced with its safe C11 variant */
 #else
                 memcpy(cur_tree->tree, p, cur_tree->cur_len * sizeof(cur_tree->tree[0]));
 #endif

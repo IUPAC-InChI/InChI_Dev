@@ -294,8 +294,8 @@ int AddElementAndCount( const char *szElement, int mult, char *szLinearCT, int n
         if (len1 + len2 < nLenLinearCT)
         {
 #if USE_BCF
-            memcpy_s( szLinearCT, sizeof(szLinearCT) + len1, szElement, len1 ); /* djb-rwth: function replaced with its safe C11 variant */
-            memcpy_s( szLinearCT + len1, sizeof(szLinearCT) + (long long)len2 + 1, szMult, (long long)len2 + 1); /*  adding zero termination */ /* djb-rwth: added cast operator; function replaced with its safe C11 variant */
+            memcpy_s( szLinearCT, len1 + 1, szElement, len1 ); /* djb-rwth: function replaced with its safe C11 variant */
+            memcpy_s( szLinearCT + len1, (long long)len2 + 1, szMult, (long long)len2 + 1); /*  adding zero termination */ /* djb-rwth: added cast operator; function replaced with its safe C11 variant */
 #else
             memcpy(szLinearCT, szElement, len1);
             memcpy(szLinearCT + len1, szMult, (long long)len2 + 1); /*  adding zero termination */ /* djb-rwth: added cast operator */
@@ -1187,9 +1187,9 @@ int FillOutINChI( INChI *pINChI,
             switch_ptrs( &pCanonOrd, &pCanonOrdInv );
             /* save inverted stereo ranks & order because it represents the smallest (relative) */
 #if USE_BCF
-            memcpy_s( pCanonRank, sizeof(pCanonRank)*num_at_tg, pCanonRankInv, num_at_tg * sizeof(pCanonRank[0])); /* djb-rwth: function replaced with its safe C11 variant */
+            memcpy_s( pCanonRank, sizeof(pCanonRank[0])* num_at_tg + 1, pCanonRankInv, num_at_tg * sizeof(pCanonRank[0])); /* djb-rwth: function replaced with its safe C11 variant */
             /* change pCS->nCanonOrdStereo[] to inverted: */
-            memcpy_s( pCanonOrd, sizeof(pCanonOrd)*num_at_tg, pCanonOrdInv, num_at_tg * sizeof( pCanonOrd[0] ) ); /* djb-rwth: function replaced with its safe C11 variant */
+            memcpy_s( pCanonOrd, sizeof(pCanonOrd[0])* num_at_tg + 1, pCanonOrdInv, num_at_tg * sizeof(pCanonOrd[0])); /* djb-rwth: function replaced with its safe C11 variant */
 #else
             memcpy(pCanonRank, pCanonRankInv, num_at_tg * sizeof(pCanonRank[0]));
             /* change pCS->nCanonOrdStereo[] to inverted: */
@@ -1325,7 +1325,7 @@ int FillOutINChI( INChI *pINChI,
     }
 
 #if USE_BCF
-    memcpy_s( pINChI->nConnTable, sizeof(pINChI->nConnTable)*(pCS->nLenLinearCTAtOnly), pCS->LinearCT, sizeof(pINChI->nConnTable[0]) * pCS->nLenLinearCTAtOnly); /* djb-rwth: function replaced with its safe C11 variant */
+    memcpy_s( pINChI->nConnTable, sizeof(pINChI->nConnTable[0]) * (pCS->nLenLinearCTAtOnly) + 1, pCS->LinearCT, sizeof(pINChI->nConnTable[0]) * pCS->nLenLinearCTAtOnly); /* djb-rwth: function replaced with its safe C11 variant */
 #else
     memcpy(pINChI->nConnTable, pCS->LinearCT, sizeof(pINChI->nConnTable[0]) * pCS->nLenLinearCTAtOnly);
 #endif
@@ -1593,8 +1593,8 @@ int FillOutINChI( INChI *pINChI,
             switch_ptrs( &pCanonRank, &pCanonRankInv );
             switch_ptrs( &pCanonOrd, &pCanonOrdInv );
 #if USE_BCF
-            memcpy_s( pCanonRank, sizeof(pCanonRank)*num_at_tg, pCanonRankInv, num_at_tg * sizeof(pCanonRank[0])); /* djb-rwth: function replaced with its safe C11 variant */
-            memcpy_s( pCanonOrd, sizeof(pCanonOrd)*num_at_tg, pCanonOrdInv, num_at_tg * sizeof( pCanonOrd[0] ) ); /* djb-rwth: function replaced with its safe C11 variant */
+            memcpy_s( pCanonRank, sizeof(pCanonRank[0])* num_at_tg + 1, pCanonRankInv, num_at_tg * sizeof(pCanonRank[0])); /* djb-rwth: function replaced with its safe C11 variant */
+            memcpy_s( pCanonOrd, sizeof(pCanonOrd[0])* num_at_tg + 1, pCanonOrdInv, num_at_tg * sizeof(pCanonOrd[0])); /* djb-rwth: function replaced with its safe C11 variant */
 #else
             memcpy(pCanonRank, pCanonRankInv, num_at_tg * sizeof(pCanonRank[0]));
             memcpy(pCanonOrd, pCanonOrdInv, num_at_tg * sizeof(pCanonOrd[0]));

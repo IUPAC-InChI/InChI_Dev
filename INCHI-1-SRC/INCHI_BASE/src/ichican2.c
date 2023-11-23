@@ -1439,8 +1439,8 @@ void PartitionCopy( Partition *To, Partition *From, int n )
 {
     int i;
 #if USE_BCF
-    memcpy_s( To->AtNumber, sizeof(To->AtNumber)*n, From->AtNumber, n * sizeof(To->AtNumber[0])); /* djb-rwth: function replaced with its safe C11 variant */
-    memcpy_s( To->Rank, sizeof(To->Rank)*n, From->Rank, n * sizeof( To->AtNumber[0] ) ); /* djb-rwth: function replaced with its safe C11 variant */
+    memcpy_s( To->AtNumber, sizeof(To->AtNumber[0]) * n + 1, From->AtNumber, n * sizeof(To->AtNumber[0])); /* djb-rwth: function replaced with its safe C11 variant */
+    memcpy_s( To->Rank, sizeof(To->AtNumber[0])*n + 1, From->Rank, n * sizeof( To->AtNumber[0] ) ); /* djb-rwth: function replaced with its safe C11 variant */
 #else
     memcpy(To->AtNumber, From->AtNumber, n * sizeof(To->AtNumber[0]));
     memcpy(To->Rank, From->Rank, n * sizeof(To->AtNumber[0]));
@@ -4565,8 +4565,8 @@ exit_function:
     }
     /* CanonRank, nAtomNumberCanon */
 #if USE_BCF
-    memcpy_s( nCanonRank, sizeof(nCanonRank)*n_tg, rho.Rank, n_tg * sizeof(nCanonRank[0])); /* djb-rwth: function replaced with its safe C11 variant */
-    memcpy_s( nAtomNumberCanon, sizeof(nAtomNumberCanon)*n_tg, rho.AtNumber, n_tg * sizeof(nAtomNumberCanon[0])); /* djb-rwth: function replaced with its safe C11 variant */
+    memcpy_s( nCanonRank, sizeof(nCanonRank[0])* n_tg + 1, rho.Rank, n_tg * sizeof(nCanonRank[0])); /* djb-rwth: function replaced with its safe C11 variant */
+    memcpy_s( nAtomNumberCanon, sizeof(nAtomNumberCanon[0])* n_tg + 1, rho.AtNumber, n_tg * sizeof(nAtomNumberCanon[0])); /* djb-rwth: function replaced with its safe C11 variant */
 #else
     memcpy(nCanonRank, rho.Rank, n_tg * sizeof(nCanonRank[0]));
     memcpy(nAtomNumberCanon, rho.AtNumber, n_tg * sizeof(nAtomNumberCanon[0]));
@@ -5608,9 +5608,10 @@ int GetBaseCanonRanking( INCHI_CLOCK *ic,
         Ct_Temp = NULL;
         /* djb-rwth: functions replaced with their safe C11 variants */
 #if USE_BCF
-        memcpy_s( nSymmRankNoTautH, sizeof(nSymmRankNoTautH)*num_atoms, nSymmRankNoH, num_atoms * sizeof( nSymmRankNoTautH[0] ) );
-        memcpy_s( nCanonRankNoTautH, sizeof(nCanonRankNoTautH)*num_atoms, nCanonRankNoH, num_atoms * sizeof( nCanonRankNoTautH[0] ) );
-        memcpy_s( nAtomNumberCanonNoTautH, sizeof(nAtomNumberCanonNoTautH)*num_atoms, nAtomNumberCanonNoH, num_atoms * sizeof( nAtomNumberCanonNoTautH[0] ) );
+        /* djb-rwth: functions replaced with its safe C11 variant */
+        memcpy_s( nSymmRankNoTautH, sizeof(nSymmRankNoTautH [0]) * num_atoms + 1, nSymmRankNoH, num_atoms * sizeof(nSymmRankNoTautH[0]));
+        memcpy_s( nCanonRankNoTautH, sizeof(nCanonRankNoTautH[0]) * num_atoms + 1, nCanonRankNoH, num_atoms * sizeof(nCanonRankNoTautH[0]));
+        memcpy_s( nAtomNumberCanonNoTautH, sizeof(nAtomNumberCanonNoTautH[0]) * num_atoms + 1, nAtomNumberCanonNoH, num_atoms * sizeof(nAtomNumberCanonNoTautH[0]));
 #else
         memcpy(nSymmRankNoTautH, nSymmRankNoH, num_atoms * sizeof(nSymmRankNoTautH[0]));
         memcpy(nCanonRankNoTautH, nCanonRankNoH, num_atoms * sizeof(nCanonRankNoTautH[0]));
@@ -5785,9 +5786,10 @@ int GetBaseCanonRanking( INCHI_CLOCK *ic,
             Ct_NoTautHIso = Ct_Temp;
             Ct_Temp = NULL;
 #if USE_BCF
-            memcpy_s( nSymmRankNoTautHIso, sizeof(nSymmRankNoTautHIso)*num_atoms, nSymmRankNoTautH, num_atoms * sizeof(nSymmRankNoTautHIso[0]));
-            memcpy_s( nCanonRankNoTautHIso, sizeof(nCanonRankNoTautHIso)*num_atoms, nCanonRankNoTautH, num_atoms * sizeof( nCanonRankNoTautHIso[0] ) );
-            memcpy_s( nAtomNumberCanonNoTautHIso, sizeof(nAtomNumberCanonNoTautHIso)*num_atoms, nAtomNumberCanonNoTautH, num_atoms * sizeof(nAtomNumberCanonNoTautHIso[0]));
+            /* djb-rwth: functions replaced with its safe C11 variant */
+            memcpy_s( nSymmRankNoTautHIso, sizeof(nSymmRankNoTautHIso[0]) * num_atoms + 1, nSymmRankNoTautH, num_atoms * sizeof(nSymmRankNoTautHIso[0]));
+            memcpy_s( nCanonRankNoTautHIso, sizeof(nCanonRankNoTautHIso[0]) * num_atoms + 1, nCanonRankNoTautH, num_atoms * sizeof(nCanonRankNoTautHIso[0]));
+            memcpy_s( nAtomNumberCanonNoTautHIso, sizeof(nAtomNumberCanonNoTautHIso[0]) * num_atoms + 1, nAtomNumberCanonNoTautH, num_atoms * sizeof(nAtomNumberCanonNoTautHIso[0]));
 #else
             memcpy(nSymmRankNoTautHIso, nSymmRankNoTautH, num_atoms * sizeof(nSymmRankNoTautHIso[0]));
             memcpy(nCanonRankNoTautHIso, nCanonRankNoTautH, num_atoms * sizeof(nCanonRankNoTautHIso[0]));
@@ -6220,9 +6222,9 @@ int GetBaseCanonRanking( INCHI_CLOCK *ic,
                     Ct_BaseIso = Ct_Temp;
                     Ct_Temp = NULL;
 #if USE_BCF
-                    memcpy_s( nSymmRankBaseIso, sizeof(nSymmRankBaseIso)*num_at_tg, nSymmRankBase, num_at_tg * sizeof(nSymmRankBaseIso[0])); /* djb-rwth: function replaced with its safe C11 variant */
-                    memcpy_s( nCanonRankBaseIso, sizeof(nCanonRankBaseIso)*num_at_tg, nCanonRankBase, num_at_tg * sizeof( nCanonRankBaseIso[0] ) ); /* djb-rwth: function replaced with its safe C11 variant */
-                    memcpy_s( nAtomNumberCanonBaseIso, sizeof(nAtomNumberCanonBaseIso)*num_at_tg, nAtomNumberCanonBase, num_at_tg * sizeof( nAtomNumberCanonBaseIso[0] ) ); /* djb-rwth: function replaced with its safe C11 variant */
+                    memcpy_s( nSymmRankBaseIso, sizeof(nSymmRankBaseIso[0])* num_at_tg + 1, nSymmRankBase, num_at_tg * sizeof(nSymmRankBaseIso[0])); /* djb-rwth: function replaced with its safe C11 variant */
+                    memcpy_s( nCanonRankBaseIso, sizeof(nCanonRankBaseIso[0])* num_at_tg + 1, nCanonRankBase, num_at_tg * sizeof(nCanonRankBaseIso[0])); /* djb-rwth: function replaced with its safe C11 variant */
+                    memcpy_s( nAtomNumberCanonBaseIso, sizeof(nAtomNumberCanonBaseIso[0])* num_at_tg + 1, nAtomNumberCanonBase, num_at_tg * sizeof(nAtomNumberCanonBaseIso[0])); /* djb-rwth: function replaced with its safe C11 variant */
 #else
                     memcpy(nSymmRankBaseIso, nSymmRankBase, num_at_tg * sizeof(nSymmRankBaseIso[0]));
                     memcpy(nCanonRankBaseIso, nCanonRankBase, num_at_tg * sizeof(nCanonRankBaseIso[0]));
@@ -6606,9 +6608,9 @@ int GetBaseCanonRanking( INCHI_CLOCK *ic,
                 Ct_FixHIso = Ct_Temp;
                 Ct_Temp = NULL;
 #if USE_BCF
-                memcpy_s( nSymmRankFixHIso, sizeof(nSymmRankFixHIso)*num_atoms, nSymmRankFixH, num_atoms * sizeof(nSymmRankFixHIso[0])); /* djb-rwth: function replaced with its safe C11 variant */
-                memcpy_s( nCanonRankFixHIso, sizeof(nCanonRankFixHIso)*num_atoms, nCanonRankFixH, num_atoms * sizeof( nCanonRankFixHIso[0] ) ); /* djb-rwth: function replaced with its safe C11 variant */
-                memcpy_s( nAtomNumberCanonFixHIso, sizeof(nAtomNumberCanonFixHIso)*num_atoms, nAtomNumberCanonFixH, num_atoms * sizeof(nAtomNumberCanonFixHIso[0])); /* djb-rwth: function replaced with its safe C11 variant */
+                memcpy_s( nSymmRankFixHIso, sizeof(nSymmRankFixHIso[0])* num_atoms + 1, nSymmRankFixH, num_atoms * sizeof(nSymmRankFixHIso[0])); /* djb-rwth: function replaced with its safe C11 variant */
+                memcpy_s( nCanonRankFixHIso, sizeof(nCanonRankFixHIso[0])* num_atoms + 1, nCanonRankFixH, num_atoms * sizeof(nCanonRankFixHIso[0])); /* djb-rwth: function replaced with its safe C11 variant */
+                memcpy_s( nAtomNumberCanonFixHIso, sizeof(nAtomNumberCanonFixHIso[0])* num_atoms + 1, nAtomNumberCanonFixH, num_atoms * sizeof(nAtomNumberCanonFixHIso[0])); /* djb-rwth: function replaced with its safe C11 variant */
 #else
                 memcpy(nSymmRankFixHIso, nSymmRankFixH, num_atoms * sizeof(nSymmRankFixHIso[0]));
                 memcpy(nCanonRankFixHIso, nCanonRankFixH, num_atoms * sizeof(nCanonRankFixHIso[0]));

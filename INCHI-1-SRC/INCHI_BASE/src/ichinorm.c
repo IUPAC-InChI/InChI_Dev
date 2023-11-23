@@ -4296,7 +4296,7 @@ int is_DERIV_RING_O_or_NH_OUTSIDE_PRECURSOR( inp_ATOM *at,
             if (1 == at[n0].num_H && 1 == at[n3].num_H)
             {
 #if USE_BCF
-                strcat_s( strN, strlen(strN) + 7, "(NH)2" ); /* djb-rwth: function replaced with its safe C11 variant */
+                strcat_s( strN, strlen(strN) + 8, "(NH)2" ); /* djb-rwth: function replaced with its safe C11 variant */
 #else
                 strcat(strN, "(NH)2");
 #endif
@@ -4306,7 +4306,7 @@ int is_DERIV_RING_O_or_NH_OUTSIDE_PRECURSOR( inp_ATOM *at,
                 if (1 == at[n0].num_H || 1 == at[n3].num_H)
                 {
 #if USE_BCF
-                    strcat_s( strN, strlen(strN) + 7, "(NH)N" ); /* djb-rwth: function replaced with its safe C11 variant */
+                    strcat_s( strN, strlen(strN) + 8, "(NH)N" ); /* djb-rwth: function replaced with its safe C11 variant */
 #else
                     strcat(strN, "(NH)N");
 #endif
@@ -4314,7 +4314,7 @@ int is_DERIV_RING_O_or_NH_OUTSIDE_PRECURSOR( inp_ATOM *at,
                 else
                 {
 #if USE_BCF
-                    strcat_s( strN, strlen(strN) + 4, "NN" ); /* djb-rwth: function replaced with its safe C11 variant */
+                    strcat_s( strN, strlen(strN) + 5, "NN" ); /* djb-rwth: function replaced with its safe C11 variant */
 #else
                     strcat(strN, "NN");
 #endif
@@ -4326,7 +4326,7 @@ int is_DERIV_RING_O_or_NH_OUTSIDE_PRECURSOR( inp_ATOM *at,
             if (da1->typ[idrv] == DERIV_RING_NH_OUTSIDE_PRECURSOR)
             {
 #if USE_BCF
-                strcat_s( strN, strlen(strN) + 6, 1 == at[n0].num_H ? "(NH)" : "N" ); /* djb-rwth: function replaced with its safe C11 variant */
+                strcat_s( strN, strlen(strN) + 7, 1 == at[n0].num_H ? "(NH)" : "N" ); /* djb-rwth: function replaced with its safe C11 variant */
 #else
                 strcat(strN, 1 == at[n0].num_H ? "(NH)" : "N");
 #endif
@@ -4336,7 +4336,7 @@ int is_DERIV_RING_O_or_NH_OUTSIDE_PRECURSOR( inp_ATOM *at,
                 if (da1->typ[idrv + 1] == DERIV_RING_NH_OUTSIDE_PRECURSOR)
                 {
 #if USE_BCF
-                    strcat_s( strN, strlen(strN) + 6, 1 == at[n3].num_H ? "(NH)" : "N" ); /* djb-rwth: function replaced with its safe C11 variant */
+                    strcat_s( strN, strlen(strN) + 7, 1 == at[n3].num_H ? "(NH)" : "N" ); /* djb-rwth: function replaced with its safe C11 variant */
 #else
                     strcat(strN, 1 == at[n3].num_H ? "(NH)" : "N");
 #endif
@@ -4379,14 +4379,14 @@ int is_DERIV_RING_O_or_NH_OUTSIDE_PRECURSOR( inp_ATOM *at,
 #endif
             default:
 #if USE_BCF
-                strcat_s( str, strlen(str) + 5, "???" ); /* djb-rwth: function replaced with its safe C11 variant */
+                strcat_s( str, strlen(str) + 6, "???" ); /* djb-rwth: function replaced with its safe C11 variant */
 #else
                 strcat(str, "???");
 #endif
                 break;
         }
 #if USE_BCF
-        strcat_s( str, strlen(str) + 3, "-" ); /* djb-rwth: function replaced with its safe C11 variant */
+        strcat_s( str, strlen(str) + 4, "-" ); /* djb-rwth: function replaced with its safe C11 variant */
 #else
         strcat(str, "-");
 #endif
@@ -4607,14 +4607,14 @@ int is_deriv_chain2( inp_ATOM *at,
                             break;
                         case DERIV_BRIDGE_NH:
 #if USE_BCF
-                            strcat_s(szPrecur, strlen(szPrecur) + 4, "NH"); /* djb-rwth: function replaced with its safe C11 variant */
+                            strcat_s(szPrecur, strlen(szPrecur) + 5, "NH"); /* djb-rwth: function replaced with its safe C11 variant */
 #else
                             strcat(szPrecur, "NH");
 #endif
                             break;
                         case DERIV_AMINE_tN:
 #if USE_BCF
-                            strcat_s( szPrecur, strlen(szPrecur) + 3, "N" ); /* djb-rwth: function replaced with its safe C11 variant */
+                            strcat_s( szPrecur, strlen(szPrecur) + 4, "N" ); /* djb-rwth: function replaced with its safe C11 variant */
 #else
                             strcat(szPrecur, "N");
 #endif
@@ -4628,7 +4628,7 @@ int is_deriv_chain2( inp_ATOM *at,
                             break;
                     }
 #if USE_BCF
-                    strcat_s( szPrecur, strlen(szPrecur) + 3, "-" ); /* djb-rwth: function replaced with its safe C11 variant */
+                    strcat_s( szPrecur, strlen(szPrecur) + 4, "-" ); /* djb-rwth: function replaced with its safe C11 variant */
 #else
                     strcat(szPrecur, "-");
 #endif
@@ -4636,7 +4636,7 @@ int is_deriv_chain2( inp_ATOM *at,
                     {
                         case 1:
 #if USE_BCF
-                            strcat_s(szPrecur, strlen(szPrecur) + 5, "TMS"); /* djb-rwth: function replaced with its safe C11 variant */
+                            strcat_s(szPrecur, strlen(szPrecur) + 6, "TMS"); /* djb-rwth: function replaced with its safe C11 variant */
 #else
                             strcat(szPrecur, "TMS");
 #endif
@@ -4650,7 +4650,7 @@ int is_deriv_chain2( inp_ATOM *at,
                             break;
                         default:
 #if USE_BCF
-                            strcat_s( szPrecur, strlen(szPrecur) + 5, "???" ); /* djb-rwth: function replaced with its safe C11 variant */
+                            strcat_s( szPrecur, strlen(szPrecur) + 6, "???" ); /* djb-rwth: function replaced with its safe C11 variant */
 #else
                             strcat(szPrecur, "???");
 #endif
@@ -5047,13 +5047,13 @@ int is_deriv_chain2( inp_ATOM *at,
             if (at[start].num_H == 1)
             {
 #if USE_BCF
-                strcat_s( szRO, strlen(szRO) + 3, "H" ); /* djb-rwth: function replaced with its safe C11 variant */
+                strcat_s( szRO, strlen(szRO) + 4, "H" ); /* djb-rwth: function replaced with its safe C11 variant */
 #else
                 strcat(szRO, "H");
 #endif
             }
 #if USE_BCF
-            strcat_s(szRO, strlen(szRO) + 9, "-Dansyl"); /* djb-rwth: function replaced with its safe C11 variant */
+            strcat_s(szRO, strlen(szRO) + 10, "-Dansyl"); /* djb-rwth: function replaced with its safe C11 variant */
 #else
             strcat(szRO, "-Dansyl");
 #endif
@@ -5260,7 +5260,7 @@ int underiv_list_add( char *szUnderivList, int lenUnderivList, const char *szUnd
                 szUnderivList[lenList++] = cDelimiter;
             }
 #if USE_BCF
-            memcpy_s( szUnderivList + lenList, sizeof(szUnderivList) + (long long)lenAdd + 1, szUnderiv, (long long)lenAdd + 1); /* +1 adds zero termination */ /* djb-rwth: cast operator added; function replaced with its safe C11 variant */
+            memcpy_s( szUnderivList + lenList, (long long)lenAdd + 2, szUnderiv, (long long)lenAdd + 1); /* +1 adds zero termination */ /* djb-rwth: cast operator added; function replaced with its safe C11 variant */
 #else
             memcpy(szUnderivList + lenList, szUnderiv, (long long)lenAdd + 1); /* +1 adds zero termination */ /* djb-rwth: cast operator added */
 #endif

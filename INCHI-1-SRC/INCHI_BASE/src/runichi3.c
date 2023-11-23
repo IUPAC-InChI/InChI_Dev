@@ -1264,7 +1264,7 @@ OAD_PolymerUnit* OAD_PolymerUnit_New( int       maxatoms,
         u2->xbr2[k] = 0.0;
     }
 #if USE_BCF
-    strcpy_s( u2->smt, sizeof(u2->smt) + strlen(smt) + 1, smt); /* djb-rwth: function replaced with its safe C11 variant */
+    strcpy_s( u2->smt, strlen(smt) + 1, smt); /* djb-rwth: function replaced with its safe C11 variant */
 #else
     strcpy(u2->smt, smt);
 #endif
@@ -1356,7 +1356,7 @@ OAD_PolymerUnit* OAD_PolymerUnit_CreateCopy( OAD_PolymerUnit *u )
     }
 
 #if USE_BCF
-    strcpy_s( u2->smt, sizeof(u2->smt), u->smt ); /* djb-rwth: function replaced with its safe C11 variant */
+    strcpy_s( u2->smt, strlen(u2->smt) + 1, u->smt ); /* djb-rwth: function replaced with its safe C11 variant */
 #else
     strcpy(u2->smt, u->smt);
 #endif

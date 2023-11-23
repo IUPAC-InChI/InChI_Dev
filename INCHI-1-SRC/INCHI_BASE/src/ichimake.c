@@ -201,7 +201,7 @@ int GetElementAndCount( const char **f, char *szEl, int *count )
     }
     /* v. 1.06 Changed "Zz" to "Zzz" as "Zz" is valid symbol now */
 #if USE_BCF
-    strcpy_s( szEl, sizeof(szEl), "Zzz" ); /* djb-rwth: function replaced with its safe C11 variant */
+    strcpy_s( szEl, 5, "Zzz" ); /* djb-rwth: function replaced with its safe C11 variant */
 #else
     strcpy(szEl, "Zzz");
 #endif
@@ -5275,7 +5275,7 @@ int FillOutCanonInfAtom( struct tagCANON_GLOBALS *pCG,
                     {
                         len += 1;
 #if USE_BCF
-                        strcat_s( str, strlen(str) + 3, "/" ); /* djb-rwth: function replaced with its safe C11 variant */
+                        strcat_s( str, strlen(str) + 4, "/" ); /* djb-rwth: function replaced with its safe C11 variant */
 #else
                         strcat(str, "/");
 #endif
@@ -5981,7 +5981,7 @@ int FillOutOneCanonInfAtom( struct tagCANON_GLOBALS *pCG,
                     {
                         len += 1;
 #if USE_BCF
-                        strcat_s( str, strlen(str) + 3, "/" ); /* djb-rwth: function replaced with its safe C11 variant */
+                        strcat_s( str, strlen(str) + 4, "/" ); /* djb-rwth: function replaced with its safe C11 variant */
 #else
                         strcat(str, "/");
 #endif

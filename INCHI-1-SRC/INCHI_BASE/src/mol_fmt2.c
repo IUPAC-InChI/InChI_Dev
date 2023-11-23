@@ -441,7 +441,7 @@ int MolfileSaveCopy( INCHI_IOSTREAM *inp_file,
 #endif
                 mystrncpy( line + len, line, sizeof( line ) - len - 1 );
 #if USE_BCF
-                memcpy_s( line, sizeof(line) + 1 + len, szNumber, len ); /* djb-rwth: function replaced with its safe C11 variant */
+                memcpy_s( line, len + 1, szNumber, len ); /* djb-rwth: function replaced with its safe C11 variant */
 #else
                 memcpy(line, szNumber, len);
 #endif

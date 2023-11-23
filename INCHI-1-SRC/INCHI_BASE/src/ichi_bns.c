@@ -1046,7 +1046,7 @@ int AddOrRemoveExplOrImplH( int nDelta,
     {
         at[at_no].num_H = num_H;
 #if USE_BCF
-        memcpy_s( at[at_no].num_iso_H, sizeof(at[at_no].num_iso_H), num_iso_H, sizeof(at[0].num_iso_H)); /* djb-rwth: function replaced with its safe C11 variant */
+        memcpy_s( at[at_no].num_iso_H, sizeof(at[0].num_iso_H), num_iso_H, sizeof(at[0].num_iso_H)); /* djb-rwth: function replaced with its safe C11 variant */
 #else
         memcpy(at[at_no].num_iso_H, num_iso_H, sizeof(at[0].num_iso_H));
 #endif
@@ -2232,7 +2232,7 @@ int fix_special_bonds( BN_STRUCT *pBNS,
         {
             len = (int) ( e - b );
 #if USE_BCF
-            memcpy_s( elname, sizeof(elname) + len, b, len ); /* djb-rwth: function replaced with its safe C11 variant */
+            memcpy_s( elname, len + 1, b, len ); /* djb-rwth: function replaced with its safe C11 variant */
 #else
             memcpy(elname, b, len);
 #endif
