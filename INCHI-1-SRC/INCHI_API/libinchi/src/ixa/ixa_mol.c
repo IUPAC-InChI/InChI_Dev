@@ -2525,7 +2525,7 @@ int  IXA_MOL_SetExtMolDataByInChIExtInput( IXA_STATUS_HANDLE    hStatus,
                     unitk->xbr2[q] = groupk->xbr2[q];
                 }
 #if USE_BCF
-                strcpy_s( unitk->smt, sizeof(unitk->smt) + 1, groupk->smt ); /* djb-rwth: function replaced with its safe C11 variant */
+                strcpy_s( unitk->smt, strlen(groupk->smt) + 1, groupk->smt ); /* djb-rwth: function replaced with its safe C11 variant */
 #else
                 strcpy( unitk->smt, groupk->smt );
 #endif

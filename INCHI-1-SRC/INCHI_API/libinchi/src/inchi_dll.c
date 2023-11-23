@@ -2245,7 +2245,7 @@ repeat:
             if (inpInChI->szOptions)
             {
 #if USE_BCF
-                strcpy_s( szOptions, sizeof(szOptions[0])*((long long)opt_len) + 1, inpInChI->szOptions); /* djb-rwth: function replaced with its safe C11 variant */
+                strcpy_s(szOptions, strlen(inpInChI->szOptions) + 1, inpInChI->szOptions); /* djb-rwth: function replaced with its safe C11 variant */
 #else
                 strcpy( szOptions, inpInChI->szOptions );
 #endif
@@ -3119,7 +3119,7 @@ int SetExtOrigAtDataByInChIExtInput( OAD_Polymer **ppPolymer,
                 unitk->xbr2[q] = groupk->xbr2[q];
             }
 #if USE_BCF
-            strcpy_s( unitk->smt, sizeof(groupk->smt) + 1, groupk->smt ); /* djb-rwth: function replaced with its safe C11 variant */
+            strcpy_s( unitk->smt, strlen(groupk->smt) + 1, groupk->smt ); /* djb-rwth: function replaced with its safe C11 variant */
 #else
             strcpy( unitk->smt, groupk->smt );
 #endif
@@ -3355,7 +3355,7 @@ int SetInChIExtInputByExtOrigAtData( OAD_Polymer     *orp,
                 unitk->xbr2[q] = groupk->xbr2[q];
             }
 #if USE_BCF
-            strcpy_s( unitk->smt, sizeof(unitk->smt) + 1, groupk->smt ); /* djb-rwth: function replaced with its safe C11 variant */
+            strcpy_s( unitk->smt, strlen(groupk->smt) + 1, groupk->smt ); /* djb-rwth: function replaced with its safe C11 variant */
 #else
             strcpy( unitk->smt, groupk->smt );
 #endif

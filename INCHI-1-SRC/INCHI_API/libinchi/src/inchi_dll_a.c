@@ -244,7 +244,7 @@ int INCHI_DECL STDINCHIGEN_Setup( INCHIGEN_HANDLE _HGen,
     ip->bINChIOutputOptions &= ~INCHI_OUT_SAVEOPT;
 
 #if USE_BCF
-    strcpy_s( pGenData->pStrErrStruct, sizeof(pGenData->pStrErrStruct), sd->pStrErrStruct ); /* djb-rwth: function replaced with its safe C11 variant */
+    strcpy_s( pGenData->pStrErrStruct, strlen(sd->pStrErrStruct) + 1, sd->pStrErrStruct ); /* djb-rwth: function replaced with its safe C11 variant */
 #else
     strcpy( pGenData->pStrErrStruct, sd->pStrErrStruct );
 #endif
@@ -414,7 +414,7 @@ ret:switch (retcode)
     if (NULL!=pGenData)
     {
 #if USE_BCF
-        strcpy_s( pGenData->pStrErrStruct, sizeof(pGenData->pStrErrStruct), sd->pStrErrStruct ); /* djb-rwth: function replaced with its safe C11 variant */
+        strcpy_s( pGenData->pStrErrStruct, strlen(sd->pStrErrStruct) + 1, sd->pStrErrStruct ); /* djb-rwth: function replaced with its safe C11 variant */
 #else
         strcpy( pGenData->pStrErrStruct, sd->pStrErrStruct );
 #endif
@@ -680,7 +680,7 @@ exit_function:
     }
 
 #if USE_BCF
-    strcpy_s( pGenData->pStrErrStruct, sizeof(pGenData->pStrErrStruct), sd->pStrErrStruct ); /* djb-rwth: function replaced with its safe C11 variant */
+    strcpy_s( pGenData->pStrErrStruct, strlen(sd->pStrErrStruct) + 1, sd->pStrErrStruct ); /* djb-rwth: function replaced with its safe C11 variant */
 #else
     strcpy( pGenData->pStrErrStruct, sd->pStrErrStruct );
 #endif
@@ -852,7 +852,7 @@ int INCHI_DECL INCHIGEN_DoCanonicalization
 exit_function:
 
 #if USE_BCF
-    strcpy_s( pGenData->pStrErrStruct, sizeof(pGenData->pStrErrStruct), sd->pStrErrStruct ); /* djb-rwth: function replaced with its safe C11 variant */
+    strcpy_s( pGenData->pStrErrStruct, strlen(sd->pStrErrStruct) + 1, sd->pStrErrStruct ); /* djb-rwth: function replaced with its safe C11 variant */
 #else
     strcpy( pGenData->pStrErrStruct, sd->pStrErrStruct );
 #endif
@@ -1126,7 +1126,7 @@ frees:
     if (pGenData) /* djb-rwth: fixing a NULL pointer dereference */
     {
 #if USE_BCF
-        strcpy_s(pGenData->pStrErrStruct, sizeof(pGenData->pStrErrStruct), sd->pStrErrStruct); /* djb-rwth: function replaced with its safe C11 variant */
+        strcpy_s(pGenData->pStrErrStruct, strlen(sd->pStrErrStruct) + 1, sd->pStrErrStruct); /* djb-rwth: function replaced with its safe C11 variant */
 #else
         strcpy(pGenData->pStrErrStruct, sd->pStrErrStruct);
 #endif

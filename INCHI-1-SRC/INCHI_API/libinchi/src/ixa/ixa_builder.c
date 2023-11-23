@@ -437,7 +437,7 @@ static void AppendOption( char *pString,
     if (pString[0] != '\0')
     {
 #if USE_BCF
-        strcat_s( pString, strlen(pString) + 3, " "); /* djb-rwth: function replaced with its safe C11 variant */
+        strcat_s( pString, strlen(pString) + 4, " "); /* djb-rwth: function replaced with its safe C11 variant */
 #else
         strcat(pString, " "); strcat(pString, " ");
 #endif
@@ -774,10 +774,11 @@ static void BUILDER_Update( IXA_STATUS_HANDLE hStatus,
         if (output.szInChI)
         {
             pBuilder->inchi = (char *) inchi_malloc( strlen( output.szInChI ) + 1 );
+            if (pBuilder->inchi)
 #if USE_BCF
-            strcpy_s( pBuilder->inchi, strlen(output.szInChI) + 1, output.szInChI ); /* djb-rwth: function replaced with its safe C11 variant */
+                strcpy_s( pBuilder->inchi, strlen(output.szInChI) + 1, output.szInChI ); /* djb-rwth: function replaced with its safe C11 variant */
 #else
-            strcpy( pBuilder->inchi, output.szInChI );
+                strcpy( pBuilder->inchi, output.szInChI );
 #endif
         }
 
@@ -786,10 +787,11 @@ static void BUILDER_Update( IXA_STATUS_HANDLE hStatus,
         if (output.szAuxInfo)
         {
             pBuilder->auxinfo = (char *) inchi_malloc( strlen( output.szAuxInfo ) + 1 );
+            if (pBuilder->auxinfo)
 #if USE_BCF
-            strcpy_s( pBuilder->auxinfo, strlen(output.szAuxInfo) + 1, output.szAuxInfo ); /* djb-rwth: function replaced with its safe C11 variant */
+                strcpy_s( pBuilder->auxinfo, strlen(output.szAuxInfo) + 1, output.szAuxInfo ); /* djb-rwth: function replaced with its safe C11 variant */
 #else
-            strcpy( pBuilder->auxinfo, output.szAuxInfo );
+                strcpy( pBuilder->auxinfo, output.szAuxInfo );
 #endif
         }
 
@@ -798,10 +800,11 @@ static void BUILDER_Update( IXA_STATUS_HANDLE hStatus,
         if (output.szLog)
         {
             pBuilder->log = (char *) inchi_malloc( strlen( output.szLog ) + 1 );
+            if (pBuilder->log)
 #if USE_BCF
-            strcpy_s( pBuilder->log, strlen(output.szLog) + 1, output.szLog ); /* djb-rwth: function replaced with its safe C11 variant */
+                strcpy_s( pBuilder->log, strlen(output.szLog) + 1, output.szLog ); /* djb-rwth: function replaced with its safe C11 variant */
 #else
-            strcpy( pBuilder->log, output.szLog );
+                strcpy( pBuilder->log, output.szLog );
 #endif
         }
     }
@@ -1457,7 +1460,7 @@ void INCHI_DECL IXA_INCHIBUILDER_SetMolecule( IXA_STATUS_HANDLE hStatus,
                         unitk->xbr2[q] = groupk->xbr2[q];
                     }
 #if USE_BCF
-                    strcpy_s( unitk->smt, sizeof(unitk->smt) + 1, groupk->smt ); /* djb-rwth: function replaced with its safe C11 variant */
+                    strcpy_s( unitk->smt, strlen(groupk->smt) + 1, groupk->smt ); /* djb-rwth: function replaced with its safe C11 variant */
 #else
                     strcpy( unitk->smt, groupk->smt );
 #endif
