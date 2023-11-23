@@ -118,7 +118,7 @@ int e_ReadStructure( STRUCT_DATA *sd,
                     else
                     {
 #if USE_BCF
-                        strcat_s( ip->pSdfValue, strlen(ip->pSdfValue) + 7, " [+1]" ); /* djb-rwth: function replaced with its safe C11 variant */
+                        strcat_s( ip->pSdfValue, strlen(ip->pSdfValue) + 8, " [+1]" ); /* djb-rwth: function replaced with its safe C11 variant */
 #else
                         strcat( ip->pSdfValue, " [+1]" );
 #endif
@@ -179,7 +179,7 @@ int e_ReadStructure( STRUCT_DATA *sd,
                     else
                     {
 #if USE_BCF
-                        strcat_s( ip->pSdfValue, strlen(ip->pSdfValue) + 7, " [+1]" ); /* djb-rwth: function replaced with its safe C11 variant */
+                        strcat_s( ip->pSdfValue, strlen(ip->pSdfValue) + 8, " [+1]" ); /* djb-rwth: function replaced with its safe C11 variant */
 #else
                         strcat( ip->pSdfValue, " [+1]" );
 #endif

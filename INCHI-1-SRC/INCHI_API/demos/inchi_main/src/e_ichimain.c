@@ -450,7 +450,7 @@ int main( int argc, char *argv[] )
                     if (szInchiCmdLine[0])
                     {
 #if USE_BCF
-                        strcat_s( szInchiCmdLine, strlen(szInchiCmdLine) + strlen(" ") + 2, " " ); /* djb-rwth: function replaced with its safe C11 variant */
+                        strcat_s( szInchiCmdLine, strlen(szInchiCmdLine) + 4, " " ); /* djb-rwth: function replaced with its safe C11 variant */
 #else
                         strcat( szInchiCmdLine, " " );
 #endif
@@ -459,7 +459,7 @@ int main( int argc, char *argv[] )
                     if (k)
                     {
 #if USE_BCF
-                        strcat_s( szInchiCmdLine, strlen(szInchiCmdLine) + strlen("\"") + 2, "\"" ); /* djb-rwth: function replaced with its safe C11 variant */
+                        strcat_s( szInchiCmdLine, strlen(szInchiCmdLine) + 5, "\"" ); /* djb-rwth: function replaced with its safe C11 variant */
 #else
                         strcat( szInchiCmdLine, "\"" );
 #endif
@@ -472,7 +472,7 @@ int main( int argc, char *argv[] )
                     if (k)
                     {
 #if USE_BCF
-                        strcat_s( szInchiCmdLine, strlen(szInchiCmdLine) + strlen("\"") + 2, "\"" ); /* djb-rwth: function replaced with its safe C11 variant */
+                        strcat_s( szInchiCmdLine, strlen(szInchiCmdLine) + 5, "\"" ); /* djb-rwth: function replaced with its safe C11 variant */
 #else
                         strcat( szInchiCmdLine, "\"" );
 #endif

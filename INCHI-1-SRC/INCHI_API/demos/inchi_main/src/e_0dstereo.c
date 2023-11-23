@@ -1048,7 +1048,7 @@ double e_len3( const double c[] ) /* djb-rwth: avoiding uninitialised values */
 {
     double tmpar[ARR_DIM] = { 0.0 };
 #if USE_BCF
-    memcpy_s(tmpar, sizeof(tmpar), c, ARR_DIM * sizeof(c[0]));
+    memcpy_s(tmpar, ARR_DIM * sizeof(c[0]), c, ARR_DIM * sizeof(c[0]));
 #else
     memcpy(tmpar, c, ARR_DIM * sizeof(c[0]));
 #endif
@@ -1061,7 +1061,7 @@ double e_len2( const double c[] ) /* djb-rwth: avoiding uninitialised values */
 {
     double tmpar[ARR_DIM - 1] = { 0,0 };
 #if USE_BCF
-    memcpy_s(tmpar, sizeof(tmpar), c, (ARR_DIM - 1) * sizeof(c[0]));
+    memcpy_s(tmpar, (ARR_DIM - 1) * sizeof(c[0]), c, (ARR_DIM - 1) * sizeof(c[0]));
 #else
     memcpy(tmpar, c, (ARR_DIM - 1) * sizeof(c[0]));
 #endif
@@ -2813,7 +2813,7 @@ int e_half_stereo_bond_parity( inchi_Atom *at,
     {
         /* e_copy3(at_coord[j], temp); -- djb-rwth: removing copy3 function */
 #if USE_BCF
-        memcpy_s(temp, sizeof(temp), at_coord[j], sizeof(at_coord[j]));
+        memcpy_s(temp, sizeof(at_coord[j]) + 1, at_coord[j], sizeof(at_coord[j]));
 #else
         memcpy(temp, at_coord[j], sizeof(at_coord[j]));
 #endif
@@ -3515,7 +3515,7 @@ int e_set_stereo_atom_parity( Stereo0D *pStereo,
                 /*  we have enough information to find implicit hydrogen coordinates */
                 /* e_copy3(sum_xyz, at_coord[j]); -- djb-rwth: removing copy3 function */
 #if USE_BCF
-                memcpy_s(at_coord[j], sizeof(at_coord[j]), sum_xyz, sizeof(sum_xyz));
+                memcpy_s(at_coord[j], sizeof(sum_xyz) + 1, sum_xyz, sizeof(sum_xyz));
 #else
                 memcpy(at_coord[j], sum_xyz, sizeof(sum_xyz));
 #endif
