@@ -186,7 +186,6 @@ Some of the experimental/engineering/hidden options featured in `InChI 1.07` whi
       - `AMILogStd`   Write log to stderr (in AMI mode)
       - `AMIPrbNone`  Suppress creation of problem files (in AMI mode)
   
-<!-- 
   -  `MERGE`       Use bMergeAllInputStructures
   -  `DSB`         Use REQ_MODE_NO_ALT_SBONDS
   -  `NOHDR`       Use bNoStructLabels
@@ -205,7 +204,7 @@ Some of the experimental/engineering/hidden options featured in `InChI 1.07` whi
   -  `SDFID`       ...
   -  `PLAINP`      ....
   -  `ANNPLAIN`    ....
--->
+
 - In API/`.dll`/`.so` version:
   -  `PT_22_00`    Account for PT_22_00 tautomerism (experimental)
   -  `PT_16_00`    Account for PT_16_00 tautomerism (experimental)
