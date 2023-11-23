@@ -357,8 +357,8 @@ int ProcessMultipleInputFiles(int argc, char* argv[])
             continue;
         }
 #if USE_BCF
-        memcpy_s(pathname, _MAX_PATH + lenPath, fn_ins[0], lenPath); /* djb-rwth: function replaced with its safe C11 variant */
-        strcpy_s(pathname + lenPath, _MAX_PATH, file_info.name); /* djb-rwth: function replaced with its safe C11 variant */
+        memcpy_s(pathname, lenPath + 1, fn_ins[0], lenPath); /* djb-rwth: function replaced with its safe C11 variant */
+        strcpy_s(pathname + lenPath, strlen(file_info.name) + 1, file_info.name); /* djb-rwth: function replaced with its safe C11 variant */
 #else
         memcpy(pathname, fn_ins[0], lenPath);
         strcpy(pathname + lenPath, file_info.name);
@@ -395,8 +395,8 @@ int ProcessMultipleInputFiles(int argc, char* argv[])
             if (fn_out)
             {
 #if USE_BCF
-                strcpy_s(fn_out, _MAX_PATH, fn_in); /* djb-rwth: function replaced with its safe C11 variant */
-                strcat_s(fn_out, _MAX_PATH, ".txt"); /* djb-rwth: function replaced with its safe C11 variant */
+                strcpy_s(fn_out, strlen(fn_in) + 1, fn_in); /* djb-rwth: function replaced with its safe C11 variant */
+                strcat_s(fn_out, strlen(fn_out) + 7, ".txt"); /* djb-rwth: function replaced with its safe C11 variant */
 #else
                 strcpy(fn_out, fn_in);
                 strcat(fn_out, ".txt");
@@ -422,8 +422,8 @@ int ProcessMultipleInputFiles(int argc, char* argv[])
             if (fn_log)
             {
 #if USE_BCF
-                strcpy_s(fn_log, _MAX_PATH, fn_in); /* djb-rwth: function replaced with its safe C11 variant */
-                strcat_s(fn_log, _MAX_PATH, ".log"); /* djb-rwth: function replaced with its safe C11 variant */
+                strcpy_s(fn_log, strlen(fn_in) + 1, fn_in); /* djb-rwth: function replaced with its safe C11 variant */
+                strcat_s(fn_log, strlen(fn_log) + 7, ".log"); /* djb-rwth: function replaced with its safe C11 variant */
 #else
                 strcpy(fn_log, fn_in);
                 strcat(fn_log, ".log");
@@ -448,8 +448,8 @@ int ProcessMultipleInputFiles(int argc, char* argv[])
             if (fn_prb)
             {
 #if USE_BCF
-                strcpy_s(fn_prb, _MAX_PATH, fn_in); /* djb-rwth: function replaced with its safe C11 variant */
-                strcat_s(fn_prb, _MAX_PATH, ".prb"); /* djb-rwth: function replaced with its safe C11 variant */
+                strcpy_s(fn_prb, strlen(fn_in) + 1, fn_in); /* djb-rwth: function replaced with its safe C11 variant */
+                strcat_s(fn_prb, strlen(fn_prb) + 7, ".prb"); /* djb-rwth: function replaced with its safe C11 variant */
 #else
                 strcpy(fn_prb, fn_in);
                 strcat(fn_prb, ".prb");
@@ -1364,7 +1364,7 @@ int CalcAndPrintINCHIAndINCHIKEY(struct tagINCHI_CLOCK* ic,
                 inchi_ios_print(pout, "InChIHash=%-s", ik_string);
             }
 #if USE_BCF
-            strcpy_s(ikey, sizeof(ikey) + sizeof(ik_string), ik_string); /* djb-rwth: function replaced with its safe C11 variant */
+            strcpy_s(ikey, sizeof(ik_string) + 1, ik_string); /* djb-rwth: function replaced with its safe C11 variant */
 #else
             strcpy(ikey, ik_string);
 #endif
@@ -1493,7 +1493,7 @@ void OrigAtData_Permute(ORIG_ATOM_DATA* permuted, ORIG_ATOM_DATA* saved, int* nu
     {
         j = numbers[i];
 #if USE_BCF
-        memcpy_s(permuted->at + j, sizeof(permuted->at) + atsize, saved->at + i, atsize); /* djb-rwth: function replaced with its safe C11 variant */
+        memcpy_s(permuted->at + j, atsize + 1, saved->at + i, atsize); /* djb-rwth: function replaced with its safe C11 variant */
 #else
         memcpy(permuted->at + j, saved->at + i, atsize);
 #endif
