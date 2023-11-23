@@ -489,7 +489,7 @@ int DrawStructure( HDC           pDC,
         for (i = 0; i < num_at; i++)
         {
 #if USE_BCF
-            strcpy_s( str, sizeof str, inf_at[i].at_string ); /* djb-rwth: function replaced with its safe C11 variant */
+            strcpy_s( str, strlen(inf_at[i].at_string) + 1, inf_at[i].at_string); /* djb-rwth: function replaced with its safe C11 variant */
 #else
             strcpy(str, inf_at[i].at_string);
 #endif
@@ -582,7 +582,7 @@ int DrawStructure( HDC           pDC,
                 if (at[i].num_H)
                 {
 #if USE_BCF
-                    strcat_s( str, strlen(str) + 3, "H" ); /* djb-rwth: function replaced with its safe C11 variant */
+                    strcat_s( str, strlen(str) + 4, "H" ); /* djb-rwth: function replaced with its safe C11 variant */
 #else
                     strcat(str, "H");
 #endif
@@ -639,7 +639,7 @@ int DrawStructure( HDC           pDC,
                     if (abs( at[i].charge ) == 1)
                     {
 #if USE_BCF
-                        strcat_s( str, strlen(str) + 3, at[i].charge > 0 ? "+" : "-" ); /* djb-rwth: function replaced with its safe C11 variant */
+                        strcat_s( str, strlen(str) + 4, at[i].charge > 0 ? "+" : "-" ); /* djb-rwth: function replaced with its safe C11 variant */
 #else
                         strcat(str, at[i].charge > 0 ? "+" : "-");
 #endif
@@ -648,7 +648,7 @@ int DrawStructure( HDC           pDC,
                 if (at[i].radical)
                 {
 #if USE_BCF
-                    strcat_s( str, strlen(str) + 4, at[i].radical == RADICAL_SINGLET ? ":" :
+                    strcat_s( str, strlen(str) + 5, at[i].radical == RADICAL_SINGLET ? ":" :
                                     at[i].radical == RADICAL_DOUBLET ? "." :
                                     at[i].radical == RADICAL_TRIPLET ? "^^" : "?" ); /* djb-rwth: function replaced with its safe C11 variant */
 #else
@@ -1437,7 +1437,7 @@ int MoveHydrogenAtomToTheLeft( char *s,int  start, int  H )
             return start; /* too long string */
         }
 #if USE_BCF
-        memcpy_s( szBuffer, sizeof(szBuffer), pH, len ); /* djb-rwth: function replaced with its safe C11 variant */
+        memcpy_s( szBuffer, len + 1, pH, len ); /* djb-rwth: function replaced with its safe C11 variant */
         memmove_s( s + len, sizeof(s) + len, s, pH - s); /* djb-rwth: function replaced with its safe C11 variant */
         memmove_s( s, sizeof(s) + len, szBuffer, len ); /* djb-rwth: function replaced with its safe C11 variant */
 #else
@@ -2792,21 +2792,21 @@ int CreateInputStructPicture( HDC            hDC,
                 {
                     case INF_STEREO_ABS:
 #if USE_BCF
-                        strcat_s( str, strlen(str) + 10, "Absolute" ); /* djb-rwth: function replaced with its safe C11 variant */
+                        strcat_s( str, strlen(str) + 11, "Absolute" ); /* djb-rwth: function replaced with its safe C11 variant */
 #else
                         strcat(str, "Absolute");
 #endif
                         break;
                     case INF_STEREO_REL:
 #if USE_BCF
-                        strcat_s( str, strlen(str) + 10, "Relative" ); /* djb-rwth: function replaced with its safe C11 variant */
+                        strcat_s( str, strlen(str) + 11, "Relative" ); /* djb-rwth: function replaced with its safe C11 variant */
 #else
                         strcat(str, "Relative");
 #endif
                         break;
                     case INF_STEREO_RAC:
 #if USE_BCF
-                        strcat_s( str, strlen(str) + 17, "Racemic mixture" ); /* djb-rwth: function replaced with its safe C11 variant */
+                        strcat_s( str, strlen(str) + 18, "Racemic mixture" ); /* djb-rwth: function replaced with its safe C11 variant */
 #else
                         strcat(str, "Racemic mixture");
 #endif
@@ -2815,7 +2815,7 @@ int CreateInputStructPicture( HDC            hDC,
                 if (str[0])
                 {
 #if USE_BCF
-                    strcat_s( str, strlen(str) + 9, " stereo"); /* djb-rwth: function replaced with its safe C11 variant */
+                    strcat_s( str, strlen(str) + 10, " stereo"); /* djb-rwth: function replaced with its safe C11 variant */
 #else
                     strcat(str, " stereo");
 #endif
@@ -2823,21 +2823,21 @@ int CreateInputStructPicture( HDC            hDC,
                     {
                         case INF_STEREO_NORM:
 #if USE_BCF
-                            strcat_s( str, strlen(str) + 11, " (normal)" ); /* djb-rwth: function replaced with its safe C11 variant */
+                            strcat_s( str, strlen(str) + 12, " (normal)" ); /* djb-rwth: function replaced with its safe C11 variant */
 #else
                             strcat(str, " (normal)");
 #endif
                             break;
                         case INF_STEREO_INV:
 #if USE_BCF
-                            strcat_s( str, strlen(str) + 13, " (inverted)" ); /* djb-rwth: function replaced with its safe C11 variant */
+                            strcat_s( str, strlen(str) + 14, " (inverted)" ); /* djb-rwth: function replaced with its safe C11 variant */
 #else
                             strcat(str, " (inverted)");
 #endif
                             break;
                         case INF_STEREO_NORM_INV:
 #if USE_BCF
-                            strcat_s( str, strlen(str) + 24, " (normal and inverted)" ); /* djb-rwth: function replaced with its safe C11 variant */
+                            strcat_s( str, strlen(str) + 25, " (normal and inverted)" ); /* djb-rwth: function replaced with its safe C11 variant */
 #else
                             strcat(str, " (normal and inverted)");
 #endif
@@ -2851,7 +2851,7 @@ int CreateInputStructPicture( HDC            hDC,
                 if (str[0])
                 {
 #if USE_BCF
-                    strcat_s( str, strlen(str) + 5, ";  " ); /* djb-rwth: function replaced with its safe C11 variant */
+                    strcat_s( str, strlen(str) + 6, ";  " ); /* djb-rwth: function replaced with its safe C11 variant */
 #else
                     strcat(str, ";  ");
 #endif
@@ -2861,14 +2861,14 @@ int CreateInputStructPicture( HDC            hDC,
                 bSter = ( NULL != memchr( tdp->ReqShownFound[ilSHOWN], 'S', TDP_NUM_PAR ) ) ||
                     ( NULL != memchr( tdp->ReqShownFound[ilSHOWN], 's', TDP_NUM_PAR ) );
 #if USE_BCF
-                strcat_s( str, strlen(str) + 14, "Abbreviation" ); /* djb-rwth: function replaced with its safe C11 variant */
+                strcat_s( str, strlen(str) + 15, "Abbreviation" ); /* djb-rwth: function replaced with its safe C11 variant */
 #else
                 strcat(str, "Abbreviation");
 #endif
                 if (bTaut + bIso + bSter > 1)
                 {
 #if USE_BCF
-                    strcat_s( str, strlen(str) + 4, "s:" ); /* djb-rwth: function replaced with its safe C11 variant */
+                    strcat_s( str, strlen(str) + 5, "s:" ); /* djb-rwth: function replaced with its safe C11 variant */
 #else
                     strcat(str, "s:");
 #endif
@@ -2876,7 +2876,7 @@ int CreateInputStructPicture( HDC            hDC,
                 else
                 {
 #if USE_BCF
-                    strcat_s( str, strlen(str) + 3, ":" ); /* djb-rwth: function replaced with its safe C11 variant */
+                    strcat_s( str, strlen(str) + 4, ":" ); /* djb-rwth: function replaced with its safe C11 variant */
 #else
                     strcat(str, ":");
 #endif
@@ -2884,7 +2884,7 @@ int CreateInputStructPicture( HDC            hDC,
                 if (bTaut) 
                 {
 #if USE_BCF
-                    strcat_s( str, strlen(str) + 11, " Mobile H" ); /* djb-rwth: function replaced with its safe C11 variant */
+                    strcat_s( str, strlen(str) + 12, " Mobile H" ); /* djb-rwth: function replaced with its safe C11 variant */
 #else
                     strcat(str, " Mobile H");
 #endif
@@ -2892,7 +2892,7 @@ int CreateInputStructPicture( HDC            hDC,
                 if (bIso) 
                 {
 #if USE_BCF
-                    strcat_s( str, strlen(str) + 11, " Isotopic" ); /* djb-rwth: function replaced with its safe C11 variant */
+                    strcat_s( str, strlen(str) + 12, " Isotopic" ); /* djb-rwth: function replaced with its safe C11 variant */
 #else
                     strcat(str, " Isotopic");
 #endif
@@ -2900,7 +2900,7 @@ int CreateInputStructPicture( HDC            hDC,
                 if (bSter) 
                 {
 #if USE_BCF
-                    strcat_s( str, strlen(str) + 9, " Stereo" ); /* djb-rwth: function replaced with its safe C11 variant */
+                    strcat_s( str, strlen(str) + 10, " Stereo" ); /* djb-rwth: function replaced with its safe C11 variant */
 #else
                     strcat(str, " Stereo");
 #endif
@@ -2910,7 +2910,7 @@ int CreateInputStructPicture( HDC            hDC,
             if (pWinData->inf_at_data.szRemovedProtons[0])
             {
                 if (str[0]) 
-                    strcat_s( str, strlen(str) + 7, ";    " ); /* djb-rwth: function replaced with its safe C11 variant */
+                    strcat_s( str, strlen(str) + 8, ";    " ); /* djb-rwth: function replaced with its safe C11 variant */
 #if USE_BCF
                 strcat_s( str, strlen(str) + strlen(pWinData->inf_at_data.szRemovedProtons) + 3, pWinData->inf_at_data.szRemovedProtons); /* djb-rwth: function replaced with its safe C11 variant */
 #else
@@ -3375,14 +3375,14 @@ int DisplayInputStructure( char          *szOutputString,
     else
     {
 #if USE_BCF
-        memcpy_s( WinData.at0, sizeof(WinData.at0) + sizeof(at[0])*num_at, at, sizeof(at[0]) * num_at); /* djb-rwth: function replaced with its safe C11 variant */
+        memcpy_s( WinData.at0, sizeof(at[0])*num_at + 1, at, sizeof(at[0]) * num_at); /* djb-rwth: function replaced with its safe C11 variant */
 #else
         memcpy(WinData.at0, at, sizeof(at[0]) * num_at);
 #endif
         if (inf_at)
         {
 #if USE_BCF
-            memcpy_s( WinData.inf_at_data.at, sizeof(WinData.inf_at_data.at) + sizeof(inf_at[0])*num_at, inf_at, sizeof(inf_at[0]) * num_at); /* djb-rwth: function replaced with its safe C11 variant */
+            memcpy_s( WinData.inf_at_data.at, sizeof(inf_at[0])*num_at + 1, inf_at, sizeof(inf_at[0]) * num_at); /* djb-rwth: function replaced with its safe C11 variant */
 #else
             memcpy(WinData.inf_at_data.at, inf_at, sizeof(inf_at[0]) * num_at);
 #endif
@@ -3390,14 +3390,14 @@ int DisplayInputStructure( char          *szOutputString,
         if (WinData.nEquLabels && dp->nEquLabels) /* djb-rwth: testing if third argument is NULL */
         {
 #if USE_BCF
-            memcpy_s( WinData.nEquLabels, sizeof(WinData.nEquLabels)*num_at, dp->nEquLabels, num_at * sizeof( WinData.nEquLabels[0] ) ); /* djb-rwth: function replaced with its safe C11 variant */
+            memcpy_s( WinData.nEquLabels, sizeof(WinData.nEquLabels[0]) * num_at + 1, dp->nEquLabels, num_at * sizeof(WinData.nEquLabels[0])); /* djb-rwth: function replaced with its safe C11 variant */
 #else
             memcpy(WinData.nEquLabels, dp->nEquLabels, num_at * sizeof(WinData.nEquLabels[0]));
 #endif
         }
 
 #if USE_BCF
-        memcpy_s( WinData.at1, sizeof(WinData.at1) + sizeof(at[0])*num_at, WinData.at0, sizeof(at[0]) * num_at); /* djb-rwth: function replaced with its safe C11 variant */
+        memcpy_s( WinData.at1, sizeof(at[0])*num_at + 1, WinData.at0, sizeof(at[0]) * num_at); /* djb-rwth: function replaced with its safe C11 variant */
 #else
         memcpy(WinData.at1, WinData.at0, sizeof(at[0]) * num_at);
 #endif
