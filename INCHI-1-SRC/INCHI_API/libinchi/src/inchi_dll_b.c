@@ -122,7 +122,7 @@ int INCHI_DECL MakeINCHIFromMolfileText( const char *moltext,
                                          inchi_Output *result )
 {
     int retcode = 0, retcode2 = 0, rsz;
-    long num_inp = 0; /* djb-rwth: removing redundant variables */
+    long num_inp = 0, num_err = 0;
     char szTitle[MAX_SDF_HEADER + MAX_SDF_VALUE + 256];
 
     STRUCT_FPTRS *pStructPtrs = NULL;    /* dummy in this context */
@@ -139,7 +139,7 @@ int INCHI_DECL MakeINCHIFromMolfileText( const char *moltext,
     INCHI_IOSTREAM outputstr, logstr, prbstr, instr;
     INCHI_IOSTREAM *pout = &outputstr, *plog = &logstr, *pprb = &prbstr, *inp_file = &instr;
     int output_error_inchi = 0;
-    /* djb-rwth: removing redundant variables */
+    int have_err_in_GetOneStructure = 0;
 
     INCHI_IOS_STRING temp_string_container;
     INCHI_IOS_STRING *strbuf = &temp_string_container;
@@ -164,11 +164,11 @@ int INCHI_DECL MakeINCHIFromMolfileText( const char *moltext,
             AddErrorMessage( plog->s.pStr, "Error while preparing to make InChI" );
         }
         retcode = mol2inchi_Ret_ERROR;
-        /* djb-rwth: removing redundant code */
+        num_err++;
         goto ret;
     }
 
-    /* djb-rwth: removing redundant code */
+    have_err_in_GetOneStructure = 0;
     retcode = GetOneStructure( &ic, sd, ip, szTitle,
                                inp_file, plog, pout, pprb,
                                orig_inp_data,
@@ -177,7 +177,8 @@ int INCHI_DECL MakeINCHIFromMolfileText( const char *moltext,
     if (retcode == _IS_FATAL || retcode == _IS_ERROR)
     {
         retcode = mol2inchi_Ret_ERROR;
-        /* djb-rwth: removing redundant code */
+        num_err++;
+        have_err_in_GetOneStructure = 1;
         /*
         if ( plog && plog->s.pStr )
                 AddErrorMessage( plog->s.pStr, "Error while reading/parsing structure" );
@@ -221,7 +222,7 @@ int INCHI_DECL MakeINCHIFromMolfileText( const char *moltext,
     else
     {
         retcode = mol2inchi_Ret_ERROR;
-        /* djb-rwth: removing redundant code */
+        num_err++;
         if (output_error_inchi)
         {
             produce_generation_output( result, sd, ip, plog, pout );
@@ -267,7 +268,7 @@ ret:
             AddErrorMessage( plog->s.pStr, "Failed while cleaning things after InChI produced" );
         }
         retcode2 = mol2inchi_Ret_WARNING;
-        /* djb-rwth: removing redundant code */
+        num_err++;
     }
 
     copy_corrected_log_tail( result, plog );
@@ -600,7 +601,7 @@ int InchiToInchiAtom( INCHI_IOSTREAM *inp_file,
                       int *err,
                       char *pStrErr )
 {
-    int      num_atoms = 0, bFindNext = 0, len = 0, bHeaderRead, bItemIsOver; /* djb-rwth: removing redundant variables; initialising variables */
+    int      num_atoms = 0, bFindNext = 0, len, bHeaderRead, bItemIsOver, bErrorMsg, bRestoreInfo;; /* djb-rwth: removing redundant variables; initialising variables */
     int      bFatal = 0, num_struct = 0;
     int      i, k, k2, res, bond_type, bond_stereo1, bond_stereo2, bond_char, neigh, bond_parity, bond_parityNM;
     int      bTooLongLine, res2, bTooLongLine2, pos, hlen, hk;
@@ -659,7 +660,7 @@ int InchiToInchiAtom( INCHI_IOSTREAM *inp_file,
         bFindNext = 1;
     }
 
-    bHeaderRead = 0; /* djb-rwth: ignoring LLVM warning: values used; removing redundant variables/code */
+    bHeaderRead = bErrorMsg = bRestoreInfo = 0;
     *num_dimensions = *num_bonds = 0;
 
     /*************************************************************/
@@ -679,7 +680,7 @@ int InchiToInchiAtom( INCHI_IOSTREAM *inp_file,
                 ( hlen = sizeof( sStructHdrPln ) - 1, !memcmp(szLine_i2ia, sStructHdrPln, hlen ) ))
             {
                 p = szLine_i2ia + hlen;
-                /* djb-rwth: removing redundant code */
+                longID = 0;
                 num_atoms = 0;
 
                 /* structure number */
@@ -746,7 +747,7 @@ int InchiToInchiAtom( INCHI_IOSTREAM *inp_file,
                 }
 
                 bHeaderRead = 1;
-                /* djb-rwth: removing redundant code */
+                bErrorMsg = bRestoreInfo = 0;
             }
             else if (!memcmp(szLine_i2ia, sStructHdrPlnAuxStart, lenStructHdrPlnAuxStart ))
             {
@@ -1519,7 +1520,8 @@ int InchiToInchiAtom( INCHI_IOSTREAM *inp_file,
                                     *  Set number of hydrogen atoms
                                     */
                                 {
-                                    /* djb-rwth: removing redundant variables/code */
+                                    int num_iso_H;
+                                    num_iso_H = atom[a1].num_iso_H[1] + atom[a1].num_iso_H[2] + atom[a1].num_iso_H[3];
                                     if (valence == ISOLATED_ATOM)
                                     {
                                         atom[a1].num_iso_H[0] = 0;
@@ -1724,14 +1726,14 @@ int InchiToInchiAtom( INCHI_IOSTREAM *inp_file,
                                         /* Detected well-defined disconnected stereo
                                             * locate first non-metal neighbors */
 
-                                        int    a, j, sb_ord, cur_neigh, min_neigh; /* djb-rwth: removing redundant variables */
+                                        int    a, n, j, /* k,*/ sb_ord, cur_neigh, min_neigh;
 
                                         for (k = 0; k < 2; k++)
                                         {
                                             a = k ? atom_stereo0D[i].neighbor[2] : atom_stereo0D[i].neighbor[1];
                                             sb_ord = k ? sb_ord_from_a2 : sb_ord_from_a1;
                                             min_neigh = num_atoms;
-                                            for (j = 0; j < AT_NUM_BONDS( atom[a] ); j++) /* djb-rwth: removing redundant code */
+                                            for (n = j = 0; j < AT_NUM_BONDS( atom[a] ); j++)
                                             {
                                                 cur_neigh = atom[a].neighbor[j];
                                                 if (j != sb_ord && !IS_METAL_ATOM( atom, cur_neigh ))
@@ -1833,7 +1835,7 @@ int InchiToInchiAtom( INCHI_IOSTREAM *inp_file,
             }
         }
 
-        inchi_free(atom); /* djb-rwth: avoiding memory leak */
+        /* inchi_free(atom);  djb-rwth: avoiding memory leak */
         return num_atoms;
     }
 
@@ -1931,7 +1933,7 @@ int InchiToInchiAtom( INCHI_IOSTREAM *inp_file,
                     *Id = longID;
                 }
                 bHeaderRead = 1;
-                /* djb-rwth: removing redundant code */
+                bErrorMsg = bRestoreInfo = 0;
             }
             else if ( (bHeaderRead && !memcmp(szLine_i2ia, sStructMsgXmlErr, sizeof(sStructMsgXmlErr) - 1) ) ||
                     (bHeaderRead && !memcmp(szLine_i2ia, sStructMsgXmlErrFatal, sizeof(sStructMsgXmlErrFatal) - 1) ) ) /* djb-rwth: fixed incorrectly written operators */
@@ -1952,7 +1954,7 @@ int InchiToInchiAtom( INCHI_IOSTREAM *inp_file,
                 if (q && !bFindNext)
                 {
                     int c;
-                    /* djb-rwth: removing redundant code */
+                    bErrorMsg = 1;
                     pStrErr[0] = '\0';
                     c = *q;
                     *q = '\0';
@@ -2786,7 +2788,8 @@ int InchiToInchiAtom( INCHI_IOSTREAM *inp_file,
                                     *  Set number of hydrogen atoms
                                     */
                                 {
-                                    /* djb-rwth: removing redundant variables/code */
+                                    int num_iso_H;
+                                    num_iso_H = atom[a1].num_iso_H[1] + atom[a1].num_iso_H[2] + atom[a1].num_iso_H[3];
                                     if (valence == ISOLATED_ATOM)
                                     {
                                         atom[a1].num_iso_H[0] = 0;
@@ -3000,13 +3003,13 @@ int InchiToInchiAtom( INCHI_IOSTREAM *inp_file,
                                         /* Detected well-defined disconnected stereo
                                             * locate first non-metal neighbors */
 
-                                        int    a, j, sb_ord, cur_neigh, min_neigh; /* djb-rwth: removing redundant variables */
+                                        int    a, n, j, /* k,*/ sb_ord, cur_neigh, min_neigh; /* djb-rwth: removing redundant variables */
                                         for (k = 0; k < 2; k++)
                                         {
                                             a = k ? atom_stereo0D[i].neighbor[2] : atom_stereo0D[i].neighbor[1];
                                             sb_ord = k ? sb_ord_from_a2 : sb_ord_from_a1;
                                             min_neigh = num_atoms;
-                                            for (j = 0; j < AT_NUM_BONDS( atom[a] ); j++) /* djb-rwth: removing redundant code */
+                                            for (n = j = 0; j < AT_NUM_BONDS( atom[a] ); j++) /* djb-rwth: removing redundant code */
                                             {
                                                 cur_neigh = atom[a].neighbor[j];
                                                 if (j != sb_ord && !IS_METAL_ATOM( atom, cur_neigh ))
