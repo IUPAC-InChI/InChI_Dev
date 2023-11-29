@@ -297,11 +297,7 @@ int input_erroneously_contains_pseudoatoms( inchi_Input *inp,
                 memset(out, 0, sizeof(*out)); /* djb-rwth: memset_s C11/Annex K variant? */
                 if ((out->szMessage = (char *)inchi_malloc(strlen(str_noz) + 1))) /* djb-rwth: addressing LLVM warning */
                 {
-#if USE_BCF
-                    strcpy_s(out->szMessage, strlen(str_noz) + 1, str_noz); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                     strcpy(out->szMessage, str_noz);
-#endif
                 }
             }
             return 1;
@@ -466,11 +462,7 @@ static int GetINCHI1( inchi_InputEx *extended_input,
         szOptions = (char*) inchi_malloc( strlen( pvinp->szOptions ) + 1 );
         if (szOptions)
         {
-#if USE_BCF
-            strcpy_s( szOptions, strlen(pvinp->szOptions) + 1, pvinp->szOptions ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
             strcpy( szOptions, pvinp->szOptions );
-#endif
             argc = parse_options_string( szOptions, argv, INCHI_MAX_NUM_ARG );
         }
         else
@@ -743,11 +735,7 @@ void produce_generation_output( inchi_Output *out,
     {
         if (out && ( out->szMessage = (char *) inchi_malloc( strlen( sd->pStrErrStruct ) + 1 ) ))
         {
-#if USE_BCF
-            strcpy_s( out->szMessage, strlen(sd->pStrErrStruct) + 1, sd->pStrErrStruct ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
             strcpy(out->szMessage, sd->pStrErrStruct);
-#endif
         }
     }
 
@@ -1145,11 +1133,7 @@ int SetAtomProperties( inp_ATOM *at,
     S_CHAR      cRadical;
 
     /* element, check later */
-#if USE_BCF
-    strcpy_s( at[a1].elname, strlen(ati[a1].elname) + 1, ati[a1].elname); /* djb-rwth: function replaced with its safe C11 variant */
-#else
     strcpy( at[a1].elname, ati[a1].elname );
-#endif
 
     /* charge */
     at[a1].charge = ati[a1].charge;
@@ -1182,11 +1166,7 @@ int SetAtomProperties( inp_ATOM *at,
             {
                 nRad -= 2;
             }
-#if USE_BCF
-            sprintf_s( szRadicalType, sizeof(szRadicalType), "%d->%d", ati[a1].radical, nRad ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
             sprintf( szRadicalType, "%d->%d", ati[a1].radical, nRad );
-#endif
             TREAT_ERR( *err, 0, "Radical center type replaced:" );
             TREAT_ERR( *err, 0, szRadicalType );
             cRadical = nRad;
@@ -1210,23 +1190,11 @@ int SetAtomProperties( inp_ATOM *at,
         char str[32];
         MOL_COORD * coord_p = szCoord + a1;
         WriteCoord( str, ati[a1].x );
-#if USE_BCF
-        memcpy_s( *coord_p, 11, str, 10 ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
         memcpy( *coord_p, str, 10 );
-#endif
         WriteCoord( str, ati[a1].y );
-#if USE_BCF
-        memcpy_s( *coord_p + 10, 11, str, 10 ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
         memcpy( *coord_p + 10, str, 10 );
-#endif
         WriteCoord( str, ati[a1].z );
-#if USE_BCF
-        memcpy_s( *coord_p + 20, 11, str, 10 ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
         memcpy( *coord_p + 20, str, 10 );
-#endif
     }
 
     if (MIN_BOND_LENGTH < fabs( ati[a1].x ) || MIN_BOND_LENGTH < fabs( ati[a1].y ) || MIN_BOND_LENGTH < fabs( ati[a1].z ))
@@ -1282,11 +1250,7 @@ int SetBondProperties( inp_ATOM *at,
         default:
         {
             char szBondType[16];
-#if USE_BCF
-            sprintf_s( szBondType, sizeof(szBondType) + 1, "%d", ati[a1].bond_type[j] ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
             sprintf( szBondType, "%d", ati[a1].bond_type[j] );
-#endif
             TREAT_ERR( *err, 0, "Unrecognized bond type:" );
             TREAT_ERR( *err, 0, szBondType );
             *err |= 8; /*  Unrecognized Bond type replaced with single bond */
@@ -1338,11 +1302,7 @@ int SetBondProperties( inp_ATOM *at,
         default:
         {
             char szBondType[16];
-#if USE_BCF
-            sprintf_s( szBondType, sizeof(szBondType) + 1, "%d", ati[a1].bond_stereo[j] ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
             sprintf( szBondType, "%d", ati[a1].bond_stereo[j] );
-#endif
             TREAT_ERR( *err, 0, "Unrecognized bond stereo:" );
             TREAT_ERR( *err, 0, szBondType );
             *err |= 8; /*  Unrecognized Bond stereo replaced with non-stereo bond */
@@ -1428,13 +1388,8 @@ int SetBondProperties( inp_ATOM *at,
     {
         char szMsg[64];
         *err |= 4; /*  too large number of bonds. Some bonds ignored. */
-#if USE_BCF
-        sprintf_s( szMsg, sizeof(szMsg), "Atom '%s' has more than %d bonds",
-                        at[a1].valence >= MAXVAL ? at[a1].elname : at[a2].elname, MAXVAL ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
         sprintf(szMsg, "Atom '%s' has more than %d bonds",
             at[a1].valence >= MAXVAL ? at[a1].elname : at[a2].elname, MAXVAL);
-#endif
         TREAT_ERR( *err, 0, szMsg );
         goto err_exit;
     }
@@ -1504,13 +1459,8 @@ int SetAtomAndBondProperties( inp_ATOM *at,
         {
             char szMsg[64];
             *err |= 8; /*  wrong number of alt. bonds */
-#if USE_BCF
-            sprintf_s( szMsg, sizeof(szMsg), "Atom '%s' has %d alternating bonds",
-                            at[a1].elname, num_alt_bonds ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
             sprintf(szMsg, "Atom '%s' has %d alternating bonds",
                 at[a1].elname, num_alt_bonds);
-#endif
             TREAT_ERR( *err, 0, szMsg );
         }
         break;
@@ -2244,17 +2194,9 @@ repeat:
         {
             if (inpInChI->szOptions)
             {
-#if USE_BCF
-                strcpy_s(szOptions, strlen(inpInChI->szOptions) + 1, inpInChI->szOptions); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                 strcpy( szOptions, inpInChI->szOptions );
-#endif
             }
-#if USE_BCF
-            strcat_s( szOptions, strlen(szOptions) + strlen(szMainOption) + 3, szMainOption); /* djb-rwth: function replaced with its safe C11 variant */
-#else
             strcat( szOptions, szMainOption );
-#endif
             argc = parse_options_string( szOptions, argv, INCHI_MAX_NUM_ARG );
         }
         else
@@ -2618,16 +2560,8 @@ int INCHI_DECL GetStructFromINCHIEx( inchi_InputINCHI *inpInChI,
         {
             if (inpInChI->szOptions)
                 /* fix bug discovered by Burt Leland 2008-12-23 */
-#if USE_BCF
-                strcpy_s( szOptions, strlen(inpInChI->szOptions) + 1, inpInChI->szOptions ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                 strcpy(szOptions, inpInChI->szOptions);
-#endif
-#if USE_BCF
-            strcat_s( szOptions, strlen(szOptions) + strlen(szMainOption) + 3, szMainOption ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
             strcat(szOptions, szMainOption);
-#endif
             argc = parse_options_string( szOptions, argv, INCHI_MAX_NUM_ARG );
         }
         else
@@ -3118,11 +3052,7 @@ int SetExtOrigAtDataByInChIExtInput( OAD_Polymer **ppPolymer,
                 unitk->xbr1[q] = groupk->xbr1[q];
                 unitk->xbr2[q] = groupk->xbr2[q];
             }
-#if USE_BCF
-            strcpy_s( unitk->smt, strlen(groupk->smt) + 1, groupk->smt ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
             strcpy( unitk->smt, groupk->smt );
-#endif
             unitk->na = groupk->na;
             unitk->alist = (int *) inchi_calloc( unitk->na, sizeof( int ) );
             if (!unitk->alist )
@@ -3187,11 +3117,7 @@ int SetExtOrigAtDataByInChIExtInput( OAD_Polymer **ppPolymer,
                 err = 9001;
                 goto exitf;
             }
-#if USE_BCF
-            memcpy_s( pv->atom_index_orig, (long long)nat + 1, iev->atom_index_orig, nat ); /* djb-rwth: function replaced with its safe C11 variant; cast operator added  */
-#else
             memcpy( pv->atom_index_orig, iev->atom_index_orig, nat );
-#endif
         }
         if (iev->atom_index_fin)
         {
@@ -3201,11 +3127,7 @@ int SetExtOrigAtDataByInChIExtInput( OAD_Polymer **ppPolymer,
                 err = 9001;
                 goto exitf;
             }
-#if USE_BCF
-            memcpy_s( pv->atom_index_fin, (long long)nat + 1, iev->atom_index_fin, nat ); /* djb-rwth: function replaced with its safe C11 variant; cast operator added */
-#else
             memcpy( pv->atom_index_fin, iev->atom_index_fin, nat );
-#endif
         }
         if (iev->n_haptic_bonds && iev->lists_haptic_bonds)
         {
@@ -3354,11 +3276,7 @@ int SetInChIExtInputByExtOrigAtData( OAD_Polymer     *orp,
                 unitk->xbr1[q] = groupk->xbr1[q];
                 unitk->xbr2[q] = groupk->xbr2[q];
             }
-#if USE_BCF
-            strcpy_s( unitk->smt, strlen(groupk->smt) + 1, groupk->smt ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
             strcpy( unitk->smt, groupk->smt );
-#endif
             unitk->na = groupk->na;
             unitk->alist = (int *) inchi_calloc( unitk->na, sizeof( int ) );
             if (!unitk->alist)
@@ -3418,11 +3336,7 @@ int SetInChIExtInputByExtOrigAtData( OAD_Polymer     *orp,
                 err = 9001;
                 goto exitf;
             }
-#if USE_BCF
-            memcpy_s( ( *iiv )->atom_index_orig, (long long)nat + 1, orv->atom_index_orig, nat ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
             memcpy( ( *iiv )->atom_index_orig, orv->atom_index_orig, nat );
-#endif
         }
         if (orv->atom_index_fin)
         {
@@ -3432,11 +3346,7 @@ int SetInChIExtInputByExtOrigAtData( OAD_Polymer     *orp,
                 err = 9001;
                 goto exitf;
             }
-#if USE_BCF
-            memcpy_s( ( *iiv )->atom_index_fin, (long long)nat + 1, orv->atom_index_fin, nat ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
             memcpy( ( *iiv )->atom_index_fin, orv->atom_index_fin, nat );
-#endif
         }
         if (orv->n_haptic_bonds && orv->lists_haptic_bonds)
         {

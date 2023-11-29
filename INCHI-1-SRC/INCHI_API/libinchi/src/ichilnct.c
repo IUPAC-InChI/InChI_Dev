@@ -283,11 +283,7 @@ int InchiToInchi_Input( INCHI_IOSTREAM *inp_molfile,
 /*  switch at_new <--> orig_at_data->at; */
                                 if (orig_at_data->num_atoms)
                                 {
-#if USE_BCF
-                                    memcpy_s(orig_at_data->atom, (long long)orig_at_data->num_atoms*sizeof(orig_at_data->atom[0]) + 1, at_old, orig_at_data->num_atoms * sizeof(orig_at_data->atom[0])); /* djb-rwth: function replaced with its safe C11 variant; cast operator added */
-#else
                                     memcpy( orig_at_data->atom, at_old, orig_at_data->num_atoms * sizeof( orig_at_data->atom[0] ) );
-#endif
                                     /*  adjust numbering in the newly read structure */
                                     for (i = 0; i < num_inp_atoms_new; i++)
                                     {
@@ -299,25 +295,15 @@ int InchiToInchi_Input( INCHI_IOSTREAM *inp_molfile,
                                 }
                                 FreeInchi_Atom( &at_old );
                                 /*  copy newly read structure */
-#if USE_BCF
-                                memcpy_s( orig_at_data->atom + orig_at_data->num_atoms, (long long)num_inp_atoms_new*sizeof(orig_at_data->atom[0]) + 1, 
-                                        at_new,
-                                        num_inp_atoms_new * sizeof( orig_at_data->atom[0] ) ); /* djb-rwth: function replaced with its safe C11 variant; cast operator added */
-#else
                                 memcpy(orig_at_data->atom + orig_at_data->num_atoms,
                                     at_new,
                                     num_inp_atoms_new * sizeof(orig_at_data->atom[0]));
-#endif
                                 /*  copy newly read 0D stereo */
                                 if (num_inp_0D_new > 0 && stereo0D_new)
                                 {
                                     if ((orig_at_data->stereo0D = CreateInchi_Stereo0D( nNumStereo0D ))) /* djb-rwth: addressing LLVM warning */
                                     {
-#if USE_BCF
-                                        memcpy_s( orig_at_data->stereo0D, (long long)orig_at_data->num_stereo0D * sizeof(orig_at_data->stereo0D[0]) + 1, stereo0D_old, orig_at_data->num_stereo0D * sizeof( orig_at_data->stereo0D[0] ) ); /* djb-rwth: function replaced with its safe C11 variant; cast operator added */
-#else
                                         memcpy(orig_at_data->stereo0D, stereo0D_old, orig_at_data->num_stereo0D * sizeof(orig_at_data->stereo0D[0]));
-#endif
                                         /*  adjust numbering in the newly read structure */
                                         for (i = 0; i < num_inp_0D_new; i++)
                                         {
@@ -331,15 +317,9 @@ int InchiToInchi_Input( INCHI_IOSTREAM *inp_molfile,
                                             }
                                         }
                                         FreeInchi_Stereo0D( &stereo0D_old );
-#if USE_BCF
-                                        memcpy_s( orig_at_data->stereo0D + orig_at_data->num_stereo0D, (long long)num_inp_0D_new * sizeof(orig_at_data->stereo0D[0]) + 1,
-                                                stereo0D_new,
-                                                num_inp_0D_new * sizeof( orig_at_data->stereo0D[0] ) ); /* djb-rwth: function replaced with its safe C11 variant; cast operator added */
-#else
                                         memcpy(orig_at_data->stereo0D + orig_at_data->num_stereo0D,
                                             stereo0D_new,
                                             num_inp_0D_new * sizeof(orig_at_data->stereo0D[0]));
-#endif
                                     }
                                     else
                                     {
