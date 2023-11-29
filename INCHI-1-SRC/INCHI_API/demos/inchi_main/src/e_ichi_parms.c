@@ -1681,11 +1681,7 @@ int ReadCommandLineParms( int argc, const char *argv[],
             {
                 if ((sz = (char*) inchi_malloc( ( strlen( argv[i] ) + 1 ) * sizeof( sz[0] ) ))) /* djb-rwth: addressing LLVM warning */
                 {
-#if USE_BCF
-                    strcpy_s( sz, strlen(argv[i]) + 1, argv[i]); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                     strcpy( sz, argv[i] );
-#endif
                 }
 
                 ip->path[ip->num_paths++] = sz;
@@ -1765,11 +1761,7 @@ int ReadCommandLineParms( int argc, const char *argv[],
             }
             if (len > 0 && ( r = (char *) strrchr( p, INCHI_PATH_DELIM ) ) && r[1])
             {
-#if USE_BCF
-                strcat_s( szOutputPath, strlen(szOutputPath) + strlen(r + 1) + 3, r + 1); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                 strcat( szOutputPath, r + 1 );
-#endif
                 p = szOutputPath;
             }
         }        /*  add missing paths */
@@ -1789,28 +1781,16 @@ int ReadCommandLineParms( int argc, const char *argv[],
                 len = (int) strlen( p ) + strlen( szNameSuffix ) + strlen( ext[i] );
                 if ((sz = (char*) inchi_malloc( ( (long long)len + 1 ) * sizeof( sz[0] ) ))) /* djb-rwth: cast operator added; addressing LLVM warning */
                 {
-#if USE_BCF
-                    strcpy_s( sz, strlen(p) + 1, p); /* djb-rwth: function replaced with its safe C11 variant; cast operator added */
-#else
                     strcpy( sz, p );
-#endif
 #if ( BUILD_WITH_AMI == 1 ) && ( OUTPUT_FILE_EXT == 1 )
                     if (pLastExt)
                     {
                         strcpy( sz + ( pLastExt - p ), szOutNameExt[i - 1] );
                     }
 #endif
-#if USE_BCF
-                    strcat_s( sz, (long long)len + strlen(szNameSuffix) + 3, szNameSuffix ); /* djb-rwth: function replaced with its safe C11 variant; cast operator added */
-#else
                     strcat( sz, szNameSuffix );
-#endif
                     if (!pLastExt)
-#if USE_BCF
-                        strcat_s( sz, (long long)len + strlen(ext[i]) + 3, ext[i]); /* djb-rwth: function replaced with its safe C11 variant; cast operator added */
-#else
                         strcat( sz, ext[i] );
-#endif
                     ip->num_paths++;
                     if (ip->path[i])
                     {
@@ -3049,23 +3029,6 @@ int DetectInputINChIFileType( FILE **inp_file, INPUT_PARMS *ip, const char *fmod
 
     if (!bInitilized)
     {
-#if USE_BCF
-        /* djb-rwth: functions replaced with its safe C11 variants */
-        lenPlnVersion[0] = sprintf_s( szPlnVersion[0], sizeof(szPlnVersion[0]), "%s=%s/", INCHI_NAME, INCHI_VERSION );
-        lenPlnVersion[1] = sprintf_s( szPlnVersion[1], sizeof(szPlnVersion[1]), "INChI=1.12Beta/" );
-        lenPlnVersion[2] = sprintf_s( szPlnVersion[2], sizeof(szPlnVersion[2]), "INChI=1.0RC/" );
-        lenPlnVersion[3] = sprintf_s( szPlnVersion[3], sizeof(szPlnVersion[3]), "InChI=1.0RC/" );
-        lenPlnVersion[4] = sprintf_s( szPlnVersion[4], sizeof(szPlnVersion[4]), "InChI=1/" );
-        lenPlnVersion[5] = sprintf_s( szPlnVersion[5], sizeof(szPlnVersion[5]), "MoChI=1a/" );
-        lenPlnVersion[6] = sprintf_s( szPlnVersion[6], sizeof(szPlnVersion[6]), "InChI=1S/" );
-        lenPlnAuxVer[0] = sprintf_s( szPlnAuxVer[0], sizeof(szPlnAuxVer[0]), "AuxInfo=%s/", INCHI_VERSION );
-        lenPlnAuxVer[1] = sprintf_s( szPlnAuxVer[1], sizeof(szPlnAuxVer[1]), "AuxInfo=1.12Beta/" );
-        lenPlnAuxVer[2] = sprintf_s( szPlnAuxVer[2], sizeof(szPlnAuxVer[2]), "AuxInfo=1.0RC/" );
-        lenPlnAuxVer[3] = sprintf_s( szPlnAuxVer[3], sizeof(szPlnAuxVer[3]), "AuxInfo=1.0RC/" );
-        lenPlnAuxVer[4] = sprintf_s( szPlnAuxVer[4], sizeof(szPlnAuxVer[4]), "AuxInfo=1/" );
-        lenPlnAuxVer[5] = sprintf_s( szPlnAuxVer[5], sizeof(szPlnAuxVer[5]), "AuxInfo=1a/" );
-        lenPlnAuxVer[6] = sprintf_s( szPlnAuxVer[6], sizeof(szPlnAuxVer[6]), "AuxInfo=1/" );
-#else
         lenPlnVersion[0] = sprintf(szPlnVersion[0], "%s=%s/", INCHI_NAME, INCHI_VERSION);
         lenPlnVersion[1] = sprintf(szPlnVersion[1], "INChI=1.12Beta/");
         lenPlnVersion[2] = sprintf(szPlnVersion[2], "INChI=1.0RC/");
@@ -3080,7 +3043,6 @@ int DetectInputINChIFileType( FILE **inp_file, INPUT_PARMS *ip, const char *fmod
         lenPlnAuxVer[4] = sprintf(szPlnAuxVer[4], "AuxInfo=1/");
         lenPlnAuxVer[5] = sprintf(szPlnAuxVer[5], "AuxInfo=1a/");
         lenPlnAuxVer[6] = sprintf(szPlnAuxVer[6], "AuxInfo=1/");
-#endif
 
 #if ( FIX_DALKE_BUGS == 1 )
         bInitilized = 1;

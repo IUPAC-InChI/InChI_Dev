@@ -174,22 +174,14 @@ inchi_Atom* mol_to_inchi_Atom( MOL_DATA* mol_data, int *num_atoms, int *num_bond
             {
                 char szMsg[64];
                 *err |= 4; /*  too large number of bonds. Some bonds ignored. */
-#if USE_BCF
-                sprintf_s( szMsg, sizeof(szMsg) + 1, "Atom '%s' has more than %d bonds", at[a1].num_bonds >= MAXVAL ? at[a1].elname : at[a2].elname, MAXVAL ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                 sprintf( szMsg, "Atom '%s' has more than %d bonds", at[a1].num_bonds >= MAXVAL ? at[a1].elname : at[a2].elname, MAXVAL );
-#endif
                 MOLFILE_ERR_SET( *err, 0, szMsg );
                 continue;
             }
         if (cBondType < MIN_INPUT_BOND_TYPE || cBondType > MAX_INPUT_BOND_TYPE)
         {
             char szBondType[16];
-#if USE_BCF
-            sprintf_s( szBondType, sizeof(szBondType) + 1, "%d", cBondType ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
             sprintf( szBondType, "%d", cBondType );
-#endif
             cBondType = 1;
             MOLFILE_ERR_SET( *err, 0, "Unrecognized bond type:" );
             MOLFILE_ERR_SET( *err, 0, szBondType );
@@ -733,11 +725,7 @@ int e_MolfileToInchi_Input( FILE *inp_molfile, inchi_InputEx *orig_at_data, int 
 /*  switch at_new <--> orig_at_data->at; */
                                 if (orig_at_data->num_atoms)
                                 {
-#if USE_BCF
-                                    memcpy_s( orig_at_data->atom, (long long)(orig_at_data->num_atoms)*sizeof(orig_at_data->atom[0]) + 1 ,at_old, orig_at_data->num_atoms * sizeof( orig_at_data->atom[0] ) ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                                     memcpy( orig_at_data->atom, at_old, orig_at_data->num_atoms * sizeof( orig_at_data->atom[0] ) );
-#endif
                                     /*  adjust numbering in the newly read structure */
                                     for (i = 0; i < num_inp_atoms_new; i++)
                                     {
@@ -752,11 +740,8 @@ int e_MolfileToInchi_Input( FILE *inp_molfile, inchi_InputEx *orig_at_data, int 
                                 }
                                 e_FreeInchi_Atom( &at_old );
                                 /*  copy newly read structure */
-#if USE_BCF
-                                memcpy_s( orig_at_data->atom + orig_at_data->num_atoms, (long long)num_inp_atoms_new*sizeof(orig_at_data->atom[0]) + 1, at_new, num_inp_atoms_new * sizeof( orig_at_data->atom[0] ) ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
-                                memcpy( orig_at_data->atom + orig_at_data->num_atoms, at_new, num_inp_atoms_new * sizeof( orig_at_data->atom[0] ) );
-#endif
+                                if (at_new)
+                                    memcpy( orig_at_data->atom + orig_at_data->num_atoms, at_new, num_inp_atoms_new * sizeof( orig_at_data->atom[0] ) ); /* djb-rwth: fixing potentially zero value of at_new */
                                 /*  add other things */
                                 orig_at_data->num_atoms += num_inp_atoms_new;
                             }

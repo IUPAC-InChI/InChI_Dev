@@ -142,23 +142,11 @@ int AddMOLfileError( char *pStrErr, const char *szMsg )
             {
                 if (pStrErr[lenStrErr - 1] != ':')
                 {
-#if USE_BCF
-                    strcat_s(pStrErr, (long long)lenStrErr + 4, ";"); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                     strcat( pStrErr, ";" );
-#endif
                 }
-#if USE_BCF 
-                strcat_s(pStrErr, (long long)lenStrErr + 4, " "); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                 strcat( pStrErr, " " );
-#endif
             }
-#if USE_BCF
-            strcat_s(pStrErr, (long long)(lenStrErr+lenMsg) + 3, szMsg); /* djb-rwth: function replaced with its safe C11 variant */
-#else
             strcat( pStrErr, szMsg );
-#endif
             return 1;
         }
         /*  no room */
@@ -168,11 +156,7 @@ int AddMOLfileError( char *pStrErr, const char *szMsg )
         }
         if (lenStrErr + 3 < STR_ERR_LEN)
         {
-#if USE_BCF
-            strcat_s( pStrErr, (long long)lenStrErr + 6, "..."); /* djb-rwth: function replaced with its safe C11 variant */
-#else
             strcat( pStrErr, "..." );
-#endif
         }
     }
 
@@ -186,11 +170,7 @@ int mol_copy_check_empty( char* dest, char* source, int len, char **first_space 
     int i, c;   /* required len >= 0; dest must have at least len+1 bytes */
     if (len > 0)
     {
-#if USE_BCF
-        strncpy_s( dest, (long long)len + 1, source, len ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
         strncpy( dest, source, len );
-#endif
     }
     dest[len] = '\0';
     len = ( len > 0 ) ? (int) strlen( dest ) : 0;
@@ -934,19 +914,11 @@ int read_properties_block( MOL_CTAB* ctab,
                 }
                 if (strlen( p ) < sizeof( ctab->MolAtom[0].szAtomSymbol ))
                 {
-#if USE_BCF
-                    strcpy_s( MolAtom->szAtomSymbol, strlen(p) + 1, p); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                     strcpy( MolAtom->szAtomSymbol, p );
-#endif
                 }
                 else
                 {
-#if USE_BCF
-                    strcpy_s( MolAtom->szAtomSymbol, 5, "???" ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                     strcpy( MolAtom->szAtomSymbol, "???" );
-#endif
                 }
                 MolAtom->cAtomAliasedFlag++;
             }
@@ -1404,11 +1376,7 @@ int identify_sdf_label( char* inp_line, const char *pSdfLabel )
         ( q = strchr( p, '>' ) ) &&
         ( len = q - p - 1 ) > 0 && len < ( int )sizeof( line ))
     {
-#if USE_BCF
-        memcpy_s( line, (long long)len + 1, p + 1, len ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
         memcpy( line, p + 1, len );
-#endif
         line[len] = '\0';
         for (i = 0; isspace( UCINT line[i] ); i++)
         {
@@ -1687,17 +1655,9 @@ int CopyMOLfile( FILE *inp_file,
             {
                 int len;
                 LtrimRtrim( line, &len );
-#if USE_BCF
-                len = sprintf_s( szNumber, sizeof(szNumber), "#%ld%s", lNumb, len ? "/" : "" ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                 len = sprintf( szNumber, "#%ld%s", lNumb, len ? "/" : "" );
-#endif
                 mystrncpy( line + len, line, sizeof( line ) - len - 1 );
-#if USE_BCF
-                memcpy_s( line, (long long)len + 1, szNumber, len ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                 memcpy( line, szNumber, len );
-#endif
             }
             if (!strchr( line, '\n' ))
             {

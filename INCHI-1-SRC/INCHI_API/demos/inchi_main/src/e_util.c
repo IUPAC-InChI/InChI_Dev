@@ -89,11 +89,7 @@ int extract_ChargeRadical( char *elname, int *pnRadical, int *pnCharge )
                 }
                 break;
         }
-#if USE_BCF
-        memmove_s( q, strlen(q + charge_len) + 2, q + charge_len, strlen( q + charge_len ) + 1 ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
         memmove( q, q + charge_len, strlen( q + charge_len ) + 1 );
-#endif
     }
     /* djb-rwth: removing redundant code */
     /*  radical */
@@ -137,11 +133,7 @@ int normalize_name( char* name )
         {
             if (n > 0)
             {
-#if USE_BCF
-                memmove_s( (void*) &name[i - n], (long long)len - i + 2, (void*) &name[i], (long long)len - i + 1 ); /* djb-rwth: cast operator added; function replaced with its safe C11 variant */
-#else
                 memmove( (void*) &name[i - n], (void*) &name[i], (long long)len - i + 1 ); /* djb-rwth: cast operator added */
-#endif
                 i -= n;
                 len -= n;
             }
@@ -201,11 +193,7 @@ int e_mystrncpy( char *target, const char *source, unsigned maxlen )
         len = maxlen - 1; /*  reduced length does not include one more byte for zero termination */
     }
     if (len)
-#if USE_BCF
-        memmove_s(target, (long long)len + 1, source, len); /* djb-rwth: function replaced with its safe C11 variant */
-#else
         memmove( target, source, len );
-#endif
     /* target[len] = '\0'; */
     memset( target + len, 0, maxlen - len ); /*  zero termination */ /* djb-rwth: memset_s C11/Annex K variant? */
     return 1;
@@ -222,11 +210,7 @@ char* e_LtrimRtrim( char *p, int* nLen )
         if (i)
         {
             len -= i; /* djb-rwth: avoiding l-value error */
-#if USE_BCF
-            memmove_s(p, (long long)len + 2, p + i, (long long)len + 1); /* djb-rwth: cast operator added; function replaced with its safe C11 variant */
-#else
             memmove(p, p + i, (long long)len + 1); /* djb-rwth: cast operator added */
-#endif
         }
         for (; 0 < len && __isascii( p[len - 1] ) && isspace( p[len - 1] ); len--)
             ;
