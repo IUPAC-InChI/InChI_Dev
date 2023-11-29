@@ -342,17 +342,9 @@ int NormOneStructureINChI( CANON_GLOBALS *pCG,
             if ( newPTR1 && newPTR2 )
             { 
                 if (pINChI2[iINChI] && sd->num_components[iINChI] > 0)
-#if USE_BCF
-                    memcpy_s( newPTR1, (long long)(sd->num_components[iINChI])*sizeof(PINChI2) + 1, pINChI2[iINChI], (sd->num_components[iINChI]) * sizeof(PINChI2) ); /* djb-rwth: function replaced with its safe C11 variant; cast operator added */
-#else
                     memcpy( newPTR1, pINChI2[iINChI], (sd->num_components[iINChI]) * sizeof(PINChI2) );
-#endif
                 if (pINChI_Aux2[iINChI] && sd->num_components[iINChI] > 0)
-#if USE_BCF
-                    memcpy_s( newPTR2, (long long)(sd->num_components[iINChI])*sizeof(PINChI_Aux2) + 1, pINChI_Aux2[iINChI], (sd->num_components[iINChI]) * sizeof(PINChI_Aux2) ); /* djb-rwth: function replaced with its safe C11 variant; cast operator added */
-#else
                     memcpy( newPTR2, pINChI_Aux2[iINChI], (sd->num_components[iINChI]) * sizeof(PINChI_Aux2) );
-#endif
                 if (pINChI2[iINChI]) 
                     inchi_free(pINChI2[iINChI]);
                 if (pINChI_Aux2[iINChI])
@@ -1218,12 +1210,7 @@ int  Normalization_step( CANON_GLOBALS *pCG,
 
     /* copy the input structure to be normalized to the buffer for the normalization data */
 
-#if USE_BCF
-    memcpy_s( z->out_at, (long long)num_inp_at*sizeof(z->out_at[0]) + 1, inp_at, num_inp_at * sizeof( z->out_at[0] ) ); /* djb-rwth: function replaced with its safe C11 variant; cast operator added */
-#else
     memcpy( z->out_at, inp_at, num_inp_at * sizeof( z->out_at[0] ) );
-#endif
-
 
     /*  tautomeric groups setting */
 
@@ -1271,29 +1258,17 @@ int  Normalization_step( CANON_GLOBALS *pCG,
     /*  duplicate the preprocessed structure so that all supplied out_norm_data[]->at buffers are filled */
     if (z->out_at != out_norm_data[TAUT_YES]->at && out_norm_data[TAUT_YES]->at)
     {
-#if USE_BCF
-        memcpy_s( out_norm_data[TAUT_YES]->at, (long long)num_inp_at*sizeof(z->out_at[0]) + 1, z->out_at, num_inp_at * sizeof( z->out_at[0] ) ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
         memcpy( out_norm_data[TAUT_YES]->at, z->out_at, num_inp_at * sizeof( z->out_at[0] ) );
-#endif
     }
 
     if (out_norm_data[TAUT_YES]->at_fixed_bonds && out_norm_data[TAUT_YES]->at)
     {
-#if USE_BCF
-        memcpy_s( out_norm_data[TAUT_YES]->at_fixed_bonds, (long long)num_inp_at*sizeof(z->out_at[0]) + 1, z->out_at, num_inp_at * sizeof( z->out_at[0] ) ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
         memcpy( out_norm_data[TAUT_YES]->at_fixed_bonds, z->out_at, num_inp_at * sizeof( z->out_at[0] ) );
-#endif
     }
 
     if (z->out_at != out_norm_data[TAUT_NON]->at && out_norm_data[TAUT_NON]->at)
     {
-#if USE_BCF
-        memcpy_s( out_norm_data[TAUT_NON]->at, (long long)num_inp_at*sizeof(z->out_at[0]) + 1, z->out_at, num_inp_at * sizeof( z->out_at[0] ) ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
         memcpy( out_norm_data[TAUT_NON]->at, z->out_at, num_inp_at * sizeof( z->out_at[0] ) );
-#endif
     }
 
     /*******************************************************************************
@@ -2176,11 +2151,7 @@ int CreateCompositeNormAtom( COMP_ATOM_DATA *composite_norm_data,
                 at = composite_norm_data[jj].at + tot_num_at; /* points to the 1st destination atom */
                 at_from = ( jj == TAUT_INI && k == TAUT_YES && all_inp_norm_data[i][k].at_fixed_bonds ) ?
                     all_inp_norm_data[i][k].at_fixed_bonds : all_inp_norm_data[i][k].at;
-#if USE_BCF
-                memcpy_s( at, (long long)cur_num_at*sizeof(composite_norm_data[0].at[0]) + 1, at_from, sizeof( composite_norm_data[0].at[0] ) * cur_num_at ); /* copy atoms except terminal H */ /* djb-rwth: function replaced with its safe C11 variant */
-#else
                 memcpy( at, at_from, sizeof( composite_norm_data[0].at[0] ) * cur_num_at ); /* copy atoms except terminal H */
-#endif
                 /* shift neighbors of main atoms */
                 for (n = 0; n < cur_num_at; n++, at++)
                 {
@@ -2193,11 +2164,7 @@ int CreateCompositeNormAtom( COMP_ATOM_DATA *composite_norm_data,
                 if (cur_num_H)
                 {
                     at = composite_norm_data[jj].at + num_at[jj] + tot_num_H; /* points to the 1st destination atom */
-#if USE_BCF
-                    memcpy_s( at, (long long)cur_num_H*sizeof(composite_norm_data[0].at[0]) + 1, at_from + cur_num_at, sizeof( composite_norm_data[0].at[0] ) * cur_num_H ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                     memcpy( at, at_from + cur_num_at, sizeof( composite_norm_data[0].at[0] ) * cur_num_H );
-#endif
                     /* shift neighbors of explicit H atoms */
                     for (n = 0; n < cur_num_H; n++, at++)
                     {
@@ -2433,17 +2400,10 @@ int FillOutINChIReducedWarn( INChI *pINChI,
             /* switch ptrs back to avoid confusion */
             switch_ptrs( &pCanonRank, &pCanonRankInv );
             switch_ptrs( &pCanonOrd, &pCanonOrdInv );
-#if USE_BCF
-            /* save inverted stereo ranks & order because it represents the smallest (relative) */
-            memcpy_s( pCanonRank, (long long)num_at_tg*sizeof(pCanonRank[0]) + 1, pCanonRankInv, num_at_tg * sizeof( pCanonRank[0] ) );
-            /* change pCS->nCanonOrdStereo[] to inverted: */
-            memcpy_s( pCanonOrd, (long long)num_at_tg*sizeof(pCanonOrd[0]) + 1, pCanonOrdInv, num_at_tg * sizeof( pCanonOrd[0] ) );
-#else
             /* save inverted stereo ranks & order because it represents the smallest (relative) */
             memcpy(pCanonRank, pCanonRankInv, num_at_tg * sizeof(pCanonRank[0]));
             /* change pCS->nCanonOrdStereo[] to inverted: */
             memcpy(pCanonOrd, pCanonOrdInv, num_at_tg * sizeof(pCanonOrd[0]));
-#endif
         }
         pCanonRankInv = NULL;
         pCanonOrdInv = NULL;
@@ -2561,11 +2521,7 @@ int FillOutINChIReducedWarn( INChI *pINChI,
         ret = -2;
         goto exit_function;
     }
-#if USE_BCF
-    memcpy_s( pINChI->nConnTable, (long long)(pCS->nLenLinearCTAtOnly)*sizeof(pINChI->nConnTable[0]) + 1, pCS->LinearCT, sizeof( pINChI->nConnTable[0] )*pCS->nLenLinearCTAtOnly ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
     memcpy( pINChI->nConnTable, pCS->LinearCT, sizeof( pINChI->nConnTable[0] )*pCS->nLenLinearCTAtOnly );
-#endif
     pINChI->lenConnTable = pCS->nLenLinearCTAtOnly;
 
     /*  tautomeric group(s) canonical representation */
@@ -2779,13 +2735,8 @@ int FillOutINChIReducedWarn( INChI *pINChI,
         {
             switch_ptrs( &pCanonRank, &pCanonRankInv );
             switch_ptrs( &pCanonOrd, &pCanonOrdInv );
-#if USE_BCF
-            memcpy_s( pCanonRank, (long long)num_at_tg*sizeof(pCanonRank[0]) + 1, pCanonRankInv, num_at_tg * sizeof( pCanonRank[0] ) ); /* djb-rwth: function replaced with its safe C11 variant */
-            memcpy_s( pCanonOrd, (long long)num_at_tg*sizeof(pCanonOrd[0]) + 1, pCanonOrdInv, num_at_tg * sizeof( pCanonOrd[0] ) ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
             memcpy(pCanonRank, pCanonRankInv, num_at_tg * sizeof(pCanonRank[0]));
             memcpy(pCanonOrd, pCanonOrdInv, num_at_tg * sizeof(pCanonOrd[0]));
-#endif
         }
         pCanonRankInv = NULL;
         pCanonOrdInv = NULL;
@@ -2982,21 +2933,13 @@ void make_norm_atoms_from_inp_atoms( INCHIGEN_DATA *gendata,
         if (NULL != genctl->InpNormAtData[k])
         {
             t1 = genctl->StructData.num_components[k] * sizeof( NORM_ATOMS );
-#if USE_BCF
-            memcpy_s( gendata->NormAtomsNontaut[k], (long long)t1 + 1, genctl->InpNormAtData[k], t1 ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
             memcpy( gendata->NormAtomsNontaut[k], genctl->InpNormAtData[k], t1 );
-#endif
         }
 
         if (NULL != genctl->InpNormTautData[k])
         {
             t1 = genctl->StructData.num_components[k] * sizeof( NORM_ATOMS );
-#if USE_BCF
-            memcpy_s( gendata->NormAtomsTaut[k], (long long)t1 + 1, genctl->InpNormTautData[k], t1 ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
             memcpy( gendata->NormAtomsTaut[k], genctl->InpNormTautData[k], t1 );
-#endif
         }
     }
 }

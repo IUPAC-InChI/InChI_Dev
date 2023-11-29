@@ -115,11 +115,7 @@ void INCHI_DECL IXA_INCHIKEYBUILDER_SetInChI( IXA_STATUS_HANDLE hStatus,
         return;
     }
 
-#if USE_BCF
-    strcpy_s( key_builder->inchi, strlen(pInChI) + 1, pInChI ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
     strcpy( key_builder->inchi, pInChI );
-#endif
     key_builder->dirty = 1;
 }
 

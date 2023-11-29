@@ -243,11 +243,7 @@ int INCHI_DECL STDINCHIGEN_Setup( INCHIGEN_HANDLE _HGen,
     ip->bINChIOutputOptions |= INCHI_OUT_STDINCHI;
     ip->bINChIOutputOptions &= ~INCHI_OUT_SAVEOPT;
 
-#if USE_BCF
-    strcpy_s( pGenData->pStrErrStruct, strlen(sd->pStrErrStruct) + 1, sd->pStrErrStruct ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
     strcpy( pGenData->pStrErrStruct, sd->pStrErrStruct );
-#endif
 
     return retcode;
 }
@@ -314,11 +310,7 @@ int INCHI_DECL INCHIGEN_Setup( INCHIGEN_HANDLE _HGen,
         else
         {
             /* Parse. */
-#if USE_BCF
-            strcpy_s( szOptions, strlen(pInp->szOptions) + 1, pInp->szOptions ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
             strcpy( szOptions, pInp->szOptions );
-#endif
             argc = parse_options_string( szOptions, argv, INCHI_MAX_NUM_ARG );
         }
     }
@@ -413,11 +405,7 @@ ret:switch (retcode)
 
     if (NULL!=pGenData)
     {
-#if USE_BCF
-        strcpy_s( pGenData->pStrErrStruct, strlen(sd->pStrErrStruct) + 1, sd->pStrErrStruct ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
         strcpy( pGenData->pStrErrStruct, sd->pStrErrStruct );
-#endif
         for (p = 0; p < INCHI_NUM; p++)
         {
             pGenData->num_components[p] = sd->num_components[p];
@@ -565,11 +553,7 @@ int INCHI_DECL INCHIGEN_DoNormalization( INCHIGEN_HANDLE _HGen, INCHIGEN_DATA *p
     {
         char szNumber[32];
         int ret1a = 0, ret2a = 0; /* for derivatives and ring-chain */ /* djb-rwth: ignoring LLVM warning: variables used to store function return values */
-#if USE_BCF
-        ret1a = sprintf_s( szNumber, sizeof(szNumber) + 1, "Structure #%ld", HGen->num_inp ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
         ret1a = sprintf( szNumber, "Structure #%ld", HGen->num_inp );
-#endif
         ret2a = OrigAtData_WriteToSDfile( orig_inp_data, out_file, szNumber, NULL,
             ( sd->bChiralFlag & FLAG_INP_AT_CHIRAL ) ? 1 : 0,
             ( ip->bINChIOutputOptions & INCHI_OUT_SDFILE_ATOMS_DT ) ? 1 : 0, ip->pSdfLabel, ip->pSdfValue );
@@ -679,12 +663,7 @@ exit_function:
         }
     }
 
-#if USE_BCF
-    strcpy_s( pGenData->pStrErrStruct, strlen(sd->pStrErrStruct) + 1, sd->pStrErrStruct ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
     strcpy( pGenData->pStrErrStruct, sd->pStrErrStruct );
-#endif
-
     make_norm_atoms_from_inp_atoms( pGenData, HGen );
 
     return nRet;
@@ -851,11 +830,7 @@ int INCHI_DECL INCHIGEN_DoCanonicalization
     }
 exit_function:
 
-#if USE_BCF
-    strcpy_s( pGenData->pStrErrStruct, strlen(sd->pStrErrStruct) + 1, sd->pStrErrStruct ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
     strcpy( pGenData->pStrErrStruct, sd->pStrErrStruct );
-#endif
     for (k = 0; k < INCHI_NUM; k++)
     {
         pGenData->num_components[k] = sd->num_components[k];
@@ -1041,11 +1016,7 @@ int INCHI_DECL INCHIGEN_DoSerialization(INCHIGEN_HANDLE _HGen,
     {
         if (pGenData && (pResults->szMessage = (char*)inchi_malloc(strlen(sd->pStrErrStruct) + 1)))
         {
-#if USE_BCF
-            strcpy_s(pResults->szMessage, strlen(sd->pStrErrStruct) + 1, sd->pStrErrStruct); /* djb-rwth: function replaced with its safe C11 variant */
-#else
             strcpy(pResults->szMessage, sd->pStrErrStruct);
-#endif
         }
     }
 
@@ -1125,11 +1096,7 @@ frees:
 
     if (pGenData) /* djb-rwth: fixing a NULL pointer dereference */
     {
-#if USE_BCF
-        strcpy_s(pGenData->pStrErrStruct, strlen(sd->pStrErrStruct) + 1, sd->pStrErrStruct); /* djb-rwth: function replaced with its safe C11 variant */
-#else
         strcpy(pGenData->pStrErrStruct, sd->pStrErrStruct);
-#endif
         for (k = 0; k < INCHI_NUM; k++)
         {
             pGenData->num_components[k] = sd->num_components[k];
