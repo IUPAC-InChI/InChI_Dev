@@ -488,11 +488,7 @@ int DrawStructure( HDC           pDC,
     {
         for (i = 0; i < num_at; i++)
         {
-#if USE_BCF
-            strcpy_s( str, strlen(inf_at[i].at_string) + 1, inf_at[i].at_string); /* djb-rwth: function replaced with its safe C11 variant */
-#else
             strcpy(str, inf_at[i].at_string);
-#endif
             DrawPreparedString( pDC, str, -inf_at[i].DrawingLabelLeftShift, nRound( at[i].x + xoff ), nRound( at[i].y + yoff ), inf_at[i].cHighlightTheAtom );
         }
     }
@@ -514,19 +510,11 @@ int DrawStructure( HDC           pDC,
                 int atw = get_atomic_mass_from_elnum( (int) at[i].el_number );
                 if (atw)
                 {
-#if USE_BCF
-                    k += sprintf_s( str + k, sizeof(str) - k, "^%d", atw + at[i].iso_atw_diff - ( at[i].iso_atw_diff > 0 ) ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                     k += sprintf(str + k, "^%d", atw + at[i].iso_atw_diff - (at[i].iso_atw_diff > 0));
-#endif
                 }
                 else
                 {
-#if USE_BCF
-                    k += sprintf_s( str + k, sizeof(str) - k, "^+%d", at[i].iso_atw_diff - ( at[i].iso_atw_diff > 0 ) ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                     k += sprintf(str + k, "^+%d", at[i].iso_atw_diff - (at[i].iso_atw_diff > 0));
-#endif
                 }
             }
             /* obsolete section, this never happens for now */
@@ -536,11 +524,7 @@ int DrawStructure( HDC           pDC,
                 /* this allows to draw up to 5 numbers from 1..255 range. */
                 int t;
                 int ch = ' ' + atname[0]; /* delimiter */
-#if USE_BCF
-                k += sprintf_s( str + k, sizeof(str) - k, "%u", (unsigned) (unsigned char) atname[1] ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                 k += sprintf(str + k, "%u", (unsigned)(unsigned char)atname[1]);
-#endif
                 for (t = 2; t < sizeof( at->elname ); t++)
                 {
                     if (atname[t])
@@ -551,19 +535,11 @@ int DrawStructure( HDC           pDC,
                         }
                         if (ch != '/' && ch != ',')
                         {
-#if USE_BCF
-                            k += sprintf_s( str + k, sizeof(str) - k, "(%c)%u", ch, (unsigned) (unsigned char) atname[t] ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                             k += sprintf(str + k, "(%c)%u", ch, (unsigned)(unsigned char)atname[t]);
-#endif
                         }
                         else
                         {
-#if USE_BCF
-                            k += sprintf_s( str + k, sizeof(str) - k, "%c%u", ch, (unsigned) (unsigned char) atname[t] ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                             k += sprintf(str + k, "%c%u", ch, (unsigned)(unsigned char)atname[t]);
-#endif
                         }
                         ch = '/';
                     }
@@ -572,28 +548,16 @@ int DrawStructure( HDC           pDC,
             else
             {
                 /* this is the main section to display hydrogen atoms, charges, radicals */
-#if USE_BCF
-                strncpy_s( str + k, sizeof(str) + k, atname + j, sizeof( at->elname ) - j ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                 strncpy(str + k, atname + j, sizeof(at->elname) - j);
-#endif
                 str[sizeof( at->elname ) + k - j] = '\0';
                 k = strlen( str );
                 if (at[i].num_H)
                 {
-#if USE_BCF
-                    strcat_s( str, strlen(str) + 4, "H" ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                     strcat(str, "H");
-#endif
                     k++;
                     if (at[i].num_H > 1)
                     {
-#if USE_BCF
-                        k += sprintf_s( str + k, sizeof(str) - k, "%d", (int) at[i].num_H ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                         k += sprintf(str + k, "%d", (int)at[i].num_H);
-#endif
                     }
                 }
                 for (j = 0; j < NUM_H_ISOTOPES; j++)
@@ -602,67 +566,37 @@ int DrawStructure( HDC           pDC,
                     {
                         if (j == 0 || (j != 1 && j != 2)) /* djb-rwth: addressing LLVM warning */
                         {
-#if USE_BCF
-                            k += sprintf_s(str + k, sizeof(str) - k, "^%dH", j + 1); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                             k += sprintf(str + k, "^%dH", j + 1);
-#endif
                         }
                         else
                         {
-#if USE_BCF
-                            k += sprintf_s( str + k, sizeof(str) - k, j == 1 ? "D" : "T" ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                             k += sprintf(str + k, j == 1 ? "D" : "T");
-#endif
                         }
                         if (at[i].num_iso_H[j] > 1)
                         {
-#if USE_BCF
-                            k += sprintf_s( str + k, sizeof(str) - k, "%d", (int) at[i].num_iso_H[j] ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                             k += sprintf(str + k, "%d", (int)at[i].num_iso_H[j]);
-#endif
                         }
                     }
                 }
                 if (abs( at[i].charge ) > 1)
                 {
-#if USE_BCF
-                    sprintf_s( str + k, sizeof(str) - k, "%+d", at[i].charge ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                     sprintf(str + k, "%+d", at[i].charge);
-#endif
                 }
                 else
                 {
                     if (abs( at[i].charge ) == 1)
                     {
-#if USE_BCF
-                        strcat_s( str, strlen(str) + 4, at[i].charge > 0 ? "+" : "-" ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                         strcat(str, at[i].charge > 0 ? "+" : "-");
-#endif
                     }
                 }
                 if (at[i].radical)
                 {
-#if USE_BCF
-                    strcat_s( str, strlen(str) + 5, at[i].radical == RADICAL_SINGLET ? ":" :
-                                    at[i].radical == RADICAL_DOUBLET ? "." :
-                                    at[i].radical == RADICAL_TRIPLET ? "^^" : "?" ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                     strcat(str, at[i].radical == RADICAL_SINGLET ? ":" :
                         at[i].radical == RADICAL_DOUBLET ? "." :
                         at[i].radical == RADICAL_TRIPLET ? "^^" : "?");
-#endif
                 }
                 k = strlen( str );
-#if USE_BCF
-                sprintf_s( str + k, sizeof(str) - k, "/%d", i + 1 ); /* atom ordering number, 1,2,... */ /* djb-rwth: function replaced with its safe C11 variant */
-#else
                 sprintf(str + k, "/%d", i + 1); /* atom ordering number, 1,2,... */
-#endif
             }
 
             DrawString( pDC, str, shift, nRound( at[i].x + xoff ), nRound( at[i].y + yoff ) );
@@ -1436,15 +1370,9 @@ int MoveHydrogenAtomToTheLeft( char *s,int  start, int  H )
         {
             return start; /* too long string */
         }
-#if USE_BCF
-        memcpy_s( szBuffer, len + 1, pH, len ); /* djb-rwth: function replaced with its safe C11 variant */
-        memmove_s( s + len, sizeof(s) + len, s, pH - s); /* djb-rwth: function replaced with its safe C11 variant */
-        memmove_s( s, sizeof(s) + len, szBuffer, len ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
         memcpy(szBuffer, pH, len);
         memmove(s + len, s, pH - s);
         memmove(s, szBuffer, len);
-#endif
         return start + len; /* (pH-s)+i; */
     }
 
@@ -1760,11 +1688,7 @@ int DrawString( HDC pDC, char *st1, int shift, int x, int y )
     /*    int  nNumSlash = 0;   */
     /*    COLORREF  OrigBkColor;*/
 
-#if USE_BCF
-    strncpy_s( st, sizeof(st), st1, sizeof( st ) - 1 ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
     strncpy(st, st1, sizeof(st) - 1);
-#endif
     st[sizeof( st ) - 1] = '\0';
 
     l = GetStringWidth( pDC, st );
@@ -1894,11 +1818,7 @@ int DrawTheInputStructure( inp_ATOM      *at,
             num_str = sizeof( StrInfo ) / sizeof( StrInfo[0] );
             for (i = 0, LastString[0] = '\0'; i < n_opt && LastStr[i][0]; i++)
             {
-#if USE_BCF
-                strcat_s( LastString, strlen(LastString) + strlen(LastStr[i]) + 3, LastStr[i]); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                 strcat(LastString, LastStr[i]);
-#endif
             }
         }
         rgbColor = SetBkColor( pDC, CLR_CYAN );
@@ -2634,11 +2554,7 @@ int CreateInputStructPicture( HDC            hDC,
         MyLogFont.lfHeight = nFontSize;
         MyLogFont.lfWeight = FW_NORMAL;
         /* MyLogFont.lfItalic = 1; */ /* test MyTextOutABC() */
-#if USE_BCF
-        strncpy_s( MyLogFont.lfFaceName, sizeof(MyLogFont.lfFaceName), FaceName, LF_FACESIZE ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
         strncpy(MyLogFont.lfFaceName, FaceName, LF_FACESIZE);
-#endif
         Font = CreateFontIndirect( &MyLogFont ); /* black */
 
         /* create drawing tools: pen */
@@ -2791,56 +2707,28 @@ int CreateInputStructPicture( HDC            hDC,
                 switch (bStereoFlags & INF_STEREO_ABS_REL_RAC)
                 {
                     case INF_STEREO_ABS:
-#if USE_BCF
-                        strcat_s( str, strlen(str) + 11, "Absolute" ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                         strcat(str, "Absolute");
-#endif
                         break;
                     case INF_STEREO_REL:
-#if USE_BCF
-                        strcat_s( str, strlen(str) + 11, "Relative" ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                         strcat(str, "Relative");
-#endif
                         break;
                     case INF_STEREO_RAC:
-#if USE_BCF
-                        strcat_s( str, strlen(str) + 18, "Racemic mixture" ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                         strcat(str, "Racemic mixture");
-#endif
                         break;
                 }
                 if (str[0])
                 {
-#if USE_BCF
-                    strcat_s( str, strlen(str) + 10, " stereo"); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                     strcat(str, " stereo");
-#endif
                     switch (bStereoFlags & INF_STEREO_NORM_INV)
                     {
                         case INF_STEREO_NORM:
-#if USE_BCF
-                            strcat_s( str, strlen(str) + 12, " (normal)" ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                             strcat(str, " (normal)");
-#endif
                             break;
                         case INF_STEREO_INV:
-#if USE_BCF
-                            strcat_s( str, strlen(str) + 14, " (inverted)" ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                             strcat(str, " (inverted)");
-#endif
                             break;
                         case INF_STEREO_NORM_INV:
-#if USE_BCF
-                            strcat_s( str, strlen(str) + 25, " (normal and inverted)" ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                             strcat(str, " (normal and inverted)");
-#endif
                             break;
                     }
                 }
@@ -2850,72 +2738,40 @@ int CreateInputStructPicture( HDC            hDC,
                 int bTaut = 0, bIso = 0, bSter = 0;
                 if (str[0])
                 {
-#if USE_BCF
-                    strcat_s( str, strlen(str) + 6, ";  " ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                     strcat(str, ";  ");
-#endif
                 }
                 bTaut = ( NULL != memchr( tdp->ReqShownFound[ilSHOWN], 'T', TDP_NUM_PAR ) );
                 bIso = ( NULL != memchr( tdp->ReqShownFound[ilSHOWN], 'I', TDP_NUM_PAR ) );
                 bSter = ( NULL != memchr( tdp->ReqShownFound[ilSHOWN], 'S', TDP_NUM_PAR ) ) ||
                     ( NULL != memchr( tdp->ReqShownFound[ilSHOWN], 's', TDP_NUM_PAR ) );
-#if USE_BCF
-                strcat_s( str, strlen(str) + 15, "Abbreviation" ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                 strcat(str, "Abbreviation");
-#endif
                 if (bTaut + bIso + bSter > 1)
                 {
-#if USE_BCF
-                    strcat_s( str, strlen(str) + 5, "s:" ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                     strcat(str, "s:");
-#endif
                 }
                 else
                 {
-#if USE_BCF
-                    strcat_s( str, strlen(str) + 4, ":" ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                     strcat(str, ":");
-#endif
                 }
                 if (bTaut) 
                 {
-#if USE_BCF
-                    strcat_s( str, strlen(str) + 12, " Mobile H" ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                     strcat(str, " Mobile H");
-#endif
                 }
                 if (bIso) 
                 {
-#if USE_BCF
-                    strcat_s( str, strlen(str) + 12, " Isotopic" ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                     strcat(str, " Isotopic");
-#endif
                 }
                 if (bSter) 
                 {
-#if USE_BCF
-                    strcat_s( str, strlen(str) + 10, " Stereo" ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                     strcat(str, " Stereo");
-#endif
                 }
                 DrawTheTable( hMemoryDC, &tp, tdp, bm_left, bm_top );
             }
             if (pWinData->inf_at_data.szRemovedProtons[0])
             {
                 if (str[0]) 
-                    strcat_s( str, strlen(str) + 8, ";    " ); /* djb-rwth: function replaced with its safe C11 variant */
-#if USE_BCF
-                strcat_s( str, strlen(str) + strlen(pWinData->inf_at_data.szRemovedProtons) + 3, pWinData->inf_at_data.szRemovedProtons); /* djb-rwth: function replaced with its safe C11 variant */
-#else
+                    strcat( str, ";    " ); /* djb-rwth: function replaced with its safe C11 variant */
                 strcat(str, pWinData->inf_at_data.szRemovedProtons);
-#endif
             }
             /*TextOut( hMemoryDC, nFontWidth+bm_left, bm_height - nFontHeight +bm_top, str, strlen(str) );*/
             /*DrawColorString( hMemoryDC, str, nFontWidth+bm_left, bm_height - nFontHeight +bm_top, 0 );*/
@@ -3374,33 +3230,17 @@ int DisplayInputStructure( char          *szOutputString,
     }
     else
     {
-#if USE_BCF
-        memcpy_s( WinData.at0, sizeof(at[0])*num_at + 1, at, sizeof(at[0]) * num_at); /* djb-rwth: function replaced with its safe C11 variant */
-#else
         memcpy(WinData.at0, at, sizeof(at[0]) * num_at);
-#endif
         if (inf_at)
         {
-#if USE_BCF
-            memcpy_s( WinData.inf_at_data.at, sizeof(inf_at[0])*num_at + 1, inf_at, sizeof(inf_at[0]) * num_at); /* djb-rwth: function replaced with its safe C11 variant */
-#else
             memcpy(WinData.inf_at_data.at, inf_at, sizeof(inf_at[0]) * num_at);
-#endif
         }
         if (WinData.nEquLabels && dp->nEquLabels) /* djb-rwth: testing if third argument is NULL */
         {
-#if USE_BCF
-            memcpy_s( WinData.nEquLabels, sizeof(WinData.nEquLabels[0]) * num_at + 1, dp->nEquLabels, num_at * sizeof(WinData.nEquLabels[0])); /* djb-rwth: function replaced with its safe C11 variant */
-#else
             memcpy(WinData.nEquLabels, dp->nEquLabels, num_at * sizeof(WinData.nEquLabels[0]));
-#endif
         }
 
-#if USE_BCF
-        memcpy_s( WinData.at1, sizeof(at[0])*num_at + 1, WinData.at0, sizeof(at[0]) * num_at); /* djb-rwth: function replaced with its safe C11 variant */
-#else
         memcpy(WinData.at1, WinData.at0, sizeof(at[0]) * num_at);
-#endif
 
         WinData.num_at = num_at;
         WinData.bOrigAtom = dp->sdp.bOrigAtom;
