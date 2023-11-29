@@ -356,13 +356,8 @@ int ProcessMultipleInputFiles(int argc, char* argv[])
         {
             continue;
         }
-#if USE_BCF
-        memcpy_s(pathname, lenPath + 1, fn_ins[0], lenPath); /* djb-rwth: function replaced with its safe C11 variant */
-        strcpy_s(pathname + lenPath, strlen(file_info.name) + 1, file_info.name); /* djb-rwth: function replaced with its safe C11 variant */
-#else
         memcpy(pathname, fn_ins[0], lenPath);
         strcpy(pathname + lenPath, file_info.name);
-#endif
         fn_in = pathname;
         if (0 == numFiles % 5000)
         {
@@ -394,13 +389,8 @@ int ProcessMultipleInputFiles(int argc, char* argv[])
             fn_out = (char*)inchi_calloc((long long)inlen + 6, sizeof(char)); /* djb-rwth: cast operator added */
             if (fn_out)
             {
-#if USE_BCF
-                strcpy_s(fn_out, strlen(fn_in) + 1, fn_in); /* djb-rwth: function replaced with its safe C11 variant */
-                strcat_s(fn_out, strlen(fn_out) + 7, ".txt"); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                 strcpy(fn_out, fn_in);
                 strcat(fn_out, ".txt");
-#endif
             }
             targv[++targc] = fn_out;
         }
@@ -421,13 +411,8 @@ int ProcessMultipleInputFiles(int argc, char* argv[])
             fn_log = (char*)inchi_calloc((long long)inlen + 6, sizeof(char)); /* djb-rwth: cast operator added */
             if (fn_log)
             {
-#if USE_BCF
-                strcpy_s(fn_log, strlen(fn_in) + 1, fn_in); /* djb-rwth: function replaced with its safe C11 variant */
-                strcat_s(fn_log, strlen(fn_log) + 7, ".log"); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                 strcpy(fn_log, fn_in);
                 strcat(fn_log, ".log");
-#endif
             }
             targv[++targc] = fn_log;
         }
@@ -447,13 +432,8 @@ int ProcessMultipleInputFiles(int argc, char* argv[])
             fn_prb = (char*)inchi_calloc((long long)inlen + 6, sizeof(char)); /* djb-rwth: cast operator added */
             if (fn_prb)
             {
-#if USE_BCF
-                strcpy_s(fn_prb, strlen(fn_in) + 1, fn_in); /* djb-rwth: function replaced with its safe C11 variant */
-                strcat_s(fn_prb, strlen(fn_prb) + 7, ".prb"); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                 strcpy(fn_prb, fn_in);
                 strcat(fn_prb, ".prb");
-#endif
             }
             targv[++targc] = fn_prb;
         }
@@ -1363,11 +1343,7 @@ int CalcAndPrintINCHIAndINCHIKEY(struct tagINCHI_CLOCK* ic,
             {
                 inchi_ios_print(pout, "InChIHash=%-s", ik_string);
             }
-#if USE_BCF
-            strcpy_s(ikey, sizeof(ik_string) + 1, ik_string); /* djb-rwth: function replaced with its safe C11 variant */
-#else
             strcpy(ikey, ik_string);
-#endif
 
             if (szXtra1[0] && ip->bMergeHash)
             {
@@ -1465,15 +1441,9 @@ void shuffle(void* obj, size_t nmemb, size_t size)
     while (n > 1)
     {
         size_t k = rrand((int)n--);
-#if USE_BCF
-        memcpy_s(temp, size, BYTE(obj) + n*size, size); /* djb-rwth: function replaced with its safe C11 variant */
-        memcpy_s(BYTE(obj) + n*size, size, BYTE(obj) + k*size, size); /* djb-rwth: function replaced with its safe C11 variant */
-        memcpy_s(BYTE(obj) + k*size, size, temp, size); /* djb-rwth: function replaced with its safe C11 variant */
-#else
         memcpy(temp, BYTE(obj) + n * size, size);
         memcpy(BYTE(obj) + n * size, BYTE(obj) + k * size, size);
         memcpy(BYTE(obj) + k * size, temp, size);
-#endif
     }
 #ifdef _WIN32
     _free_dbg(temp, _NORMAL_BLOCK); /* djb-rwth: _free_dbg for _malloc_dbg must be used if Windows SDK is used */
@@ -1492,11 +1462,7 @@ void OrigAtData_Permute(ORIG_ATOM_DATA* permuted, ORIG_ATOM_DATA* saved, int* nu
     for (i = 0; i < nat; i++)
     {
         j = numbers[i];
-#if USE_BCF
-        memcpy_s(permuted->at + j, atsize + 1, saved->at + i, atsize); /* djb-rwth: function replaced with its safe C11 variant */
-#else
         memcpy(permuted->at + j, saved->at + i, atsize);
-#endif
         for (k = 0; k < permuted->at[j].valence; k++)
         {
             permuted->at[j].neighbor[k] = numbers[permuted->at[j].neighbor[k]];
