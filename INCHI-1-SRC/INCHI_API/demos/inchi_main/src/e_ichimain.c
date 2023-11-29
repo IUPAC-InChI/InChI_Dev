@@ -110,15 +110,6 @@ int e_MakeOutputHeader( char *pSdfLabel, char *pSdfValue, long lSdfId, long num_
 static int e_bEnableCmdlineOption( char *szCmdLine, const char *szOption, int bEnable );
 
 
-
-/* JHJ crap 1 */
-void jhj_init_inchi_input(inchi_Input* i, int atom_count, int is_chiral);
-void jhj_calc_inchi();
-void jhj_calc_molfile();
-void jhj_main();
-
-
-
 /*  Console-specific */
 /*****************************************************************
  *
@@ -237,11 +228,6 @@ static int e_bEnableCmdlineOption( char *szCmdLine, const char *szOption, int bE
 /****************************************************************************/
 int main( int argc, char *argv[] )
 {
-
-    /* JHJ crap 2
-    printf("\nv.1.07 - JHJ BLOCK:\n");
-    jhj_main();
-    printf("\n"); */
 
     STRUCT_DATA struct_data;
     STRUCT_DATA *sd = &struct_data;
@@ -1096,105 +1082,3 @@ int e_MakeOutputHeader(char* pSdfLabel,
 }
 
 #endif /*#ifndef CREATE_INCHI_STEP_BY_STEP */
-
-
-
-/* JHJ crap 3 */
-
-void jhj_init_inchi_input(inchi_Input* i, int atom_count, int is_chiral)
-{
-    i->num_atoms = atom_count;
-    i->atom = malloc(atom_count * sizeof(inchi_Atom));
-
-    if (is_chiral == 1)
-        i->szOptions = "/WarnOnEmptyStructure /ChiralFlagON";
-    else
-        i->szOptions = "/WarnOnEmptyStructure /ChiralFlagOFF";
-}
-
-void jhj_calc_inchi()
-{
-    InchiInpData m_input_data;
-    inchi_Input m_input_inchi;
-    inchi_Output m_output;
-
-    memset(&m_input_data, 0, sizeof(m_input_data));
-    memset(&m_input_inchi, 0, sizeof(m_input_inchi));
-    memset(&m_output, 0, sizeof(m_output));
-
-    m_input_data.pInp = &m_input_inchi;
-
-    jhj_init_inchi_input(&m_input_inchi, 2, 0);
-    m_input_inchi.atom[0].elname[0] = 'C';
-    m_input_inchi.atom[0].num_bonds = 1;
-    m_input_inchi.atom[0].neighbor[0] = 1;
-    m_input_inchi.atom[0].bond_type[0] = 1;
-    m_input_inchi.atom[0].num_iso_H[0] = -1;
-
-    m_input_inchi.atom[1].elname[0] = 'S';
-    m_input_inchi.atom[1].num_bonds = 1;
-    m_input_inchi.atom[1].neighbor[0] = 0;
-    m_input_inchi.atom[1].bond_type[0] = 1;
-    m_input_inchi.atom[1].num_iso_H[0] = -1;
-
-    int rc = GetINCHI(&m_input_inchi, &m_output);
-    printf("GetINCHI()     rc = %d\n", rc);
-    printf("InChI string : %s\n", m_output.szInChI);
-    printf("AuxInfo      : %s\n", m_output.szAuxInfo);
-    FreeINCHI(&m_output);
-    Free_inchi_Input(&m_input_inchi);
-}
-
-void jhj_calc_molfile()
-{
-    InchiInpData m_input_data;
-    inchi_Input m_input_inchi;
-    inchi_Output m_output;
-
-    memset(&m_input_data, 0, sizeof(m_input_data));
-    memset(&m_input_inchi, 0, sizeof(m_input_inchi));
-    memset(&m_output, 0, sizeof(m_output));
-
-    m_input_data.pInp = &m_input_inchi;
-    char text_input[512] = "InChI=1S/CH4S/c1-2/h2H,1H3\nAuxInfo=1/0/N:1,2/rA:2nCS/rB:s1;/rC:-4.2134,-3.4179,0;-3.4989,-3.8304,0;";
-
-    int rc = Get_inchi_Input_FromAuxInfo(text_input, 0, 0, &m_input_data);
-    printf("Get_inchi_Input_FromAuxInfo()    rc = %d\n", rc);
-
-    int output_chiral_flag = 0;
-    output_chiral_flag = m_input_data.bChiral;
-
-    if (output_chiral_flag == 1)
-        m_input_inchi.szOptions = "-WarnOnEmptyStructure -OutputSDF -SUCF -ChiralFlagON";
-    else if (output_chiral_flag == 2)
-        m_input_inchi.szOptions = "-WarnOnEmptyStructure -OutputSDF -SUCF -ChiralFlagOFF";
-    else
-        m_input_inchi.szOptions = "-WarnOnEmptyStructure -OutputSDF";
-
-    rc = GetINCHI(&m_input_inchi, &m_output);
-
-    printf("GetINCHI()     rc = %d\n", rc);
-    printf("SDF record:\n%s", m_output.szInChI);
-
-    /* FreeINCHI(&m_output);
-    Free_inchi_Input(&m_input_inchi);*/
-}
-
-void jhj_main()
-{
-    jhj_calc_inchi();
-    jhj_calc_molfile();
-    
-        int i;
-
-        for (i = 1; i <= 5; ++i) {
-            printf("Calc InChI; Loop %d:\n", i);
-            jhj_calc_inchi();
-        }
-
-        for (i = 1; i <= 5; ++i) {
-            printf("Calc molfile; Loop %d:\n", i);
-            jhj_calc_molfile();
-        }
-    
-}
