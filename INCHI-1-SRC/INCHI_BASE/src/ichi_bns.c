@@ -930,11 +930,7 @@ int AddOrRemoveExplOrImplH( int nDelta,
     */
 
     at_H = at + num_atoms;
-#if USE_BCF
-    memcpy_s( num_iso_H, sizeof(num_iso_H), at[at_no].num_iso_H, sizeof( num_iso_H ) ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
     memcpy(num_iso_H, at[at_no].num_iso_H, sizeof(num_iso_H));
-#endif
     /*  Remove all explicit H, otherwise a false stereo can occur.
     Example: remove H(+) from the following substructure:
 
@@ -958,11 +954,7 @@ int AddOrRemoveExplOrImplH( int nDelta,
             if (nNumRemovedExplicitH > i)
             {
                 inp_ATOM at_i = at_H[i];
-#if USE_BCF
-                memmove_s( at_H + i, sizeof(at_H[0])*((long long)nNumRemovedExplicitH - i) + i, at_H + i + 1, sizeof(at_H[0]) * ((long long)nNumRemovedExplicitH - i)); /* djb-rwth: cast operator added; function replaced with its safe C11 variant */
-#else
                 memmove(at_H + i, at_H + i + 1, sizeof(at_H[0]) * ((long long)nNumRemovedExplicitH - i)); /* djb-rwth: cast operator added */
-#endif
                 at_H[nNumRemovedExplicitH] = at_i; /* save removed H (for debugging purposes?) */
             }
             /* Adjust 0D parities */
@@ -1045,11 +1037,7 @@ int AddOrRemoveExplOrImplH( int nDelta,
     if (nDelta + nNum2Remove < 0)
     {
         at[at_no].num_H = num_H;
-#if USE_BCF
-        memcpy_s( at[at_no].num_iso_H, sizeof(at[0].num_iso_H), num_iso_H, sizeof(at[0].num_iso_H)); /* djb-rwth: function replaced with its safe C11 variant */
-#else
         memcpy(at[at_no].num_iso_H, num_iso_H, sizeof(at[0].num_iso_H));
-#endif
         t_group_info->tni.nNumRemovedExplicitH = nNumRemovedExplicitH;
     }
 
@@ -2231,11 +2219,7 @@ int fix_special_bonds( BN_STRUCT *pBNS,
         for (b = el; (e = strchr( b, ';' )); b = e + 1) /* djb-rwth: addressing LLVM warning */
         {
             len = (int) ( e - b );
-#if USE_BCF
-            memcpy_s( elname, len + 1, b, len ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
             memcpy(elname, b, len);
-#endif
             elname[len] = '\0';
             en[ne2++] = get_periodic_table_number( elname );
         }
@@ -5576,11 +5560,7 @@ int mark_alt_bonds_and_taut_groups( struct tagINCHI_CLOCK   *ic,
                     /* Copy modified initial tautomeric structure for displaying
                     Warning: implicit H counts in at_fixed_bonds_out include explicit Hs */
 
-#if USE_BCF
-                    memcpy_s( at_fixed_bonds_out, sizeof(at_fixed_bonds_out[0])*nNumOrigTotAtoms + 1, at, nNumOrigTotAtoms * sizeof(at_fixed_bonds_out[0])); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                     memcpy(at_fixed_bonds_out, at, nNumOrigTotAtoms * sizeof(at_fixed_bonds_out[0]));
-#endif
 
                     /* -- will be done in FillOutInputInfAtom() --
                     RemoveExcessiveImplicitH( num_atoms, t_group_info->tni.nNumRemovedExplicitH, at_fixed_bonds_out );
@@ -6060,11 +6040,7 @@ exit_function:
         }
         if (at_fixed_bonds_out)
         {
-#if USE_BCF
-            memcpy_s( at_fixed_bonds_out, sizeof(at_fixed_bonds_out[0])*num_atoms + 1, at, num_atoms * sizeof(at_fixed_bonds_out[0])); /* djb-rwth: function replaced with its safe C11 variant */
-#else
             memcpy(at_fixed_bonds_out, at, num_atoms * sizeof(at_fixed_bonds_out[0]));
-#endif
         }
         /*num_atoms --;*/
     }

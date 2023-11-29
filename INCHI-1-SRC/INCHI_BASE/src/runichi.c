@@ -558,11 +558,7 @@ int OrigAtData_SaveMolfile( ORIG_ATOM_DATA  *orig_inp_data,
     else
     {
         char szNumber[256];
-#if USE_BCF
-        sprintf_s( szNumber, sizeof(szNumber), "Structure #%ld. %s%s%s%s", num_inp, SDF_LBL_VAL(ip->pSdfLabel, ip->pSdfValue)); /* djb-rwth: function replaced with its safe C11 variant */
-#else
         sprintf(szNumber, "Structure #%ld. %s%s%s%s", num_inp, SDF_LBL_VAL(ip->pSdfLabel, ip->pSdfValue));
-#endif
         ret = OrigAtData_WriteToSDfile( orig_inp_data, out_file, szNumber, NULL,
                                         ( sd->bChiralFlag&FLAG_INP_AT_CHIRAL ) ? 1 : 0,
                                         ( ip->bINChIOutputOptions&INCHI_OUT_SDFILE_ATOMS_DT ) ? 1 : 0,
@@ -1149,17 +1145,9 @@ int CreateOneStructureINChI( CANON_GLOBALS          *pCG,
             PINChI_Aux2* newPTR2 = (PINChI_Aux2*)inchi_calloc( ((long long)cur_prep_inp_data->num_components)+1, sizeof(PINChI_Aux2) );
             if ( newPTR1 && newPTR2 ) {
                 if ( (pINChI2[iINChI]) && (sd->num_components[iINChI]) > 0 )
-#if USE_BCF
-                    memcpy_s( newPTR1, sizeof(PINChI2)*(sd->num_components[iINChI]) + 1, pINChI2[iINChI], (sd->num_components[iINChI]) * sizeof(PINChI2) );
-#else
                     memcpy(newPTR1, pINChI2[iINChI], (sd->num_components[iINChI]) * sizeof(PINChI2));
-#endif
                 if ((pINChI_Aux2[iINChI]) && (sd->num_components[iINChI]) > 0)
-#if USE_BCF
-                    memcpy_s(newPTR2, sizeof(PINChI_Aux2) * (sd->num_components[iINChI])+1, pINChI_Aux2[iINChI], (sd->num_components[iINChI]) * sizeof(PINChI_Aux2));
-#else
                     memcpy(newPTR2, pINChI_Aux2[iINChI], (sd->num_components[iINChI]) * sizeof(PINChI_Aux2));
-#endif
                 if (pINChI2[iINChI])
                     inchi_free(pINChI2[iINChI]);
                 if (pINChI_Aux2[iINChI])
@@ -1231,13 +1219,8 @@ int CreateOneStructureINChI( CANON_GLOBALS          *pCG,
                     /* Yes, we have already done this */
                     if (!n++)
                     {
-#if USE_BCF
-                        memcpy_s( pINChI + i, sizeof(pINChI[0]) + 1, pINChI2[m] + j, sizeof(pINChI[0])); /* djb-rwth: function replaced with its safe C11 variant */
-                        memcpy_s( pINChI_Aux + i, sizeof(pINChI_Aux[0]) + 1, pINChI_Aux2[m] + j, sizeof(pINChI_Aux[0])); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                         memcpy(pINChI + i, pINChI2[m] + j, sizeof(pINChI[0]));
                         memcpy(pINChI_Aux + i, pINChI_Aux2[m] + j, sizeof(pINChI_Aux[0]));
-#endif
                         for (k = 0; k < TAUT_NUM; k++)
                         {
                             if (pINChI[i][k])
@@ -1333,27 +1316,15 @@ int CreateOneStructureINChI( CANON_GLOBALS          *pCG,
         {
             if (cur_prep_inp_data->num_components == 1)
             {
-#if USE_BCF
-                sprintf_s( szTitle, 256, "%sInput Structure #%ld.%s%s%s%s%s",
-                                  bStructurePreprocessed ? "Preprocessed " : "",
-                                  num_inp, SDF_LBL_VAL( ip->pSdfLabel, ip->pSdfValue ), iINChI ? " (Reconnected)" : "" ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                 sprintf(szTitle, "%sInput Structure #%ld.%s%s%s%s%s",
                     bStructurePreprocessed ? "Preprocessed " : "",
                     num_inp, SDF_LBL_VAL(ip->pSdfLabel, ip->pSdfValue), iINChI ? " (Reconnected)" : "");
-#endif
             }
             else
             {
-#if USE_BCF
-                sprintf_s( szTitle, 256, "Component #%d of %d, Input Structure #%ld.%s%s%s%s%s",
-                                  i + 1, cur_prep_inp_data->num_components,
-                                  num_inp, SDF_LBL_VAL( ip->pSdfLabel, ip->pSdfValue ), iINChI ? " (Reconnected)" : "" ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                 sprintf(szTitle, "Component #%d of %d, Input Structure #%ld.%s%s%s%s%s",
                     i + 1, cur_prep_inp_data->num_components,
                     num_inp, SDF_LBL_VAL(ip->pSdfLabel, ip->pSdfValue), iINChI ? " (Reconnected)" : "");
-#endif
             }
 
 #if defined (TARGET_EXE_STANDALONE) && defined(_WIN32)
@@ -1496,39 +1467,21 @@ int CreateOneStructureINChI( CANON_GLOBALS          *pCG,
                             /*  Added number of components, added another format for a single component case - DCh */
                             if (cur_prep_inp_data->num_components > 1)
                             {
-#if USE_BCF
-                                sprintf_s( szTitle, 256, "%s Component #%d of %d, Structure #%ld%s%s.%s%s%s%s%s",
-                                              bFixedBondsTaut ? "Preprocessed" : "Result for",
-                                              i + 1, cur_prep_inp_data->num_components, num_inp,
-                                              bDisplayTaut == 1 ? ", mobile H" : bDisplayTaut == 0 ? ", fixed H" : "",
-                                              bIsotopic ? ", isotopic" : "",
-                                              SDF_LBL_VAL( ip->pSdfLabel, ip->pSdfValue ), iINChI ? " (Reconnected)" : "" ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                                 sprintf(szTitle, "%s Component #%d of %d, Structure #%ld%s%s.%s%s%s%s%s",
                                     bFixedBondsTaut ? "Preprocessed" : "Result for",
                                     i + 1, cur_prep_inp_data->num_components, num_inp,
                                     bDisplayTaut == 1 ? ", mobile H" : bDisplayTaut == 0 ? ", fixed H" : "",
                                     bIsotopic ? ", isotopic" : "",
                                     SDF_LBL_VAL(ip->pSdfLabel, ip->pSdfValue), iINChI ? " (Reconnected)" : "");
-#endif
                             }
                             else
                             {
-#if USE_BCF
-                                sprintf_s( szTitle, 256, "%s Structure #%ld%s%s.%s%s%s%s%s",
-                                              bFixedBondsTaut ? "Preprocessed" : "Result for",
-                                              num_inp,
-                                              bDisplayTaut == 1 ? ", mobile H" : bDisplayTaut == 0 ? ", fixed H" : "",
-                                              bIsotopic ? ", isotopic" : "",
-                                              SDF_LBL_VAL( ip->pSdfLabel, ip->pSdfValue ), iINChI ? " (Reconnected)" : "" ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                                 sprintf(szTitle, "%s Structure #%ld%s%s.%s%s%s%s%s",
                                     bFixedBondsTaut ? "Preprocessed" : "Result for",
                                     num_inp,
                                     bDisplayTaut == 1 ? ", mobile H" : bDisplayTaut == 0 ? ", fixed H" : "",
                                     bIsotopic ? ", isotopic" : "",
                                     SDF_LBL_VAL(ip->pSdfLabel, ip->pSdfValue), iINChI ? " (Reconnected)" : "");
-#endif
                             }
 
 #if defined (TARGET_EXE_STANDALONE) && defined(_WIN32)
@@ -2624,23 +2577,14 @@ int OAD_StructureEdits_Apply( STRUCT_DATA *sd,
             /* Atom to keep; copy it */ 
             new_at0 = new_at + nacc;
             ++nacc;
-#if USE_BCF
-            memcpy_s(new_at0, sizeof(new_at[0]) + 1, orig_at_data->at + i, sizeof(new_at[0])); /* djb-rwth: function replaced with its safe C11 variant */
-#else
             memcpy(new_at0, orig_at_data->at + i, sizeof(new_at[0]));
-#endif
             /* Correct its own number(s) */
             new_at0->orig_at_number = new_num + 1;
             
             /* Correct its nbr number(s) */
             valen = new_at0->valence;
-#if USE_BCF
-            memcpy_s(nbr0, sizeof(AT_NUMB)*valen + 1, new_at0->neighbor, valen*sizeof(AT_NUMB)); /* djb-rwth: function replaced with its safe C11 variant */
-            memcpy_s(btype0, valen + 1, new_at0->bond_type, valen);
-#else
             memcpy(nbr0, new_at0->neighbor, valen * sizeof(AT_NUMB));
             memcpy(btype0, new_at0->bond_type, valen);
-#endif
             memset(new_at0->neighbor, 0, valen); /* djb-rwth: memset_s C11/Annex K variant? */
             for (m = 0, macc=0; m < valen; m++)
             {
@@ -2695,11 +2639,7 @@ int OAD_StructureEdits_Apply( STRUCT_DATA *sd,
                 {
                     if (u->alist)
                     {
-#if USE_BCF
-                        memcpy_s(ibuf, sizeof(ibuf[0])*(u->na) + 1, u->alist, u->na * sizeof(ibuf[0])); /* djb-rwth: memset_s C11/Annex K variant? */
-#else
                         memcpy(ibuf, u->alist, u->na * sizeof(ibuf[0]));
-#endif
                         new_na = set_renumbered_or_delete(u->alist, ibuf, u->na, at_renum, 1);
                         if (new_na == -1)
                         {
@@ -2710,11 +2650,7 @@ int OAD_StructureEdits_Apply( STRUCT_DATA *sd,
                     }
                     if (u->blist)
                     {
-#if USE_BCF
-                        memcpy_s(ibuf, sizeof(int)*(2*(long long)(u->nb)) + 1, u->blist, 2*(long long)u->nb * sizeof(int)); /* djb-rwth: cast operator added */
-#else
                         memcpy(ibuf, u->blist, 2 * (long long)u->nb * sizeof(int)); /* djb-rwth: cast operator added */
-#endif
                         new_nb = set_renumbered_or_delete(u->blist, ibuf, 2*u->nb, at_renum, 1);
                         new_nb /= 2;
                         if (new_nb == -1)
@@ -2734,11 +2670,7 @@ int OAD_StructureEdits_Apply( STRUCT_DATA *sd,
                             int bnd[2];
                             bnd[0] = u->bkbonds[b][0];
                             bnd[1] = u->bkbonds[b][1];
-#if USE_BCF
-                            memcpy_s(ibuf, sizeof(ibuf[0])*2 + 1, bnd, 2 * sizeof(ibuf[0])); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                             memcpy(ibuf, bnd, 2 * sizeof(ibuf[0]));
-#endif
                             memset(u->bkbonds[b], 0, 2 * sizeof(u->bkbonds[0][0])); /* djb-rwth: memset_s C11/Annex K variant? */
                             new_bb = set_renumbered_or_delete(bnd, ibuf, 2, at_renum, 1);
                             if (new_bb == -1)
@@ -2814,11 +2746,7 @@ int set_renumbered_or_delete( int *number,	/* numbers to correct */
                               int base)
 {
     int i, new_nelems;
-#if USE_BCF
-    memcpy_s(buf, sizeof(int)*nelems + 1, number, nelems*sizeof(int)); /* djb-rwth: function replaced with its safe C11 variant */
-#else
     memcpy(buf, number, nelems * sizeof(int));
-#endif
     memset(number, 0, nelems * sizeof(int)); /* djb-rwth: memset_s C11/Annex K variant? */
     for (i = 0, new_nelems = 0; i < nelems; i++)
     {

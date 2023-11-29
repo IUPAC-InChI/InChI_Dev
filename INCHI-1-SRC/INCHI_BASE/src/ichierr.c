@@ -80,20 +80,12 @@ const char *ErrMsg( int nErrorCode )
         default:
             if (nErrorCode > CT_UNKNOWN_ERR)
             {
-#if USE_BCF
-                sprintf_s( szErrMsg, sizeof(szErrMsg), "No description(%d)", nErrorCode );
-#else
                 sprintf(szErrMsg, "No description(%d)", nErrorCode);
-#endif
                 p = szErrMsg;
             }
             else
             {
-#if USE_BCF
-                sprintf_s( szErrMsg, sizeof(szErrMsg), "UNKNOWN_ERR(%d)", CT_UNKNOWN_ERR - nErrorCode );
-#else
                 sprintf(szErrMsg, "UNKNOWN_ERR(%d)", CT_UNKNOWN_ERR - nErrorCode);
-#endif
                 p = szErrMsg;
             }
             break;
@@ -135,23 +127,11 @@ int AddErrorMessage( char *all_messages, const char *new_message )
         {
             if (all_messages[len_all - 1] != ':')
             {
-#if USE_BCF
-                strcat_s(all_messages, strlen(all_messages) + 4, ";"); /* djb-rwth: function replaced with its safe C11 variant -- maximum buffer size used STR_ERR_LEN */
-#else
                 strcat(all_messages, ";");
-#endif
             }
-#if USE_BCF
-            strcat_s( all_messages, strlen(all_messages) + 4, " "); /* djb-rwth: function replaced with its safe C11 variant -- maximum buffer size used STR_ERR_LEN */
-#else
             strcat(all_messages, " ");
-#endif
         }
-#if USE_BCF
-        strcat_s( all_messages, strlen(all_messages) + strlen(new_message) + 3, new_message); /* djb-rwth: function replaced with its safe C11 variant -- maximum buffer size used STR_ERR_LEN */
-#else
         strcat(all_messages, new_message);
-#endif
         return 1;
     }
 
@@ -162,11 +142,7 @@ int AddErrorMessage( char *all_messages, const char *new_message )
     }
     if (len_all + 3 < STR_ERR_LEN)
     {
-#if USE_BCF
-        strcat_s( all_messages, strlen(all_messages) + 6, "..." ); /* djb-rwth: function replaced with its safe C11 variant -- maximum buffer size used STR_ERR_LEN */
-#else
         strcat(all_messages, "...");
-#endif
     }
 
     return 0;

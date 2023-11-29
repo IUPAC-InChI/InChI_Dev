@@ -778,11 +778,7 @@ int  FillOutExtraFixedHDataRestr( StrFromINChI *pStruct )
 
             INCHI_HEAPCHK
 
-#if USE_BCF
-                memcpy_s( pStruct->nCanon2Atno[i], (long long)len + 1, pNum, len ); /* ??? the next for(...) fills it out */ /* djb-rwth: function replaced with its safe C11 variant */
-#else
                 memcpy(pStruct->nCanon2Atno[i], pNum, len); /* ??? the next for(...) fills it out */
-#endif
 
             INCHI_HEAPCHK
 
@@ -851,11 +847,7 @@ int  FillOutExtraFixedHDataInChI( StrFromINChI *pStruct, INChI *pInChI[] )
     GetTgroupInfoFromInChI( &pStruct->ti, NULL, pStruct->endpoint, pInChI[1] );
     if (pInChI[0]->nNum_H_fixed)
     {
-#if USE_BCF
-        memcpy_s( pStruct->fixed_H, sizeof(pStruct->fixed_H[0])*(pStruct->num_atoms) + 1, pInChI[0]->nNum_H_fixed, pStruct->num_atoms * sizeof( pStruct->fixed_H[0] ) ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
         memcpy(pStruct->fixed_H, pInChI[0]->nNum_H_fixed, pStruct->num_atoms * sizeof(pStruct->fixed_H[0]));
-#endif
     }
     else
     {
@@ -1358,11 +1350,7 @@ int NormalizeAndCompare( CANON_GLOBALS *pCG,
                 if (ctmp != NULL) /* djb-rwth: NULL pointer must not be assigned to pStruct->pOneINChI[iRevrInChI]->szHillFormula */
                     pStruct->pOneINChI[iRevrInChI]->szHillFormula = ctmp;
             }
-#if USE_BCF
-            strcpy_s(pStruct->pOneINChI[iRevrInChI]->szHillFormula, strlen(strbuf->pStr) + 1, strbuf->pStr); /* djb-rwth: function replaced with its safe C11 variant */
-#else
             strcpy(pStruct->pOneINChI[iRevrInChI]->szHillFormula, strbuf->pStr);
-#endif
             inchi_strbuf_close(strbuf);
         }
     }
@@ -1706,11 +1694,7 @@ int CheckAndRefixStereobonds( BN_STRUCT *pBNS, BN_DATA *pBD, StrFromINChI *pStru
     ret = 0;
 
     /* to simplify, prepare new at[] from pBNS */
-#if USE_BCF
-    memcpy_s( at2, sizeof(at2[0])*len_at + 1, at, len_at * sizeof( at2[0] ) ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
     memcpy(at2, at, len_at * sizeof(at2[0]));
-#endif
     pStruct->at = at2;
     ret2 = CopyBnsToAtom( pStruct, pBNS, pVA, pTCGroups, 1 );
     pStruct->at = at;
@@ -1915,11 +1899,7 @@ int MoveChargeToRemoveCenerpoints( BN_STRUCT *pBNS,
 
 
     /* to simplify, prepare new at[] from pBNS */
-#if USE_BCF
-    memcpy_s( at2, sizeof(at2[0])*len_at + 1, at, len_at * sizeof( at2[0] ) ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
     memcpy(at2, at, len_at * sizeof(at2[0]));
-#endif
     pStruct->at = at2;
     ret2 = CopyBnsToAtom( pStruct, pBNS, pVA, pTCGroups, 1 );
     pStruct->at = at;
@@ -2239,11 +2219,7 @@ int MakeSingleBondsMetal2ChargedHeteroat( BN_STRUCT *pBNS,
     ret = 0;
 
     /* to simplify, prepare new at[] from pBNS */
-#if USE_BCF
-    memcpy_s( at2, sizeof(at2[0])*len_at + 1, at, len_at * sizeof( at2[0] ) ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
     memcpy(at2, at, len_at * sizeof(at2[0]));
-#endif
     pStruct->at = at2;
     ret2 = CopyBnsToAtom( pStruct, pBNS, pVA, pTCGroups, 1 );
     pStruct->at = at;
@@ -2319,11 +2295,7 @@ int MakeSingleBondsMetal2ChargedHeteroat( BN_STRUCT *pBNS,
     }
 
     /* restore the initial structures */
-#if USE_BCF
-    memcpy_s( at2, sizeof(at2[0])*((long long)num_at + (long long)num_deleted_H) + 1, at, ( (long long)num_at + (long long)num_deleted_H ) * sizeof( at2[0] ) ); /* djb-rwth: cast operators added; function replaced with its safe C11 variant */
-#else
     memcpy(at2, at, ((long long)num_at + (long long)num_deleted_H) * sizeof(at2[0])); /* djb-rwth: cast operators added */
-#endif
 
     if (nNumEdgesToFix && pFixedEdges)
     {
@@ -2436,11 +2408,7 @@ int SaltBondsToCoordBonds( BN_STRUCT *pBNS,
     }
 
     /* to simplify, prepare new at[] from pBNS */
-#if USE_BCF
-    memcpy_s( at2, sizeof(at2[0])*len_at + 1, at, len_at * sizeof( at2[0] ) ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
     memcpy(at2, at, len_at * sizeof(at2[0]));
-#endif
     pStruct->at = at2;
     ret2 = CopyBnsToAtom( pStruct, pBNS, pVA, pTCGroups, 1 );
     pStruct->at = at;
@@ -3271,11 +3239,7 @@ int RestoreAtomMakeBNS( INCHI_CLOCK *ic, CANON_GLOBALS *pCG,
         at[0].charge = pInChI[0]->nTotalCharge;
         if (at2)
         {
-#if USE_BCF
-            memcpy_s( at2, sizeof(at2[0])*((long long)pStruct->num_atoms + (long long)pStruct->num_deleted_H) + 1, at, sizeof( at2[0] )*( (long long)pStruct->num_atoms + (long long)pStruct->num_deleted_H ) ); /* djb-rwth: cast operators added; function replaced with its safe C11 variant */
-#else
             memcpy(at2, at, sizeof(at2[0]) * ((long long)pStruct->num_atoms + (long long)pStruct->num_deleted_H)); /* djb-rwth: cast operators added */
-#endif
         }
         if (!at2 || !at3)
         {
@@ -3479,11 +3443,7 @@ repeat_for_new_metals:
     {  /* create the final structure in pStruct->at2 */
         inp_ATOM *at_tmp = pStruct->at;
         pStruct->at = pStruct->at2;
-#if USE_BCF
-        memcpy_s( pStruct->at, ((long long)pStruct->num_atoms + (long long)pStruct->num_deleted_H)*sizeof(pStruct->at[0]) + 1, at_tmp, sizeof( pStruct->at[0] )*( (long long)pStruct->num_atoms + (long long)pStruct->num_deleted_H ) ); /* djb-rwth: cast operators added; function replaced with its safe C11 variant */
-#else
         memcpy(pStruct->at, at_tmp, sizeof(pStruct->at[0])* ((long long)pStruct->num_atoms + (long long)pStruct->num_deleted_H)); /* djb-rwth: cast operators added */
-#endif
         ret2 = CopyBnsToAtom( pStruct, pBNS, pVA, pTCGroups, 1 );
         pStruct->at2 = pStruct->at;
         pStruct->at = at_tmp;
@@ -3637,11 +3597,7 @@ int MakeProtonComponent( StrFromINChI *pStruct, int iComponent, int num_prot )
         */
         at[i].charge = 1;
     }
-#if USE_BCF
-    memcpy_s( pStruct->at2, sizeof(pStruct->at2[0])*num_prot, at, num_prot * sizeof( pStruct->at2[0] ) ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
     memcpy(pStruct->at2, at, num_prot * sizeof(pStruct->at2[0]));
-#endif
     pStruct->bDeleted = 0;
     pStruct->num_atoms = num_prot;
     pStruct->bMobileH = TAUT_YES;
@@ -3879,11 +3835,7 @@ int AddRemIsoProtonsInRestrStruct( INCHI_CLOCK *ic,
     ip_loc = *ip_inp;
     ip = &ip_loc;
 
-#if USE_BCF
-    memcpy_s( num_prot, sizeof(num_prot), pProtonBalance, sizeof( num_prot ) ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
     memcpy(num_prot, pProtonBalance, sizeof(num_prot));
-#endif
     for (bNotEmpty = 0, k = 0; k < NUM_H_ISOTOPES; k++)
     {
         bNotEmpty |= num_prot[k];
@@ -3943,11 +3895,7 @@ int AddRemIsoProtonsInRestrStruct( INCHI_CLOCK *ic,
         pINChI_Aux = pStruct[iComp].RevInChI.pINChI_Aux[q][0][TAUT_YES]; /* 0 = 1st component in RevInChI */
         /* djb-rwth: removing redundant code */
         num_tg = pINChI_Aux->nNumberOfTGroups;
-#if USE_BCF
-        memcpy_s( num_prot_prev, sizeof(num_prot_prev) + 1, num_prot, sizeof( num_prot_prev ) ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
         memcpy(num_prot_prev, num_prot, sizeof(num_prot_prev));
-#endif
 
         /* pass CONNECTED explicit H to AddRemoveIsoProtonsRestr() for isotopic H addition */
         ret = AddRemoveIsoProtonsRestr( at, num_atoms, num_prot, num_tg );
@@ -4001,18 +3949,10 @@ int AddRemIsoProtonsInRestrStruct( INCHI_CLOCK *ic,
         }
     }
 
-#if USE_BCF
-    memcpy_s( pProtonBalance, sizeof(num_prot) + 1, num_prot, sizeof( num_prot ) ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
     memcpy(pProtonBalance, num_prot, sizeof(num_prot));
-#endif
     if (recmet_change_balance)
     {
-#if USE_BCF
-        memcpy_s( recmet_change_balance, sizeof(delta_recmet_prot) + 1, delta_recmet_prot, sizeof(delta_recmet_prot)); /* djb-rwth: function replaced with its safe C11 variant */
-#else
         memcpy(recmet_change_balance, delta_recmet_prot, sizeof(delta_recmet_prot));
-#endif
     }
 
 exit_function:

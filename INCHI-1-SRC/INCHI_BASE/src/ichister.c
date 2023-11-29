@@ -1970,19 +1970,11 @@ int FixSb0DParities( inp_ATOM *at,
                 }
                 if (bWrong_z_dir1)
                 {
-#if USE_BCF
-                    memcpy_s( z_dir1, sizeof(z_dir) + 1, z_dir, sizeof( z_dir ) ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                     memcpy(z_dir1, z_dir, sizeof(z_dir));
-#endif
                 }
                 else
                 {
-#if USE_BCF
-                    memcpy_s( z_dir2, sizeof(z_dir) + 1, z_dir, sizeof( z_dir ) ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                     memcpy(z_dir2, z_dir, sizeof(z_dir));
-#endif
                 }
             }
         }
@@ -2414,11 +2406,7 @@ int half_stereo_bond_parity( inp_ATOM *at,
     for (j = 0; j < 3; j++)
     {
         /* copy3(at_coord[j], temp);-- djb-rwth: removing copy3 function */
-#if USE_BCF
-        memcpy_s(temp, sizeof(at_coord[j]), at_coord[j], sizeof(at_coord[j]));
-#else
         memcpy(temp, at_coord[j], sizeof(at_coord[j]));
-#endif
         for (k = 0; k < 3; k++)
         {
             at_coord[j][k] = dot_prod3( temp, pnt[( k + p0 ) % 3] );
@@ -3601,21 +3589,13 @@ int set_stereo_bonds_parity( sp_ATOM *out_at,
                          (cur_parity_defined && !ATOM_PARITY_WELL_DEF( abs( out_at[at_1].parity )) )) /* djb-rwth: addressing LLVM warning */
                     {
                         out_at[at_1].parity = cur_parity;
-#if USE_BCF
-                        memcpy_s( out_at[at_1].z_dir, sizeof(out_at[0].z_dir) + 1, z_dir1, sizeof(out_at[0].z_dir)); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                         memcpy(out_at[at_1].z_dir, z_dir1, sizeof(out_at[0].z_dir));
-#endif
                     }
                     if (!out_at[at_2].parity ||
                          (next_parity_defined && !ATOM_PARITY_WELL_DEF( abs( out_at[at_2].parity )) )) /* djb-rwth: addressing LLVM warning */
                     {
                         out_at[at_2].parity = next_parity;
-#if USE_BCF
-                        memcpy_s( out_at[at_2].z_dir, sizeof(out_at[0].z_dir) + 1, z_dir2, sizeof(out_at[0].z_dir)); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                         memcpy(out_at[at_2].z_dir, z_dir2, sizeof(out_at[0].z_dir));
-#endif
                     }
                     out_at[at_1].bAmbiguousStereo |= at[at_1].bAmbiguousStereo;
                     out_at[at_2].bAmbiguousStereo |= at[at_2].bAmbiguousStereo;
@@ -3649,11 +3629,7 @@ int set_stereo_bonds_parity( sp_ATOM *out_at,
                         out_at[at_1].parity2 = cur_parity /*| chain_len_bits*/;
                         if (!out_at[at_1].parity)
                         {
-#if USE_BCF
-                            memcpy_s( out_at[at_1].z_dir, sizeof(out_at[0].z_dir), z_dir1, sizeof(out_at[0].z_dir)); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                             memcpy(out_at[at_1].z_dir, z_dir1, sizeof(out_at[0].z_dir));
-#endif
                         }
                     }
                     if (!out_at[at_2].parity2 || /* next line changed from abs(out_at[at_2].parity) 2006-03-05 */
@@ -3662,11 +3638,7 @@ int set_stereo_bonds_parity( sp_ATOM *out_at,
                         out_at[at_2].parity2 = next_parity /*| chain_len_bits*/;
                         if (!out_at[at_2].parity)
                         {
-#if USE_BCF
-                            memcpy_s( out_at[at_2].z_dir, sizeof(out_at[0].z_dir), z_dir2, sizeof(out_at[0].z_dir)); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                             memcpy(out_at[at_2].z_dir, z_dir2, sizeof(out_at[0].z_dir));
-#endif
                         }
                     }
                     out_at[at_1].bAmbiguousStereo |= at[at_1].bAmbiguousStereo;
@@ -4147,11 +4119,7 @@ int set_stereo_atom_parity( CANON_GLOBALS *pCG,
                 at_coord[j][2] = -sum_z;
                 */
                 /* copy3(sum_xyz, at_coord[j]); -- djb-rwth: removing copy3 function */
-#if USE_BCF
-                memcpy_s(at_coord[j], sizeof(sum_xyz) + 1, sum_xyz, sizeof(sum_xyz));
-#else
                 memcpy(at_coord[j], sum_xyz, sizeof(sum_xyz));
-#endif
                 change_sign3( at_coord[j], at_coord[j] );
                 z = len3( at_coord[j] );
 #if ( FIX_STEREO_SCALING_BUG == 1 )

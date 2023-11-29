@@ -138,11 +138,7 @@ int GetHillFormulaIndexLength( int count )
     char szCount[16];
     if (count > 1)
     {
-#if USE_BCF
-        return sprintf_s( szCount, sizeof(szCount), "%d", count ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
         return sprintf(szCount, "%d", count);
-#endif
     }
 
     return 0;
@@ -280,11 +276,7 @@ int AddElementAndCount( const char *szElement, int mult, char *szLinearCT, int n
     {
         if (mult > 1)
         {
-#if USE_BCF
-            len2 = sprintf_s( szMult, sizeof(szMult), "%d", mult); /* djb-rwth: function replaced with its safe C11 variant */
-#else
             len2 = sprintf(szMult, "%d", mult);
-#endif
         }
         else
         {
@@ -293,13 +285,8 @@ int AddElementAndCount( const char *szElement, int mult, char *szLinearCT, int n
         }
         if (len1 + len2 < nLenLinearCT)
         {
-#if USE_BCF
-            memcpy_s( szLinearCT, len1 + 1, szElement, len1 ); /* djb-rwth: function replaced with its safe C11 variant */
-            memcpy_s( szLinearCT + len1, (long long)len2 + 1, szMult, (long long)len2 + 1); /*  adding zero termination */ /* djb-rwth: added cast operator; function replaced with its safe C11 variant */
-#else
             memcpy(szLinearCT, szElement, len1);
             memcpy(szLinearCT + len1, szMult, (long long)len2 + 1); /*  adding zero termination */ /* djb-rwth: added cast operator */
-#endif
             return len1 + len2;
         }
         else
@@ -538,13 +525,8 @@ int Copy2StereoBondOrAllene( INChI_Stereo *Stereo,
 
             if (j < *nNumberOfStereoCenters)
             {
-#if USE_BCF
-                memmove_s( nNumber + j + 1, (*nNumberOfStereoCenters - (long long)j) * sizeof(nNumber) + j + 1, nNumber + j, ( *nNumberOfStereoCenters - (long long)j ) * sizeof( nNumber[0] ) ); /* djb-rwth: cast operator added; function replaced with its safe C11 variant */
-                memmove_s( t_parity + j + 1, (*nNumberOfStereoCenters - (long long)j) * sizeof(t_parity) + j + 1, t_parity + j, (*nNumberOfStereoCenters - (long long)j) * sizeof(t_parity[0])); /* djb-rwth: cast operator added; function replaced with its safe C11 variant */
-#else
                 memmove(nNumber + j + 1, nNumber + j, (*nNumberOfStereoCenters - (long long)j) * sizeof(nNumber[0])); /* djb-rwth: cast operator added */
                 memmove(t_parity + j + 1, t_parity + j, (*nNumberOfStereoCenters - (long long)j) * sizeof(t_parity[0])); /* djb-rwth: cast operator added */
-#endif
             }
 
             /* fill the new stereo center info */
@@ -1186,15 +1168,9 @@ int FillOutINChI( INChI *pINChI,
             switch_ptrs( &pCanonRank, &pCanonRankInv );
             switch_ptrs( &pCanonOrd, &pCanonOrdInv );
             /* save inverted stereo ranks & order because it represents the smallest (relative) */
-#if USE_BCF
-            memcpy_s( pCanonRank, sizeof(pCanonRank[0])* num_at_tg + 1, pCanonRankInv, num_at_tg * sizeof(pCanonRank[0])); /* djb-rwth: function replaced with its safe C11 variant */
-            /* change pCS->nCanonOrdStereo[] to inverted: */
-            memcpy_s( pCanonOrd, sizeof(pCanonOrd[0])* num_at_tg + 1, pCanonOrdInv, num_at_tg * sizeof(pCanonOrd[0])); /* djb-rwth: function replaced with its safe C11 variant */
-#else
             memcpy(pCanonRank, pCanonRankInv, num_at_tg * sizeof(pCanonRank[0]));
             /* change pCS->nCanonOrdStereo[] to inverted: */
             memcpy(pCanonOrd, pCanonOrdInv, num_at_tg * sizeof(pCanonOrd[0]));
-#endif
         }
 
         pCanonRankInv = NULL;
@@ -1324,11 +1300,7 @@ int FillOutINChI( INChI *pINChI,
         goto exit_function;
     }
 
-#if USE_BCF
-    memcpy_s( pINChI->nConnTable, sizeof(pINChI->nConnTable[0]) * (pCS->nLenLinearCTAtOnly) + 1, pCS->LinearCT, sizeof(pINChI->nConnTable[0]) * pCS->nLenLinearCTAtOnly); /* djb-rwth: function replaced with its safe C11 variant */
-#else
     memcpy(pINChI->nConnTable, pCS->LinearCT, sizeof(pINChI->nConnTable[0]) * pCS->nLenLinearCTAtOnly);
-#endif
 
     pINChI->lenConnTable = pCS->nLenLinearCTAtOnly;
 
@@ -1592,13 +1564,8 @@ int FillOutINChI( INChI *pINChI,
         {
             switch_ptrs( &pCanonRank, &pCanonRankInv );
             switch_ptrs( &pCanonOrd, &pCanonOrdInv );
-#if USE_BCF
-            memcpy_s( pCanonRank, sizeof(pCanonRank[0])* num_at_tg + 1, pCanonRankInv, num_at_tg * sizeof(pCanonRank[0])); /* djb-rwth: function replaced with its safe C11 variant */
-            memcpy_s( pCanonOrd, sizeof(pCanonOrd[0])* num_at_tg + 1, pCanonOrdInv, num_at_tg * sizeof(pCanonOrd[0])); /* djb-rwth: function replaced with its safe C11 variant */
-#else
             memcpy(pCanonRank, pCanonRankInv, num_at_tg * sizeof(pCanonRank[0]));
             memcpy(pCanonOrd, pCanonOrdInv, num_at_tg * sizeof(pCanonOrd[0]));
-#endif
         }
 
         pCanonRankInv = NULL;

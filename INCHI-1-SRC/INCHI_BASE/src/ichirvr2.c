@@ -54,26 +54,15 @@ void CopyAt2St( inp_ATOM *at, inp_ATOM_STEREO * st, int num_atoms )
     {
         if (at[i].p_parity)
         {
-#if USE_BCF
-            memcpy_s( st[i].p_orig_at_num, sizeof(st[0].p_orig_at_num), at[i].p_orig_at_num, sizeof( st[0].p_orig_at_num ) ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
             memcpy(st[i].p_orig_at_num, at[i].p_orig_at_num, sizeof(st[0].p_orig_at_num));
-#endif
             st[i].p_parity = at[i].p_parity;
         }
         if (at[i].sb_parity[0])
         {
-#if USE_BCF
-            memcpy_s( st[i].sb_ord, sizeof(st[0].sb_ord), at[i].sb_ord, sizeof( st[0].sb_ord ) ); /* djb-rwth: function replaced with its safe C11 variant */
-            memcpy_s( st[i].sb_parity, sizeof(st[0].sb_parity), at[i].sb_parity, sizeof( st[0].sb_parity ) ); /* djb-rwth: function replaced with its safe C11 variant */
-            memcpy_s( st[i].sn_ord, sizeof(st[0].sn_ord), at[i].sn_ord, sizeof( st[0].sn_ord ) ); /* djb-rwth: function replaced with its safe C11 variant */
-            memcpy_s( st[i].sn_orig_at_num, sizeof(st[0].sn_orig_at_num), at[i].sn_orig_at_num, sizeof( st[0].sn_orig_at_num ) ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
             memcpy(st[i].sb_ord, at[i].sb_ord, sizeof(st[0].sb_ord));
             memcpy(st[i].sb_parity, at[i].sb_parity, sizeof(st[0].sb_parity));
             memcpy(st[i].sn_ord, at[i].sn_ord, sizeof(st[0].sn_ord));
             memcpy(st[i].sn_orig_at_num, at[i].sn_orig_at_num, sizeof(st[0].sn_orig_at_num));
-#endif
         }
     }
 }
@@ -92,26 +81,15 @@ void CopySt2At( inp_ATOM *at, inp_ATOM_STEREO * st, int num_atoms )
     {
         if (st[i].p_parity)
         {
-#if USE_BCF
-            memcpy_s( at[i].p_orig_at_num, sizeof(at[0].p_orig_at_num), st[i].p_orig_at_num, sizeof( at[0].p_orig_at_num ) ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
             memcpy(at[i].p_orig_at_num, st[i].p_orig_at_num, sizeof(at[0].p_orig_at_num));
-#endif
             at[i].p_parity = st[i].p_parity;
         }
         if (st[i].sb_parity[0])
         {
-#if USE_BCF
-            memcpy_s( at[i].sb_ord, sizeof(st[0].sb_ord), st[i].sb_ord, sizeof( st[0].sb_ord ) ); /* djb-rwth: function replaced with its safe C11 variant */
-            memcpy_s( at[i].sb_parity, sizeof(at[0].sb_parity), st[i].sb_parity, sizeof( at[0].sb_parity ) ); /* djb-rwth: function replaced with its safe C11 variant */
-            memcpy_s( at[i].sn_ord, sizeof(at[0].sn_ord), st[i].sn_ord, sizeof( at[0].sn_ord ) ); /* djb-rwth: function replaced with its safe C11 variant */
-            memcpy_s( at[i].sn_orig_at_num, sizeof(at[0].sn_orig_at_num), st[i].sn_orig_at_num, sizeof( at[0].sn_orig_at_num ) ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
             memcpy(at[i].sb_ord, st[i].sb_ord, sizeof(st[0].sb_ord));
             memcpy(at[i].sb_parity, st[i].sb_parity, sizeof(at[0].sb_parity));
             memcpy(at[i].sn_ord, st[i].sn_ord, sizeof(at[0].sn_ord));
             memcpy(at[i].sn_orig_at_num, st[i].sn_orig_at_num, sizeof(at[0].sn_orig_at_num));
-#endif
         }
     }
 }
@@ -2015,11 +1993,7 @@ int MoveRadToAtomsAddCharges( BN_STRUCT *pBNS,
             goto exit_function;
         }
         /* create atom */
-#if USE_BCF
-        memcpy_s( at2, sizeof(at[0])*len_at + 1, at, len_at * sizeof(at2[0])); /* djb-rwth: function replaced with its safe C11 variant */
-#else
         memcpy(at2, at, len_at * sizeof(at2[0]));
-#endif
         pStruct->at = at2;
         ret2 = CopyBnsToAtom( pStruct, pBNS, pVA, pTCGroups, 1 );
         pStruct->at = at;
@@ -3570,11 +3544,7 @@ int IncrementZeroOrderBondsToHeteroat( BN_STRUCT *pBNS,
         goto exit_function;
     }
 
-#if USE_BCF
-    memcpy_s( at2, sizeof(at2[0])*len_at + 1, at, len_at * sizeof(at2[0])); /* djb-rwth: function replaced with its safe C11 variant */
-#else
     memcpy(at2, at, len_at * sizeof(at2[0]));
-#endif
     pStruct->at = at2;
     ret2 = CopyBnsToAtom( pStruct, pBNS, pVA, pTCGroups, 1 );
     pStruct->at = at;
@@ -3717,11 +3687,7 @@ int IncrementZeroOrderBondsToHeteroat( BN_STRUCT *pBNS,
                 if (bSuccess)
                 {
                     /* update at2[] */
-#if USE_BCF
-                    memcpy_s( at2, sizeof(at2[0])*len_at + 1, at, len_at * sizeof(at2[0])); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                     memcpy(at2, at, len_at * sizeof(at2[0]));
-#endif
                     pStruct->at = at2;
                     ret2 = CopyBnsToAtom( pStruct, pBNS, pVA, pTCGroups, 1 );
                     pStruct->at = at;
@@ -3785,11 +3751,7 @@ int MovePlusFromS2DiaminoCarbon( BN_STRUCT *pBNS,
 
     AllocEdgeList( &AllChargeEdges, EDGE_LIST_CLEAR );
 
-#if USE_BCF
-    memcpy_s( at2, sizeof(at2[0])*len_at + 1, at, len_at * sizeof(at2[0])); /* djb-rwth: function replaced with its safe C11 variant */
-#else
     memcpy(at2, at, len_at * sizeof(at2[0]));
-#endif
     pStruct->at = at2;
     ret2 = CopyBnsToAtom( pStruct, pBNS, pVA, pTCGroups, 1 );
     pStruct->at = at;
@@ -3971,11 +3933,7 @@ int EliminateChargeSeparationOnHeteroatoms( BN_STRUCT *pBNS,
         }
     }
 
-#if USE_BCF
-    memcpy_s( at2, sizeof(at2[0]) * len_at + 1, at, len_at * sizeof(at2[0])); /* djb-rwth: function replaced with its safe C11 variant */
-#else
     memcpy(at2, at, len_at * sizeof(at2[0]));
-#endif
     pStruct->at = at2;
     ret2 = CopyBnsToAtom( pStruct, pBNS, pVA, pTCGroups, 1 );
     pStruct->at = at;
@@ -4140,11 +4098,7 @@ int EliminateChargeSeparationOnHeteroatoms( BN_STRUCT *pBNS,
             pEdge->forbidden &= inv_forbidden_edge_mask;
         }
     }
-#if USE_BCF
-    memcpy_s( at2, sizeof(at2[0])*len_at + 1, at, len_at * sizeof(at2[0])); /* djb-rwth: function replaced with its safe C11 variant */
-#else
     memcpy(at2, at, len_at * sizeof(at2[0]));
-#endif
     pStruct->at = at;
 
 exit_function:
@@ -4610,11 +4564,7 @@ int RestoreCyanoGroup( BN_STRUCT *pBNS,
     ret = 0;
     AllocEdgeList( &CarbonChargeEdges, EDGE_LIST_CLEAR );
 
-#if USE_BCF
-    memcpy_s( at2, sizeof(at2[0])*len_at + 1, at, len_at * sizeof(at2[0])); /* djb-rwth: function replaced with its safe C11 variant */
-#else
     memcpy(at2, at, len_at * sizeof(at2[0]));
-#endif
     pStruct->at = at2;
     ret2 = CopyBnsToAtom( pStruct, pBNS, pVA, pTCGroups, 1 );
     pStruct->at = at;
@@ -4729,11 +4679,7 @@ int RestoreIsoCyanoGroup( BN_STRUCT *pBNS,
     AllocEdgeList( &AllChargeEdges, EDGE_LIST_CLEAR );    /* heteroatom charge edges */
     AllocEdgeList( &IsoCyanoCarbonChargeEdges, EDGE_LIST_CLEAR );   /* C in C(+)#N(+) charge edges */
 
-#if USE_BCF
-    memcpy_s( at2, sizeof(at2[0])*len_at + 1, at, len_at * sizeof(at2[0])); /* djb-rwth: function replaced with its safe C11 variant */
-#else
     memcpy(at2, at, len_at * sizeof(at2[0]));
-#endif
     pStruct->at = at2;
     ret2 = CopyBnsToAtom( pStruct, pBNS, pVA, pTCGroups, 1 );
     pStruct->at = at;
@@ -5033,11 +4979,7 @@ int FixMetal_Nminus_Ominus( BN_STRUCT *pBNS,
     num_success = 0; /* djb-rwth: removing redundant code */
     AllocEdgeList( &AllChargeEdges, EDGE_LIST_CLEAR );
 
-#if USE_BCF
-    memcpy_s( at2, sizeof(at2[0])*len_at + 1, at, len_at * sizeof(at2[0])); /* djb-rwth: function replaced with its safe C11 variant */
-#else
     memcpy(at2, at, len_at * sizeof(at2[0]));
-#endif
     pStruct->at = at2;
     ret2 = CopyBnsToAtom( pStruct, pBNS, pVA, pTCGroups, 1 );
     pStruct->at = at;
@@ -5192,11 +5134,7 @@ int RestoreNNNgroup( BN_STRUCT *pBNS,
     AllocEdgeList( &AllNNNTermAtoms, EDGE_LIST_CLEAR );
     AllocEdgeList( &AllNIIIChargeEdges, EDGE_LIST_CLEAR );
 
-#if USE_BCF
-    memcpy_s( at2, sizeof(at2[0]) * len_at + 1, at, len_at * sizeof(at2[0])); /* djb-rwth: function replaced with its safe C11 variant */
-#else
     memcpy(at2, at, len_at * sizeof(at2[0]));
-#endif
     pStruct->at = at2;
     ret2 = CopyBnsToAtom( pStruct, pBNS, pVA, pTCGroups, 1 );
     pStruct->at = at;
@@ -5877,11 +5815,7 @@ int EliminateNitrogen5Val3Bonds( BN_STRUCT *pBNS,
     bForbiddenCarbonCharges = 0;
     AllocEdgeList( &CarbonChargeEdges, EDGE_LIST_CLEAR );
 
-#if USE_BCF
-    memcpy_s(at2, sizeof(at2[0])*len_at + 1, at, len_at * sizeof(at2[0])); /* djb-rwth: function replaced with its safe C11 variant */
-#else
     memcpy(at2, at, len_at * sizeof(at2[0]));
-#endif
     pStruct->at = at2;
     ret2 = CopyBnsToAtom( pStruct, pBNS, pVA, pTCGroups, 1 );
     if (ret2 < 0)
@@ -6057,11 +5991,7 @@ int EliminateNitrogen5Val3Bonds( BN_STRUCT *pBNS,
             {
                 if (ret)
                 {
-#if USE_BCF
-                    memcpy_s( at2, sizeof(at2[0])* len_at + 1, at, len_at * sizeof(at2[0])); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                     memcpy(at2, at, len_at * sizeof(at2[0]));
-#endif
                     pStruct->at = at2;
                     ret2 = CopyBnsToAtom( pStruct, pBNS, pVA, pTCGroups, 1 );
                     if (ret2 < 0)
@@ -6130,11 +6060,7 @@ int Convert_SIV_to_SVI( BN_STRUCT *pBNS,
     AllocEdgeList( &CarbonChargeEdges, EDGE_LIST_CLEAR );
     AllocEdgeList( &FlowerEdgesList, EDGE_LIST_CLEAR );
 
-#if USE_BCF
-    memcpy_s( at2, sizeof(at2[0])*len_at + 1, at, len_at * sizeof(at2[0])); /* djb-rwth: function replaced with its safe C11 variant */
-#else
     memcpy(at2, at, len_at * sizeof(at2[0]));
-#endif
     pStruct->at = at2;
     ret2 = CopyBnsToAtom( pStruct, pBNS, pVA, pTCGroups, 1 );
     if (ret2 < 0)
@@ -6291,11 +6217,7 @@ int Convert_SIV_to_SVI( BN_STRUCT *pBNS,
             {
                 if (ret)
                 {
-#if USE_BCF
-                    memcpy_s( at2, sizeof(at2[0])*len_at + 1, at, len_at * sizeof(at2[0])); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                     memcpy(at2, at, len_at * sizeof(at2[0]));
-#endif
                     pStruct->at = at2;
                     ret2 = CopyBnsToAtom( pStruct, pBNS, pVA, pTCGroups, 1 );
                     if (ret2 < 0)
@@ -6368,11 +6290,7 @@ int PlusFromDB_N_DB_O_to_Metal( BN_STRUCT *pBNS,
     AllocEdgeList( &NO_ChargeEdgeList, EDGE_LIST_CLEAR ); /* charges to be changed */
     AllocEdgeList( &NO_EdgeList, EDGE_LIST_CLEAR );       /* N(+)=O edges */
 
-#if USE_BCF
-    memcpy_s( at2, sizeof(at2[0])*len_at + 1, at, len_at * sizeof(at2[0])); /* djb-rwth: function replaced with its safe C11 variant */
-#else
     memcpy(at2, at, len_at * sizeof(at2[0]));
-#endif
     pStruct->at = at2;
     ret2 = CopyBnsToAtom( pStruct, pBNS, pVA, pTCGroups, 1 );
     if (ret2 < 0)
@@ -6532,11 +6450,7 @@ int MoveMobileHToAvoidFixedBonds( BN_STRUCT *pBNS,
 
     if (pTCGroups->num_tgroups)
     {
-#if USE_BCF
-        memcpy_s( at2, sizeof(at2[0])*len_at + 1, at, len_at * sizeof(at2[0])); /* djb-rwth: function replaced with its safe C11 variant */
-#else
         memcpy(at2, at, len_at * sizeof(at2[0]));
-#endif
         pStruct->at = at2;
         ret2 = CopyBnsToAtom( pStruct, pBNS, pVA, pTCGroups, 1 );
         pStruct->at = at;
@@ -6621,12 +6535,7 @@ int RemoveRadFromMobileHEndpoint( BN_STRUCT *pBNS,
     int         num_endpoints; /* djb-rwth: removing redundant variables */
 
     /* djb-rwth: removing redundant code */
-
-#if USE_BCF
-    memcpy_s( at2, sizeof(at2[0])*len_at + 1, at, len_at * sizeof(at2[0])); /* djb-rwth: function replaced with its safe C11 variant */
-#else
     memcpy(at2, at, len_at * sizeof(at2[0]));
-#endif
     pStruct->at = at2;
     ret2 = CopyBnsToAtom( pStruct, pBNS, pVA, pTCGroups, 1 );
     if (ret2 < 0)
@@ -7023,11 +6932,7 @@ int RemoveRadFromMobileHEndpoint( BN_STRUCT *pBNS,
 
 exit_function:
     pStruct->at = at;
-#if USE_BCF
-    memcpy_s( at2, sizeof(at2[0])*len_at + 1, at, len_at * sizeof(at2[0])); /* djb-rwth: function replaced with its safe C11 variant */
-#else
     memcpy(at2, at, len_at * sizeof(at2[0]));
-#endif
     return ret;
 }
 
@@ -7071,11 +6976,7 @@ int RemoveRadFromMobileHEndpointFixH( BN_STRUCT *pBNS,
     AllocEdgeList( &ChargeEdgeList, EDGE_LIST_CLEAR );
     AllocEdgeList( &BondEdgeList, EDGE_LIST_CLEAR );
 
-#if USE_BCF
-    memcpy_s( at2, sizeof(at2[0])*len_at + 1, at, len_at * sizeof(at2[0])); /* djb-rwth: function replaced with its safe C11 variant */
-#else
     memcpy(at2, at, len_at * sizeof(at2[0]));
-#endif
     pStruct->at = at2;
     ret2 = CopyBnsToAtom( pStruct, pBNS, pVA, pTCGroups, 1 );
     if (ret2 < 0)
@@ -7725,11 +7626,7 @@ exit_function:
     AllocEdgeList( &BondEdgeList, EDGE_LIST_FREE );
 
     pStruct->at = at;
-#if USE_BCF
-    memcpy_s( at2, sizeof(at2[0])*len_at + 1, at, len_at * sizeof(at2[0])); /* djb-rwth: function replaced with its safe C11 variant */
-#else
     memcpy(at2, at, len_at * sizeof(at2[0]));
-#endif
 
     return ret;
 #undef IS_C
@@ -7769,11 +7666,7 @@ int MoveChargeToMakeCenerpoints( BN_STRUCT *pBNS,
     num_success = 0;
 
     /* to simplify, prepare new at[] from pBNS */
-#if USE_BCF
-    memcpy_s( at2, sizeof(at2[0])*len_at + 1, at, len_at * sizeof(at2[0])); /* djb-rwth: function replaced with its safe C11 variant */
-#else
     memcpy(at2, at, len_at * sizeof(at2[0]));
-#endif
     pStruct->at = at2;
     ret2 = CopyBnsToAtom( pStruct, pBNS, pVA, pTCGroups, 1 );
     pStruct->at = at;
@@ -7946,11 +7839,7 @@ int MoveChargeToMakeCenerpoints( BN_STRUCT *pBNS,
                 if (ret)
                 {
                     num_success++;
-#if USE_BCF
-                    memcpy_s( at2, sizeof(at2[0])* len_at + 1, at, len_at * sizeof(at2[0])); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                     memcpy(at2, at, len_at * sizeof(at2[0]));
-#endif
                     pStruct->at = at2;
                     ret2 = CopyBnsToAtom( pStruct, pBNS, pVA, pTCGroups, 1 );
                     pStruct->at = at;

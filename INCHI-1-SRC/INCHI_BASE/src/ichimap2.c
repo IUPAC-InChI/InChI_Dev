@@ -731,18 +731,10 @@ int NumberOfTies( AT_RANK **pRankStack1,
             switch (i)
             {
                 case 2:
-#if USE_BCF
-                    memcpy_s( pTempArray, length + 1, nRank2, length ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                     memcpy(pTempArray, nRank2, length);
-#endif
                     break;
                 case 3:
-#if USE_BCF
-                    memcpy_s( pTempArray, length + 1, nAtomNumber2, length ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                     memcpy(pTempArray, nAtomNumber2, length);
-#endif
                     break;
             }
             if (i < 2)
@@ -1376,13 +1368,8 @@ int map_an_atom2( CANON_GLOBALS *pCG,
         nNewRank2 = *pRankStack2++;
         nNewAtomNumber2 = *pRankStack2++;  /*  ranks for mapping "2", "to" */
         /*  break a tie for "to" */
-#if USE_BCF
-        memcpy_s( nNewRank2, length + 1, nRank2, length ); /* djb-rwth: function replaced with its safe C11 variant */
-        memcpy_s( nNewAtomNumber2, length + 1, nAtomNumber2, length ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
         memcpy(nNewRank2, nRank2, length);
         memcpy(nNewAtomNumber2, nAtomNumber2, length);
-#endif
         nNewRank2[at_no2] = nNewRank;
         nNewNumRanks2 = DifferentiateRanks2( pCG, num_atoms, NeighList,
                                          nNumMappedRanks, nNewRank2, nTempRank,
@@ -1412,13 +1399,8 @@ int map_an_atom2( CANON_GLOBALS *pCG,
             {
                 pRankStack1[i][0] = 0;
             }
-#if USE_BCF
-            memcpy_s( nNewRank1, length + 1, nRank1, length ); /* djb-rwth: function replaced with its safe C11 variant */
-            memcpy_s( nNewAtomNumber1, length + 1, nAtomNumber1, length );  /* GPF: bad nAtomNumber1 */ /* djb-rwth: function replaced with its safe C11 variant */
-#else
             memcpy(nNewRank1, nRank1, length);
             memcpy(nNewAtomNumber1, nAtomNumber1, length);  /* GPF: bad nAtomNumber1 */
-#endif
             nNewRank1[at_no1] = nNewRank;
             nNewNumRanks1 = DifferentiateRanks2( pCG, num_atoms, NeighList,
                                              nNumMappedRanks, nNewRank1, nTempRank,
@@ -1636,11 +1618,7 @@ int BreakNeighborsTie( CANON_GLOBALS *pCG,
     }
 
     /*  1. Create initial ranks from equivalence information stored in nSymmRank */
-#if USE_BCF
-    memcpy_s( pRankStack1[0], sizeof(pRankStack1[0][0]) * num_at_tg + 1, nSymmRank, num_at_tg * sizeof(pRankStack1[0][0])); /* djb-rwth: function replaced with its safe C11 variant */
-#else
     memcpy(pRankStack1[0], nSymmRank, num_at_tg * sizeof(pRankStack1[0][0]));
-#endif
     pCG->m_pn_RankForSort = pRankStack1[0];
     tsort( pCG, pRankStack1[1], num_at_tg, sizeof( pRankStack1[1][0] ), CompRanksOrd );
     nNumDiffRanks = SortedEquInfoToRanks( pRankStack1[0]/*inp*/, pRankStack1[0]/*out*/, pRankStack1[1], num_at_tg, NULL );
@@ -1710,13 +1688,8 @@ int BreakNeighborsTie( CANON_GLOBALS *pCG,
     nRank2 = GetMinNewRank( pRankStack1[0], pRankStack1[1], nRank1 );
 
     /*  6. Copy the results to the 2nd eq. rank arrays */
-#if USE_BCF
-    memcpy_s( pRankStack2[0], sizeof(pRankStack2[0][0]) * num_at_tg + 1, pRankStack1[0], num_at_tg * sizeof(pRankStack2[0][0])); /* djb-rwth: function replaced with its safe C11 variant */
-    memcpy_s( pRankStack2[1], sizeof(pRankStack2[0][0]) * num_at_tg + 1, pRankStack1[1], num_at_tg * sizeof(pRankStack2[0][0])); /* djb-rwth: function replaced with its safe C11 variant */
-#else
     memcpy(pRankStack2[0], pRankStack1[0], num_at_tg * sizeof(pRankStack2[0][0]));
     memcpy(pRankStack2[1], pRankStack1[1], num_at_tg * sizeof(pRankStack2[0][0]));
-#endif
     /*  7. Break neighbor tie: map n1(1) <--> n2(2) */
     /*  7. Break neighbor tie: map n1(1) <--> n2(2) */
     pRankStack1[0][n1] = nRank2;
@@ -3295,15 +3268,9 @@ second_pass:
                                     if (n < m)
                                     {
                                         /*  remove pCS->LinearCTStereoDble[n] */
-#if USE_BCF
-                                        memmove_s(pCS->LinearCTStereoDble + n, sizeof(pCS->LinearCTStereoDble[0])* ((long long)m - (long long)n) + 1,
-                                            pCS->LinearCTStereoDble + n + 1,
-                                            ((long long)m - (long long)n) * sizeof(pCS->LinearCTStereoDble[0])); /* djb-rwth: cast operators added; function replaced with its safe C11 variant */
-#else
                                         memmove(pCS->LinearCTStereoDble + n,
                                             pCS->LinearCTStereoDble + n + 1,
                                             ((long long)m - (long long)n) * sizeof(pCS->LinearCTStereoDble[0])); /* djb-rwth: cast operators added */
-#endif
                                     }
                                     pCS->nLenLinearCTStereoDble--;
 #if ( bRELEASE_VERSION == 0 )
@@ -3607,15 +3574,9 @@ second_pass:
                                             if (n < m)
                                             {
                                                 /*  remove pCS->LinearCTStereoDble[n] */
-#if USE_BCF
-                                                memmove_s(pCS->LinearCTStereoCarb + n, sizeof(pCS->LinearCTStereoCarb[0]) * ((long long)m - (long long)n) + 1,
-                                                    pCS->LinearCTStereoCarb + n + 1,
-                                                    ((long long)m - (long long)n) * sizeof(pCS->LinearCTStereoCarb[0])); /* djb-rwth: cast operators added; function replaced with its safe C11 variant */
-#else
                                                 memmove(pCS->LinearCTStereoCarb + n,
                                                     pCS->LinearCTStereoCarb + n + 1,
                                                     ((long long)m - (long long)n) * sizeof(pCS->LinearCTStereoCarb[0])); /* djb-rwth: cast operators added */
-#endif
                                             }
                                             pCS->nLenLinearCTStereoCarb--;
 #if ( bRELEASE_VERSION == 0 )

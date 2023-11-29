@@ -282,20 +282,12 @@ int get_element_chemical_symbol( int nAtNum, char *szElement )
     if (0 <= nAtNum && nAtNum < nElDataLen)
     {
         /* valid element symbol found */
-#if USE_BCF
-        strcpy_s(szElement, strlen(ElData[nAtNum].szElName) + 1, ElData[nAtNum].szElName); /* djb-rwth: function replaced with its safe C11 variant */
-#else
         strcpy(szElement, ElData[nAtNum].szElName);
-#endif
         return 0;
     }
 
     /* not found */
-#if USE_BCF
-    strcpy_s(szElement, 4, "??"); /* djb-rwth: function replaced with its safe C11 variant */
-#else
     strcpy(szElement, "??");
-#endif
     return -1;
 }
 
@@ -318,30 +310,18 @@ int get_element_or_pseudoelement_symbol( int nAtNum,
     if (0 <= nAtNum && nAtNum < nElDataLen)
     {
         /* valid element symbol found */
-#if USE_BCF
-        strcpy_s(szElement, strlen(ElData[nAtNum].szElName) + 1, ElData[nAtNum].szElName); /* djb-rwth: function replaced with its safe C11 variant */
-#else
         strcpy(szElement, ElData[nAtNum].szElName);
-#endif
 
         if (!strcmp( szElement, "Zy" ))
         {
-#if USE_BCF
-            strcpy_s(szElement, 4, "Zz"); /* djb-rwth: function replaced with its safe C11 variant */
-#else
             strcpy(szElement, "Zz");
-#endif
         }
 
         return 0;
     }
 
     /* not found */
-#if USE_BCF
-    strcpy_s(szElement, 4, "??"); /* djb-rwth: function replaced with its safe C11 variant */
-#else
     strcpy(szElement, "??");
-#endif
 
     return -1;
 }
@@ -694,11 +674,7 @@ int extract_charges_and_radicals( char *elname, int *pnRadical, int *pnCharge )
                 }
                 break;
         }
-#if USE_BCF
-        memmove_s(q, sizeof(q) + strlen(q + charge_len) + 1, q + charge_len, strlen(q + charge_len) + 1); /* djb-rwth: function replaced with its safe C11 variant */
-#else
         memmove(q, q + charge_len, strlen(q + charge_len) + 1);
-#endif
     }
 
     /* djb-rwth: removing redundant code */
@@ -794,11 +770,7 @@ int extract_H_atoms( char *elname, S_CHAR num_iso_H[] )
 
             /*  remove the hydrogen atom from the string */
             len -= (int) ( q - elname ) - i;
-#if USE_BCF
-            memmove_s(elname + i, sizeof(elname) + (long long)len + 1, q, (long long)len + 1); /* djb-rwth: cast operator added; function replaced with its safe C11 variant */
-#else
             memmove(elname + i, q, (long long)len + 1); /* djb-rwth: cast operator added */
-#endif
             /*  c =  UCINT elname[i]; */
         }
         else
@@ -1409,13 +1381,8 @@ int MakeRemovedProtonsString( int nNumRemovedProtons,
 
     if (nNumRemovedProtons)
     {
-#if USE_BCF
-        len = sprintf_s(szRemovedProtons, sizeof(szRemovedProtons) * 10 + 1, "Proton balance: %c %d H+",
-            nNumRemovedProtons >= 0 ? '+' : '-', abs(nNumRemovedProtons)); /* djb-rwth: function replaced with its safe C11 variant */
-#else
         len = sprintf(szRemovedProtons, "Proton balance: %c %d H+",
             nNumRemovedProtons >= 0 ? '+' : '-', abs(nNumRemovedProtons));
-#endif    
     }
 
     if (bIsotopic && ( nNumRemovedProtonsIsotopic || nNumExchgIsotopicH ))
@@ -1429,24 +1396,15 @@ int MakeRemovedProtonsString( int nNumRemovedProtons,
 
             if (num)
             {
-#if USE_BCF
-                len += sprintf_s(szRemovedProtons + len, sizeof(szRemovedProtons) * 10 - len, "%s %d^%dH",
-                    j ? ", " : "  [ removed ", num, i + 1); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                 len += sprintf(szRemovedProtons + len, "%s %d^%dH",
                     j ? ", " : "  [ removed ", num, i + 1);
-#endif
                 j++;
             }
         }
 
         if (j)
         {
-#if USE_BCF
-            len += sprintf_s(szRemovedProtons + len, sizeof(szRemovedProtons) * 10 - len, " ]"); /* djb-rwth: function replaced with its safe C11 variant */
-#else
             len += sprintf(szRemovedProtons + len, " ]");
-#endif
             if (num_removed_iso_H)
             {
                 *num_removed_iso_H = j;
@@ -1588,11 +1546,7 @@ int normalize_string( char* name )
         {
             if (n > 0)
             {
-#if USE_BCF
-                memmove_s((void*)&name[i - n], sizeof((void*)&name[i - n]) + (long long)len - (long long)i + 1, (void*)&name[i], (long long)len - (long long)i + 1); /* djb-rwth: cast operators added; function replaced with its safe C11 variant */
-#else
                 memmove((void*)&name[i - n], (void*)&name[i], (long long)len - (long long)i + 1); /* djb-rwth: cast operators added */
-#endif
                 i -= n;
                 len -= n;
             }
@@ -1767,11 +1721,7 @@ int mystrncpy( char *target, const char *source, unsigned maxlen )
 
     if (len)
     {
-#if USE_BCF
-        memmove_s(target, sizeof(target) + len + 1, source, len); /* djb-rwth: function replaced with its safe C11 variant */
-#else
         memmove(target, source, len);
-#endif
     }
 
     memset(target + len, 0, maxlen - len); /*  zero termination */ /* djb-rwth: memset_s C11/Annex K variant? */
@@ -1796,11 +1746,7 @@ char* lrtrim( char *p, int* nLen )
         if (i)
         {
             len -= i; /* djb-rwth: variable has to be decreased before memmove */
-#if USE_BCF
-            memmove_s(p, sizeof(p) + (long long)len + 1, p + i, (long long)len + 1); /* djb-rwth: now cast operator can be added; function replaced with its safe C11 variant */
-#else
             (memmove)(p, p + i, ((long long)len + 1)); /* djb-rwth: now cast operator can be added */
-#endif
         }
             
         for (; 0 < len && __isascii( p[len - 1] ) && isspace( p[len - 1] ); len--)
@@ -1895,11 +1841,7 @@ void extract_inchi_substring( char ** buf, const char *str, size_t slen )
     }
 
     *buf = (char*) inchi_calloc( i + 1, sizeof( char ) );
-#if USE_BCF
-    memcpy_s(*buf, i, p, i); /* djb-rwth: function replaced with its safe C11 variant */
-#else
     memcpy(*buf, p, i);
-#endif
     if (*buf)
         (*buf)[i] = '\0';
 
@@ -1940,11 +1882,7 @@ void extract_auxinfo_substring( char ** buf, const char *str, size_t slen )
     }
 
     *buf = (char*) inchi_calloc( i + 1, sizeof( char ) );
-#if USE_BCF
-    memcpy_s(*buf, i, p, i); /* djb-rwth: function replaced with its safe C11 variant */
-#else
     memcpy(*buf, p, i);
-#endif
     if (*buf)
         (*buf)[i] = '\0';
 
@@ -2035,11 +1973,7 @@ char *inchi__strdup( const char *string )
         p = (char *) inchi_malloc( length + 1 );
         if (p)
         {
-#if USE_BCF
-            strcpy_s(p, strlen(string) + 1, string); /* djb-rwth: function replaced with its safe C11 variant */
-#else
             strcpy(p, string);
-#endif
         }
     }
 

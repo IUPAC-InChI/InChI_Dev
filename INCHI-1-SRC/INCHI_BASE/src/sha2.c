@@ -239,13 +239,8 @@ void sha2_update( sha2_context *ctx, unsigned char *input, int ilen )
 
     if (left && ilen >= fill)
     {
-#if USE_BCF
-        memcpy_s( (void *) ( ctx->buffer + left ), (long long)fill + 1, 
-            (void *) input, fill ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
         memcpy((void*)(ctx->buffer + left),
             (void*)input, fill);
-#endif
         sha2_process( ctx, ctx->buffer );
         input += fill;
         ilen -= fill;
@@ -261,13 +256,8 @@ void sha2_update( sha2_context *ctx, unsigned char *input, int ilen )
 
     if (ilen > 0)
     {
-#if USE_BCF
-        memcpy_s( (void *) ( ctx->buffer + left ), (long long)ilen + 1,
-            (void *) input, ilen ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
         memcpy((void*)(ctx->buffer + left),
             (void*)input, ilen);
-#endif
     }
 }
 

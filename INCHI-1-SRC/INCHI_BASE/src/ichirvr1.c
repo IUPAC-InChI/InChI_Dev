@@ -757,11 +757,7 @@ int bMayBeACationInMobileHLayer( inp_ATOM *at, VAL_AT *pVA, int iat, int bMobile
         for (b = szEl; (e = strchr( b, ';' )); b = e + 1) /* djb-rwth: addressing LLVM warning */
         {
             len = (int) ( e - b );
-#if USE_BCF
-            memcpy_s( elname, (long long)len + 1, b, len ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
             memcpy(elname, b, len);
-#endif
             elname[len] = '\0';
             en[ne2++] = get_periodic_table_number( elname );
         }
@@ -1509,11 +1505,7 @@ int ReallocTCGroups( ALL_TC_GROUPS *pTCGroups, int nAdd )
     {
         if (pTCGroups->num_tc_groups)
         {
-#if USE_BCF
-            memcpy_s( pTCGroup, sizeof(pTCGroup[0])*(pTCGroups->num_tc_groups) + 1, pTCGroups->pTCG, sizeof( pTCGroup[0] )*pTCGroups->num_tc_groups ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
             memcpy(pTCGroup, pTCGroups->pTCG, sizeof(pTCGroup[0]) * pTCGroups->num_tc_groups);
-#endif
         }
         memset( pTCGroup + pTCGroups->max_tc_groups, 0, sizeof( pTCGroup[0] )*nAdd ); /* djb-rwth: memset_s C11/Annex K variant? */
         if (pTCGroups->pTCG)
@@ -4716,11 +4708,7 @@ int AllocEdgeList( EDGE_LIST *pEdges, int nLen )
                 tmp_num = inchi_min( tmp_num, nLen );
                 if (tmp_edges && tmp_num > 0)
                 {
-#if USE_BCF
-                    memcpy_s( pEdges->pnEdges, sizeof(pEdges->pnEdges[0])*tmp_num, tmp_edges, tmp_num * sizeof(pEdges->pnEdges[0])); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                     memcpy(pEdges->pnEdges, tmp_edges, tmp_num * sizeof(pEdges->pnEdges[0]));
-#endif
                     pEdges->num_edges = tmp_num;
                 }
                 else
@@ -4770,11 +4758,7 @@ int RemoveFromEdgeListByIndex( EDGE_LIST *pEdges, int index )
     {
         if (len)
         {
-#if USE_BCF
-            memmove_s( pEdges->pnEdges + index, sizeof(pEdges->pnEdges[0])*len + 1, pEdges->pnEdges + index + 1, len * sizeof(pEdges->pnEdges[0])); /* djb-rwth: function replaced with its safe C11 variant */
-#else
             memmove(pEdges->pnEdges + index, pEdges->pnEdges + index + 1, len * sizeof(pEdges->pnEdges[0]));
-#endif
         }
         pEdges->num_edges--;
         pEdges->pnEdges[pEdges->num_edges] = 0;
@@ -5117,11 +5101,7 @@ int MakeOneInChIOutOfStrFromINChI2( struct tagCANON_GLOBALS *pCG,
     memset( sd, 0, sizeof( *sd ) ); /* djb-rwth: memset_s C11/Annex K variant? */
 
     /* create structure out of BNS */
-#if USE_BCF
-    memcpy_s( at2, sizeof(at2[0])*((long long)pStruct->num_atoms + (long long)pStruct->num_deleted_H) + 1, at, ( (long long)pStruct->num_atoms + (long long)pStruct->num_deleted_H ) * sizeof( at2[0] ) ); /* djb-rwth: cast operator added */
-#else
     memcpy(at2, at, ((long long)pStruct->num_atoms + (long long)pStruct->num_deleted_H) * sizeof(at2[0])); /* djb-rwth: cast operator added */
-#endif
     pStruct->at = at2;
     ret = CopyBnsToAtom( pStruct, pBNS, pVA, pTCGroups, 1 );
     pStruct->at = at;
@@ -5238,11 +5218,7 @@ int MakeOneInChIOutOfStrFromINChI( struct tagCANON_GLOBALS *pCG,
         cur_INChI_Aux[k] = NULL;
     }
 
-#if USE_BCF
-    memcpy_s( at3, sizeof(at3[0])*len_at + 1, at2, sizeof(at3[0]) * len_at); /* djb-rwth: function replaced with its safe C11 variant */
-#else
     memcpy(at3, at2, sizeof(at3[0]) * len_at);
-#endif
 
     /* prepare the structure */
     IncrZeroBondsAndClearEndpts( at3, num_atoms, iComponent + 1 );
@@ -5431,11 +5407,7 @@ int MakeOneInChIOutOfStrFromINChI( struct tagCANON_GLOBALS *pCG,
 
         if (pStruct->pOne_norm_data[0])
         {
-#if USE_BCF
-            memcpy_s( pStruct->pOne_norm_data[0], sizeof(pStruct->pOne_norm_data[0][0]), inp_norm_data[bMobileH], sizeof(pStruct->pOne_norm_data[0][0])); /* djb-rwth: function replaced with its safe C11 variant */
-#else
             memcpy(pStruct->pOne_norm_data[0], inp_norm_data[bMobileH], sizeof(pStruct->pOne_norm_data[0][0]));
-#endif
             memset( inp_norm_data[bMobileH], 0, sizeof( *inp_norm_data[0] ) ); /* djb-rwth: memset_s C11/Annex K variant? */
         }
         else
@@ -5453,11 +5425,7 @@ int MakeOneInChIOutOfStrFromINChI( struct tagCANON_GLOBALS *pCG,
             pStruct->pOne_norm_data[1] = (INP_ATOM_DATA *) inchi_malloc( sizeof( pStruct->pOne_norm_data[0][0] ) );
             if (pStruct->pOne_norm_data[1])
             {
-#if USE_BCF
-                memcpy_s( pStruct->pOne_norm_data[1], sizeof(pStruct->pOne_norm_data[0][0]), inp_norm_data[bMobileHalt], sizeof(pStruct->pOne_norm_data[0][0])); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                 memcpy(pStruct->pOne_norm_data[1], inp_norm_data[bMobileHalt], sizeof(pStruct->pOne_norm_data[0][0]));
-#endif
                 memset( inp_norm_data[bMobileHalt], 0, sizeof( *inp_norm_data[0] ) ); /* djb-rwth: memset_s C11/Annex K variant? */
             }
             else
@@ -5529,15 +5497,9 @@ int ConnectDisconnectedH( inp_ATOM *at, int num_atoms, int num_deleted_H )
 
         /* insert links to explicit H before all other links in the connection list */
         n = at[k].valence;
-#if USE_BCF
-        memmove_s( at[k].neighbor + num_H, sizeof(at[k].neighbor[0])*n + 1, at[k].neighbor, sizeof(at[k].neighbor[0]) * n); /* djb-rwth: function replaced with its safe C11 variant */
-        memmove_s( at[k].bond_stereo + num_H, sizeof(at[k].bond_stereo[0])*n + 1, at[k].bond_stereo, sizeof(at[k].bond_stereo[0]) * n); /* djb-rwth: function replaced with its safe C11 variant */
-        memmove_s( at[k].bond_type + num_H, sizeof(at[k].bond_type[0])*n + 1, at[k].bond_type, sizeof(at[k].bond_type[0]) * n); /* djb-rwth: function replaced with its safe C11 variant */
-#else
         memmove(at[k].neighbor + num_H, at[k].neighbor, sizeof(at[k].neighbor[0]) * n);
         memmove(at[k].bond_stereo + num_H, at[k].bond_stereo, sizeof(at[k].bond_stereo[0]) * n);
         memmove(at[k].bond_type + num_H, at[k].bond_type, sizeof(at[k].bond_type[0]) * n);
-#endif
         for (n = 0; n < num_H; n++)
         {
             at[k].neighbor[n] = i + n;
@@ -5664,15 +5626,9 @@ int DisconnectedConnectedH( inp_ATOM *at, int num_atoms, int num_deleted_H )
         at[k].chem_bonds_valence -= num_H; /* new no-H valence */
         if (n)
         {
-#if USE_BCF
-            memmove_s( at[k].neighbor, sizeof(at[k].neighbor[0])*n + 1, at[k].neighbor + num_H, sizeof(at[k].neighbor[0]) * n); /* djb-rwth: function replaced with its safe C11 variant */
-            memmove_s( at[k].bond_stereo, sizeof(at[k].bond_stereo[0])*n + 1, at[k].bond_stereo + num_H, sizeof(at[k].bond_stereo[0]) * n); /* djb-rwth: function replaced with its safe C11 variant */
-            memmove_s( at[k].bond_type, sizeof(at[k].bond_type[0])*n + 1, at[k].bond_type + num_H, sizeof(at[k].bond_type[0]) * n); /* djb-rwth: function replaced with its safe C11 variant */
-#else
             memmove(at[k].neighbor, at[k].neighbor + num_H, sizeof(at[k].neighbor[0]) * n);
             memmove(at[k].bond_stereo, at[k].bond_stereo + num_H, sizeof(at[k].bond_stereo[0]) * n);
             memmove(at[k].bond_type, at[k].bond_type + num_H, sizeof(at[k].bond_type[0]) * n);
-#endif
         }
         /* clear the 'tails' */
         memset( at[k].neighbor + n, 0, sizeof( at[k].neighbor[0] ) * num_H ); /* djb-rwth: memset_s C11/Annex K variant? */
@@ -5859,14 +5815,8 @@ int MakeInChIOutOfStrFromINChI2( INCHI_CLOCK *ic,
                                num_inp, strbuf,
                                0 /* save_opt_bits */ );
 
-
-#if USE_BCF
-    memcpy_s( pStruct->RevInChI.num_components, sizeof(pStruct->RevInChI.num_components), sd->num_components, sizeof(pStruct->RevInChI.num_components)); /* djb-rwth: function replaced with its safe C11 variant */
-    memcpy_s( sd_inp->pStrErrStruct, sizeof(sd_inp->pStrErrStruct), sd->pStrErrStruct, sizeof(sd_inp->pStrErrStruct)); /* djb-rwth: function replaced with its safe C11 variant */
-#else
     memcpy(pStruct->RevInChI.num_components, sd->num_components, sizeof(pStruct->RevInChI.num_components));
     memcpy(sd_inp->pStrErrStruct, sd->pStrErrStruct, sizeof(sd_inp->pStrErrStruct));
-#endif
     pStruct->RevInChI.nRetVal = ret;
 
     /* translate returned value */
@@ -6036,11 +5986,7 @@ int OutputInChIOutOfStrFromINChI( struct tagINCHI_CLOCK *ic,
     if (orig_inp_data->at && orig_inp_data->szCoord)
     {
         int i, k;
-#if USE_BCF
-        memcpy_s( orig_inp_data->at, (long long)len + 1, pOneInput->atom, len ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
         memcpy(orig_inp_data->at, pOneInput->atom, len);
-#endif
         orig_inp_data->num_inp_atoms = pOneInput->num_atoms;
         ClearEndpts( orig_inp_data->at, orig_inp_data->num_inp_atoms );
         /* otherwise fails on CID=450438 */
@@ -6087,12 +6033,7 @@ int OutputInChIOutOfStrFromINChI( struct tagINCHI_CLOCK *ic,
                                orig_inp_data, prep_inp_data,
                                num_inp, strbuf, save_opt_bits );
 
-
-#if USE_BCF
-    memcpy_s( RevInChI.num_components, sizeof(RevInChI.num_components), sd->num_components, sizeof( RevInChI.num_components ) ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
     memcpy(RevInChI.num_components, sd->num_components, sizeof(RevInChI.num_components));
-#endif
     /*
     memcpy(sd_inp->pStrErrStruct, sd->pStrErrStruct, sizeof(sd_inp->pStrErrStruct) );
     */

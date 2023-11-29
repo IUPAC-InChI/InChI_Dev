@@ -113,36 +113,18 @@ int OrigAtData_bCheckUnusualValences( ORIG_ATOM_DATA *orig_at_data,
                 {
                     WarningMessage( pStrErrStruct, "Accepted unusual valence(s):" );
                 }
-#if USE_BCF
-                len = sprintf_s( msg, sizeof(msg), "%s", at[i].elname ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                 len = sprintf(msg, "%s", at[i].elname);
-#endif
                 if (at[i].charge)
                 {
-#if USE_BCF
-                    len += sprintf_s( msg + len, sizeof(msg) - len + 1, "%+d", at[i].charge ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                     len += sprintf(msg + len, "%+d", at[i].charge);
-#endif
                 }
                 if (at[i].radical)
                 {
-#if USE_BCF
-                    len += sprintf_s( msg + len, sizeof(msg) - len + 1, ",%s", at[i].radical == RADICAL_SINGLET ? "s" :
-                                                      at[i].radical == RADICAL_DOUBLET ? "d" :
-                                                      at[i].radical == RADICAL_TRIPLET ? "t" : "?" ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                     len += sprintf(msg + len, ",%s", at[i].radical == RADICAL_SINGLET ? "s" :
                         at[i].radical == RADICAL_DOUBLET ? "d" :
                         at[i].radical == RADICAL_TRIPLET ? "t" : "?");
-#endif
                 }
-#if USE_BCF
-                len += sprintf_s( msg + len, sizeof(msg) - len + 1, "(%d)", val ); /* djb-rwth: function replaced with its safe C11 variant; ignoring LLVM warning: variable used to store function return value */
-#else
                 len += sprintf(msg + len, "(%d)", val);
-#endif
                 if (!bNoWarnings)
                 {
                     WarningMessage( pStrErrStruct, msg );
@@ -217,33 +199,18 @@ int OrigAtData_Duplicate( ORIG_ATOM_DATA *new_orig_atom,
         /* Copy */
         if (orig_atom->at)
         {
-#if USE_BCF
-            memcpy_s( at, sizeof(new_orig_atom->at[0])*orig_nat + 1, orig_atom->at,
-                 orig_nat * sizeof( new_orig_atom->at[0] ) ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
             memcpy(at, orig_atom->at,
                 orig_nat * sizeof(new_orig_atom->at[0]));
-#endif
         }
         if (orig_atom->nCurAtLen)
         {
-#if USE_BCF
-            memcpy_s( nCurAtLen, sizeof(nCurAtLen[0])*(orig_atom->num_components) + 1, orig_atom->nCurAtLen,
-                 orig_atom->num_components * sizeof( nCurAtLen[0] ) ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
             memcpy(nCurAtLen, orig_atom->nCurAtLen,
                 orig_atom->num_components * sizeof(nCurAtLen[0]));
-#endif
         }
         if (orig_atom->nOldCompNumber)
         {
-#if USE_BCF
-            memcpy_s( nOldCompNumber, sizeof(nOldCompNumber[0])*(orig_atom->num_components) + 1, orig_atom->nOldCompNumber,
-                 orig_atom->num_components * sizeof( nOldCompNumber[0] ) ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
             memcpy(nOldCompNumber, orig_atom->nOldCompNumber,
                 orig_atom->num_components * sizeof(nOldCompNumber[0]));
-#endif
         }
 
         /* Deallocate */
@@ -281,11 +248,7 @@ int OrigAtData_Duplicate( ORIG_ATOM_DATA *new_orig_atom,
             {
                 goto exit_function;
             }
-#if USE_BCF
-            memcpy_s(new_orig_atom->szCoord, sizeof(new_orig_atom->szCoord[0])*orig_nat + 1, orig_atom->szCoord, orig_nat * sizeof(new_orig_atom->szCoord[0])); /* djb-rwth: function replaced with its safe C11 variant */
-#else
             memcpy(new_orig_atom->szCoord, orig_atom->szCoord, orig_nat * sizeof(new_orig_atom->szCoord[0]));
-#endif
         }
         
 
@@ -307,11 +270,7 @@ int OrigAtData_Duplicate( ORIG_ATOM_DATA *new_orig_atom,
                 inchi_free(newp); /* djb-rwth: avoiding memory leak */
                 goto exit_function;
             }
-#if USE_BCF
-            memcpy_s( newp, sizeof(OAD_Polymer) + 1, orig_atom->polymer, sizeof( OAD_Polymer ) ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
             memcpy(newp, orig_atom->polymer, sizeof(OAD_Polymer));
-#endif
             newp->units = (OAD_PolymerUnit**) inchi_calloc( newp->n, sizeof(OAD_PolymerUnit*) ); /* djb-rwth: inchi_calloc must return OAD_PolymerUnit** */
             if (!newp->units)
             {
@@ -331,11 +290,7 @@ int OrigAtData_Duplicate( ORIG_ATOM_DATA *new_orig_atom,
                     inchi_free(newp); /* djb-rwth: avoiding memory leak */
                     goto exit_function;
                 }
-#if USE_BCF
-                memcpy_s( newp->pzz, sizeof(newp->pzz[0])*(newp->n_pzz) + 1, oldp->pzz, newp->n_pzz * sizeof(oldp->pzz[0])); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                 memcpy(newp->pzz, oldp->pzz, newp->n_pzz * sizeof(oldp->pzz[0]));
-#endif
             }
             new_orig_atom->polymer = newp;
         }
@@ -351,11 +306,7 @@ int OrigAtData_Duplicate( ORIG_ATOM_DATA *new_orig_atom,
                 inchi_free(new_v3000); /* djb-rwth: avoiding memory leak */
                 goto exit_function;
             }
-#if USE_BCF
-            memcpy_s( new_v3000, sizeof(OAD_V3000), orig_atom->v3000, sizeof( OAD_V3000 ) ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
             memcpy(new_v3000, orig_atom->v3000, sizeof(OAD_V3000));
-#endif
             if (orig_atom->v3000->atom_index_orig)
             {
                 new_v3000->atom_index_orig = (int *) inchi_calloc( orig_nat, sizeof( int ) );
@@ -365,11 +316,7 @@ int OrigAtData_Duplicate( ORIG_ATOM_DATA *new_orig_atom,
                     inchi_free(new_v3000); /* djb-rwth: avoiding memory leak */
                     goto exit_function;
                 }
-#if USE_BCF
-                memcpy_s( new_v3000->atom_index_orig, sizeof(int)*orig_nat + 1, orig_atom->v3000->atom_index_orig, orig_nat * sizeof(int)); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                 memcpy(new_v3000->atom_index_orig, orig_atom->v3000->atom_index_orig, orig_nat * sizeof(int));
-#endif
             }
             if (orig_atom->v3000->atom_index_fin)
             {
@@ -380,11 +327,7 @@ int OrigAtData_Duplicate( ORIG_ATOM_DATA *new_orig_atom,
                     inchi_free(new_v3000); /* djb-rwth: avoiding memory leak */
                     goto exit_function;
                 }
-#if USE_BCF
-                memcpy_s( new_v3000->atom_index_fin, sizeof(int)*orig_nat + 1, orig_atom->v3000->atom_index_fin, orig_nat * sizeof( int ) ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                 memcpy(new_v3000->atom_index_fin, orig_atom->v3000->atom_index_fin, orig_nat * sizeof(int));
-#endif
             }
             if (orig_atom->v3000->n_haptic_bonds && orig_atom->v3000->lists_haptic_bonds)
             {
@@ -401,11 +344,7 @@ int OrigAtData_Duplicate( ORIG_ATOM_DATA *new_orig_atom,
                         inchi_free(new_v3000); /* djb-rwth: avoiding memory leak */
                         goto exit_function;
                     }
-#if USE_BCF
-                    memcpy_s( lst, sizeof(int)*nn + 1, old_lst, nn * sizeof( int ) ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                     memcpy(lst, old_lst, nn * sizeof(int));
-#endif
                 }
             }
             if (orig_atom->v3000->n_steabs && orig_atom->v3000->lists_steabs)
@@ -423,11 +362,7 @@ int OrigAtData_Duplicate( ORIG_ATOM_DATA *new_orig_atom,
                         inchi_free(new_v3000); /* djb-rwth: avoiding memory leak */
                         goto exit_function;
                     }
-#if USE_BCF
-                    memcpy_s( lst, sizeof(int)*nn + 1, old_lst, nn * sizeof(int)); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                     memcpy(lst, old_lst, nn * sizeof(int));
-#endif
                 }
             }
             if (orig_atom->v3000->n_sterel && orig_atom->v3000->lists_sterel)
@@ -450,11 +385,7 @@ int OrigAtData_Duplicate( ORIG_ATOM_DATA *new_orig_atom,
                         inchi_free(new_v3000); /* djb-rwth: avoiding memory leak */
                         goto exit_function;
                     }
-#if USE_BCF
-                    memcpy_s( lst, sizeof(int)*nn + 1, old_lst, nn * sizeof( int ) ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                     memcpy(lst, old_lst, nn * sizeof(int));
-#endif
                 }
             }
             if (orig_atom->v3000->n_sterac && orig_atom->v3000->lists_sterac)
@@ -474,11 +405,7 @@ int OrigAtData_Duplicate( ORIG_ATOM_DATA *new_orig_atom,
                             inchi_free(new_v3000); /* djb-rwth: avoiding memory leak */
                             goto exit_function;
                         }
-#if USE_BCF
-                        memcpy_s(lst, sizeof(int) * nn + 1, old_lst, nn * sizeof(int)); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                         memcpy(lst, old_lst, nn * sizeof(int));
-#endif
                     }
                 }
             }
@@ -648,11 +575,7 @@ int PreprocessOneStructure( struct tagINCHI_CLOCK *ic,
         if ((i = ReconcileAllCmlBondParities( prep_inp_data->at, prep_inp_data->num_inp_atoms, 0 ))) /* djb-rwth: addressing LLVM warning */
         {
             char szErrCode[16];
-#if USE_BCF
-            sprintf_s( szErrCode, sizeof(szErrCode), "%d", i ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
             sprintf(szErrCode, "%d", i);
-#endif
             AddErrorMessage( sd->pStrErrStruct, "0D Parities Reconciliation failed:" );
             AddErrorMessage( sd->pStrErrStruct, szErrCode );
         }
@@ -800,11 +723,7 @@ int PreprocessOneStructure( struct tagINCHI_CLOCK *ic,
             if ((i = ReconcileAllCmlBondParities( prep_inp_data->at, prep_inp_data->num_inp_atoms, 1 ))) /* djb-rwth: addressing LLVM warning */
             {
                 char szErrCode[16];
-#if USE_BCF
-                sprintf_s( szErrCode, sizeof(szErrCode), "%d", i ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                 sprintf(szErrCode, "%d", i);
-#endif
                 AddErrorMessage( sd->pStrErrStruct, "0D Parities Reconciliation failed:" );
                 AddErrorMessage( sd->pStrErrStruct, szErrCode );
             }
@@ -1093,11 +1012,7 @@ int CreateCompositeNormAtom( COMP_ATOM_DATA  *composite_norm_data,
                 at = composite_norm_data[jj].at + tot_num_at; /* points to the 1st destination atom */
                 at_from = ( jj == TAUT_INI && k == TAUT_YES && all_inp_norm_data[i][k].at_fixed_bonds ) ?
                     all_inp_norm_data[i][k].at_fixed_bonds : all_inp_norm_data[i][k].at;
-#if USE_BCF
-                memcpy_s( at, sizeof(composite_norm_data[0].at[0])* cur_num_at + 1, at_from, sizeof(composite_norm_data[0].at[0])* cur_num_at); /* copy atoms except terminal H */ /* djb-rwth: function replaced with its safe C11 variant */
-#else
                 memcpy(at, at_from, sizeof(composite_norm_data[0].at[0])* cur_num_at); /* copy atoms except terminal H */
-#endif
                 /* shift neighbors of main atoms */
                 for (n = 0; n < cur_num_at; n++, at++)
                 {
@@ -1110,13 +1025,8 @@ int CreateCompositeNormAtom( COMP_ATOM_DATA  *composite_norm_data,
                 if (cur_num_H)
                 {
                     at = composite_norm_data[jj].at + num_at[jj] + tot_num_H; /* points to the 1st destination atom */
-#if USE_BCF
-                    memcpy_s( at, sizeof(composite_norm_data[0].at[0])*cur_num_H + 1, at_from + cur_num_at,
-                            sizeof( composite_norm_data[0].at[0] ) * cur_num_H ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                     memcpy(at, at_from + cur_num_at,
                         sizeof(composite_norm_data[0].at[0])* cur_num_H);
-#endif
                     /* shift neighbors of explicit H atoms */
                     for (n = 0; n < cur_num_H; n++, at++)
                     {
@@ -1263,11 +1173,7 @@ OAD_PolymerUnit* OAD_PolymerUnit_New( int       maxatoms,
         u2->xbr1[k] = 0.0;
         u2->xbr2[k] = 0.0;
     }
-#if USE_BCF
-    strcpy_s( u2->smt, strlen(smt) + 1, smt); /* djb-rwth: function replaced with its safe C11 variant */
-#else
     strcpy(u2->smt, smt);
-#endif
     u2->cap1 = -1;
     u2->end_atom1 = -1;
     u2->cap2 = -1;
@@ -1355,11 +1261,7 @@ OAD_PolymerUnit* OAD_PolymerUnit_CreateCopy( OAD_PolymerUnit *u )
         u2->xbr2[k] = u->xbr2[k];
     }
 
-#if USE_BCF
-    strcpy_s( u2->smt, strlen(u2->smt) + 1, u->smt ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
     strcpy(u2->smt, u->smt);
-#endif
 
     u2->cap1 = u->cap1;
     u2->end_atom1 = u->end_atom1;

@@ -1670,11 +1670,7 @@ int RemoveKnownNonStereoBondParities( sp_ATOM       *at,
                     {
                         if (n < m)
                         { /*  remove pCS->LinearCTStereoDble[n] */
-#if USE_BCF
-                            memmove_s( pCS->LinearCTStereoDble + n, ((long long)m - (long long)n)*sizeof(pCS->LinearCTStereoDble[0]) + 1, pCS->LinearCTStereoDble + n + 1, ( (long long)m - (long long)n ) * sizeof( pCS->LinearCTStereoDble[0] ) ); /* djb-rwth: cast operators added; function replaced with its safe C11 variant */
-#else
                             memmove( pCS->LinearCTStereoDble + n, pCS->LinearCTStereoDble + n + 1, ( (long long)m - (long long)n ) * sizeof( pCS->LinearCTStereoDble[0] ) ); /* djb-rwth: cast operators added */
-#endif
                         }
                         pCS->nLenLinearCTStereoDble--;
 #if ( bRELEASE_VERSION == 0 )
@@ -1893,11 +1889,7 @@ int RemoveKnownNonStereoCenterParities( CANON_GLOBALS *pCG,
                             {
                                 if (n < m)
                                 {    /*  remove pCS->LinearCTStereoCarb[n] */
-#if USE_BCF
-                                    memmove_s( pCS->LinearCTStereoCarb + n, ((long long)m - (long long)n)*sizeof(pCS->LinearCTStereoCarb[0]) + 1, pCS->LinearCTStereoCarb + n + 1, ( (long long)m - (long long)n ) * sizeof( pCS->LinearCTStereoCarb[0] ) ); /* djb-rwth: cast operators added; function replaced with its safe C11 variant */
-#else
                                     memmove( pCS->LinearCTStereoCarb + n, pCS->LinearCTStereoCarb + n + 1, ( (long long)m - (long long)n ) * sizeof( pCS->LinearCTStereoCarb[0] ) ); /* djb-rwth: cast operators added */
-#endif
                                 }
                                 pCS->nLenLinearCTStereoCarb--;
                                 k = 0;
