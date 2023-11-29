@@ -984,13 +984,8 @@ int MolfileV3000ReadAtomsBlock( MOL_FMT_CTAB* ctab,
             if (ctab->coords)
             {
                 char szcoords[40];
-#if USE_BCF
-                sprintf_s( szcoords, sizeof(szcoords) + 1, "%10g%10g%10g", fx, fy, fz ); /* djb-rwth: function replaced with its safe C11 variant */
-                strcpy_s( ctab->coords[i], strlen(szcoords) + 1, szcoords); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                 sprintf(szcoords, "%10g%10g%10g", fx, fy, fz);
                 strcpy(ctab->coords[i], szcoords);
-#endif
             }
 
             if (!strcmp( symbol, "*" ))
@@ -1870,11 +1865,7 @@ int get_V3000_input_line_to_strbuf( INCHI_IOS_STRING *buf,
             return -1;
         }
 
-#if USE_BCF
-        memmove_s( (void*) ( buf->pStr + old_used ), (long long)buf->nUsedLength - (long long)old_used + 2, (void*) ( buf->pStr + old_used + 7 ), (long long)buf->nUsedLength - (long long)old_used + 1 ); /* djb-rwth: cast operators added */ /* djb-rwth: function replaced with its safe C11 variant */
-#else
         memmove((void*)(buf->pStr + old_used), (void*)(buf->pStr + old_used + 7), (long long)buf->nUsedLength - (long long)old_used + 1); /* djb-rwth: cast operators added */
-#endif
         buf->nUsedLength -= 7;
 
         if (buf->pStr[buf->nUsedLength - 1] != '-')

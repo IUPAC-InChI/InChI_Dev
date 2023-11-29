@@ -1078,19 +1078,11 @@ int MolfileReadPropBlock( MOL_FMT_CTAB* ctab,
                 }
                 if (strlen( p ) < sizeof( ctab->atoms[0].symbol ))
                 {
-#if USE_BCF
-                    strcpy_s( atom->symbol, strlen(p) + 1, p); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                     strcpy(atom->symbol, p);
-#endif
                 }
                 else
                 {
-#if USE_BCF
-                    strcpy_s( atom->symbol, 5, "???" ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                     strcpy(atom->symbol, "???");
-#endif
                 }
                 atom->atom_aliased_flag++;
             }
@@ -1837,11 +1829,7 @@ int MolfileReadSgroupOfPolymer( MOL_FMT_CTAB* ctab,
         if (!fail)
         {
             lrtrim( stmplong, &len );
-#if USE_BCF
-            strcpy_s( ctab->sgroups.group[index]->smt, strlen(stmplong) + 1, stmplong); /* djb-rwth: function replaced with its safe C11 variant */
-#else
             strcpy(ctab->sgroups.group[index]->smt, stmplong);
-#endif
         }
         if (fail)
         {

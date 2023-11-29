@@ -849,11 +849,7 @@ int CurTreeReAlloc( CUR_TREE *cur_tree )
             void *p = cur_tree->tree;
             if ((cur_tree->tree = (AT_NUMB *) inchi_calloc( (long long)cur_tree->max_len + (long long)cur_tree->incr_len, sizeof( cur_tree->tree[0] ) ))) /* djb-rwth: cast operators added; addressing LLVM warning */
             {
-#if USE_BCF
-                memcpy_s( cur_tree->tree, sizeof(cur_tree->tree[0]) * (cur_tree->cur_len) + 1, p, cur_tree->cur_len * sizeof(cur_tree->tree[0])); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                 memcpy(cur_tree->tree, p, cur_tree->cur_len * sizeof(cur_tree->tree[0]));
-#endif
                 inchi_free( p );
                 cur_tree->max_len += cur_tree->incr_len;
                 return 0; /*  ok */
@@ -968,16 +964,9 @@ void CurTreeKeepLastAtomsOnly( CUR_TREE *cur_tree, int tpos, int shift )
             /*  subtract (old segment length)-(new segment length) from the tree length  */
             /*  actual segment length including segment length value = (cur_tree->tree[cur_length_pos]+1) */
             cur_tree->cur_len -= (int) cur_tree->tree[cur_length_pos] - 2;
-#if USE_BCF
-            memmove_s( cur_tree->tree + cur_length_pos - cur_tree->tree[cur_length_pos] + 1, /*  1st atom pos */
-                        sizeof(cur_tree->tree)*((long long)shift + 1),
-                     cur_tree->tree + cur_length_pos - 1,  /*  last atom in the current segment position */
-                     ( (long long)shift + 1 ) * sizeof( cur_tree->tree[0] ) ); /* djb-rwth: cast operator added; function replaced with its safe C11 variant */
-#else
             memmove(cur_tree->tree + cur_length_pos - cur_tree->tree[cur_length_pos] + 1, /*  1st atom pos */
                 cur_tree->tree + cur_length_pos - 1,  /*  last atom in the current segment position */
                 ((long long)shift + 1) * sizeof(cur_tree->tree[0])); /* djb-rwth: cast operator added */
-#endif
             /*  (current segment length) distance from the last tree element has not changed */
             cur_tree->tree[cur_tree->cur_len - shift] = 2;
             /*  add 3 to move to the previous segment length position */

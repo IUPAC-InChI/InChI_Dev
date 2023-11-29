@@ -629,11 +629,7 @@ int fix_odd_things( int num_atoms,
         for (b = el; (e = strchr( b, ';' )); b = e + 1) /* djb-rwth: addressing LLVM warning */
         {
             len = (int) ( e - b );
-#if USE_BCF
-            memcpy_s( elname, (long long)len + 1, b, len ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
             memcpy(elname, b, len);
-#endif
             elname[len] = '\0';
             en[ne3++] = get_periodic_table_number( elname );
         }
@@ -1094,11 +1090,7 @@ int remove_ion_pairs( int num_atoms, inp_ATOM *at )
         for (b = el; (e = strchr( b, ';' )); b = e + 1) /* djb-rwth: addressing LLVM warning */
         {
             len = (int) ( e - b );
-#if USE_BCF
-            memcpy_s( elname, (long long)len + 1, b, len ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
             memcpy(elname, b, len);
-#endif
             elname[len] = '\0';
             en[ne2++] = get_periodic_table_number( elname );
         }
@@ -2173,17 +2165,10 @@ int RemoveInpAtBond( inp_ATOM *atom, int iat, int k )
                         /* remove bond parity from at */
                         if (m < MAX_NUM_STEREO_BONDS - 1)
                         {
-#if USE_BCF
-                            memmove_s( at->sb_parity + m, (MAX_NUM_STEREO_BONDS - 1 - (long long)m)*sizeof(at->sb_parity[0]) + 1, at->sb_parity + m + 1, ( MAX_NUM_STEREO_BONDS - 1 - (long long)m ) * sizeof( at->sb_parity[0] ) ); /* djb-rwth: cast operator added; function replaced with its safe C11 variant */
-                            memmove_s( at->sb_ord + m, (MAX_NUM_STEREO_BONDS - 1 - (long long)m)*sizeof(at->sb_ord[0]) + 1, at->sb_ord + m + 1, ( MAX_NUM_STEREO_BONDS - 1 - (long long)m ) * sizeof( at->sb_ord[0] ) ); /* djb-rwth: cast operator added; function replaced with its safe C11 variant */
-                            memmove_s( at->sn_ord + m, (MAX_NUM_STEREO_BONDS - 1 - (long long)m)*sizeof(at->sn_ord[0]) + 1, at->sn_ord + m + 1, ( MAX_NUM_STEREO_BONDS - 1 - (long long)m ) * sizeof( at->sn_ord[0] ) ); /* djb-rwth: cast operator added; function replaced with its safe C11 variant */
-                            memmove_s( at->sn_orig_at_num + m, (MAX_NUM_STEREO_BONDS - 1 - (long long)m)*sizeof(at->sn_orig_at_num[0]) + 1, at->sn_orig_at_num + m + 1, ( MAX_NUM_STEREO_BONDS - 1 - (long long)m ) * sizeof( at->sn_orig_at_num[0] ) ); /* djb-rwth: cast operator added; function replaced with its safe C11 variant */
-#else
                             memmove(at->sb_parity + m, at->sb_parity + m + 1, (MAX_NUM_STEREO_BONDS - 1 - (long long)m) * sizeof(at->sb_parity[0])); /* djb-rwth: cast operator added */
                             memmove(at->sb_ord + m, at->sb_ord + m + 1, (MAX_NUM_STEREO_BONDS - 1 - (long long)m) * sizeof(at->sb_ord[0])); /* djb-rwth: cast operator added */
                             memmove(at->sn_ord + m, at->sn_ord + m + 1, (MAX_NUM_STEREO_BONDS - 1 - (long long)m) * sizeof(at->sn_ord[0])); /* djb-rwth: cast operator added */
                             memmove(at->sn_orig_at_num + m, at->sn_orig_at_num + m + 1, (MAX_NUM_STEREO_BONDS - 1 - (long long)m) * sizeof(at->sn_orig_at_num[0])); /* djb-rwth: cast operator added */
-#endif
                         }
                         at->sb_parity[MAX_NUM_STEREO_BONDS - 1] = 0;
                         at->sb_ord[MAX_NUM_STEREO_BONDS - 1] = 0;
@@ -2192,17 +2177,10 @@ int RemoveInpAtBond( inp_ATOM *atom, int iat, int k )
                         /* remove bond parity from at2 */
                         if (m2 < MAX_NUM_STEREO_BONDS - 1)
                         {
-#if USE_BCF
-                            memmove_s( at2->sb_parity + m2, (MAX_NUM_STEREO_BONDS - 1 - (long long)m2)*sizeof(at2->sb_parity[0])+ 1, at2->sb_parity + m2 + 1, ( MAX_NUM_STEREO_BONDS - 1 - (long long)m2 ) * sizeof( at2->sb_parity[0] ) ); /* djb-rwth: cast operator added; function replaced with its safe C11 variant */
-                            memmove_s( at2->sb_ord + m2, (MAX_NUM_STEREO_BONDS - 1 - (long long)m2)*sizeof(at2->sb_ord[0]) + 1, at2->sb_ord + m2 + 1, ( MAX_NUM_STEREO_BONDS - 1 - (long long)m2 ) * sizeof( at2->sb_ord[0] ) ); /* djb-rwth: cast operator added; function replaced with its safe C11 variant */
-                            memmove_s( at2->sn_ord + m2, (MAX_NUM_STEREO_BONDS - 1 - (long long)m2) * sizeof(at2->sn_ord[0]) + 1, at2->sn_ord + m2 + 1, ( MAX_NUM_STEREO_BONDS - 1 - (long long)m2 ) * sizeof( at2->sn_ord[0] ) ); /* djb-rwth: cast operator added; function replaced with its safe C11 variant */
-                            memmove_s( at2->sn_orig_at_num + m2, (MAX_NUM_STEREO_BONDS - 1 - (long long)m2)*sizeof(at2->sn_orig_at_num[0]) + 1, at2->sn_orig_at_num + m2 + 1, ( MAX_NUM_STEREO_BONDS - 1 - (long long)m2 ) * sizeof( at2->sn_orig_at_num[0] ) ); /* djb-rwth: cast operator added; function replaced with its safe C11 variant */
-#else
                             memmove(at2->sb_parity + m2, at2->sb_parity + m2 + 1, (MAX_NUM_STEREO_BONDS - 1 - (long long)m2) * sizeof(at2->sb_parity[0])); /* djb-rwth: cast operator added */
                             memmove(at2->sb_ord + m2, at2->sb_ord + m2 + 1, (MAX_NUM_STEREO_BONDS - 1 - (long long)m2) * sizeof(at2->sb_ord[0])); /* djb-rwth: cast operator added */
                             memmove(at2->sn_ord + m2, at2->sn_ord + m2 + 1, (MAX_NUM_STEREO_BONDS - 1 - (long long)m2) * sizeof(at2->sn_ord[0])); /* djb-rwth: cast operator added */
                             memmove(at2->sn_orig_at_num + m2, at2->sn_orig_at_num + m2 + 1, (MAX_NUM_STEREO_BONDS - 1 - (long long)m2) * sizeof(at2->sn_orig_at_num[0])); /* djb-rwth: cast operator added */
-#endif
                         }
                         at2->sb_parity[MAX_NUM_STEREO_BONDS - 1] = 0;
                         at2->sb_ord[MAX_NUM_STEREO_BONDS - 1] = 0;
@@ -2302,15 +2280,9 @@ int RemoveInpAtBond( inp_ATOM *atom, int iat, int k )
 
         if (k < val)
         {
-#if USE_BCF
-            memmove_s( at->neighbor + k, sizeof(at->neighbor[0])* ((long long)val - (long long)k) + 1, at->neighbor + k + 1, sizeof( at->neighbor[0] )*( (long long)val - (long long)k ) ); /* djb-rwth: cast operators added; function replaced with its safe C11 variant */
-            memmove_s( at->bond_stereo + k, sizeof(at->bond_stereo[0])* ((long long)val - (long long)k) + 1, at->bond_stereo + k + 1, sizeof( at->bond_stereo[0] )*( (long long)val - (long long)k ) ); /* djb-rwth: cast operators added; function replaced with its safe C11 variant */
-            memmove_s( at->bond_type + k, sizeof(at->bond_type[0])* ((long long)val - (long long)k) +1, at->bond_type + k + 1, sizeof( at->bond_type[0] )*( (long long)val - (long long)k ) ); /* djb-rwth: cast operators added; function replaced with its safe C11 variant */
-#else
             memmove(at->neighbor + k, at->neighbor + k + 1, sizeof(at->neighbor[0])* ((long long)val - (long long)k)); /* djb-rwth: cast operators added */
             memmove(at->bond_stereo + k, at->bond_stereo + k + 1, sizeof(at->bond_stereo[0])* ((long long)val - (long long)k)); /* djb-rwth: cast operators added */
             memmove(at->bond_type + k, at->bond_type + k + 1, sizeof(at->bond_type[0])* ((long long)val - (long long)k)); /* djb-rwth: cast operators added */
-#endif
         }
 
         at->neighbor[val] = 0;
@@ -2981,11 +2953,7 @@ int DisconnectMetals( ORIG_ATOM_DATA *orig_inp_data,
         num_halogens = num_halogens2;
     }
 
-#if USE_BCF
-    memcpy_s( at, num_atoms*sizeof(at[0]) + 1, atom, num_atoms * sizeof( at[0] ) ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
     memcpy(at, atom, num_atoms * sizeof(at[0]));
-#endif
 
     /* check each atom, mark metals */
     for (i = 0, k = 0, num_changes = 0; i < num_atoms; i++)
@@ -4009,11 +3977,7 @@ int remove_terminal_HDT( int num_atoms, inp_ATOM *at, int bFixTermHChrg )
                 if (num_HydrogenAt == new_at[i].valence - val && num_HydrogenAt + num_OtherNeigh <= MAXVAL)
                 {
                     /* recalculate parity so that it would describe neighbor sequence H,1H,D,T,neigh[0],neigh[1]... */
-#if USE_BCF
-                    memmove_s( new_OtherNeigh_order + num_HydrogenAt, num_OtherNeigh * sizeof(new_OtherNeigh_order[0]) + 1, new_OtherNeigh_order, num_OtherNeigh * sizeof( new_OtherNeigh_order[0] ) ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                     memmove(new_OtherNeigh_order + num_HydrogenAt, new_OtherNeigh_order, num_OtherNeigh * sizeof(new_OtherNeigh_order[0]));
-#endif
                     for (k = 0, j = 1; k <= NUM_H_ISOTOPES; k++)
                     {
                         if (new_HydrogenAt_order[k])
@@ -4050,11 +4014,7 @@ int remove_terminal_HDT( int num_atoms, inp_ATOM *at, int bFixTermHChrg )
             }
             new_at[i].valence = val;
         }
-#if USE_BCF
-        memcpy_s( at, sizeof(at[0])*num_atoms + 1, new_at, sizeof( at[0] )*num_atoms ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
         memcpy(at, new_at, sizeof(at[0])* num_atoms);
-#endif
         ret = num_others;
     }
     else

@@ -446,11 +446,7 @@ int MakeMult( int mult,
 
     if (len + len_delim < ( int )sizeof( szValue ))
     {
-#if USE_BCF
-        strcpy_s( szValue + len, (long long)len_delim + 1, szTailingDelim); /* djb-rwth: function replaced with its safe C11 variant */
-#else
         strcpy(szValue + len, szTailingDelim);
-#endif
         n = inchi_strbuf_printf( buf, "%s", szValue );
         if (-1 == n) *bOverflow |= 1;
         return n;
@@ -936,11 +932,7 @@ int MakeHString( int              bAddDelim,
                                 }
                                 else
                                 {
-#if USE_BCF
-                                    strcpy_s( szValue + len, strlen(pH) + 1, pH ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                                     strcpy(szValue + len, pH);
-#endif
                                     len++;
                                 }
                             }
@@ -1024,11 +1016,7 @@ int MakeHString( int              bAddDelim,
                         }
                         else
                         {
-#if USE_BCF
-                            strcpy_s( szValue + len, strlen(pH) + 1, pH ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                             strcpy(szValue + len, pH);
-#endif
                             len++;
                         }
                     }
@@ -1213,11 +1201,7 @@ int MakeTautString( AT_NUMB          *LinearCT,
                                     len = 0;
                                     break;
                                 case 1:
-#if USE_BCF
-                                    strcpy_s( szValue, strlen(p) + 1, p ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                                     strcpy(szValue, p);
-#endif
                                     len = (int) strlen( szValue );
                                     break;
                                 default:
@@ -1256,11 +1240,7 @@ int MakeTautString( AT_NUMB          *LinearCT,
                                     /*  number of hydrogens */
                                     if (nValue == 1)
                                     {
-#if USE_BCF
-                                        strcpy_s( szValue, strlen(p) + 1, p ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                                         strcpy(szValue, p);
-#endif
                                         len = (int) strlen( szValue );
                                     }
                                     else
@@ -1690,11 +1670,7 @@ int MakeIsoAtomString( INChI_IsotopicAtom *IsotopicAtom,
                                 {
                                     if (( int )sizeof( szValue ) - tot_len > 1)
                                     {
-#if USE_BCF
-                                        strcpy_s( p, strlen(h[j-2]) + 1, h[j - 2]); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                                         strcpy(p, h[j - 2]);
-#endif
                                         len = 1;
                                     }
                                     else
@@ -1821,11 +1797,7 @@ int MakeIsoTautString( INChI_IsotopicTGroup *IsotopicTGroup,
                             else
                                 if (( int )sizeof( szValue ) - tot_len > 1)
                                 {
-#if USE_BCF
-                                    strcpy_s( p, strlen(h[j-1]) + 1, h[j - 1]); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                                     strcpy(p, h[j - 1]);
-#endif
                                     len = 1;
                                 }
                                 else
@@ -1921,11 +1893,7 @@ int MakeIsoHString( int              num_iso_H[],
                     {
                         if (( int )sizeof( szValue ) - tot_len > 1)
                         {
-#if USE_BCF
-                            strcpy_s( p, sizeof(h[j-1]) + 1, h[j - 1]); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                             strcpy(p, h[j - 1]);
-#endif
                             len = 1;
                         }
                         else

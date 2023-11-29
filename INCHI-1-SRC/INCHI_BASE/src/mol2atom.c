@@ -206,11 +206,7 @@ int CreateOrigInpDataFromMolfile( INCHI_IOSTREAM *inp_file,
                 /*  switch at_new <--> orig_at_data->at; */
                 if (orig_at_data->num_inp_atoms)
                 {
-#if USE_BCF
-                    memcpy_s( orig_at_data->at, sizeof(orig_at_data->at[0])*(orig_at_data->num_inp_atoms) + 1, at_old, orig_at_data->num_inp_atoms * sizeof(orig_at_data->at[0])); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                     memcpy(orig_at_data->at, at_old, orig_at_data->num_inp_atoms * sizeof(orig_at_data->at[0]));
-#endif
                     /*  adjust numbering in the newly read structure */
                     for (i = 0; i < num_inp_atoms_new; i++)
                     {
@@ -224,11 +220,7 @@ int CreateOrigInpDataFromMolfile( INCHI_IOSTREAM *inp_file,
                         }
                     }
                     if (orig_at_data->szCoord && szCoordOld)
-#if USE_BCF
-                        memcpy_s( orig_at_data->szCoord, sizeof(MOL_COORD)*(orig_at_data->num_inp_atoms) + 1, szCoordOld, orig_at_data->num_inp_atoms * sizeof(MOL_COORD)); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                         memcpy(orig_at_data->szCoord, szCoordOld, orig_at_data->num_inp_atoms * sizeof(MOL_COORD));
-#endif
                 }
                 if (at_old)
                 {
@@ -242,26 +234,14 @@ int CreateOrigInpDataFromMolfile( INCHI_IOSTREAM *inp_file,
                 }
 
                 /*  Copy newly read structure */
-#if USE_BCF
-                memcpy_s( orig_at_data->at + orig_at_data->num_inp_atoms, sizeof(orig_at_data->at[0])*num_inp_atoms_new + 1,
-                        at_new,
-                        num_inp_atoms_new * sizeof( orig_at_data->at[0] ) ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                 memcpy(orig_at_data->at + orig_at_data->num_inp_atoms,
                     at_new,
                     num_inp_atoms_new * sizeof(orig_at_data->at[0]));
-#endif
                 if (orig_at_data->szCoord && szCoordNew)
                 {
-#if USE_BCF
-                    memcpy_s( orig_at_data->szCoord + orig_at_data->num_inp_atoms, sizeof(MOL_COORD)*num_inp_atoms_new + 1, 
-                            szCoordNew,
-                            num_inp_atoms_new * sizeof( MOL_COORD ) ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                     memcpy(orig_at_data->szCoord + orig_at_data->num_inp_atoms,
                         szCoordNew,
                         num_inp_atoms_new * sizeof(MOL_COORD));
-#endif
                 }
 
                 /*  Add other things */
@@ -419,11 +399,7 @@ int ReadMolfileToInpAtoms( INCHI_IOSTREAM *inp_file,
         }
         else if (!inchi_stricmp( pSdfLabel, "MolfileIntRegNo" ) && pHdr->internal_regno)
         {
-#if USE_BCF
-            sprintf_s( pSdfValue, sizeof(pSdfValue) + 1 + sizeof(pHdr->internal_regno), "%ld", pHdr->internal_regno); /* djb-rwth: function replaced with its safe C11 variant */
-#else
             sprintf(pSdfValue, "%ld", pHdr->internal_regno);
-#endif
         }
 
         if (!pSdfValue[0])
@@ -758,13 +734,8 @@ inp_ATOM* MakeInpAtomsFromMolfileData( MOL_FMT_DATA* mfdata,
         {
             char szMsg[64];
             *err |= 4; /*  too large number of bonds. Some bonds ignored. */
-#if USE_BCF
-            sprintf_s( szMsg, sizeof(szMsg), "Atom '%s' has more than %d bonds",
-                     at[a1].valence >= MAXVAL ? at[a1].elname : at[a2].elname, MAXVAL ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
             sprintf(szMsg, "Atom '%s' has more than %d bonds",
                 at[a1].valence >= MAXVAL ? at[a1].elname : at[a2].elname, MAXVAL);
-#endif
             TREAT_ERR( *err, 0, szMsg );
             continue;
         }
@@ -772,11 +743,7 @@ inp_ATOM* MakeInpAtomsFromMolfileData( MOL_FMT_DATA* mfdata,
         if (bond_type < MIN_INPUT_BOND_TYPE || bond_type > MAX_INPUT_BOND_TYPE)
         {
             char szBondType[16];
-#if USE_BCF
-            sprintf_s( szBondType, sizeof(szBondType), "%d", bond_type ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
             sprintf(szBondType, "%d", bond_type);
-#endif
             bond_type = 1;
             TREAT_ERR( *err, 0, "Unrecognized bond type:" );
             TREAT_ERR( *err, 0, szBondType );
@@ -1261,22 +1228,12 @@ int DuplicateInfoAtomData( INF_ATOM_DATA *inf_at_data_to,
 
     if (AllocateInfoAtomData( inf_at_data_to, inf_at_data_from->num_at, inf_at_data_from->num_components ))
     {
-#if USE_BCF
-        memcpy_s( inf_at_data_to->at, sizeof(inf_at_data_to->at[0])*(inf_at_data_from->num_at) + 1, inf_at_data_from->at,
-                inf_at_data_from->num_at * sizeof( inf_at_data_to->at[0] ) ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
         memcpy(inf_at_data_to->at, inf_at_data_from->at,
             inf_at_data_from->num_at * sizeof(inf_at_data_to->at[0]));
-#endif
         if (inf_at_data_to->pStereoFlags && inf_at_data_from->pStereoFlags)
         {
-#if USE_BCF
-            memcpy_s( inf_at_data_to->pStereoFlags, sizeof(inf_at_data_to->pStereoFlags[0]) * ((long long)inf_at_data_from->num_components + 1) + 1, inf_at_data_from->pStereoFlags,
-                ( (long long)inf_at_data_from->num_components + 1 ) * sizeof( inf_at_data_to->pStereoFlags[0] ) ); /* djb-rwth: cast operator added; function replaced with its safe C11 variant */
-#else
             memcpy(inf_at_data_to->pStereoFlags, inf_at_data_from->pStereoFlags,
                 ((long long)inf_at_data_from->num_components + 1) * sizeof(inf_at_data_to->pStereoFlags[0])); /* djb-rwth: cast operator added */
-#endif
         }
         return 1;
     }
@@ -1468,11 +1425,7 @@ int SetExtOrigAtDataByMolfileExtInput( MOL_FMT_DATA* mfdata,
                 unitk->xbr1[q] = groupk->xbr1[q];
                 unitk->xbr2[q] = groupk->xbr2[q];
             }
-#if USE_BCF
-            strcpy_s( unitk->smt, strlen(groupk->smt) + 1, groupk->smt); /* djb-rwth: function replaced with its safe C11 variant */
-#else
             strcpy(unitk->smt, groupk->smt);
-#endif
             unitk->na = groupk->alist.used;
             unitk->alist = (int *) inchi_calloc( unitk->na, sizeof( int ) );
             if (!unitk->alist)
@@ -1556,11 +1509,7 @@ int SetExtOrigAtDataByMolfileExtInput( MOL_FMT_DATA* mfdata,
                 TREAT_ERR( err, 9001, "Out of RAM" );
                 goto exit_function;
             }
-#if USE_BCF
-            memcpy_s( pv->atom_index_orig, mfdata->ctab.n_atoms  + 1, mpv->atom_index_orig, mfdata->ctab.n_atoms); /* djb-rwth: function replaced with its safe C11 variant */
-#else
             memcpy(pv->atom_index_orig, mpv->atom_index_orig, mfdata->ctab.n_atoms);
-#endif
         }
         if (mpv->atom_index_fin)
         {
@@ -1570,11 +1519,7 @@ int SetExtOrigAtDataByMolfileExtInput( MOL_FMT_DATA* mfdata,
                 TREAT_ERR( err, 9001, "Out of RAM" );
                 goto exit_function;
             }
-#if USE_BCF
-            memcpy_s( pv->atom_index_fin, mfdata->ctab.n_atoms + 1, mpv->atom_index_fin, mfdata->ctab.n_atoms); /* djb-rwth: function replaced with its safe C11 variant */
-#else
             memcpy(pv->atom_index_fin, mpv->atom_index_fin, mfdata->ctab.n_atoms);
-#endif
         }
         if (mpv->n_haptic_bonds && mpv->haptic_bonds)
         {

@@ -777,17 +777,6 @@ int DisplayTheWholeCompositeStructure( struct tagCANON_GLOBALS  *pCG,
                 /*  added number of components, added another format */
                 /* for a single component case - DCh         */
                 int bMobileH = ( bDisplayTaut > 0 && nNumTautComponents );
-
-#if USE_BCF
-                sprintf_s( szTitle, sizeof(szTitle), "%s Structure #%ld%s%s.%s%s%s%s%s",
-                              j == TAUT_INI ? "Preprocessed" : "Result for", num_inp,
-                              bMobileH ? ", mobile H" :
-                              bDisplayTaut == 0 ? ", fixed H" : "",
-                              /*j? ", mobile H":", fixed H",*/
-                              k ? ", isotopic" : "",
-                              SDF_LBL_VAL( ip->pSdfLabel, ip->pSdfValue ),
-                              iINChI ? " (Reconnected)" : "" ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                 sprintf(szTitle, "%s Structure #%ld%s%s.%s%s%s%s%s",
                     j == TAUT_INI ? "Preprocessed" : "Result for", num_inp,
                     bMobileH ? ", mobile H" :
@@ -796,7 +785,6 @@ int DisplayTheWholeCompositeStructure( struct tagCANON_GLOBALS  *pCG,
                     k ? ", isotopic" : "",
                     SDF_LBL_VAL(ip->pSdfLabel, ip->pSdfValue),
                     iINChI ? " (Reconnected)" : "");
-#endif
 #ifndef TARGET_LIB_FOR_WINCHI
                 /****** Display composite Result structure **************/
                 nNumIntermediateTaut += ( j == TAUT_INI );
@@ -841,16 +829,6 @@ int DisplayTheWholeCompositeStructure( struct tagCANON_GLOBALS  *pCG,
                                     nEquSet <= inp_data->nNumEquSets;
                                                                     nEquSet++)
                     {
-#if USE_BCF
-                        sprintf_s( szTitle, sizeof(szTitle), "Equ set %d of %d, %s Structure #%ld%s%s.%s%s%s%s%s",
-                                      nEquSet, inp_data->nNumEquSets,
-                                      j == TAUT_INI ? "Preprocessed" : "Result for",
-                                      num_inp,
-                                      ( bDisplayTaut > 0 && nNumTautComponents ) ? ", mobile H" : bDisplayTaut == 0 ? ", fixed H" : "",
-                                      /*j? ", mobile H":", fixed H",*/
-                                      k ? ", isotopic" : "",
-                                      SDF_LBL_VAL( ip->pSdfLabel, ip->pSdfValue ), iINChI ? " (Reconnected)" : "" ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                         sprintf(szTitle, "Equ set %d of %d, %s Structure #%ld%s%s.%s%s%s%s%s",
                             nEquSet, inp_data->nNumEquSets,
                             j == TAUT_INI ? "Preprocessed" : "Result for",
@@ -859,7 +837,6 @@ int DisplayTheWholeCompositeStructure( struct tagCANON_GLOBALS  *pCG,
                             /*j? ", mobile H":", fixed H",*/
                             k ? ", isotopic" : "",
                             SDF_LBL_VAL(ip->pSdfLabel, ip->pSdfValue), iINChI ? " (Reconnected)" : "");
-#endif
                         ip->dp.nEquLabels = inp_data->nEquLabels;
                         ip->dp.nCurEquLabel = nEquSet;
                         ip->dp.nNumEquSets = inp_data->nNumEquSets;
@@ -1148,17 +1125,10 @@ int DisplayTheWholeStructure( struct tagCANON_GLOBALS *pCG,
             nComponent = k / 4;
             bPreprocessed = ( ( k / 2 ) % 2 );
 
-#if USE_BCF
-            sprintf_s( szTitle, 256, "%s Structure #%ld.%s%s%s%s",
-                              bPreprocessed ? "Preprocessed" : bReconnected ? "Reconnected" : "Input",
-                              num_inp,
-                              SDF_LBL_VAL( ip->pSdfLabel, ip->pSdfValue ) ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
             sprintf(szTitle, "%s Structure #%ld.%s%s%s%s",
                 bPreprocessed ? "Preprocessed" : bReconnected ? "Reconnected" : "Input",
                 num_inp,
                 SDF_LBL_VAL(ip->pSdfLabel, ip->pSdfValue));
-#endif
 
 #ifdef TARGET_LIB_FOR_WINCHI
             if (DRAWDATA && DRAWDATA_EXISTS)

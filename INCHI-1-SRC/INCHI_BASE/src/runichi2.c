@@ -168,11 +168,7 @@ int GetOneStructure( INCHI_CLOCK    *ic,
                 {
                     if (struct_fptrs->len_fptr)
                     {
-#if USE_BCF
-                        memcpy_s( new_fptr, sizeof(new_fptr[0]) * (struct_fptrs->len_fptr) + 1, struct_fptrs->fptr, struct_fptrs->len_fptr * sizeof(new_fptr[0])); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                         memcpy(new_fptr, struct_fptrs->fptr, struct_fptrs->len_fptr * sizeof(new_fptr[0]));
-#endif
                     }
                     inchi_free( struct_fptrs->fptr );
                 }
@@ -450,19 +446,11 @@ int ReadTheStructure( struct tagINCHI_CLOCK *ic,
                          ']' == q[0] &&
                          !q[1])
                     {
-#if USE_BCF
-                        sprintf_s( p + 1, sizeof(p) + 1, "%d]", n + 1 ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                         sprintf(p + 1, "%d]", n + 1);
-#endif
                     }
                     else
                     {
-#if USE_BCF
-                        strcat_s( ip->pSdfValue, strlen(ip->pSdfValue)*2 + 8, " [+1]" ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                         strcat(ip->pSdfValue, " [+1]");
-#endif
                     }
                 }
 
@@ -610,19 +598,11 @@ int ReadTheStructure( struct tagINCHI_CLOCK *ic,
                          ']' == q[0] &&
                          !q[1])
                     {
-#if USE_BCF
-                        sprintf_s( p + 1, sizeof(p) + 1, "%d]", n + 1 ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                         sprintf(p + 1, "%d]", n + 1);
-#endif
                     }
                     else
                     {
-#if USE_BCF
-                        strcat_s( ip->pSdfValue, strlen(ip->pSdfValue)*2 + 8, " [+1]"); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                         strcat(ip->pSdfValue, " [+1]");
-#endif
                     }
                 }
 
@@ -1180,15 +1160,9 @@ int InchiToOrigAtom( INCHI_IOSTREAM *inp_molfile,
                 /*  switch at_new <--> orig_at_data->at; */
                 if (orig_at_data->num_inp_atoms)
                 {
-#if USE_BCF
-                    memcpy_s( orig_at_data->at, sizeof(orig_at_data->at[0])*(orig_at_data->num_inp_atoms) + 1, 
-                            at_old,
-                            orig_at_data->num_inp_atoms * sizeof( orig_at_data->at[0] ) ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                     memcpy(orig_at_data->at,
                         at_old,
                         orig_at_data->num_inp_atoms * sizeof(orig_at_data->at[0]));
-#endif
                     /*  adjust numbering in the newly read structure */
                     for (i = 0; i < num_inp_atoms_new; i++)
                     {
@@ -1203,15 +1177,9 @@ int InchiToOrigAtom( INCHI_IOSTREAM *inp_molfile,
                     }
                     if (orig_at_data->szCoord && szCoordOld)
                     {
-#if USE_BCF
-                        memcpy_s( orig_at_data->szCoord, sizeof(MOL_COORD)*(orig_at_data->num_inp_atoms) + 1,
-                                szCoordOld,
-                                orig_at_data->num_inp_atoms * sizeof( MOL_COORD ) ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                         memcpy(orig_at_data->szCoord,
                             szCoordOld,
                             orig_at_data->num_inp_atoms * sizeof(MOL_COORD));
-#endif
                     }
                 }
                 if (at_old)
@@ -1225,26 +1193,14 @@ int InchiToOrigAtom( INCHI_IOSTREAM *inp_molfile,
                     szCoordOld = NULL;
                 }
                 /*  copy newly read structure */
-#if USE_BCF
-                memcpy_s( orig_at_data->at + orig_at_data->num_inp_atoms, sizeof(orig_at_data->at[0])*num_inp_atoms_new + 1,
-                        at_new,
-                        num_inp_atoms_new * sizeof( orig_at_data->at[0] ) ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                 memcpy(orig_at_data->at + orig_at_data->num_inp_atoms,
                     at_new,
                     num_inp_atoms_new * sizeof(orig_at_data->at[0]));
-#endif
                 if (orig_at_data->szCoord && szCoordNew)
                 {
-#if USE_BCF
-                    memcpy_s( orig_at_data->szCoord + orig_at_data->num_inp_atoms, sizeof(MOL_COORD)*num_inp_atoms_new + 1,
-                            szCoordNew,
-                            num_inp_atoms_new * sizeof( MOL_COORD ) ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                     memcpy(orig_at_data->szCoord + orig_at_data->num_inp_atoms,
                         szCoordNew,
                         num_inp_atoms_new * sizeof(MOL_COORD));
-#endif
                 }
                 /*  add other things */
                 orig_at_data->num_inp_atoms += num_inp_atoms_new;
@@ -1552,11 +1508,7 @@ int  POSEContext_Init(POSEContext *context,
     }
     else
     {
-#if USE_BCF
-        memcpy_s(&context->sd, sizeof(context->sd) + 1, sd, sizeof(context->sd)); /* djb-rwth: function replaced with its safe C11 variant */
-#else
         memcpy(&context->sd, sd, sizeof(context->sd));
-#endif
     }
 
     if (!ip)
@@ -1565,11 +1517,7 @@ int  POSEContext_Init(POSEContext *context,
     }
     else
     {
-#if USE_BCF
-        memcpy_s(&context->ip, sizeof(context->ip) + 1, ip, sizeof(context->ip));  /* djb-rwth: function replaced with its safe C11 variant */
-#else
         memcpy(&context->ip, ip, sizeof(context->ip));
-#endif
         for (i = 0; i < MAX_NUM_PATHS; i++)
         {
             if (ip->path[i])
@@ -1580,11 +1528,7 @@ int  POSEContext_Init(POSEContext *context,
                     ret = _IS_ERROR;
                     goto exit_function;
                 }
-#if USE_BCF
-                strcpy_s(sz, sizeof(sz) + strlen(context->ip.path[i]) + 1, context->ip.path[i]); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                 strcpy(sz, context->ip.path[i]);
-#endif
                 context->ip.path[i] = sz;
             }
         }
@@ -1592,11 +1536,7 @@ int  POSEContext_Init(POSEContext *context,
 
     if (strlen(szTitle))
     {
-#if USE_BCF
-        strcpy_s(context->szTitle, strlen(szTitle) + 1, szTitle); /* djb-rwth: function replaced with its safe C11 variant */
-#else
         strcpy(context->szTitle, szTitle);
-#endif
     }
     else
     {

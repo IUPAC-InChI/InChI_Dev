@@ -746,11 +746,7 @@ int add_inp_ATOM( inp_ATOM *at,
     if (len_cur + len_add > len_at)
         return -1;
     /* copy */
-#if USE_BCF
-    memcpy_s( at + len_cur, sizeof(at[0])*len_add + 1, add, len_add * sizeof(at[0])); /* djb-rwth: function replaced with its safe C11 variant */
-#else
     memcpy(at + len_cur, add, len_add * sizeof(at[0]));
-#endif
     /* modify */
     if (len_cur)
     {
@@ -4247,44 +4243,26 @@ int is_DERIV_RING_O_or_NH_OUTSIDE_PRECURSOR( inp_ATOM *at,
         {
             if (at[n0].el_number <= at[n3].el_number)
             {
-#if USE_BCF
-                strcat_s( strO, strlen(strO) + strlen(at[n0].elname) + 3, at[n0].elname); /* djb-rwth: function replaced with its safe C11 variant */
-                strcat_s( strO, strlen(strO) + strlen(at[n3].elname) + 3, at[n3].elname); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                 strcat(strO, at[n0].elname);
                 strcat(strO, at[n3].elname);
-#endif
             }
             else
             {
-#if USE_BCF
-                strcat_s( strO, strlen(strO) + strlen(at[n3].elname) + 3, at[n3].elname ); /* djb-rwth: function replaced with its safe C11 variant */
-                strcat_s( strO, strlen(strO) + strlen(at[n0].elname) + 3, at[n0].elname ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                 strcat(strO, at[n3].elname);
                 strcat(strO, at[n0].elname);
-#endif
             }
         }
         else
         {
             if (da1->typ[idrv] == DERIV_RING_O_OUTSIDE_PRECURSOR)
             {
-#if USE_BCF
-                strcat_s( strO, strlen(strO) + strlen(at[n0].elname) + 3, at[n0].elname ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                 strcat(strO, at[n0].elname);
-#endif
             }
             else
             {
                 if (da1->typ[idrv + 1] == DERIV_RING_O_OUTSIDE_PRECURSOR)
                 {
-#if USE_BCF
-                    strcat_s( strO, strlen(strO) + strlen(at[n3].elname) + 3, at[n3].elname ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                     strcat(strO, at[n3].elname);
-#endif
                 }
             }
         }
@@ -4295,29 +4273,17 @@ int is_DERIV_RING_O_or_NH_OUTSIDE_PRECURSOR( inp_ATOM *at,
         {
             if (1 == at[n0].num_H && 1 == at[n3].num_H)
             {
-#if USE_BCF
-                strcat_s( strN, strlen(strN) + 8, "(NH)2" ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                 strcat(strN, "(NH)2");
-#endif
             }
             else
             {
                 if (1 == at[n0].num_H || 1 == at[n3].num_H)
                 {
-#if USE_BCF
-                    strcat_s( strN, strlen(strN) + 8, "(NH)N" ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                     strcat(strN, "(NH)N");
-#endif
                 }
                 else
                 {
-#if USE_BCF
-                    strcat_s( strN, strlen(strN) + 5, "NN" ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                     strcat(strN, "NN");
-#endif
                 }
             }
         }
@@ -4325,21 +4291,13 @@ int is_DERIV_RING_O_or_NH_OUTSIDE_PRECURSOR( inp_ATOM *at,
         {
             if (da1->typ[idrv] == DERIV_RING_NH_OUTSIDE_PRECURSOR)
             {
-#if USE_BCF
-                strcat_s( strN, strlen(strN) + 7, 1 == at[n0].num_H ? "(NH)" : "N" ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                 strcat(strN, 1 == at[n0].num_H ? "(NH)" : "N");
-#endif
             }
             else
             {
                 if (da1->typ[idrv + 1] == DERIV_RING_NH_OUTSIDE_PRECURSOR)
                 {
-#if USE_BCF
-                    strcat_s( strN, strlen(strN) + 7, 1 == at[n3].num_H ? "(NH)" : "N" ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                     strcat(strN, 1 == at[n3].num_H ? "(NH)" : "N");
-#endif
                 }
             }
         }
@@ -4350,46 +4308,25 @@ int is_DERIV_RING_O_or_NH_OUTSIDE_PRECURSOR( inp_ATOM *at,
         {
 #if( defined(DERIV_RING_O_OUTSIDE_PRECURSOR) && defined(DERIV_RING_NH_OUTSIDE_PRECURSOR) )
             case ( DERIV_RING_O_OUTSIDE_PRECURSOR | DERIV_RING_NH_OUTSIDE_PRECURSOR ):
-#if USE_BCF
-                strcat_s( str, strlen(str) + strlen(strN) + 3, strN); /* djb-rwth: function replaced with its safe C11 variant */
-                strcat_s( str, strlen(str) + strlen(strO) + 3, strO); /* "(NH)O" or "(NH)S" */ /* djb-rwth: function replaced with its safe C11 variant */
-#else
                 strcat(str, strN);
                 strcat(str, strO); /* "(NH)O" or "(NH)S" */
-#endif
                 break;
 #endif
 #if( defined(DERIV_RING_O_OUTSIDE_PRECURSOR) )
             case ( DERIV_RING_O_OUTSIDE_PRECURSOR ):
-#if USE_BCF
-                strcat_s( str, strlen(str) + strlen(strO) + 3, strO); /* "OO" or "OS" or "SS" */ /* djb-rwth: function replaced with its safe C11 variant */
-#else
                 strcat(str, strO); /* "OO" or "OS" or "SS" */
-#endif
                 break;
 #endif
 #if( defined(DERIV_RING_NH_OUTSIDE_PRECURSOR) )
             case ( DERIV_RING_NH_OUTSIDE_PRECURSOR ):
-#if USE_BCF
-                strcat_s( str, strlen(str) + strlen(strN) + 3, strN); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                 strcat(str, strN);
-#endif
                 break;
 #endif
             default:
-#if USE_BCF
-                strcat_s( str, strlen(str) + 6, "???" ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                 strcat(str, "???");
-#endif
                 break;
         }
-#if USE_BCF
-        strcat_s( str, strlen(str) + 4, "-" ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
         strcat(str, "-");
-#endif
     }
     underiv_list_add( szUnderiv, lenUnderiv, str, 0 );
 
@@ -4599,61 +4536,29 @@ int is_deriv_chain2( inp_ATOM *at,
                     switch (type)
                     {
                         case DERIV_BRIDGE_O:
-#if USE_BCF
-                            strcat_s( szPrecur, strlen(szPrecur) + strlen(at[start].elname) + 3, at[start].elname); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                             strcat(szPrecur, at[start].elname);
-#endif
                             break;
                         case DERIV_BRIDGE_NH:
-#if USE_BCF
-                            strcat_s(szPrecur, strlen(szPrecur) + 5, "NH"); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                             strcat(szPrecur, "NH");
-#endif
                             break;
                         case DERIV_AMINE_tN:
-#if USE_BCF
-                            strcat_s( szPrecur, strlen(szPrecur) + 4, "N" ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                             strcat(szPrecur, "N");
-#endif
                             break;
                         default:
-#if USE_BCF
-                            strcat_s( szPrecur, strlen(szPrecur) + 4, "??" ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                             strcat(szPrecur, "??");
-#endif
                             break;
                     }
-#if USE_BCF
-                    strcat_s( szPrecur, strlen(szPrecur) + 4, "-" ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                     strcat(szPrecur, "-");
-#endif
                     switch (n1)
                     {
                         case 1:
-#if USE_BCF
-                            strcat_s(szPrecur, strlen(szPrecur) + 6, "TMS"); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                             strcat(szPrecur, "TMS");
-#endif
                             break;
                         case 2:
-#if USE_BCF
-                            strcat_s( szPrecur, strlen(szPrecur) + 7, "TBDMS" ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                             strcat(szPrecur, "TBDMS");
-#endif
                             break;
                         default:
-#if USE_BCF
-                            strcat_s( szPrecur, strlen(szPrecur) + 6, "???" ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                             strcat(szPrecur, "???");
-#endif
                             break;
                     }
                     underiv_list_add( szUnderiv, lenUnderiv, szPrecur, ' ' );
@@ -5039,24 +4944,12 @@ int is_deriv_chain2( inp_ATOM *at,
         if (szUnderiv)
         {
             char szRO[16] = "R";
-#if USE_BCF
-            strcat_s(szRO, strlen(szRO) + strlen(at[start].elname) + 3, at[start].elname); /* djb-rwth: function replaced with its safe C11 variant */
-#else
             strcat(szRO, at[start].elname);
-#endif
             if (at[start].num_H == 1)
             {
-#if USE_BCF
-                strcat_s( szRO, strlen(szRO) + 4, "H" ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                 strcat(szRO, "H");
-#endif
             }
-#if USE_BCF
-            strcat_s(szRO, strlen(szRO) + 10, "-Dansyl"); /* djb-rwth: function replaced with its safe C11 variant */
-#else
             strcat(szRO, "-Dansyl");
-#endif
             underiv_list_add( szUnderiv, lenUnderiv, szRO, ' ' );
             underiv_list_add( szUnderiv2, lenUnderiv2, pszDerivName[DERIV_ID_Dansyl], ' ' );
             *bitUnderiv |= DERIV_BIT_Dansyl;
@@ -5259,11 +5152,7 @@ int underiv_list_add( char *szUnderivList, int lenUnderivList, const char *szUnd
             {
                 szUnderivList[lenList++] = cDelimiter;
             }
-#if USE_BCF
-            memcpy_s( szUnderivList + lenList, (long long)lenAdd + 2, szUnderiv, (long long)lenAdd + 1); /* +1 adds zero termination */ /* djb-rwth: cast operator added; function replaced with its safe C11 variant */
-#else
             memcpy(szUnderivList + lenList, szUnderiv, (long long)lenAdd + 1); /* +1 adds zero termination */ /* djb-rwth: cast operator added */
-#endif
             return lenList + lenAdd;
         }
     }
@@ -5413,11 +5302,7 @@ int sort_merge_underiv( char *pSdfValue,
             k = strlen( pszUnderiv[i] );
             if (1 < ( num = j - i ))
             {
-#if USE_BCF
-                k = sprintf_s( coeff, sizeof(coeff), "%d", num ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                 k = sprintf(coeff, "%d", num);
-#endif
             }
             if ((long long)n + (long long)k + sizeof( pszUnderivPostfix ) < MAX_SDF_VALUE) /* djb-rwth: cast operators added */
             {
@@ -6018,11 +5903,7 @@ int add_explicit_H( INP_ATOM_DATA *inp_cur_data )
         }
         if (0 < num_added_explicit_H && num_added_explicit_H <= num_removed_H)
         {
-#if USE_BCF
-            memcpy_s( at + num_atoms, sizeof(at)*num_added_explicit_H + 1, at_H, num_added_explicit_H * sizeof( at ) ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
             memcpy(at + num_atoms, at_H, num_added_explicit_H * sizeof(at));
-#endif
             inp_cur_data->num_removed_H = 0;
             inp_cur_data->num_at = ( num_atoms += num_added_explicit_H );
         }
@@ -6151,11 +6032,7 @@ int OAD_Edit_Underivatize( struct tagINCHI_CLOCK *ic,
             }
             if ((at2 = (inp_ATOM*)inchi_malloc(num_atoms * sizeof(inp_ATOM)))) /* djb-rwth: addressing LLVM warning */
             {
-#if USE_BCF
-                memcpy_s(at2, sizeof(inp_ATOM) * num_atoms + 1, at, num_atoms * sizeof(inp_ATOM)); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                 memcpy(at2, at, num_atoms * sizeof(inp_ATOM));
-#endif
             }
         }
 #endif
@@ -7216,11 +7093,7 @@ exit_function:
     {
         numUnderiv = sort_merge_underiv( pSdfValue, bOutputSdf, szUnderivList, cDerivSeparator, underivPrefix, underivPostfix ); /* djb-rwth: ignoring LLVM warning: variable used to store function return value */
         numUnderiv2 = sort_merge_underiv( pSdfValue, bOutputSdf, szUnderivList2, cDerivSeparator, underivPrefix2, underivPostfix2 ); /* djb-rwth: ignoring LLVM warning: variable used to store function return value */
-#if USE_BCF
-        sprintf_s( szbitUnderivList, sizeof(szbitUnderivList), "0x%0.8X", bitUnderivList ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
         sprintf(szbitUnderivList, "0x%0.8X", bitUnderivList);
-#endif
         numUnderiv3 = sort_merge_underiv( pSdfValue, bOutputSdf, szbitUnderivList, cDerivSeparator, underivPrefix3, underivPostfix3 ); /* djb-rwth: ignoring LLVM warning: variable used to store function return value */
     }
 #endif

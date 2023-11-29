@@ -156,11 +156,7 @@ int Extract0DParities( inp_ATOM *at,
                  parity != INCHI_PARITY_UNKNOWN && parity != INCHI_PARITY_UNDEFINED)) /* djb-rwth: addressing LLVM warning */
             {
                 char szTemp[16];
-#if USE_BCF
-                sprintf_s( szTemp, sizeof(szTemp), "#%d", i0D + 1 ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                 sprintf(szTemp, "#%d", i0D + 1);
-#endif
                 TREAT_ERR( *err, 0, "Wrong 0D stereo descriptor(s):" );
                 TREAT_ERR( *err, 0, szTemp );
                 continue; /* warning */
@@ -300,11 +296,7 @@ int Extract0DParities( inp_ATOM *at,
             if (j != 4)
             {
                 char szTemp[16];
-#if USE_BCF
-                sprintf_s( szTemp, sizeof(szTemp), "#%d", i0D + 1 ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                 sprintf(szTemp, "#%d", i0D + 1);
-#endif
                 TREAT_ERR( *err, 0, "Wrong 0D stereo descriptor(s):" );
                 TREAT_ERR( *err, 0, szTemp );
                 continue; /* error */
@@ -430,11 +422,7 @@ int Extract0DParities( inp_ATOM *at,
         if ((k = ReconcileAllCmlBondParities( at, nNumAtoms, 0 ))) /* djb-rwth: addressing LLVM warning */
         {
             char szErrCode[16];
-#if USE_BCF
-            sprintf_s( szErrCode, (long long)k + 1, "%d", k ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
             sprintf( szErrCode, "%d", k );
-#endif
             AddErrorMessage( pStrErr, "0D Parities Reconciliation failed:" );
             AddErrorMessage( pStrErr, szErrCode );
         }
@@ -464,11 +452,7 @@ char* FindToken( INCHI_IOSTREAM *inp_file,
         if (( q = strrchr( p, '/' ) ) && ( q + lToken > szLine + *res ))
         {
             *res -= q - szLine; /* res = the length of the szLine to be left in */
-#if USE_BCF
-            memmove_s( szLine, sizeof(szLine) + (long long)(*res) + 1, q, (long long)*res + 1); /* djb-rwth: cast operator added; function replaced with its safe C11 variant */
-#else
             memmove(szLine, q, (long long)*res + 1); /* djb-rwth: cast operator added */
-#endif
         }
         else
         {
@@ -515,11 +499,7 @@ char *LoadLine( INCHI_IOSTREAM *inp_file,
         if (pos)
         {
             *res -= pos;
-#if USE_BCF
-            memmove_s( szLine, sizeof(szLine) + (long long)(*res) + 1, p, (long long)*res + 1); /* djb-rwth: cast operator added */
-#else
             memmove(szLine, p, (long long)*res + 1); /* djb-rwth: cast operator added */
-#endif
             p = szLine;
             if (*s)
             {
@@ -600,11 +580,7 @@ int InchiToInpAtom( INCHI_IOSTREAM *inp_file,
 
     if (!lenStructHdrPlnAuxStart)
     {
-#if USE_BCF
-        lenStructHdrPlnAuxStart = sprintf_s(sStructHdrPlnAuxStart, sizeof(sStructHdrPlnAuxStart), "AuxInfo="); /* djb-rwth: function replaced with its safe C11 variant */
-#else
         lenStructHdrPlnAuxStart = sprintf(sStructHdrPlnAuxStart, "AuxInfo=");
-#endif
     }
 
     if (at)
@@ -1138,11 +1114,7 @@ int InchiToInpAtom( INCHI_IOSTREAM *inp_file,
                                 goto bypass_end_of_INChI_plain;
                             }
 
-#if USE_BCF
-                            memcpy_s(new_atom_stereo0D, sizeof(*atom_stereo0D)*(len_stereo0D) + 1, atom_stereo0D, len_stereo0D * sizeof(*atom_stereo0D)); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                             memcpy(new_atom_stereo0D, atom_stereo0D, len_stereo0D * sizeof(*atom_stereo0D));
-#endif
                             FreeInchi_Stereo0D(&atom_stereo0D);
                             atom_stereo0D = new_atom_stereo0D;
                             max_len_stereo0D += num_atoms;
@@ -1254,11 +1226,7 @@ int InchiToInpAtom( INCHI_IOSTREAM *inp_file,
                                 bNonZeroXYZ = fabs(xyz) > MIN_BOND_LENGTH;
                                 if (q != NULL)
                                 {
-#if USE_BCF
-                                    memcpy_s(pszCoord[i] + LEN_COORD * (long long)k, q - p + 1, p, q - p); /* djb-rwth: cast operator added; function replaced with its safe C11 variant */
-#else
                                     memcpy(pszCoord[i] + LEN_COORD * (long long)k, p, q - p); /* djb-rwth: cast operator added */
-#endif
                                     if (*q == ',')
                                         q++;
                                     p = q;

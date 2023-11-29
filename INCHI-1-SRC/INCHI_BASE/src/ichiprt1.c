@@ -2125,63 +2125,35 @@ char *szGetTag( const INCHI_TAG *Tag,
                     j = i;
                     if (num++)
                     {
-#if USE_BCF
-                        strcat_s( szTag, strlen(szTag) + 4, ":" ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                         strcat(szTag, ":");
-#endif
                     }
-#if USE_BCF
-                    strcat_s( szTag, strlen(szTag) + strlen(Tag[i].szPlainComment) + 3, Tag[i].szPlainComment); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                     strcat(szTag, Tag[i].szPlainComment);
-#endif
                 }
             }
             if (num)
             {
-#if USE_BCF
-                strcat_s( szTag, strlen(szTag) + 4, "}" ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                 strcat(szTag, "}");
-#endif
                 num = (int) strlen( Tag[j].szPlainLabel );
                 len = (int) strlen( szTag );
                 if (len)
                 {
-#if USE_BCF
-                    memmove_s( szTag + num, (long long)len + 2, szTag, (long long)len + 1 ); /* djb-rwth: cast operator added; function replaced with its safe C11 variant */
-                    memcpy_s( szTag, (long long)num + 1, Tag[j].szPlainLabel, num ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                     memmove(szTag + num, szTag, (long long)len + 1); /* djb-rwth: cast operator added */
                     memcpy(szTag, Tag[j].szPlainLabel, num);
-#endif
                 }
                 else
                 {
-#if USE_BCF
-                    strcpy_s( szTag, strlen(Tag[j].szPlainLabel) + 1, Tag[j].szPlainLabel ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                     strcpy(szTag, Tag[j].szPlainLabel);
-#endif
                 }
                 *bAlways = Tag[j].bAlwaysOutput;
             }
             else
             {
-#if USE_BCF
-                strcpy_s( szTag, 5, "???" ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                 strcpy(szTag, "???");
-#endif
             }
             return szTag;
         }
-#if USE_BCF
-    strcpy_s( szTag, 5, "???" ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
+
     strcpy(szTag, "???");
-#endif
     return szTag;
 }
 
@@ -2228,15 +2200,11 @@ int str_LineEnd( const char       *tag,
             {
                 int n_added = tag_len + 2 + 2;
                 inchi_strbuf_update( buf, n_added );
-#if USE_BCF
-                memmove_s( buf->pStr + tag_len, (long long)buf->nUsedLength + 2, buf->pStr, (long long)buf->nUsedLength + 1); /* djb-rwth: cast operator added; function replaced with its safe C11 variant */
-                                    /* NB: trailing 0 is also memmoved */
-                memcpy_s( buf->pStr, (long long)tag_len + 1, tag, tag_len ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
+
                 memmove(buf->pStr + tag_len, buf->pStr, (long long)buf->nUsedLength + 1); /* djb-rwth: cast operator added */
                 /* NB: trailing 0 is also memmoved */
                 memcpy(buf->pStr, tag, tag_len);
-#endif
+
                 /* to be sure...  */
                 buf->nUsedLength = strlen( buf->pStr );
             }
@@ -2260,21 +2228,13 @@ int CleanOrigCoord( MOL_COORD szCoord, int delim )
 
     for (k = 0; k < NUM_COORD*LEN_COORD; k += LEN_COORD)
     {
-#if USE_BCF
-        memcpy_s( szVal, sizeof(szVal), szCoord + k, LEN_COORD); /* djb-rwth: function replaced with its safe C11 variant */
-#else
         memcpy(szVal, szCoord + k, LEN_COORD);
-#endif
         szVal[LEN_COORD] = '\0';
         lrtrim( szVal, &len );
         coord = strtod( szVal, &q );
         if (MIN_BOND_LENGTH > fabs( coord ))
         {
-#if USE_BCF
-            strcpy_s( szVal, 3, "0" ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
             strcpy(szVal, "0");
-#endif
             len = 1;
             num_zer++;
         }
@@ -2292,11 +2252,7 @@ int CleanOrigCoord( MOL_COORD szCoord, int delim )
                 if (e)
                 {
                     /* new exp; update the length */
-#if USE_BCF
-                    len = last + 1 + sprintf_s( szVal + last + 1, sizeof(e) + 1, "%d", e); /* print exp without leading zeroes and '+' */ /* djb-rwth: function replaced with its safe C11 variant */
-#else
                     len = last + 1 + sprintf(szVal + last + 1, "%d", e); /* print exp without leading zeroes and '+' */
-#endif
                 }
                 else
                 {
@@ -2329,11 +2285,7 @@ int CleanOrigCoord( MOL_COORD szCoord, int delim )
             }
             if (i < last)
             {
-#if USE_BCF
-                memmove_s(szVal + i + 1, (long long)len - (long long)last + 1, szVal + last + 1, (long long)len - (long long)last); /* djb-rwth: cast operator added; function replaced with its safe C11 variant */
-#else
                 memmove(szVal + i + 1, szVal + last + 1, (long long)len - (long long)last); /* djb-rwth: cast operator added */
-#endif
                 len -= last - i;
             }
             /* remove leading zeroes */
@@ -2343,11 +2295,7 @@ int CleanOrigCoord( MOL_COORD szCoord, int delim )
             }
             if (i > fst)
             {
-#if USE_BCF
-                memmove_s( szVal + fst, (long long)len - (long long)fst + 1, szVal + i, (long long)len - (long long)fst); /* djb-rwth: cast operator added; function replaced with its safe C11 variant */
-#else
                 memmove(szVal + fst, szVal + i, (long long)len - (long long)fst); /* djb-rwth: cast operator added */
-#endif
                 len -= i - fst;
             }
         }
@@ -2358,11 +2306,7 @@ int CleanOrigCoord( MOL_COORD szCoord, int delim )
             szBuf[len_buf++] = delim;
 #pragma warning (pop)
         }
-#if USE_BCF
-        memcpy_s( szBuf + len_buf, (long long)len + 1, szVal, len ); /* does not copy zero termination */ /* djb-rwth: function replaced with its safe C11 variant */
-#else
         memcpy(szBuf + len_buf, szVal, len); /* does not copy zero termination*/
-#endif
         len_buf += len;
     }
     /* zero termination */
@@ -2370,11 +2314,8 @@ int CleanOrigCoord( MOL_COORD szCoord, int delim )
     {
         memset( szBuf + len_buf, 0, sizeof( MOL_COORD ) - len_buf ); /* djb-rwth: memset_s C11/Annex K variant? */
     }
-#if USE_BCF
-    memcpy_s( szCoord, sizeof(MOL_COORD) + 1, szBuf, sizeof( MOL_COORD ) ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
+
     memcpy(szCoord, szBuf, sizeof(MOL_COORD));
-#endif
 
     return num_zer;
 #undef MIN_BOND_LENGTH
@@ -2395,11 +2336,7 @@ int WriteOrigCoord( int       num_inp_atoms,
     cur_len = 0;
     for (j = *i; j < num_inp_atoms; )
     {
-#if USE_BCF
-        memcpy_s( szCurCoord, sizeof(szCurCoord), szMolCoord[j], sizeof( szCurCoord ) ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
         memcpy(szCurCoord, szMolCoord[j], sizeof(szCurCoord));
-#endif
         num_zer = CleanOrigCoord( szCurCoord, ',' );
         if (NUM_COORD == num_zer)
         {
@@ -2420,11 +2357,7 @@ int WriteOrigCoord( int       num_inp_atoms,
         {
             if (len)
             {
-#if USE_BCF
-                memcpy_s( szBuf + cur_len, sizeof(szBuf[0])*len + 1, szCurCoord, len * sizeof(szBuf[0])); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                 memcpy(szBuf + cur_len, szCurCoord, len * sizeof(szBuf[0]));
-#endif
             }
             szBuf[cur_len += len] = ';';
             cur_len++;
@@ -2476,15 +2409,9 @@ int WriteOrigAtoms( CANON_GLOBALS *pCG,
     cur_len = 0;
     if (0 == *i)
     {
-#if USE_BCF
-        cur_len = sprintf_s( szBuf, sizeof(num_inp_atoms) + 3, "%d%s", num_inp_atoms,
-            ( sd->bChiralFlag & FLAG_INP_AT_CHIRAL ) ? "c" :
-            ( sd->bChiralFlag & FLAG_INP_AT_NONCHIRAL ) ? "n" : "" ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
         cur_len = sprintf(szBuf, "%d%s", num_inp_atoms,
             (sd->bChiralFlag & FLAG_INP_AT_CHIRAL) ? "c" :
             (sd->bChiralFlag & FLAG_INP_AT_NONCHIRAL) ? "n" : "");
-#endif
     }
     for (j = *i; j < num_inp_atoms; )
     {
@@ -2546,11 +2473,8 @@ int WriteOrigAtoms( CANON_GLOBALS *pCG,
         }
 
         len = len0 = (int) strlen( at[j].elname );
-#if USE_BCF
-        memcpy_s( szCurAtom, (long long)len + 1, at[j].elname, len ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
+
         memcpy(szCurAtom, at[j].elname, len);
-#endif
         bonds_val = nBondsValenceInpAt( at + j, NULL, NULL );
 
         if (( val = needed_unusual_el_valence( at[j].el_number, at[j].charge, at[j].radical,
@@ -2560,11 +2484,7 @@ int WriteOrigAtoms( CANON_GLOBALS *pCG,
             /* valence */
             if (val)
             {
-#if USE_BCF
-                len += sprintf_s( szCurAtom + len, sizeof(szCurAtom) - len + 1, "%d", val > 0 ? val : 0 ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                 len += sprintf(szCurAtom + len, "%d", val > 0 ? val : 0);
-#endif
             }
             /* charge */
             if ((val = at[j].charge)) /* djb-rwth: addressing LLVM warning */
@@ -2572,21 +2492,13 @@ int WriteOrigAtoms( CANON_GLOBALS *pCG,
                 szCurAtom[len++] = val > 0 ? '+' : '-';
                 if (( val = abs( val ) ) > 1)
                 {
-#if USE_BCF
-                    len += sprintf_s( szCurAtom + len, sizeof(szCurAtom) - len + 1, "%d", val ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                     len += sprintf(szCurAtom + len, "%d", val);
-#endif
                 }
             }
             /* radical */
             if ((val = at[j].radical)) /* djb-rwth: addressing LLVM warning */
             {
-#if USE_BCF
-                len += sprintf_s( szCurAtom + len, sizeof(szCurAtom) - len + 1, ".%d", val ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                 len += sprintf(szCurAtom + len, ".%d", val);
-#endif
             }
             /* isotopic shift */
             if ((val = at[j].iso_atw_diff)) /* djb-rwth: addressing LLVM warning */
@@ -2599,28 +2511,17 @@ int WriteOrigAtoms( CANON_GLOBALS *pCG,
                         val = mw + val - 1;
                     else
                         val = mw + val;
-#if USE_BCF
-                len += sprintf_s( szCurAtom + len, sizeof(szCurAtom) - len + 1, "%si%d", len == len0 ? "." : "", val ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
+
                 len += sprintf(szCurAtom + len, "%si%d", len == len0 ? "." : "", val);
-#endif
             }
             /* parity */
             if (parity)
             {
-#if USE_BCF
-                len += sprintf_s( szCurAtom + len, sizeof(szCurAtom) - len + 1, "%s%s", len == len0 ? "." : "",
-                                parity == AB_PARITY_ODD ? "o" :
-                                parity == AB_PARITY_EVEN ? "e" :
-                                parity == AB_PARITY_UNKN ? "u" :
-                                parity == AB_PARITY_UNDF ? "?" : "" ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                 len += sprintf(szCurAtom + len, "%s%s", len == len0 ? "." : "",
                     parity == AB_PARITY_ODD ? "o" :
                     parity == AB_PARITY_EVEN ? "e" :
                     parity == AB_PARITY_UNKN ? "u" :
                     parity == AB_PARITY_UNDF ? "?" : "");
-#endif
             }
             /* implicit isotopic H */
             if (NUM_ISO_H( at, j ))
@@ -2629,18 +2530,10 @@ int WriteOrigAtoms( CANON_GLOBALS *pCG,
                 {
                     if ((val = at[j].num_iso_H[k])) /* djb-rwth: addressing LLVM warning */
                     {
-#if USE_BCF
-                        len += sprintf_s( szCurAtom + len, sizeof(szCurAtom) - len + 1, "%s%c", len == len0 ? "." : "", szIsoH[k] ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                         len += sprintf(szCurAtom + len, "%s%c", len == len0 ? "." : "", szIsoH[k]);
-#endif
                         if (val > 1)
                         {
-#if USE_BCF
-                            len += sprintf_s( szCurAtom + len, sizeof(szCurAtom) - len + 1, "%d", val); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                             len += sprintf(szCurAtom + len, "%d", val);
-#endif
                         }
                     }
                 }
@@ -2649,11 +2542,7 @@ int WriteOrigAtoms( CANON_GLOBALS *pCG,
 
         if (len + cur_len < buf_len)
         {
-#if USE_BCF
-            memcpy_s( szBuf + cur_len, (long long)len + 1, szCurAtom, len ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
             memcpy(szBuf + cur_len, szCurAtom, len);
-#endif
             cur_len += len;
             j++;
         }
@@ -2986,22 +2875,7 @@ int WriteOrigBonds( CANON_GLOBALS *pCG,
                         }
                     }
                 }
-#if USE_BCF
-                len += sprintf_s( szCurBonds + len, sizeof(szCurBonds) - len + 1, "%c%s%s%d",
-                                                  bond_char,
 
-                                                  ( bond_parity == AB_PARITY_ODD ) ? "-" :
-                                                  ( bond_parity == AB_PARITY_EVEN ) ? "+" :
-                                                  ( bond_parity == AB_PARITY_UNKN ) ? "u" :
-                                                  ( bond_parity == AB_PARITY_UNDF ) ? "?" : "",
-
-                                                  ( bond_parityNM == AB_PARITY_ODD ) ? "-" :
-                                                  ( bond_parityNM == AB_PARITY_EVEN ) ? "+" :
-                                                  ( bond_parityNM == AB_PARITY_UNKN ) ? "u" :
-                                                  ( bond_parityNM == AB_PARITY_UNDF ) ? "?" : "",
-
-                                                  j2 + 1 ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                 len += sprintf(szCurBonds + len, "%c%s%s%d",
                     bond_char,
 
@@ -3016,16 +2890,11 @@ int WriteOrigBonds( CANON_GLOBALS *pCG,
                     (bond_parityNM == AB_PARITY_UNDF) ? "?" : "",
 
                     j2 + 1);
-#endif
             }
         }
         if (len + cur_len + 2 < buf_len)
         {
-#if USE_BCF
-            memcpy_s( szBuf + cur_len, (long long)len + 1, szCurBonds, len); /* djb-rwth: function replaced with its safe C11 variant */
-#else
             memcpy(szBuf + cur_len, szCurBonds, len);
-#endif
             cur_len += len;
             szBuf[cur_len++] = ';';
             j++;
@@ -4912,11 +4781,7 @@ int OutputAUXINFO_ReversibilityInfo( CANON_GLOBALS    *pCG,
             }
             if (last_pos > cur_pos)
             {
-#if USE_BCF
-                memcpy_s( strbuf->pStr + strbuf->nUsedLength, (long long)last_pos - (long long)cur_pos + 1, p + cur_pos, (long long)last_pos - (long long)cur_pos); /* djb-rwth: cast operators added; function replaced with its safe C11 variant */
-#else
                 memcpy(strbuf->pStr + strbuf->nUsedLength, p + cur_pos, (long long)last_pos - (long long)cur_pos); /* djb-rwth: cast operators added */
-#endif
                 strbuf->pStr[strbuf->nUsedLength + last_pos - cur_pos] = '\0';
                 /*strbuf->nUsedLength = strbuf->nUsedLength + last_pos - cur_pos;*/
 
@@ -4973,11 +4838,7 @@ int OutputAUXINFO_ReversibilityInfo( CANON_GLOBALS    *pCG,
             }
             if (last_pos > cur_pos)
             {
-#if USE_BCF
-                memcpy_s( strbuf->pStr, (long long)last_pos - (long long)cur_pos + 1, p + cur_pos, (long long)last_pos - (long long)cur_pos); /* djb-rwth: cast operators added; function replaced with its safe C11 variant */
-#else
                 memcpy(strbuf->pStr, p + cur_pos, (long long)last_pos - (long long)cur_pos); /* djb-rwth: cast operators added */
-#endif
                 strbuf->pStr[last_pos - cur_pos] = '\0';
                 strbuf->nUsedLength = last_pos - cur_pos;
                 inchi_ios_print( out_file, "%s%s", strbuf->pStr, io->bPlainTextTags ? "" : "\n" );
@@ -5022,11 +4883,7 @@ int OutputAUXINFO_ReversibilityInfo( CANON_GLOBALS    *pCG,
             }
             if (last_pos > cur_pos)
             {
-#if USE_BCF
-                memcpy_s( strbuf->pStr, (long long)last_pos - (long long)cur_pos + 1, p + cur_pos, (long long)last_pos - (long long)cur_pos); /* djb-rwth: cast operator added; function replaced with its safe C11 variant */
-#else
                 memcpy(strbuf->pStr, p + cur_pos, (long long)last_pos - (long long)cur_pos); /* djb-rwth: cast operator added */
-#endif
                 strbuf->pStr[last_pos - cur_pos] = '\0';
                 strbuf->nUsedLength = last_pos - cur_pos;
                 inchi_ios_print( out_file, "%s%s", strbuf->pStr, io->bPlainTextTags ? "" : "\n" );
@@ -5576,11 +5433,7 @@ int MergeZzInHillFormula(INCHI_IOS_STRING *strbuf)
         inchi_free(scopy); /* djb-rwth: avoiding memory leak */
         return -1; /* failed */
     }    
-#if USE_BCF
-    memcpy_s(scopy, (long long)(strbuf->nAllocatedLength) + 1, strbuf->pStr, strbuf->nAllocatedLength); /* djb-rwth: function replaced with its safe C11 variant */
-#else
     memcpy(scopy, strbuf->pStr, strbuf->nAllocatedLength);
-#endif
     stmp = (char *)inchi_calloc((long long)strbuf->nAllocatedLength + 1, sizeof(char)); /* djb-rwth: cast operator added */
     if (!stmp)
     {
@@ -5600,11 +5453,7 @@ int MergeZzInHillFormula(INCHI_IOS_STRING *strbuf)
             pend = strchr(p, '\0');
         }
         sublen = pend - p;
-#if USE_BCF
-        memcpy_s(stmp, (long long)sublen + 1, p, sublen); /* djb-rwth: function replaced with its safe C11 variant */
-#else
         memcpy(stmp, p, sublen);
-#endif
         stmp[sublen] = '\0';
         MergeZzInStrHillFormulaComponent(stmp);
         if (stmp)
@@ -5651,11 +5500,7 @@ void MergeZzInStrHillFormulaComponent(char *s)
             }
             n += n2;
             offset = (int)(pd - s);
-#if USE_BCF
-            sprintf_s(s+offset, sizeof(n) + 1, "%d", n); /* djb-rwth: function replaced with its safe C11 variant */
-#else
             sprintf(s + offset, "%d", n);
-#endif
         }
     }
     return;

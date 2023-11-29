@@ -116,11 +116,7 @@ int inp2spATOM( inp_ATOM *inp_at, int num_inp_at, sp_ATOM *at )
 
     for (i = 0; i < num_inp_at; i++)
     {
-#if USE_BCF
-        strncpy_s( at[i].elname, sizeof(at[i].elname), inp_at[i].elname, sizeof( at[0].elname ) ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
         strncpy(at[i].elname, inp_at[i].elname, sizeof(at[0].elname));
-#endif
         at[i].el_number = (U_CHAR) get_periodic_table_number( at[i].elname );
         val = at[i].valence = inp_at[i].valence;
         for (j = 0; j < val; j++)
@@ -200,11 +196,7 @@ int GetElementAndCount( const char **f, char *szEl, int *count )
         return -1; /*  not a chemical formula */
     }
     /* v. 1.06 Changed "Zz" to "Zzz" as "Zz" is valid symbol now */
-#if USE_BCF
-    strcpy_s( szEl, 5, "Zzz" ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
     strcpy(szEl, "Zzz");
-#endif
     /*strcpy( szEl, "Zz" );*/
     /*  zero termination 'element' is larger than any other element */
     *count = 99999;         /* zero termination 'element count' is larger than any other count */
@@ -3849,11 +3841,7 @@ int  Create_INChI( CANON_GLOBALS *pCG,
     /* the first struct to process: tautomeric if exists else non-tautomeric */
     out_at = out_norm_data[TAUT_YES]->at ? out_norm_data[TAUT_YES]->at : out_norm_data[TAUT_NON]->at;
     /* copy the input structure to be normalized to the buffer for the normalization data */
-#if USE_BCF
-    memcpy_s( out_at, sizeof(out_at[0])*num_inp_at + 1, inp_at, num_inp_at * sizeof(out_at[0])); /* djb-rwth: function replaced with its safe C11 variant */
-#else
     memcpy(out_at, inp_at, num_inp_at * sizeof(out_at[0]));
-#endif
     /*  tautomeric groups setting */
     t_group_info->bIgnoreIsotopic = 0;   /*  include tautomeric group isotopic info in MarkTautomerGroups() */
     t_group_info->bTautFlags = *pbTautFlags;
@@ -3897,27 +3885,15 @@ int  Create_INChI( CANON_GLOBALS *pCG,
     /*  duplicate the preprocessed structure so that all supplied out_norm_data[]->at buffers are filled */
     if (out_at != out_norm_data[TAUT_YES]->at && out_norm_data[TAUT_YES]->at)
     {
-#if USE_BCF
-        memcpy_s( out_norm_data[TAUT_YES]->at, sizeof(out_at[0])*num_inp_at + 1, out_at, num_inp_at * sizeof( out_at[0] ) ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
         memcpy(out_norm_data[TAUT_YES]->at, out_at, num_inp_at * sizeof(out_at[0]));
-#endif
     }
     if (out_norm_data[TAUT_YES]->at_fixed_bonds && out_norm_data[TAUT_YES]->at)
     {
-#if USE_BCF
-        memcpy_s( out_norm_data[TAUT_YES]->at_fixed_bonds, sizeof(out_at[0])*num_inp_at + 1, out_at, num_inp_at * sizeof( out_at[0] ) ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
         memcpy(out_norm_data[TAUT_YES]->at_fixed_bonds, out_at, num_inp_at * sizeof(out_at[0]));
-#endif
     }
     if (out_at != out_norm_data[TAUT_NON]->at && out_norm_data[TAUT_NON]->at)
     {
-#if USE_BCF
-        memcpy_s( out_norm_data[TAUT_NON]->at, sizeof(out_at[0])*num_inp_at + 1, out_at, num_inp_at * sizeof( out_at[0] ) ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
         memcpy(out_norm_data[TAUT_NON]->at, out_at, num_inp_at * sizeof(out_at[0]));
-#endif
     }
 
     /*
@@ -4874,44 +4850,24 @@ int FillOutCanonInfAtom( struct tagCANON_GLOBALS *pCG,
         /*  element name */
         if (norm_at[i].el_number == PERIODIC_NUMBER_H && 2 <= atw && atw <= 3)
         {
-#if USE_BCF
-            len += sprintf_s( str + len, sizeof(str) - len, "%s", atw == 2 ? "D" : "T" ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
             len += sprintf(str + len, "%s", atw == 2 ? "D" : "T");
-#endif
         }
         else
         {
             if (atw)
             {
-#if USE_BCF
-                len += sprintf_s( str + len, sizeof(str) - len, "^%d", atw ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                 len += sprintf(str + len, "^%d", atw);
-#endif
             }
             if (strcmp( norm_at[i].elname, "Zz" )&& strcmp( norm_at[i].elname, "Zy" ))
             {
-#if USE_BCF
-                len += sprintf_s( str + len, sizeof(str) - len, "%s", norm_at[i].elname ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                 len += sprintf(str + len, "%s", norm_at[i].elname);
-#endif
             }
             else /* always show "Zy" as "Zz" */
             {
 #if ( DISPLAY_ZZ_AS_STAR == 1 )
-#if USE_BCF
-                len += sprintf_s(str + len, sizeof(str) - len, "*"); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                 len += sprintf(str + len, "*");
-#endif
-#else
-#if USE_BCF
-                len += sprintf_s( str + len, sizeof(str) - len, "Zz" ); /* djb-rwth: function replaced with its safe C11 variant */
 #else
                 len += sprintf(str + len, "Zz");
-#endif
 #endif
             }
         }
@@ -4953,21 +4909,13 @@ int FillOutCanonInfAtom( struct tagCANON_GLOBALS *pCG,
         /*  non-isotopic hydrogen atoms */
         if (n > 1)
         {
-#if USE_BCF
-            len += sprintf_s( str + len, sizeof(str) - len, "H%d", n ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
             len += sprintf(str + len, "H%d", n);
-#endif
         }
         else
         {
             if (n == 1)
             {
-#if USE_BCF
-                len += sprintf_s( str + len, sizeof(str) - len, "H" ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                 len += sprintf(str + len, "H");
-#endif
             }
         }
 
@@ -4980,27 +4928,15 @@ int FillOutCanonInfAtom( struct tagCANON_GLOBALS *pCG,
                 {
                     if (j == 0 || (j != 1 && j != 2)) /* djb-rwth: addressing LLVM warning */
                     {
-#if USE_BCF
-                        len += sprintf_s( str + len, sizeof(str) - len, "^%dH", j + 1 ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                         len += sprintf(str + len, "^%dH", j + 1);
-#endif
                     }
                     else
                     {
-#if USE_BCF
-                        len += sprintf_s( str + len, sizeof(str) - len, j == 1 ? "D" : "T" ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                         len += sprintf(str + len, j == 1 ? "D" : "T");
-#endif
                     }
                     if (num_iso_H[j] != 1)
                     {
-#if USE_BCF
-                        len += sprintf_s( str + len, sizeof(str) - len, "%d", (int) num_iso_H[j] ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                         len += sprintf(str + len, "%d", (int)num_iso_H[j]);
-#endif
                     }
                 }
             }
@@ -5016,11 +4952,7 @@ int FillOutCanonInfAtom( struct tagCANON_GLOBALS *pCG,
             {
                 if (isdigit( UCINT str[2] ) && ( n = strtol( str + 2, &q, 10 ) ) && !q[0])
                 {
-#if USE_BCF
-                    len = 1 + sprintf_s( str + 1, sizeof(str), "%d", n + 1 ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                     len = 1 + sprintf(str + 1, "%d", n + 1);
-#endif
                 }
             }
         }
@@ -5032,35 +4964,21 @@ int FillOutCanonInfAtom( struct tagCANON_GLOBALS *pCG,
         /*  charge */
         if (abs( norm_at[i].charge ) > 1)
         {
-#if USE_BCF
-            len += sprintf_s( str + len, sizeof(str) - len, "%+d", norm_at[i].charge ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
             len += sprintf(str + len, "%+d", norm_at[i].charge);
-#endif
         }
         else
         {
             if (abs( norm_at[i].charge ) == 1)
             {
-#if USE_BCF
-                len += sprintf_s( str + len, sizeof(str) - len, "%s", norm_at[i].charge > 0 ? "+" : "-" ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                 len += sprintf(str + len, "%s", norm_at[i].charge > 0 ? "+" : "-");
-#endif
             }
         }
         /*  radical */
         if (norm_at[i].radical)
         {
-#if USE_BCF
-            len += sprintf_s( str + len, sizeof(str) - len, "%s", norm_at[i].radical == RADICAL_SINGLET ? ":" :
-                        norm_at[i].radical == RADICAL_DOUBLET ? "." :
-                        norm_at[i].radical == RADICAL_TRIPLET ? ".." : "?" ); /* djb-rwth: function replaced with its safe C11 variant; ignoring LLVM warning: variable used? */
-#else
             len += sprintf(str + len, "%s", norm_at[i].radical == RADICAL_SINGLET ? ":" :
                 norm_at[i].radical == RADICAL_DOUBLET ? "." :
                 norm_at[i].radical == RADICAL_TRIPLET ? ".." : "?");
-#endif
         }
     }
 
@@ -5085,11 +5003,7 @@ int FillOutCanonInfAtom( struct tagCANON_GLOBALS *pCG,
                 if (norm_at[j].bAmbiguousStereo && ( c == '+' || c == '-' || c == '?' ) && str[0] != '!' &&
                      len + 1 < ( int )sizeof( inf_norm_at[0].at_string ))
                 {
-#if USE_BCF
-                    memmove_s( str + 1, sizeof(str) + (long long)len + 1, str, (long long)len + 1 ); /* djb-rwth: cast operator added; function replaced with its safe C11 variant */
-#else
                     memmove(str + 1, str, (long long)len + 1); /* djb-rwth: cast operator added */
-#endif
                     str[0] = '!'; /* output the atom in red color */
                 }
             }
@@ -5116,11 +5030,7 @@ int FillOutCanonInfAtom( struct tagCANON_GLOBALS *pCG,
                 ( len = strlen( str = inf_norm_at[j].at_string ) + 1 ) < ( int )sizeof( inf_norm_at[0].at_string ) &&
                   str[0] != '!')
             {
-#if USE_BCF
-                memmove_s( str + 1, sizeof(str) + len, str, len ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                 memmove(str + 1, str, len);
-#endif
                 str[0] = '!'; /* output the atom in red color */
                 bAmbiguousStereoBond++;
             }
@@ -5129,11 +5039,7 @@ int FillOutCanonInfAtom( struct tagCANON_GLOBALS *pCG,
                 ( len = strlen( str = inf_norm_at[k].at_string ) + 1 ) < ( int )sizeof( inf_norm_at[0].at_string ) &&
                   str[0] != '!')
             {
-#if USE_BCF
-                memmove_s( str + 1, sizeof(str) + len, str, len ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                 memmove(str + 1, str, len);
-#endif
                 str[0] = '!'; /* output the atom in red color */
                 bAmbiguousStereoBond++;
             }
@@ -5166,13 +5072,8 @@ int FillOutCanonInfAtom( struct tagCANON_GLOBALS *pCG,
                 {
                     if (len < best_len)
                     {
-#if USE_BCF
-                        memcpy_s( best_next_neigh, sizeof(best_next_neigh), next_neigh, sizeof( best_next_neigh ) ); /* djb-rwth: function replaced with its safe C11 variant */
-                        memcpy_s( best_next_atom, sizeof(best_next_atom), next_atom, sizeof( best_next_atom ) ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                         memcpy(best_next_neigh, next_neigh, sizeof(best_next_neigh));
                         memcpy(best_next_atom, next_atom, sizeof(best_next_atom));
-#endif
                         best_len = len;
                         /* djb-rwth: removing redundant code */
                         if (len == 0)
@@ -5274,11 +5175,7 @@ int FillOutCanonInfAtom( struct tagCANON_GLOBALS *pCG,
                     if (len + 1 < len_str)
                     {
                         len += 1;
-#if USE_BCF
-                        strcat_s( str, strlen(str) + 4, "/" ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                         strcat(str, "/");
-#endif
                     }
                 }
             }
@@ -5583,45 +5480,25 @@ int FillOutOneCanonInfAtom( struct tagCANON_GLOBALS *pCG,
             /*  element name */
             if (cur_norm_at->el_number == PERIODIC_NUMBER_H && 2 <= atw && atw <= 3)
             {
-#if USE_BCF
-                len += sprintf_s(str + len, sizeof(str) - len, "%s", atw == 2 ? "D" : "T"); /* djb-rwth: memset_s C11/Annex K variant? */
-#else
                 len += sprintf(str + len, "%s", atw == 2 ? "D" : "T");
-#endif
             }
             else
             {
                 if (atw)
                 {
-#if USE_BCF
-                    len += sprintf_s(str + len, sizeof(str) - len, "^%d", atw); /* djb-rwth: memset_s C11/Annex K variant? */
-#else
                     len += sprintf(str + len, "^%d", atw);
-#endif
                 }
                 /*if (strcmp( cur_norm_at->elname, "Zz" ))*/
                 if (strcmp(cur_norm_at->elname, "Zz") && strcmp(cur_norm_at->elname, "Zy"))
                 {
-#if USE_BCF
-                    len += sprintf_s(str + len, sizeof(str) - len, "%s", cur_norm_at->elname); /* djb-rwth: memset_s C11/Annex K variant? */
-#else
                     len += sprintf(str + len, "%s", cur_norm_at->elname);
-#endif
                 }
                 else /* always show "Zy" as "Zz" */
                 {
 #if ( DISPLAY_ZZ_AS_STAR == 1 )
-#if USE_BCF
-                    len += sprintf_s(str + len, sizeof(str) - len, "*"); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                     len += sprintf(str + len, "*");
-#endif
-#else
-#if USE_BCF
-                    len += sprintf_s(str + len, "Zz"); /* djb-rwth: function replaced with its safe C11 variant */
 #else
                     len += sprintf(str + len, "Zz");
-#endif
 #endif
                 }
             }
@@ -5659,21 +5536,13 @@ int FillOutOneCanonInfAtom( struct tagCANON_GLOBALS *pCG,
             /*  non-isotopic hydrogen atoms */
             if (n > 1)
             {
-#if USE_BCF
-                len += sprintf_s(str + len, sizeof(str) - len, "H%d", n); /* djb-rwth: memset_s C11/Annex K variant? */
-#else
                 len += sprintf(str + len, "H%d", n);
-#endif
             }
             else
             {
                 if (n == 1)
                 {
-#if USE_BCF
-                    len += sprintf_s(str + len, sizeof(str) - len, "H"); /* djb-rwth: memset_s C11/Annex K variant? */
-#else
                     len += sprintf(str + len, "H");
-#endif
                 }
             }
 
@@ -5686,27 +5555,15 @@ int FillOutOneCanonInfAtom( struct tagCANON_GLOBALS *pCG,
                     {
                         if (j == 0 || (j != 1 && j != 2)) /* djb-rwth: addressing LLVM warning */
                         {
-#if USE_BCF
-                            len += sprintf_s(str + len, sizeof(str) - len, "^%dH", j + 1); /* djb-rwth: memset_s C11/Annex K variant? */
-#else
                             len += sprintf(str + len, "^%dH", j + 1);
-#endif
                         }
                         else
                         {
-#if USE_BCF
-                            len += sprintf_s(str + len, sizeof(str) - len, j == 1 ? "D" : "T"); /* djb-rwth: memset_s C11/Annex K variant? */
-#else
                             len += sprintf(str + len, j == 1 ? "D" : "T");
-#endif
                         }
                         if (num_iso_H[j] != 1)
                         {
-#if USE_BCF
-                            len += sprintf_s(str + len, sizeof(str) - len, "%d", (int)num_iso_H[j]); /* djb-rwth: memset_s C11/Annex K variant? */
-#else
                             len += sprintf(str + len, "%d", (int)num_iso_H[j]);
-#endif
                         }
                     }
                 }
@@ -5722,46 +5579,28 @@ int FillOutOneCanonInfAtom( struct tagCANON_GLOBALS *pCG,
                 {
                     if (isdigit(UCINT str[2]) && (n = strtol(str + 2, &q, 10)) && !q[0])
                     {
-#if USE_BCF
-                        len = 1 + sprintf_s(str + 1, sizeof(str), "%d", n + 1); /* djb-rwth: memset_s C11/Annex K variant? */
-#else
                         len = 1 + sprintf(str + 1, "%d", n + 1);
-#endif
                     }
                 }
             }
             /*  charge */
             if (abs(cur_norm_at->charge) > 1)
             {
-#if USE_BCF
-                len += sprintf_s(str + len, sizeof(str) - len, "%+d", cur_norm_at->charge); /* djb-rwth: memset_s C11/Annex K variant? */
-#else
                 len += sprintf(str + len, "%+d", cur_norm_at->charge);
-#endif
             }
             else
             {
                 if (abs(cur_norm_at->charge) == 1)
                 {
-#if USE_BCF
-                    len += sprintf_s(str + len, sizeof(str) - len, "%s", cur_norm_at->charge > 0 ? "+" : "-"); /* djb-rwth: memset_s C11/Annex K variant? */
-#else
                     len += sprintf(str + len, "%s", cur_norm_at->charge > 0 ? "+" : "-");
-#endif
                 }
             }
             /*  radical */
             if (cur_norm_at->radical)
             {
-#if USE_BCF
-                len += sprintf_s(str + len, sizeof(str) - len, "%s", cur_norm_at->radical == RADICAL_SINGLET ? ":" :
-                    cur_norm_at->radical == RADICAL_DOUBLET ? "." :
-                    cur_norm_at->radical == RADICAL_TRIPLET ? ".." : "?"); /* djb-rwth: function replaced with its safe C11 variant; ignoring LLVM warning: variable used? */
-#else
                 len += sprintf(str + len, "%s", cur_norm_at->radical == RADICAL_SINGLET ? ":" :
                     cur_norm_at->radical == RADICAL_DOUBLET ? "." :
                     cur_norm_at->radical == RADICAL_TRIPLET ? ".." : "?");
-#endif
             }
         }
     }
@@ -5787,11 +5626,7 @@ int FillOutOneCanonInfAtom( struct tagCANON_GLOBALS *pCG,
                 if (norm_at[j].bAmbiguousStereo && ( c == '+' || c == '-' || c == '?' ) && str[0] != '!' &&
                      len + 1 < ( int )sizeof( inf_norm_at[0].at_string ))
                 {
-#if USE_BCF
-                    memmove_s( str + 1, sizeof(str) + (long long)len + 1, str, (long long)len + 1 ); /* djb-rwth: cast operator added; function replaced with its safe C11 variant; ignoring LLVM warning: variable used? */
-#else
                     memmove(str + 1, str, (long long)len + 1); /* djb-rwth: cast operator added */
-#endif
                     str[0] = '!'; /* output the atom in red color */
                 }
             }
@@ -5818,11 +5653,7 @@ int FillOutOneCanonInfAtom( struct tagCANON_GLOBALS *pCG,
                 ( len = strlen( str = inf_norm_at[j].at_string ) + 1 ) < ( int )sizeof( inf_norm_at[0].at_string ) &&
                   str[0] != '!')
             {
-#if USE_BCF
-                memmove_s( str + 1, sizeof(str) + len, str, len ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                 memmove(str + 1, str, len);
-#endif
                 str[0] = '!'; /* output the atom in red color */
                 bAmbiguousStereoBond++;
             }
@@ -5830,11 +5661,7 @@ int FillOutOneCanonInfAtom( struct tagCANON_GLOBALS *pCG,
                 ( len = strlen( str = inf_norm_at[k].at_string ) + 1 ) < ( int )sizeof( inf_norm_at[0].at_string ) &&
                   str[0] != '!')
             {
-#if USE_BCF
-                memmove_s(str + 1, sizeof(str) + len, str, len); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                 memmove(str + 1, str, len);
-#endif
                 str[0] = '!'; /* output the atom in red color */
                 bAmbiguousStereoBond++;
             }
@@ -5867,13 +5694,8 @@ int FillOutOneCanonInfAtom( struct tagCANON_GLOBALS *pCG,
                 {
                     if (len < best_len)
                     {
-#if USE_BCF
-                        memcpy_s( best_next_neigh, sizeof(best_next_neigh), next_neigh, sizeof( best_next_neigh ) ); /* djb-rwth: function replaced with its safe C11 variant */
-                        memcpy_s( best_next_atom, sizeof(best_next_atom), next_atom, sizeof( best_next_atom ) ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                         memcpy(best_next_neigh, next_neigh, sizeof(best_next_neigh));
                         memcpy(best_next_atom, next_atom, sizeof(best_next_atom));
-#endif
                         best_len = len;
                         /* djb-rwth: removing redundant code */
                         if (len == 0)
@@ -5980,11 +5802,7 @@ int FillOutOneCanonInfAtom( struct tagCANON_GLOBALS *pCG,
                     if (len + 1 < len_str)
                     {
                         len += 1;
-#if USE_BCF
-                        strcat_s( str, strlen(str) + 4, "/" ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                         strcat(str, "/");
-#endif
                     }
                 }
             }
@@ -6081,45 +5899,25 @@ int FillOutInputInfAtom( inp_ATOM *inp_at,
         /*  element name */
         if (inp_at[i].el_number == PERIODIC_NUMBER_H && 2 <= atw && atw <= 3)
         {
-#if USE_BCF
-            len += sprintf_s( str + len, sizeof(str) - len, "%s", atw == 2 ? "D" : "T" ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
             len += sprintf(str + len, "%s", atw == 2 ? "D" : "T");
-#endif
         }
         else
         {
             if (atw)
             {
-#if USE_BCF
-                len += sprintf_s( str + len, sizeof(str) - len, "^%d", atw ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                 len += sprintf(str + len, "^%d", atw);
-#endif
             }
             /*if (strcmp( inp_at[i].elname, "Zz" ))*/
             if (strcmp( inp_at[i].elname, "Zz" ) && strcmp( inp_at[i].elname, "Zy" ))
             {
-#if USE_BCF
-                len += sprintf_s( str + len, sizeof(str) - len, "%s", inp_at[i].elname ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                 len += sprintf(str + len, "%s", inp_at[i].elname);
-#endif
             }
             else /* always show "Zy" as "Zz" */
             {
 #if ( DISPLAY_ZZ_AS_STAR == 1 )
-#if USE_BCF
-                len += sprintf_s(str + len, sizeof(str) - len, "*"); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                 len += sprintf(str + len, "*");
-#endif
-#else
-#if USE_BCF
-                len += sprintf_s(str + len, sizeof(str) - len, "Zz"); /* djb-rwth: function replaced with its safe C11 variant */
 #else
                 len += sprintf(str + len, "Zz");
-#endif
 #endif
             }
         }
@@ -6157,21 +5955,13 @@ int FillOutInputInfAtom( inp_ATOM *inp_at,
         /*  non-isotopic hydrogen atoms */
         if (n > 1)
         {
-#if USE_BCF
-            len += sprintf_s( str + len, sizeof(str) - len, "H%d", n ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
             len += sprintf(str + len, "H%d", n);
-#endif
         }
         else
         {
             if (n == 1)
             {
-#if USE_BCF
-                len += sprintf_s( str + len, sizeof(str) - len, "H" ); /* fixed 12-21-2002: removed 3rd argument */ /* djb-rwth: function replaced with its safe C11 variant */
-#else
                 len += sprintf(str + len, "H"); /* fixed 12-21-2002: removed 3rd argument */
-#endif
             }
         }
         if (bIsotopic)
@@ -6183,27 +5973,15 @@ int FillOutInputInfAtom( inp_ATOM *inp_at,
                 {
                     if (j == 0 || (j != 1 && j != 2))
                     {
-#if USE_BCF
-                        len += sprintf_s( str + len, sizeof(str) - len, "^%dH", j + 1 ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                         len += sprintf(str + len, "^%dH", j + 1);
-#endif
                     }
                     else
                     {
-#if USE_BCF
-                        len += sprintf_s( str + len, sizeof(str) - len, j == 1 ? "D" : "T" ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                         len += sprintf(str + len, j == 1 ? "D" : "T");
-#endif
                     }
                     if (num_iso_H[j] != 1)
                     {
-#if USE_BCF
-                        len += sprintf_s( str + len, sizeof(str) - len, "%d", (int) num_iso_H[j] ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                         len += sprintf(str + len, "%d", (int)num_iso_H[j]);
-#endif
                     }
                 }
             }
@@ -6219,11 +5997,7 @@ int FillOutInputInfAtom( inp_ATOM *inp_at,
             {
                 if (isdigit( UCINT str[2] ) && ( n = strtol( str + 2, &q, 10 ) ) && !q[0])
                 {
-#if USE_BCF
-                    len = 1 + sprintf_s( str + 1, sizeof(str) + n + 1, "%d", n + 1 ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                     len = 1 + sprintf(str + 1, "%d", n + 1);
-#endif
                 }
             }
         }
@@ -6235,36 +6009,22 @@ int FillOutInputInfAtom( inp_ATOM *inp_at,
         /*  charge */
         if (abs( inp_at[i].charge ) > 1)
         {
-#if USE_BCF
-            len += sprintf_s( str + len, sizeof(str) - len, "%+d", inp_at[i].charge );/* djb-rwth: function replaced with its safe C11 variant */
-#else
             len += sprintf(str + len, "%+d", inp_at[i].charge);
-#endif
         }
         else
         {
             if (abs( inp_at[i].charge ) == 1)
             {
-#if USE_BCF
-                len += sprintf_s( str + len, sizeof(str) - len, "%s", inp_at[i].charge > 0 ? "+" : "-" ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                 len += sprintf(str + len, "%s", inp_at[i].charge > 0 ? "+" : "-");
-#endif
             }
         }
 
         /*  radical */
         if (inp_at[i].radical)
         {
-#if USE_BCF
-            len += sprintf_s( str + len, sizeof(str) - len, "%s", inp_at[i].radical == RADICAL_SINGLET ? ":" :
-                                      inp_at[i].radical == RADICAL_DOUBLET ? "." :
-                                      inp_at[i].radical == RADICAL_TRIPLET ? ".." : "?" ); /* djb-rwth: function replaced with its safe C11 variant; ignoring LLVM warning: variable used? */
-#else
             len += sprintf(str + len, "%s", inp_at[i].radical == RADICAL_SINGLET ? ":" :
                 inp_at[i].radical == RADICAL_DOUBLET ? "." :
                 inp_at[i].radical == RADICAL_TRIPLET ? ".." : "?");
-#endif
         }
     }
 

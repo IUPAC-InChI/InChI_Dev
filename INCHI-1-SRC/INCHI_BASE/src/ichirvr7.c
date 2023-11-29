@@ -501,18 +501,10 @@ int MergeStructureComponents( ICHICONST INPUT_PARMS *ip,
             pStruct[iInchiRec][iAlternH][k].num_atoms ? pStruct[iInchiRec][iAlternH] + k : NULL;
         if ((len = nAtomOffs[k + 1] - nAtomOffs[k])) /* djb-rwth: addressing LLVM warning */
         {
-#if USE_BCF
-            memcpy_s( at + nAtomOffs[k], sizeof(at[0])*len + 1, pStruct1->at2, len * sizeof(at[0])); /* djb-rwth: function replaced with its safe C11 variant */
-#else
             memcpy(at + nAtomOffs[k], pStruct1->at2, len * sizeof(at[0]));
-#endif
             if ((len2 = nDelHOffs[k + 1] - nDelHOffs[k])) /* djb-rwth: addressing LLVM warning */
             {
-#if USE_BCF
-                memcpy_s( at + nDelHOffs[k], sizeof(at[0])*len2 + 1, pStruct1->at2 + len, len2 * sizeof(at[0])); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                 memcpy(at + nDelHOffs[k], pStruct1->at2 + len, len2 * sizeof(at[0]));
-#endif
             }
         }
     }
@@ -635,11 +627,7 @@ int DisplayAllRestoredComponents( struct tagCANON_GLOBALS *pCG,
     dp.sdp.tdp = &tdp;
     dp.pdp = &pdp;
     dp.sdp.nFontSize = -9;
-#if USE_BCF
-    sprintf_s( szTitle, sizeof(szTitle), "All Components of Restored %s Structure", szCurHdr ? szCurHdr : "(No structure name)" ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
     sprintf(szTitle, "All Components of Restored %s Structure", szCurHdr ? szCurHdr : "(No structure name)");
-#endif
     ret = DisplayStructure( pCG, at, num_at, 
                             NULL, /* OAD_Polymer *polymer, */
                             0 /* nNumDeletedH*/, 0 /*bAdd_DT_to_num_H*/,
@@ -698,15 +686,9 @@ int DisplayOneRestoredComponent( struct tagCANON_GLOBALS *pCG,
     dp.sdp.tdp = &tdp;
     dp.pdp = &pdp;
     dp.sdp.nFontSize = -9;
-#if USE_BCF
-    sprintf_s( szTitle, sizeof(szTitle), "Restored %s Component %d of %d %c%c",
-                      szCurHdr ? szCurHdr : "(No structure name)", iComponent + 1, nNumComponents,
-                      pStruct->iInchiRec ? 'R' : 'D', pStruct->iMobileH ? 'M' : 'F' ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
     sprintf(szTitle, "Restored %s Component %d of %d %c%c",
         szCurHdr ? szCurHdr : "(No structure name)", iComponent + 1, nNumComponents,
         pStruct->iInchiRec ? 'R' : 'D', pStruct->iMobileH ? 'M' : 'F');
-#endif
     ret = DisplayStructure( pCG, at, num_at, 
                             NULL, /* OAD_Polymer *polymer, */
                             0 /* nNumDeletedH*/, 0 /*bAdd_DT_to_num_H*/,
@@ -745,11 +727,7 @@ int DisplayRestoredComponent( struct tagCANON_GLOBALS *pCG,
     {
         return RI_ERR_ALLOC;
     }
-#if USE_BCF
-    memcpy_s( at, sizeof(at[0])*((long long)num_at + (long long)num_deleted_H) + 1, atom, ((long long)num_at + (long long)num_deleted_H) * sizeof(at[0])); /* djb-rwth: cast operator added; function replaced with its safe C11 variant */
-#else
     memcpy(at, atom, ((long long)num_at + (long long)num_deleted_H) * sizeof(at[0])); /* djb-rwth: cast operator added */
-#endif
     for (i = 0; i < num_at; i++)
     {
         at[i].x = pxyz[i].xyz[0];
@@ -762,11 +740,7 @@ int DisplayRestoredComponent( struct tagCANON_GLOBALS *pCG,
     dp.sdp.tdp = &tdp;
     dp.pdp = &pdp;
     dp.sdp.nFontSize = -9;
-#if USE_BCF
-    sprintf_s( szTitle, sizeof(szTitle), "DBG Restored %s Component %d %c%c", szCurHdr ? szCurHdr : "(No structure name)", iComponent + 1, pStruct->iInchiRec ? 'R' : 'D', pStruct->iMobileH ? 'M' : 'F' ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
     sprintf(szTitle, "DBG Restored %s Component %d %c%c", szCurHdr ? szCurHdr : "(No structure name)", iComponent + 1, pStruct->iInchiRec ? 'R' : 'D', pStruct->iMobileH ? 'M' : 'F');
-#endif
 
     ret = DisplayStructure( pCG, at, num_at, 
                             NULL, /* OAD_Polymer *polymer, */
@@ -925,11 +899,7 @@ int DisplayStructureComponents( struct tagCANON_GLOBALS *pCG,
             len2 = nDelHOffs[k + 1] - nDelHOffs[k]; /* do not separate H from the atom: we will not need them */
             iCurAtomOffs = nAtomOffs[k];
             a = at + iCurAtomOffs;
-#if USE_BCF
-            memcpy_s( a, sizeof(at[0])*((long long)len + (long long)len2) + 1, pStruct1->at2, ((long long)len + (long long)len2) * sizeof(at[0])); /* djb-rwth: cast operator added; function replaced with its safe C11 variant */
-#else
             memcpy(a, pStruct1->at2, ((long long)len + (long long)len2) * sizeof(at[0])); /* djb-rwth: cast operator added */
-#endif
             DisconnectedConnectedH( a, len, len2 );
             if (pxyz)
             {
@@ -1753,15 +1723,9 @@ int CompareAllDisconnectedOrigInchiToRevInChI( StrFromINChI *pStruct[INCHI_NUM][
 
     /* in case of Mobile-H components here are the proton totals from the original InChI disconn. layer */
     nNumRemovedProtons_D.nNumRemovedProtons = pOneInput->nNumProtons[iInChI][TAUT_YES].nNumRemovedProtons;
-#if USE_BCF
-    memcpy_s( nNumRemovedProtons_D.nNumRemovedIsotopicH, sizeof(nNumRemovedProtons_D.nNumRemovedIsotopicH),
-            pOneInput->nNumProtons[iInChI][TAUT_YES].nNumRemovedIsotopicH,
-            sizeof( nNumRemovedProtons_D.nNumRemovedIsotopicH ) ); /* total for the disconnected layer */ /* djb-rwth: function replaced with its safe C11 variant */
-#else
     memcpy(nNumRemovedProtons_D.nNumRemovedIsotopicH,
         pOneInput->nNumProtons[iInChI][TAUT_YES].nNumRemovedIsotopicH,
         sizeof(nNumRemovedProtons_D.nNumRemovedIsotopicH)); /* total for the disconnected layer */
-#endif
     for (k = 0; k < num_components_D; k++)
     {
         bMobileH = iMobileH;
@@ -2100,15 +2064,9 @@ int CompareAllDisconnectedOrigInchiToRevInChI( StrFromINChI *pStruct[INCHI_NUM][
                 k = pINChISort2[iComponent].n1; /* input InChI, OneInput */
                 if (pOneInput->nNumProtons[INCHI_BAS][TAUT_YES].pNumProtons)
                 {
-#if USE_BCF
-                    memcpy_s( nNumRemovedIsotopicH2, sizeof(nNumRemovedIsotopicH2),
-                        pOneInput->nNumProtons[INCHI_BAS][TAUT_YES].pNumProtons[k].nNumRemovedIsotopicH,
-                        sizeof( nNumRemovedIsotopicH2 ) ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                     memcpy(nNumRemovedIsotopicH2,
                         pOneInput->nNumProtons[INCHI_BAS][TAUT_YES].pNumProtons[k].nNumRemovedIsotopicH,
                         sizeof(nNumRemovedIsotopicH2));
-#endif
                 }
                /* get fragments of reconstructed structure removed protons info */
                 k = pINChISort1[iComponent].n1; /* restored component number */
@@ -2150,15 +2108,9 @@ int CompareAllDisconnectedOrigInchiToRevInChI( StrFromINChI *pStruct[INCHI_NUM][
                             goto compare_iso_H;
                         }
                     }
-#if USE_BCF
-                    memcpy_s( nNumRemovedIsotopicH1, sizeof(nNumRemovedIsotopicH1),
-                        pStruct1->RevInChI.pINChI_Aux[ifInChI][i][TAUT_YES]->nNumRemovedIsotopicH,
-                        sizeof( nNumRemovedIsotopicH1 ) ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                     memcpy(nNumRemovedIsotopicH1,
                         pStruct1->RevInChI.pINChI_Aux[ifInChI][i][TAUT_YES]->nNumRemovedIsotopicH,
                         sizeof(nNumRemovedIsotopicH1));
-#endif
                 }
             compare_iso_H:
                 if (memcmp( nNumRemovedIsotopicH1, nNumRemovedIsotopicH2, sizeof( nNumRemovedIsotopicH1 ) ))
@@ -3169,18 +3121,10 @@ int AddOneMsg( char *szMsg,
     {
         if (len_delim)
         {
-#if USE_BCF
-            strcpy_s( szMsg + used_len, (long long)len_delim + 1, szDelim ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
             strcpy(szMsg + used_len, szDelim);
-#endif
             used_len += len_delim;
         }
-#if USE_BCF
-        strcpy_s( szMsg + used_len, (long long)len + 1, szAddMsg ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
         strcpy(szMsg + used_len, szAddMsg);
-#endif
         used_len += len;
     }
     else
@@ -3189,24 +3133,12 @@ int AddOneMsg( char *szMsg,
         {
             if (len_delim)
             {
-#if USE_BCF
-                strcpy_s( szMsg + used_len, (long long)len_delim + 1, szDelim ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                 strcpy(szMsg + used_len, szDelim);
-#endif
                 used_len += len_delim;
             }
-#if USE_BCF
-            strncpy_s( szMsg + used_len, (long long)len_to_copy + 1, szAddMsg, len_to_copy ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
             strncpy(szMsg + used_len, szAddMsg, len_to_copy);
-#endif
             used_len += len_to_copy;
-#if USE_BCF
-            strcpy_s( szMsg + used_len, strlen(ellip) + 1, ellip ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
             strcpy(szMsg + used_len, ellip);
-#endif
             used_len += sizeof( ellip ) - 1;
         }
     }
@@ -3242,11 +3174,7 @@ int FillOutCompareMessage( char *szMsg, int nLenMsg, INCHI_MODE bits[] )
 
             if (bits[bMobileH])
             {
-#if USE_BCF
-                strcpy_s( szOneMsg, 12, bMobileH == TAUT_YES ? " Mobile-H(" : " Fixed-H(" ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                 strcpy(szOneMsg, bMobileH == TAUT_YES ? " Mobile-H(" : " Fixed-H(");
-#endif
                 len = AddOneMsg( szMsg, len, nLenMsg, szOneMsg, NULL );
             }
 

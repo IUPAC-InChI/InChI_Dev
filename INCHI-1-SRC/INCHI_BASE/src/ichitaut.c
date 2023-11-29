@@ -1169,11 +1169,7 @@ int RegisterEndPoints( CANON_GLOBALS *pCG,
                             ret = -1;
                             goto exit_function;
                         }
-#if USE_BCF
-                        memcpy_s( nGroupNewNumber, sizeof(nGroupNewNumber[0])*nNumNewTGroups + 1, nGroupNewNumberStackArray, nNumNewTGroups * sizeof( nGroupNewNumber[0] ) ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                         memcpy(nGroupNewNumber, nGroupNewNumberStackArray, nNumNewTGroups * sizeof(nGroupNewNumber[0]));
-#endif
                     }
                     /* save newly found fict. t-group ID to compare to the next values of EndPoint[].nEquNumber  */
                     nGroupNewNumber[j] = group;
@@ -1270,11 +1266,7 @@ int RegisterEndPoints( CANON_GLOBALS *pCG,
                             ret = -1;
                             goto exit_function;
                         }
-#if USE_BCF
-                        memcpy_s( nGroupNewNumber, sizeof(nGroupNewNumber[0])*nNumGroups + 1, nGroupNewNumberStackArray, nNumGroups * sizeof( nGroupNewNumber[0] ) ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                         memcpy(nGroupNewNumber, nGroupNewNumberStackArray, nNumGroups * sizeof(nGroupNewNumber[0]));
-#endif
                     }
                     if (nGroupNumber == nGroupNumberStackArray)
                     {
@@ -1284,11 +1276,7 @@ int RegisterEndPoints( CANON_GLOBALS *pCG,
                             ret = -1;
                             goto exit_function;
                         }
-#if USE_BCF
-                        memcpy_s( nGroupNumber, sizeof(nGroupNumber[0])*nNumGroups + 1, nGroupNumberStackArray, nNumGroups * sizeof( nGroupNumber[0] ) ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                         memcpy(nGroupNumber, nGroupNumberStackArray, nNumGroups * sizeof(nGroupNumber[0]));
-#endif
                     }
                 }
 
@@ -1397,11 +1385,7 @@ int RegisterEndPoints( CANON_GLOBALS *pCG,
         num_t--;
         if (num_t > i1)
         {
-#if USE_BCF
-            memmove_s( t_group + i1, sizeof(t_group[0])*((long long)num_t - (long long)i1), t_group + i1 + 1, ((long long)num_t - (long long)i1) * sizeof(t_group[0])); /* djb-rwth: cast operators added; function replaced with its safe C11 variant */
-#else
             memmove(t_group + i1, t_group + i1 + 1, ((long long)num_t - (long long)i1) * sizeof(t_group[0])); /* djb-rwth: cast operators added */
-#endif
         }
     }
 
@@ -2415,11 +2399,7 @@ int RegisterCPoints( C_GROUP *c_group,
         num_c--;
         if (num_c > i2)
         {
-#if USE_BCF
-            memmove_s( c_group + i2, sizeof(c_group[0])*((long long)num_c - i2) + 1, c_group + i2 + 1, ((long long)num_c - i2) * sizeof(c_group[0])); /* djb-rwth: cast operators added; function replaced with its safe C11 variant */
-#else
             memmove(c_group + i2, c_group + i2 + 1, ((long long)num_c - i2) * sizeof(c_group[0])); /* djb-rwth: cast operators added */
-#endif
         }
         *pnum_c = num_c;
         /* renumber c-groups */
@@ -4055,23 +4035,10 @@ int MergeSaltTautGroups( CANON_GLOBALS *pCG,
                  /* >C-SH, >C-S(-); S=S,Se,Te */
 
                  /* other proton donor or acceptor */
-                 bHasAcidicHydrogen( at, i ) || /* djb-rwth: incorrectly written */
-                 bHasAcidicMinus( at, i )  /* djb-rwth: incorrectly written */
-                 )
+                bHasAcidicHydrogen(at, i) && ((s_type = 3), (s_subtype = SALT_p_DONOR)) ||
+                bHasAcidicMinus(at, i) && ((s_type = 3), (s_subtype = SALT_p_ACCEPTOR))
+                )
             {
-                /* djb-rwth: statement from the condition correctly written */
-                if (bHasAcidicHydrogen(at, i))
-                {
-                    s_type = 3;
-                    s_subtype = SALT_p_DONOR;
-                }
-
-                /* djb-rwth: statement from the condition correctly written */
-                if (bHasAcidicMinus(at, i))
-                {
-                    s_type = 3;
-                    s_subtype = SALT_p_ACCEPTOR;
-                }
 
                 if (nNumCandidates >= nMaxNumCandidates)
                 {
@@ -4284,35 +4251,12 @@ int MakeIsotopicHGroup( inp_ATOM *at,
                    /* >C-SH, >C-S(-); S=S,Se,Te */
 
                    /* other proton donor or acceptor */
-                   bHasAcidicHydrogen( at, i ) || /* djb-rwth: incorrectly written */
-                   bHasAcidicMinus( at, i ) || /* djb-rwth: incorrectly written */
-                   bHasOtherExchangableH( at, i ) ))  /* djb-rwth: incorrectly written */
+                     bHasAcidicHydrogen(at, i) && ((s_type = 3), (s_subtype = SALT_p_DONOR)) ||
+                     bHasAcidicMinus(at, i) && ((s_type = 3), (s_subtype = SALT_p_ACCEPTOR)) ||
+                     bHasOtherExchangableH(at, i) && ((s_type = 3), (s_subtype = SALT_DONOR_H))))
 
-                 ) /* djb-rwth: addressing LLVM warnings */
+                     )
             {
-
-                /* djb-rwth: statement from the condition correctly written */
-                if (bHasAcidicHydrogen(at, i))
-                {
-                    s_type = 3;
-                    s_subtype = SALT_p_DONOR;
-                }
-
-                /* djb-rwth: statement from the condition correctly written */
-                if (bHasAcidicMinus(at, i))
-                {
-                    s_type = 3;
-                    s_subtype = SALT_p_ACCEPTOR;
-                }
-
-                /* djb-rwth: statement from the condition correctly written */
-                if (bHasOtherExchangableH(at, i))
-                {
-                    s_type = 3;
-                    s_subtype = SALT_DONOR_H;
-                }
-
-
                 if (nNumCandidates >= nMaxNumCandidates)
                 {
                     return BNS_VERT_EDGE_OVFL;
@@ -4434,7 +4378,7 @@ int MarkTautomerGroups( CANON_GLOBALS *pCG,
                         struct BalancedNetworkStructure *pBNS,
                         struct BalancedNetworkData *pBD )
 {
-    int i, j, k, m, endpoint_valence, centerpoint, endpoint, bond_type, nMobile, num_changes = 0, tot_changes = 0, tep;
+    int i, j, k, m, endpoint_valence, centerpoint, endpoint, bond_type, nMobile, num_changes = 0, tot_changes = 0;
     T_ENDPOINT EndPoint[MAXVAL];
     T_BONDPOS  BondPos[MAXVAL];
     AT_NUMB    nGroupNumber;
@@ -4446,12 +4390,6 @@ int MarkTautomerGroups( CANON_GLOBALS *pCG,
     int bIgnoreIsotopic; /* djb-rwth: removing redundant variables */
     ENDPOINT_INFO eif1, eif2;
     int nErr = 0;
-    
-    /* djb-rwth: EndPoint initialisation block */
-    T_ENDPOINT* ept;
-    ept = malloc(sizeof(T_ENDPOINT));
-    for (tep = 0; tep < MAXVAL; tep++)
-        EndPoint[tep] = *ept;
 
 #define ALLOWED_EDGE(PBNS, IAT,IBOND)  ( !(PBNS) || !(PBNS)->edge || !(PBNS)->vert || !(PBNS)->edge[(PBNS)->vert[IAT].iedge[IBOND]].forbidden)
 #define ACTUAL_ORDER(PBNS, IAT,IBOND, BTYPE)  ( ((PBNS) && (PBNS)->edge && (PBNS)->vert &&\
@@ -6463,15 +6401,9 @@ int make_a_copy_of_t_group_info( T_GROUP_INFO *t_group_info,
             if ((t_group_info->t_group =
                 (T_GROUP*) inchi_malloc( len * sizeof( t_group_info->t_group[0] ) ))) /* djb-rwth: addressing LLVM warning */
             {
-#if USE_BCF
-                memcpy_s( t_group_info->t_group, sizeof(t_group_info->t_group[0])*len, 
-                        t_group_info_orig->t_group,
-                        len * sizeof( t_group_info->t_group[0] ) ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                 memcpy(t_group_info->t_group,
                     t_group_info_orig->t_group,
                     len * sizeof(t_group_info->t_group[0]));
-#endif
             }
             else
             {
@@ -6483,15 +6415,9 @@ int make_a_copy_of_t_group_info( T_GROUP_INFO *t_group_info,
             if ((t_group_info->nEndpointAtomNumber =
                 (AT_NUMB*) inchi_malloc( len * sizeof( t_group_info->nEndpointAtomNumber[0] ) ))) /* djb-rwth: addressing LLVM warning */
             {
-#if USE_BCF
-                memcpy_s( t_group_info->nEndpointAtomNumber, sizeof(t_group_info->nEndpointAtomNumber[0])*len,
-                        t_group_info_orig->nEndpointAtomNumber,
-                        len * sizeof( t_group_info->nEndpointAtomNumber[0] ) ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                 memcpy(t_group_info->nEndpointAtomNumber,
                     t_group_info_orig->nEndpointAtomNumber,
                     len * sizeof(t_group_info->nEndpointAtomNumber[0]));
-#endif
             }
             else
             {
@@ -6503,15 +6429,9 @@ int make_a_copy_of_t_group_info( T_GROUP_INFO *t_group_info,
             if ((t_group_info->tGroupNumber =
                 (AT_NUMB*) inchi_malloc( (long long)len * TGSO_TOTAL_LEN * sizeof( t_group_info->tGroupNumber[0] ) ))) /* djb-rwth: cast operator added; djb-rwth: addressing LLVM warning */
             {
-#if USE_BCF
-                memcpy_s( t_group_info->tGroupNumber, sizeof(t_group_info->tGroupNumber[0])*((long long)len)*TGSO_TOTAL_LEN,
-                        t_group_info_orig->tGroupNumber,
-                        (long long)len * TGSO_TOTAL_LEN * sizeof( t_group_info->tGroupNumber[0] ) ); /* djb-rwth: cast operator added */
-#else
                 memcpy(t_group_info->tGroupNumber,
                     t_group_info_orig->tGroupNumber,
                     (long long)len * TGSO_TOTAL_LEN * sizeof(t_group_info->tGroupNumber[0])); /* djb-rwth: cast operator added */
-#endif
             }
             else
             {
@@ -6523,15 +6443,9 @@ int make_a_copy_of_t_group_info( T_GROUP_INFO *t_group_info,
             if ((t_group_info->nIsotopicEndpointAtomNumber =
                 (AT_NUMB*) inchi_malloc( len * sizeof( t_group_info->nIsotopicEndpointAtomNumber[0] ) ))) /* djb-rwth: addressing LLVM warning */
             {
-#if USE_BCF
-                memcpy_s( t_group_info->nIsotopicEndpointAtomNumber, sizeof(t_group_info->nIsotopicEndpointAtomNumber[0])*len,
-                        t_group_info_orig->nIsotopicEndpointAtomNumber,
-                        len * sizeof( t_group_info->nIsotopicEndpointAtomNumber[0] ) ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                 memcpy(t_group_info->nIsotopicEndpointAtomNumber,
                     t_group_info_orig->nIsotopicEndpointAtomNumber,
                     len * sizeof(t_group_info->nIsotopicEndpointAtomNumber[0]));
-#endif
             }
             else
             {
@@ -6717,11 +6631,7 @@ int CountTautomerGroups( sp_ATOM *at,
                     /*  Remove the group */
                     num_t--;
                     if (i < num_t)
-#if USE_BCF
-                        memmove_s(t_group + i, sizeof(t_group[0]) * ((long long)num_t - (long long)i), t_group + i + 1, ((long long)num_t - (long long)i) * sizeof(t_group[0])); /* djb-rwth: cast operators added; function replaced with its safe C11 variant */
-#else
                         memmove(t_group + i, t_group + i + 1, ((long long)num_t - (long long)i) * sizeof(t_group[0])); /* djb-rwth: cast operators added */
-#endif
                     if (bNoH)
                     {
                         /*  Group contains no mobile hydrogen atoms, only charges. Prepare to remove it. */

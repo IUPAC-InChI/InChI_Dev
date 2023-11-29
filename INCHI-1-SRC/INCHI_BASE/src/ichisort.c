@@ -975,13 +975,8 @@ int BreakAllTies( CANON_GLOBALS *pCG,
 
     if (nNewRank && nNewAtomNumber)
     {
-#if USE_BCF
-        memcpy_s( nNewAtomNumber, sizeof(nNewAtomNumber[0])*num_atoms + 1, nPrevAtomNumber, num_atoms * sizeof(nNewAtomNumber[0])); /* djb-rwth: function replaced with its safe C11 variant */
-        memcpy_s( nNewRank, sizeof(nNewRank[0])*num_atoms + 1, nPrevRank, num_atoms * sizeof(nNewRank[0])); /* djb-rwth: function replaced with its safe C11 variant */
-#else
         memcpy(nNewAtomNumber, nPrevAtomNumber, num_atoms * sizeof(nNewAtomNumber[0]));
         memcpy(nNewRank, nPrevRank, num_atoms * sizeof(nNewRank[0]));
-#endif
         for (i = 1, nRet = 0; i < num_atoms; i++)
         {
             /*  12-12-2001: replaced Prev... with New... */
