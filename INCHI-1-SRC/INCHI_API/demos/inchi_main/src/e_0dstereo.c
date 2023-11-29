@@ -223,11 +223,7 @@ int ee_extract_ChargeRadical( char *elname, int *pnRadical, int *pnCharge )
                 }
                 break;
         }
-#if USE_BCF
-        memmove_s( q, strlen(q + charge_len) + 2, q + charge_len, strlen( q + charge_len ) + 1 ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
         memmove( q, q + charge_len, strlen( q + charge_len ) + 1 );
-#endif
     }
     /* djb-rwth: removing redundant code */
     /*  radical */
@@ -299,11 +295,7 @@ int ee_extract_H_atoms( char *elname, S_CHAR num_iso_H[] )
             num_iso_H[k] += val;
             /*  remove the hydrogen atom from the string */
             len -= ( q - elname ) - i;
-#if USE_BCF
-            memmove_s( elname + i, (long long)len + 2, q, (long long)len + 1 ); /* djb-rwth: cast operator added; function replaced with its safe C11 variant */
-#else
             memmove( elname + i, q, (long long)len + 1 ); /* djb-rwth: cast operator added */
-#endif
             /*  c =  UCINT elname[i]; */
         }
         else
@@ -342,11 +334,7 @@ int e_GetElType( inchi_Atom *at, int cur_atom )
         return -1;
     }
 
-#if USE_BCF
-    strcpy_s( szEl, strlen(at[cur_atom].elname) + 1, at[cur_atom].elname); /* djb-rwth: function replaced with its safe C11 variant */
-#else
     strcpy( szEl, at[cur_atom].elname );
-#endif
     memset( num_iso_H, 0, sizeof( num_iso_H ) ); /* djb-rwth: memset_s C11/Annex K variant? */
     bChargeOrRad = ee_extract_ChargeRadical( szEl, &nRadical, &nCharge );
     bH = ee_extract_H_atoms( szEl, num_iso_H );
@@ -359,11 +347,7 @@ int e_GetElType( inchi_Atom *at, int cur_atom )
 
     if (!bH)
     {
-#if USE_BCF
-        memcpy_s( num_iso_H, sizeof(num_iso_H) + 1, at[cur_atom].num_iso_H, sizeof( num_iso_H ) ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
         memcpy( num_iso_H, at[cur_atom].num_iso_H, sizeof( num_iso_H ) );
-#endif
         if ((bAddH = ( num_iso_H[0] < 0 ))) /* djb-rwth: addressing LLVM warning */
         {
             num_iso_H[0] = 0;
@@ -2812,11 +2796,7 @@ int e_half_stereo_bond_parity( inchi_Atom *at,
     for (j = 0; j < 3; j++)
     {
         /* e_copy3(at_coord[j], temp); -- djb-rwth: removing copy3 function */
-#if USE_BCF
-        memcpy_s(temp, sizeof(at_coord[j]) + 1, at_coord[j], sizeof(at_coord[j]));
-#else
         memcpy(temp, at_coord[j], sizeof(at_coord[j]));
-#endif
         for (k = 0; k < 3; k++)
         {
             at_coord[j][k] = e_dot_prod3( temp, pnt[( k + p0 ) % 3] );
@@ -3084,11 +3064,7 @@ int e_set_stereo_bonds_parity( Stereo0D *pStereo,
             if (bOnlyNM1)
             {
                 parity_at_1NM = parity_at_1;
-#if USE_BCF
-                memcpy_s( z_dir1NM, sizeof(z_dir1NM) + 1, z_dir1, sizeof( z_dir1NM ) ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                 memcpy( z_dir1NM, z_dir1, sizeof( z_dir1NM ) );
-#endif
                 parity_at_1 = INCHI_PARITY_NONE;
             }
             else
@@ -3096,11 +3072,7 @@ int e_set_stereo_bonds_parity( Stereo0D *pStereo,
                 if (at[at_1].num_bonds == e_nNumNonMetalNeigh( at, at_1, pStereo, &i_ord_LastMetal1 ))
                 {
                     parity_at_1NM = parity_at_1; /* no metal bond present */
-#if USE_BCF
-                    memcpy_s( z_dir1NM, sizeof(z_dir1NM) + 1, z_dir1, sizeof( z_dir1NM ) ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                     memcpy( z_dir1NM, z_dir1, sizeof( z_dir1NM ) );
-#endif
                 }
                 else
                 {
@@ -3146,22 +3118,14 @@ int e_set_stereo_bonds_parity( Stereo0D *pStereo,
             if (bOnlyNM2)
             {
                 parity_at_2NM = parity_at_2;
-#if USE_BCF
-                memcpy_s( z_dir2NM, sizeof(z_dir2NM) + 1, z_dir2, sizeof( z_dir2NM ) ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                 memcpy( z_dir2NM, z_dir2, sizeof( z_dir2NM ) );
-#endif
                 parity_at_2 = INCHI_PARITY_NONE;
             }
             else
             {
                 if (at[at_2].num_bonds == e_nNumNonMetalNeigh( at, at_2, pStereo, &i_ord_LastMetal2 ))
                 {
-#if USE_BCF
-                    memcpy_s( z_dir2NM, sizeof(z_dir2NM) + 1, z_dir2, sizeof( z_dir2NM ) ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                     memcpy( z_dir2NM, z_dir2, sizeof( z_dir2NM ) );
-#endif
                     parity_at_2NM = parity_at_2; /* no metal bond present */
                 }
                 else
@@ -3514,11 +3478,7 @@ int e_set_stereo_atom_parity( Stereo0D *pStereo,
             {
                 /*  we have enough information to find implicit hydrogen coordinates */
                 /* e_copy3(sum_xyz, at_coord[j]); -- djb-rwth: removing copy3 function */
-#if USE_BCF
-                memcpy_s(at_coord[j], sizeof(sum_xyz) + 1, sum_xyz, sizeof(sum_xyz));
-#else
                 memcpy(at_coord[j], sum_xyz, sizeof(sum_xyz));
-#endif
                 e_change_sign3( at_coord[j], at_coord[j] );
                 z = e_len3( at_coord[j] );
                 /* Comparing the original bond lengths to lenghts derived from normalized to 1 */
@@ -3711,11 +3671,7 @@ inchi_Stereo0D *e_GetNewStereo( Stereo0D *pStereo )
         {
             if (pStereo->num_stereo0D > 0)
             {
-#if USE_BCF
-                memcpy_s( pNew, (long long)(pStereo->num_stereo0D)*sizeof(pNew[0]) + 1, pStereo->stereo0D, pStereo->num_stereo0D * sizeof( pNew[0] ) ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                 memcpy( pNew, pStereo->stereo0D, pStereo->num_stereo0D * sizeof( pNew[0] ) );
-#endif
             }
             /*e_inchi_free(pStereo->stereo0D);*/
             e_FreeInchi_Stereo0D( &pStereo->stereo0D );
@@ -3918,11 +3874,7 @@ char *e_GetChiralFlagString( int bChiralFlagOn )
 
     szChiralFlag[0] = ' ';
     szChiralFlag[1] = INCHI_OPTION_PREFX;
-#if USE_BCF
-    sprintf_s( szChiralFlag + 2, sizeof(szChiralFlag) + 1, "ChiralFlag%s", bChiralFlagOn ? "On" : "Off" ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
     sprintf( szChiralFlag + 2, "ChiralFlag%s", bChiralFlagOn ? "On" : "Off" );
-#endif
 
     return szChiralFlag;
 }

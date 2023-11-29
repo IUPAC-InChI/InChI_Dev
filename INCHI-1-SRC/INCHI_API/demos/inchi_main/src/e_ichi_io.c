@@ -430,7 +430,7 @@ int inchi_ios_print( INCHI_IOSTREAM * ios, const char* lpszFormat, ... )
     if (ios->type == INCHI_IOSTREAM_TYPE_STRING)
     {
         /* output to string buffer */
-        int ret = 0, max_len, buflen;
+        int ret = 0, max_len;
         va_list argList;
         my_va_start( argList, lpszFormat );
         max_len = GetMaxPrintfLength( lpszFormat, argList );
@@ -449,11 +449,7 @@ int inchi_ios_print( INCHI_IOSTREAM * ios, const char* lpszFormat, ... )
                     if (ios->s.pStr)
                     {
                         if (ios->s.nUsedLength > 0)
-#if USE_BCF
-                            memcpy_s( new_str, (long long)(ios->s.nUsedLength)*sizeof(new_str[0]) + 1, ios->s.pStr, sizeof( new_str[0] )* ios->s.nUsedLength ); /* djb-rwth: function replaced with its safe C11 variant; cast operator added */
-#else
                             memcpy( new_str, ios->s.pStr, sizeof( new_str[0] )* ios->s.nUsedLength );
-#endif
                         inchi_free( ios->s.pStr );
                     }
                     ios->s.pStr = new_str;
@@ -466,12 +462,7 @@ int inchi_ios_print( INCHI_IOSTREAM * ios, const char* lpszFormat, ... )
             }
             /* output */
             my_va_start( argList, lpszFormat );
-#if USE_BCF
-            buflen = _vscprintf(lpszFormat, argList) + 1; /* djb-rwth: include terminating '\0' */
-            ret = vsprintf_s( ios->s.pStr + ios->s.nUsedLength, buflen, lpszFormat, argList ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
             ret = vsprintf( ios->s.pStr + ios->s.nUsedLength, lpszFormat, argList );
-#endif
             va_end( argList );
             if (ret >= 0)
             {
@@ -526,7 +517,7 @@ int inchi_ios_print_nodisplay( INCHI_IOSTREAM * ios, const char* lpszFormat, ...
     if (ios->type == INCHI_IOSTREAM_TYPE_STRING)
     {
         /* output to string buffer */
-        int ret = 0, max_len, buflen;
+        int ret = 0, max_len;
         va_list argList;
         my_va_start( argList, lpszFormat );
         max_len = GetMaxPrintfLength( lpszFormat, argList );
@@ -545,11 +536,7 @@ int inchi_ios_print_nodisplay( INCHI_IOSTREAM * ios, const char* lpszFormat, ...
                     {
                         if (ios->s.nUsedLength > 0)
                         {
-#if USE_BCF
-                            memcpy_s( new_str, (long long)(ios->s.nUsedLength)*sizeof(new_str[0]) + 1, ios->s.pStr, sizeof( new_str[0] )*ios->s.nUsedLength ); /* djb-rwth: function replaced with its safe C11 variant; cast operator added */
-#else
                             memcpy( new_str, ios->s.pStr, sizeof( new_str[0] )*ios->s.nUsedLength );
-#endif
                         }
                         inchi_free( ios->s.pStr );
                     }
@@ -563,12 +550,7 @@ int inchi_ios_print_nodisplay( INCHI_IOSTREAM * ios, const char* lpszFormat, ...
             }
             /* output */
             my_va_start( argList, lpszFormat );
-#if USE_BCF
-            buflen = _vscprintf(lpszFormat, argList) + 1; /* djb-rwth: include terminating '\0' */
-            ret = vsprintf_s( ios->s.pStr + ios->s.nUsedLength, buflen, lpszFormat, argList ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
             ret = vsprintf( ios->s.pStr + ios->s.nUsedLength, lpszFormat, argList );
-#endif
             va_end( argList );
             if (ret >= 0)
             {
@@ -610,7 +592,7 @@ int inchi_ios_print_nodisplay( INCHI_IOSTREAM * ios, const char* lpszFormat, ...
 ****************************************************************************/
 int inchi_ios_eprint( INCHI_IOSTREAM * ios, const char* lpszFormat, ... )
 {
-    int ret = 0, ret2 = 0, buflen;
+    int ret = 0, ret2 = 0;
     va_list argList;
 
     if (!ios)
@@ -641,11 +623,7 @@ int inchi_ios_eprint( INCHI_IOSTREAM * ios, const char* lpszFormat, ... )
                     {
                         if (ios->s.nUsedLength > 0)
                         {
-#if USE_BCF
-                            memcpy_s( new_str, (long long)(ios->s.nUsedLength)*sizeof(new_str[0]) + 1, ios->s.pStr, sizeof( new_str[0] )* ios->s.nUsedLength ); /* djb-rwth: function replaced with its safe C11 variant; cast operator added */
-#else
                             memcpy( new_str, ios->s.pStr, sizeof( new_str[0] )* ios->s.nUsedLength );
-#endif
                         }
                         inchi_free( ios->s.pStr );
                     }
@@ -660,12 +638,7 @@ int inchi_ios_eprint( INCHI_IOSTREAM * ios, const char* lpszFormat, ... )
 
             /* output */
             my_va_start( argList, lpszFormat );
-#if USE_BCF
-            buflen = _vscprintf(lpszFormat, argList) + 1; /* djb-rwth: include terminating '\0' */
-            ret = vsprintf_s( ios->s.pStr + ios->s.nUsedLength, buflen, lpszFormat, argList ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
             ret = vsprintf( ios->s.pStr + ios->s.nUsedLength, lpszFormat, argList );
-#endif
             va_end( argList );
             if (ret >= 0)
             {

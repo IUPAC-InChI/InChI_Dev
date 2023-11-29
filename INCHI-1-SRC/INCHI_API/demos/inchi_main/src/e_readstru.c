@@ -109,19 +109,11 @@ int e_ReadStructure( STRUCT_DATA *sd,
                     if (( p = strrchr( ip->pSdfValue, '+' ) ) &&
                          '[' == *( p - 1 ) && 0 < ( n = strtol( p + 1, &q, 10 ) ) && q[0] && ']' == q[0] && !q[1])
                     {
-#if USE_BCF
-                        sprintf_s( p + 1, (long long)n + 2, "%d]", n + 1 ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                         sprintf( p + 1, "%d]", n + 1 );
-#endif
                     }
                     else
                     {
-#if USE_BCF
-                        strcat_s( ip->pSdfValue, strlen(ip->pSdfValue) + 8, " [+1]" ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                         strcat( ip->pSdfValue, " [+1]" );
-#endif
                     }
                 }
                 e_inchiTimeGet( &ulTStart );
@@ -170,19 +162,11 @@ int e_ReadStructure( STRUCT_DATA *sd,
                     if (( p = strrchr( ip->pSdfValue, '+' ) ) &&
                          '[' == *( p - 1 ) && 0 < ( n = strtol( p + 1, &q, 10 ) ) && q[0] && ']' == q[0] && !q[1])
                     {
-#if USE_BCF
-                        sprintf_s( p + 1, (long long)n + 2, "%d]", n + 1 ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                         sprintf( p + 1, "%d]", n + 1 );
-#endif
                     }
                     else
                     {
-#if USE_BCF
-                        strcat_s( ip->pSdfValue, strlen(ip->pSdfValue) + 8, " [+1]" ); /* djb-rwth: function replaced with its safe C11 variant */
-#else
                         strcat( ip->pSdfValue, " [+1]" );
-#endif
                     }
                 }
                 e_inchiTimeGet( &ulTStart );
