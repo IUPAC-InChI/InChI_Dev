@@ -1,0 +1,15 @@
+*.o
+*.so*
+*.log
+*_regression_test.sqlite
+INCHI-1-TEST/data/**/*.html
+INCHI-1-TEST/data/pubchem/compound
+INCHI-1-TEST/data/pubchem/compound3d
+INCHI-1-TEST/data/pubchem/substance
+.listing
+*/test/datasets
+*/test/expected-results
+*/test/results
+__pycache__
+.pytest_cache
+.vscode/
