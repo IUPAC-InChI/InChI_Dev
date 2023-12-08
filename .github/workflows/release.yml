@@ -1,0 +1,26 @@
+name: InChI Release
+
+on:
+    release:
+        types: [published]
+      
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Build release artifacts
+        run: |
+            zip -r INCHI-1-BIN.zip INCHI-1-BIN
+            zip -r INCHI-1-DOC.zip INCHI-1-DOC
+            zip -r INCHI-1-SRC.zip INCHI-1-SRC
+            zip -r INCHI-1-TEST.zip INCHI-1-TEST
+
+      - name: Upload release artifacts
+        shell: bash
+        env: 
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        # See https://cli.github.com/manual/gh_release_upload.
+        run: gh release upload ${{github.event.release.tag_name}} INCHI-1-BIN.zip INCHI-1-DOC.zip INCHI-1-SRC.zip INCHI-1-TEST.zip 
