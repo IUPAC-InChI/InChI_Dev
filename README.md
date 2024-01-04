@@ -218,27 +218,24 @@ Some of the experimental/engineering/hidden options featured in `InChI 1.07` whi
       - `AMIOutStd`   Write output to stdout (in AMI mode)
       - `AMILogStd`   Write log to stderr (in AMI mode)
       - `AMIPrbNone`  Suppress creation of problem files (in AMI mode)
-  
-<!-- 
-  -  `MERGE`       Use bMergeAllInputStructures
-  -  `DSB`         Use REQ_MODE_NO_ALT_SBONDS
-  -  `NOHDR`       Use bNoStructLabels
-  -  `NOUUSB`      Use REQ_MODE_SB_IGN_ALL_UU
-  -  `NOUUSC`      Use REQ_MODE_SC_IGN_ALL_UU
-  -  `FixRad`      Set bFixAdjacentRad
-  -  `DoneOnly`    Set bIgnoreUnchanged
-  -  `DISCONSALT:0|1`     Set bDisconnectSalts
-  -  `DISCONMETAL:0|1`    Set bDisconnectCoord
-  -  `DISCONMETALCHKVAL:0|1` Set bDisconnectCoordChkVal
-  -  `RECONMETAL:0|1`     Set bReconnectCoord
-  -  `MERGESALTTG:0|1`    Set bMergeSaltTGroups
-  -  `UNCHARGEDACIDS:0|1` Set bUnchargedAcidTaut
-  -  `ACIDTAUT:0|1|2`     Set bAcidTautomerism
-  -  `AUXINFO:0|1|2`      Set AuxInfo print options
-  -  `SDFID`       ...
-  -  `PLAINP`      ....
-  -  `ANNPLAIN`    ....
--->
+      -  `MERGE`       Use bMergeAllInputStructures
+      -  `DSB`         Use REQ_MODE_NO_ALT_SBONDS
+      -  `NOHDR`       Use bNoStructLabels
+      -  `NOUUSB`      Use REQ_MODE_SB_IGN_ALL_UU
+      -  `NOUUSC`      Use REQ_MODE_SC_IGN_ALL_UU
+      -  `FixRad`      Set bFixAdjacentRad
+      -  `DoneOnly`    Set bIgnoreUnchanged
+      -  `DISCONSALT:0|1`     Set bDisconnectSalts
+      -  `DISCONMETAL:0|1`    Set bDisconnectCoord
+      -  `DISCONMETALCHKVAL:0|1` Set bDisconnectCoordChkVal
+      -  `RECONMETAL:0|1`     Set bReconnectCoord
+      -  `MERGESALTTG:0|1`    Set bMergeSaltTGroups
+      -  `UNCHARGEDACIDS:0|1` Set bUnchargedAcidTaut
+      -  `ACIDTAUT:0|1|2`     Set bAcidTautomerism
+      -  `AUXINFO:0|1|2`      Set AuxInfo print options
+      -  `SDFID`       ...
+      -  `PLAINP`      ....
+      -  `ANNPLAIN`    ....
 - In API/`.dll`/`.so` version:
   -  `PT_22_00`    Account for PT_22_00 tautomerism (experimental)
   -  `PT_16_00`    Account for PT_16_00 tautomerism (experimental)
