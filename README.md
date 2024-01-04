@@ -20,10 +20,11 @@ Release dates:
 <strong>Security issues fixed</strong>:
 
 - 5 buffer overflow issues due to use of large array dimensions
-- 114 potential security bugs related to improper `NULL` pointer dereferencing which might cause crashes or exits
-- 39 potential memory leaks
+- 114 security bugs related to improper `NULL` pointer dereferencing which might cause crashes or exits
+- 39 memory leaks
 - 530 potential applications of optional [bounds checking functions](#BCF)
-- 26 potential security issues have been marked for further revision
+
+Additionally, 26 potential security issues have been marked for further revision.
 
 <strong>Other issues fixed</strong>:
 
