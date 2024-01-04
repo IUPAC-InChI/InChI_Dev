@@ -7,19 +7,26 @@ Release dates:
 
 ## Changelog
 
-Changed:
-- 9 mathematical functions had to be rewritten in `ichister.c` and `e_0dstereo.c` as the functions' arguments are arrays of various dimensions
-- 17 blocks of code in files `runichi2.c`, `inchi_dll_a2.c`, `ichiprt3.c`, `ichiread.c`, `ichirvr1.c`, `runichi.c`, `ichiparm.c` had to be rewritten to address memory leaks, security issues, buffer overruns, improperly written conditional statements or bit-wise operations
-- <code>makefile/makefile32</code> files and <code>Microsoft&reg; Visual Studio</code> projects/solutions have been updated and revised
+<strong>Changed</strong>:
 
-Security issues fixed:
+- 9 mathematical functions had to be rewritten in `ichister.c` and `e_0dstereo.c` to address functions' arguments issues related to arrays of various dimensions
+- 17 blocks of code in files `runichi2.c`, `inchi_dll_a2.c`, `ichiprt3.c`, `ichiread.c`, `ichirvr1.c`, `runichi.c`, `ichiparm.c` had to be rewritten to address:
+  - memory leaks
+  - security issues
+  - buffer overruns
+  - improperly written conditional statements or bit-wise operations
+- <code>[makefile/makefile32](#MAKEFILE)</code> files and <code>Microsoft&reg; Visual Studio</code> projects/solutions have been updated and revised
+
+<strong>Security issues fixed</strong>:
+
 - 5 buffer overflow issues due to use of large array dimensions
-- 114 potential security bugs related to improper NULL pointer dereferencing which might cause crashes or exits
+- 114 potential security bugs related to improper `NULL` pointer dereferencing which might cause crashes or exits
 - 39 potential memory leaks
 - 530 potential applications of optional [bounds checking functions](#BCF)
 - 26 potential security issues have been marked for further revision
 
-Other issues fixed:
+<strong>Other issues fixed</strong>:
+
 - 2456 bugs and issues have been addressed:
   - type conversions and mismatches
   - removing redundant variables and/or code
@@ -140,11 +147,13 @@ For other C compilers, `makefile/makefile32` files are provided in the following
 - `INCHI-1-SRC/INCHI_API/demos/inchi_main/gcc` (API version consisting of `libinchi.dll/libinchi.so.1.07` and its corresponding executable/ELF `inchi_main.exe/inchi_main`)
 - `INCHI-1-SRC/INCHI_API/libinchi/gcc` (API version consisting only of `libinchi.dll/libinchi.so.1.07`).
 
+<a id="MAKEFILE"></a>
+
 `makefile/makefile32` files are configured to detect OSs automatically, so it is no longer needed to specify OS explicitly or run batch/bash script(s) before compiling. If both `GCC` and `Clang/LLVM` compilers are detected, `GCC` is used by default; setting `Clang/LLVM` as default compiler can be done simply by changing `CCN` parameter from `1` to `2` in `makefile/makefile32`.
 
 If `makefile/makefile32` is used for compiling `libinchi` on Microsoft<sup>&reg;</sup> Windows, `libinchi.dll` is now generated instead of `libinchi.so.1.07`.
 
-<a id="BCF"> </a>
+<a id="BCF"></a>
 
 In order to further improve code security, [bounds checking functions](https://wiki.sei.cmu.edu/confluence/display/c/Scope) (see Annex K of [C11 standard](https://en.cppreference.com/w/c/11)) can be optionally used in `InChI v.1.07`. Since a number of C compilers (e.g. `GNU GCC`) do not support bounds checking functions, they can be installed using some of the third-party open-source libraries such as:
 
@@ -209,25 +218,27 @@ Some of the experimental/engineering/hidden options featured in `InChI 1.07` whi
       - `AMIOutStd`   Write output to stdout (in AMI mode)
       - `AMILogStd`   Write log to stderr (in AMI mode)
       - `AMIPrbNone`  Suppress creation of problem files (in AMI mode)
-      -  `MERGE`       Use bMergeAllInputStructures
-      -  `DSB`         Use REQ_MODE_NO_ALT_SBONDS
-      -  `NOHDR`       Use bNoStructLabels
-      -  `NOUUSB`      Use REQ_MODE_SB_IGN_ALL_UU
-      -  `NOUUSC`      Use REQ_MODE_SC_IGN_ALL_UU
-      -  `FixRad`      Set bFixAdjacentRad
-      -  `DoneOnly`    Set bIgnoreUnchanged
-      -  `DISCONSALT:0|1`     Set bDisconnectSalts
-      -  `DISCONMETAL:0|1`    Set bDisconnectCoord
-      -  `DISCONMETALCHKVAL:0|1` Set bDisconnectCoordChkVal
-      -  `RECONMETAL:0|1`     Set bReconnectCoord
-      -  `MERGESALTTG:0|1`    Set bMergeSaltTGroups
-      -  `UNCHARGEDACIDS:0|1` Set bUnchargedAcidTaut
-      -  `ACIDTAUT:0|1|2`     Set bAcidTautomerism
-      -  `AUXINFO:0|1|2`      Set AuxInfo print options
-      -  `SDFID`       ...
-      -  `PLAINP`      ....
-      -  `ANNPLAIN`    ....
   
+<!-- 
+  -  `MERGE`       Use bMergeAllInputStructures
+  -  `DSB`         Use REQ_MODE_NO_ALT_SBONDS
+  -  `NOHDR`       Use bNoStructLabels
+  -  `NOUUSB`      Use REQ_MODE_SB_IGN_ALL_UU
+  -  `NOUUSC`      Use REQ_MODE_SC_IGN_ALL_UU
+  -  `FixRad`      Set bFixAdjacentRad
+  -  `DoneOnly`    Set bIgnoreUnchanged
+  -  `DISCONSALT:0|1`     Set bDisconnectSalts
+  -  `DISCONMETAL:0|1`    Set bDisconnectCoord
+  -  `DISCONMETALCHKVAL:0|1` Set bDisconnectCoordChkVal
+  -  `RECONMETAL:0|1`     Set bReconnectCoord
+  -  `MERGESALTTG:0|1`    Set bMergeSaltTGroups
+  -  `UNCHARGEDACIDS:0|1` Set bUnchargedAcidTaut
+  -  `ACIDTAUT:0|1|2`     Set bAcidTautomerism
+  -  `AUXINFO:0|1|2`      Set AuxInfo print options
+  -  `SDFID`       ...
+  -  `PLAINP`      ....
+  -  `ANNPLAIN`    ....
+-->
 - In API/`.dll`/`.so` version:
   -  `PT_22_00`    Account for PT_22_00 tautomerism (experimental)
   -  `PT_16_00`    Account for PT_16_00 tautomerism (experimental)
