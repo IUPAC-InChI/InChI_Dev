@@ -10,6 +10,7 @@ Release dates:
 Changed:
 - 9 mathematical functions had to be rewritten in `ichister.c` and `e_0dstereo.c` as the functions' arguments are arrays of various dimensions
 - 17 blocks of code in files `runichi2.c`, `inchi_dll_a2.c`, `ichiprt3.c`, `ichiread.c`, `ichirvr1.c`, `runichi.c`, `ichiparm.c` had to be rewritten to address memory leaks, security issues, buffer overruns, improperly written conditional statements or bit-wise operations
+- <code>makefile/makefile32</code> files and <code>Microsoft&reg; Visual Studio</code> projects/solutions have been updated and revised
 
 Security issues fixed:
 - 5 buffer overflow issues due to use of large array dimensions
