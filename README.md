@@ -5,6 +5,25 @@ Release dates:
 - <em>Beta2</em>: 29/11/2023
 - <em>Beta1</em>: 20/11/2023
 
+## Changelog
+
+Changed:
+- 9 mathematical functions had to be rewritten in `ichister.c` and `e_0dstereo.c` as the functions' arguments are arrays of various dimensions
+- 17 blocks of code in files `runichi2.c`, `inchi_dll_a2.c`, `ichiprt3.c`, `ichiread.c`, `ichirvr1.c`, `runichi.c`, `ichiparm.c` had to be rewritten to address memory leaks, security issues, buffer overruns, improperly written conditional statements or bit-wise operations
+
+Security issues fixed:
+- 5 buffer overflow issues due to use of large array dimensions
+- 114 potential security bugs related to improper NULL pointer dereferencing which might cause crashes or exits
+- 39 potential memory leaks
+- 530 potential applications of optional [bounds checking functions](#BCF)
+- 26 potential security issues have been marked for further revision
+
+Other issues fixed:
+- 2456 bugs and issues have been addressed:
+  - type conversions and mismatches
+  - removing redundant variables and/or code
+  - addressing `LLVM/Clang` warnings
+
 ## Using precompiled binaries
 64-bit and 32-bit precompiled binaries (executable, `.dll/.so` and ELF files) are located in the following folders:
 <br />
@@ -124,6 +143,8 @@ For other C compilers, `makefile/makefile32` files are provided in the following
 
 If `makefile/makefile32` is used for compiling `libinchi` on Microsoft<sup>&reg;</sup> Windows, `libinchi.dll` is now generated instead of `libinchi.so.1.07`.
 
+<a id="BCF"> </a>
+
 In order to further improve code security, [bounds checking functions](https://wiki.sei.cmu.edu/confluence/display/c/Scope) (see Annex K of [C11 standard](https://en.cppreference.com/w/c/11)) can be optionally used in `InChI v.1.07`. Since a number of C compilers (e.g. `GNU GCC`) do not support bounds checking functions, they can be installed using some of the third-party open-source libraries such as:
 
 - [safec libc extension with all C11 Annex K functions](https://github.com/rurban/safeclib) -- actively maintained
@@ -187,6 +208,8 @@ Some of the experimental/engineering/hidden options featured in `InChI 1.07` whi
       - `AMIOutStd`   Write output to stdout (in AMI mode)
       - `AMILogStd`   Write log to stderr (in AMI mode)
       - `AMIPrbNone`  Suppress creation of problem files (in AMI mode)
+  
+<!-- 
   -  `MERGE`       Use bMergeAllInputStructures
   -  `DSB`         Use REQ_MODE_NO_ALT_SBONDS
   -  `NOHDR`       Use bNoStructLabels
@@ -205,7 +228,7 @@ Some of the experimental/engineering/hidden options featured in `InChI 1.07` whi
   -  `SDFID`       ...
   -  `PLAINP`      ....
   -  `ANNPLAIN`    ....
-  
+-->
 - In API/`.dll`/`.so` version:
   -  `PT_22_00`    Account for PT_22_00 tautomerism (experimental)
   -  `PT_16_00`    Account for PT_16_00 tautomerism (experimental)
