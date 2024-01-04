@@ -31,7 +31,7 @@ Additionally, 26 potential security issues have been marked for further revision
 - 2456 bugs and issues have been addressed:
   - type conversions and mismatches
   - removing redundant variables and/or code
-  - addressing `LLVM/Clang` warnings
+  - addressing `Clang/LLVM` warnings
 
 ## Using precompiled binaries
 64-bit and 32-bit precompiled binaries (executable, `.dll/.so` and ELF files) are located in the following folders:
