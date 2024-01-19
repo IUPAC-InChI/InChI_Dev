@@ -1,12 +1,23 @@
 **IUPAC International Chemical Identifier (InChI)**
 
-**InChI version 1, Software version 1.06**
+**InChI version 1, Software version 1.07-beta3**
 
-# **User's Guide**
+# **User's Guide** <!-- omit from toc -->
 
-Last revision date: December 15, 2020
+Last revision date: January 19, 2024
 
-[toc]
+- [I. OVERVIEW](#i-overview)
+  - [About InChI](#about-inchi)
+  - [Standard and non-standard InChI](#standard-and-non-standard-inchi)
+  - [About InChIKey](#about-inchikey)
+- [II. ABOUT InChI PROGRAMS](#ii-about-inchi-programs)
+- [III. RUNNING InChI PROGRAMS](#iii-running-inchi-programs)
+  - [Command Line Executable inchi-1](#command-line-executable-inchi-1)
+  - [InChI Software Library (libinchi)](#inchi-software-library-libinchi)
+  - [Graphical Interface Program (winchi-1)](#graphical-interface-program-winchi-1)
+  - [InChI Software Options](#inchi-software-options)
+- [IV. CHEMICAL STRUCTURE INPUT](#iv-chemical-structure-input)
+- [V. Further reading and contacts](#v-further-reading-and-contacts)
 
 This introductory User Guide is addressed to the novice user of InChI whose primary interest is to learn how to produce InChI/InChIKey identifiers of chemical compounds with InChI executables included in InChI Software distribution (note that alternatively one may simply use nearly any chemical drawing programs as, at the moment of this writing, they typically have a built-in InChI generation ability). 
 
@@ -31,7 +42,7 @@ In the several years of its development, many individuals contributed to the dev
 Derivation of the InChI from an input chemical structure proceeds through three steps: 
  1) normalization – all input information not needed for structure identification is discarded and structure information is divided into ‘layers’; 2) canonicalization – each atom is given a label that depends only on its position in the structure; 3) serialization – a string of characters, the Identifier, is generated from the canonical labels. All ‘chemical’ rules are applied in the first step.
 
-The current version of InChI Identifier is 1; the current stable version of the InChI software is 1.06 which replaces the previous version 1.05.
+The current version of InChI Identifier is 1; the current stable version of the InChI software is 1.06 which replaces the previous version 1.05. Version 1.07-beta3 is currently tested.
 
 ## Standard and non-standard InChI 
 
@@ -51,9 +62,9 @@ The standard InChI was defined to ensure interoperability/compatibility between 
 
 Standard InChI v.1 was introduced in v. 1.02-standard release of the InChI Software in 2009 (this software version was able of generating only standard InChIs). 
 
-The present release of InChI Software, v. 1.06, has merged functionality. It allows one to produce both standard and non-standard InChI strings, as well as their hashed representation (InChIKey). 
+The release of InChI Software, v. 1.06, has merged functionality. It allows one to produce both standard and non-standard InChI strings, as well as their hashed representation (InChIKey). 
 
-By default, InChI Software v. 1.06 produces standard InChI (for brevity, stdInChI below). In particular, the standard identifier is generated when the software is used without any specifically added options. If some options are specified, and at least one of them qualifies as related to non-standard InChI (see section ‘InChI Software Options’ below), the program produces non-stdInChI/InChIKey.
+By default, InChI Software v. 1.07-beta3 produces standard InChI (for brevity, stdInChI below). In particular, the standard identifier is generated when the software is used without any specifically added options. If some options are specified, and at least one of them qualifies as related to non-standard InChI (see section ‘InChI Software Options’ below), the program produces non-stdInChI/InChIKey.
 
 The standard InChI is designated by the prefix: “InChI=1S/……….. “  (that is, letter ‘S’ immediately follows the Identifier version number, ‘1’; Identifier version numbers should always be whole numbers). 
 
@@ -83,7 +94,7 @@ A beta-version of the InChIKey was introduced in software v. 1.02-beta (2007). T
 
 # II. ABOUT InChI PROGRAMS
 
-This document is accompanied by version 1.06 of the InChI generator executable. This program runs under 32/64 bit Microsoft Windows (inchi-1.exe) and Linux (inchi-1) operating systems. Also included is  winchi-1.exe, a convenient Windows graphical-interface application.
+This document is accompanied by version 1.07-beta3 of the InChI generator executable. This program runs under 32/64 bit Microsoft Windows (inchi-1.exe) and Linux (inchi-1) operating systems. Also included is  winchi-1.exe, a convenient Windows graphical-interface application.
 
 As structure input, the programs currently accept standard SDfiles, Molfiles 
  [see “Description of several chemical structure file formats used by computer programs developed at Molecular Design Limited” by Arthur Dalby, James G. Nourse, W. Douglas Hounshell, Ann K. I. Gushurst, David L. Grier, Burton A. Leland, and John Laufer, Journal of Chemical Information and Computer Sciences, 1992; 32(3); pp. 244-255]; a more recent description of V2000 and the latest V3000 formats may be downloaded from [http://accelrys.com/products/collaborative-science/biovia-draw/ctfile-no-fee.html], or its own output produced when the “Full auxiliary information” option is selected. Input may originate from individual disk files or through the Windows clipboard. From v. 1.05, a limited support of V3000 Molfiles is included.
@@ -151,7 +162,7 @@ By default, the executable inchi-1 ignores polymer-specific data (which also ens
 
 Note that support of polymers is an experimental feature. To emphasize this, InChI/InChIKey for a polymer uses the ‘B’ flag character (for “Beta”), instead of ‘S’ or ‘N’ for standard/non-standard InChI. It is supposed that this flag will be replaced by common standard/non-standard conventions if and when InChI for polymers is finally adopted. 
 
-Note also that treatment of polymers and the appearance of polymer data in InChI string significantly changed in the current version 1.06. However, compatibility option `/Polymers105` instructs InChI Software to handle polymers in legacy mode, v. 1.05 (it is planned that this option will be eliminated in future, leaving explicit-pseudo atoms approach the sole mode).
+Note also that treatment of polymers and the appearance of polymer data in InChI string significantly changed in the version 1.06. However, compatibility option `/Polymers105` instructs InChI Software to handle polymers in legacy mode, v. 1.05 (it is planned that this option will be eliminated in future, leaving explicit-pseudo atoms approach the sole mode).
 
 For the full list of enhancements in v. 1.06, please see items "new in v. 1.06" in Table 4 below.
 
@@ -264,7 +275,7 @@ Note that the above options form a subset of a full options set available in the
 
 The exact set of InChI Software options has been changing from release to release. 
 
-The description below refers to the current v. 1.06. 
+The description below refers to v. 1.07-beta3. 
 
 The options are available in graphical program winchi-1, command line executable inchi-1 and through InChI API. Not all the options are available for all the parts of software; the  maximal set of options is available for the inchi-1 program.
 
@@ -349,7 +360,7 @@ Since the software v. 1.03, the command-line option `SaveOpt`  was introduced to
 *Since v. 1.06, this option is deprecated.* 
 It is still retained for compatibility reasons, but no further development is planned. For the SaveOpt details, please consult InChI Software User Guide of v. 1.05 (2017) available at https://www.inchi-trust.org/downloads/
 
-The next table summarizes the current, v. 1.06,  availability of various options in the various parts of the InChI Software.
+The next table summarizes, v. 1.06,  availability of various options in the various parts of the InChI Software.
 
 **Table 4. Availability of InChI Software options (note entries marked "new in v. 1.06 ).**
 
