@@ -3,8 +3,8 @@
  * 
  * International Chemical Identifier (InChI)
  * Version 1
- * Software version 1.06
- * December 15, 2020
+ * Software version 1.07-beta3
+ * January 15, 2024
  *
  * The InChI library and programs are free software developed under the
  * auspices of the International Union of Pure and Applied Chemistry (IUPAC).
@@ -35,7 +35,7 @@
 
 
 This directory contains documentation (PDF format)related to 
-InChI Software v. 1.06.
+InChI Software v. 1.07-beta3.
 
 
 RelNotes                    Release Notes
