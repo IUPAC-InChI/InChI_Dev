@@ -452,7 +452,7 @@ int ProcessMultipleInputFiles(int argc, char* argv[])
             }
         }
 
-        targv[++targc] = NULL;
+        targv[++targc] = NULL; /* djb-rwth: ui_rr */
 
         ret = ProcessSingleInputFile(targc, targv); /* ProcessSingleInputFile() is a former main() */
 
@@ -1441,9 +1441,12 @@ void shuffle(void* obj, size_t nmemb, size_t size)
     while (n > 1)
     {
         size_t k = rrand((int)n--);
-        memcpy(temp, BYTE(obj) + n * size, size);
-        memcpy(BYTE(obj) + n * size, BYTE(obj) + k * size, size);
-        memcpy(BYTE(obj) + k * size, temp, size);
+        if (temp) /* djb-rwth: fixing a NULL pointer dereference */
+        {
+            memcpy(temp, BYTE(obj) + n * size, size);
+            memcpy(BYTE(obj) + n * size, BYTE(obj) + k * size, size);
+            memcpy(BYTE(obj) + k * size, temp, size);
+        }
     }
 #ifdef _WIN32
     _free_dbg(temp, _NORMAL_BLOCK); /* djb-rwth: _free_dbg for _malloc_dbg must be used if Windows SDK is used */
