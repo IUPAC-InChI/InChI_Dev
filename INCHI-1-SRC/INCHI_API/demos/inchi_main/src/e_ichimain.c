@@ -85,6 +85,7 @@ Use old (classic) library interface (see main() below)
 #include "e_0dstereo.h"
 #endif
 
+/*#include "jhj.h"*/ /* djb-rwrh: rinchi testing */
 
 /* External (from former e_ichi_parms.h) */
 #ifndef COMPILE_ALL_CPP
@@ -228,7 +229,6 @@ static int e_bEnableCmdlineOption( char *szCmdLine, const char *szOption, int bE
 /****************************************************************************/
 int main( int argc, char *argv[] )
 {
-
     STRUCT_DATA struct_data;
     STRUCT_DATA *sd = &struct_data;
 

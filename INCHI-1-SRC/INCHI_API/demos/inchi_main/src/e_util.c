@@ -49,6 +49,15 @@
 #include "e_util.h"
 #include "e_ichicomp.h"
 
+ /* djb-rwth: defining __isascii */
+#if defined(__isascii)
+#define is_ascii __isascii
+#elif defined(isascii)
+#define is_ascii isascii
+#else
+#define is_ascii(c)   ((unsigned)(c) < 0x80)
+#endif
+
 #define extract_ChargeRadical  e_extract_ChargeRadical
 #define normalize_name         e_normalize_name
 /******************************************************************************************************/
@@ -205,14 +214,14 @@ char* e_LtrimRtrim( char *p, int* nLen )
     int i, len = 0;
     if (p && ( len = strlen( p ) ))
     {
-        for (i = 0; i < len && __isascii( p[i] ) && isspace( p[i] ); i++)
+        for (i = 0; i < len && is_ascii( p[i] ) && isspace( p[i] ); i++)
             ;
         if (i)
         {
             len -= i; /* djb-rwth: avoiding l-value error */
             memmove(p, p + i, (long long)len + 1); /* djb-rwth: cast operator added */
         }
-        for (; 0 < len && __isascii( p[len - 1] ) && isspace( p[len - 1] ); len--)
+        for (; 0 < len && is_ascii( p[len - 1] ) && isspace( p[len - 1] ); len--)
             ;
         p[len] = '\0';
     }
