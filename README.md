@@ -1,8 +1,9 @@
-# `InChI v.1.07-Beta2` release notes
+# `InChI v.1.07-Beta3` release notes
 
 Release dates:
 
-- <em>Beta2</em>: 29/11/2023
+- <em>Beta3</em>: 23/01/2024
+- <em>Beta2</em>: 11/12/2023
 - <em>Beta1</em>: 20/11/2023
 
 ## Changelog
@@ -16,19 +17,20 @@ Release dates:
   - buffer overruns
   - improperly written conditional statements or bit-wise operations
 - <code>[makefile/makefile32](#MAKEFILE)</code> files and <code>Microsoft&reg; Visual Studio</code> projects/solutions have been updated and revised
+- `__isascii/isascii` macro support provided for all compilers
 
 <strong>Security issues fixed</strong>:
 
 - 5 buffer overflow issues due to use of large array dimensions
-- 114 security bugs related to improper `NULL` pointer dereferencing which might cause crashes or exits
+- 129 security bugs related to improper `NULL` pointer dereferencing which might cause crashes or exits
 - 39 memory leaks
 - 530 potential applications of optional [bounds checking functions](#BCF)
 
-Additionally, 26 potential security issues have been marked for further revision.
+Additionally, 29 potential security issues have been marked for further revision.
 
 <strong>Other issues fixed</strong>:
 
-- 2456 bugs and issues have been addressed:
+- 2480 bugs and issues have been addressed:
   - type conversions and mismatches
   - removing redundant variables and/or code
   - addressing `Clang/LLVM` warnings
