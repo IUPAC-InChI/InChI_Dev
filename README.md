@@ -16,8 +16,8 @@ Release dates:
   - security issues
   - buffer overruns
   - improperly written conditional statements or bit-wise operations
-- `__isascii/isascii` macro support provided for all compilers
 - <code>[makefile/makefile32](#MAKEFILE)</code> files and <code>Microsoft&reg; Visual Studio</code> projects/solutions have been updated and revised
+- `__isascii/isascii` macro support provided for all compilers
 
 <strong>Security issues fixed</strong>:
 
