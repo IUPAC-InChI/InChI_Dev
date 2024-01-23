@@ -1932,7 +1932,7 @@ IXA_BOOL INCHI_DECL IXA_INCHIBUILDER_CheckOption( IXA_STATUS_HANDLE hStatus,
     }
     else if (vOption == IXA_INCHIBUILDER_OPTION_OnlyRecMet)
     {
-        val = (int)builder->option_OnlyRecMet;
+        val = builder->option_OnlyRecMet; /* djb-rwth: cast operator deleted for compatibility */
     }
     else if (vOption == IXA_INCHIBUILDER_OPTION_Polymers105)
     {
