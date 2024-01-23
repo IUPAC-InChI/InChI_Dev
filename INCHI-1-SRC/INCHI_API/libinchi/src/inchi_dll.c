@@ -1396,7 +1396,7 @@ int SetBondProperties( inp_ATOM *at,
 
     /* store the connection */
 
-    /* bond type */ /* djb-rwth: buffer overruns avoided implicitly */
+    /* bond type */ /* djb-rwth: buffer overruns avoided implicitly */ /* djb-rwth: ui_rr? */
     at[a1].bond_type[n1] =
         at[a2].bond_type[n2] = cBondType;
         /* connection */

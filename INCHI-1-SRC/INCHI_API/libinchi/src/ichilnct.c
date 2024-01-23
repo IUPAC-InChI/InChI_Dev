@@ -295,9 +295,8 @@ int InchiToInchi_Input( INCHI_IOSTREAM *inp_molfile,
                                 }
                                 FreeInchi_Atom( &at_old );
                                 /*  copy newly read structure */
-                                memcpy(orig_at_data->atom + orig_at_data->num_atoms,
-                                    at_new,
-                                    num_inp_atoms_new * sizeof(orig_at_data->atom[0]));
+                                if (at_new) /* djb-rwth: fixing a NULL pointer dereference */
+                                    memcpy(orig_at_data->atom + orig_at_data->num_atoms, at_new, num_inp_atoms_new * sizeof(orig_at_data->atom[0]));
                                 /*  copy newly read 0D stereo */
                                 if (num_inp_0D_new > 0 && stereo0D_new)
                                 {
