@@ -4035,8 +4035,8 @@ int MergeSaltTautGroups( CANON_GLOBALS *pCG,
                  /* >C-SH, >C-S(-); S=S,Se,Te */
 
                  /* other proton donor or acceptor */
-                bHasAcidicHydrogen(at, i) && ((s_type = 3), (s_subtype = SALT_p_DONOR)) ||
-                bHasAcidicMinus(at, i) && ((s_type = 3), (s_subtype = SALT_p_ACCEPTOR))
+                bHasAcidicHydrogen(at, i) && ((s_type = 3), (s_subtype = SALT_p_DONOR)) || /* djb-rwth: ui_rr */
+                bHasAcidicMinus(at, i) && ((s_type = 3), (s_subtype = SALT_p_ACCEPTOR)) /* djb-rwth: ui_rr */
                 )
             {
 
@@ -4251,9 +4251,9 @@ int MakeIsotopicHGroup( inp_ATOM *at,
                    /* >C-SH, >C-S(-); S=S,Se,Te */
 
                    /* other proton donor or acceptor */
-                     bHasAcidicHydrogen(at, i) && ((s_type = 3), (s_subtype = SALT_p_DONOR)) ||
-                     bHasAcidicMinus(at, i) && ((s_type = 3), (s_subtype = SALT_p_ACCEPTOR)) ||
-                     bHasOtherExchangableH(at, i) && ((s_type = 3), (s_subtype = SALT_DONOR_H))))
+                     bHasAcidicHydrogen(at, i) && ((s_type = 3), (s_subtype = SALT_p_DONOR)) || /* djb-rwth: ui_rr */
+                     bHasAcidicMinus(at, i) && ((s_type = 3), (s_subtype = SALT_p_ACCEPTOR)) || /* djb-rwth: ui_rr */
+                     bHasOtherExchangableH(at, i) && ((s_type = 3), (s_subtype = SALT_DONOR_H)))) /* djb-rwth: ui_rr */
 
                      )
             {
@@ -6716,7 +6716,7 @@ int CountTautomerGroups( sp_ATOM *at,
             if (j >= 0)
             {
                 /*  j=-1 in case of no mobile hydrogen atoms (charges only), group being removed */
-                if (nCurrEndpointAtNoPos[j] >=   /*  debug only */
+                if (nCurrEndpointAtNoPos[j] >=   /*  debug only */ /* djb-rwth: ui_rr */
                      t_group[j].nFirstEndpointAtNoPos + t_group[j].nNumEndpoints)
                 {
                     goto err_exit_function; /*  program error */ /*   <BRKPT> */

@@ -25,12 +25,6 @@
 #define USE_BCF 0
 #endif
 
-#if USE_BCF
-errno_t memset_ssc(void* v, rsize_t smax, int c, rsize_t n);
-#else
-int memset_usc(void* v, size_t smax, int c, size_t n);
-#endif
-
 int max_3(int a, int b, int c);
 
 #endif

@@ -1378,17 +1378,17 @@ void FreeStrFromINChI( StrFromINChI *pStruct[INCHI_NUM][TAUT_NUM],
                 */
                 if (pStruct1[k].pXYZ)
                 {
-                    inchi_free( pStruct1[k].pXYZ );
+                    inchi_free( pStruct1[k].pXYZ ); /* djb-rwth: ui_rr? */
                 }
                 /*==== begin ====*/
                 free_t_group_info( &pStruct1[k].ti );
                 if (pStruct1[k].endpoint)
                 {
-                    inchi_free( pStruct1[k].endpoint );
+                    inchi_free( pStruct1[k].endpoint ); /* djb-rwth: ui_rr? */
                 }
                 if (pStruct1[k].fixed_H)
                 {
-                    inchi_free( pStruct1[k].fixed_H );
+                    inchi_free( pStruct1[k].fixed_H ); /* djb-rwth: ui_rr? */
                 }
                 for (j = 0; j < TAUT_NUM; j++)
                 {

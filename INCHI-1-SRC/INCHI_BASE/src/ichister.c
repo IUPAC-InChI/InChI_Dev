@@ -1017,10 +1017,10 @@ double triple_prod_and_min_abs_sine2( double at_coord[][3],
             /*  (instead of a tetrahedra calculate parallelogram/parallelepiped area/volume) */
 
             /*  4 heights from each of the 4 vertices to the opposite plane */
-            s0 = prod / len3( cross_prod3( at_coord[1], at_coord[2], tmp ) );
-            s1 = prod / len3( cross_prod3( at_coord[0], at_coord[2], tmp ) );
-            s2 = prod / len3( cross_prod3( at_coord[0], at_coord[1], tmp ) );
-            s3 = prod / len3( cross_prod3( e[0], e[1], tmp ) );
+            s0 = prod / len3((double *)cross_prod3( at_coord[1], at_coord[2], tmp ) ); /* djb-rwth: cast operator added for compatibility */
+            s1 = prod / len3((double *)cross_prod3( at_coord[0], at_coord[2], tmp ) ); /* djb-rwth: cast operator added for compatibility */
+            s2 = prod / len3((double *)cross_prod3( at_coord[0], at_coord[1], tmp ) ); /* djb-rwth: cast operator added for compatibility */
+            s3 = prod / len3((double *)cross_prod3( e[0], e[1], tmp ) ); /* djb-rwth: cast operator added for compatibility */
             /*  abs. value of a sine of an angle between each tetrahedra edge and plane */
             /*  sine = height / edge length */
             if (( sine_value = s0 / e01 ) < min_sine_value)
@@ -2363,7 +2363,7 @@ int half_stereo_bond_parity( inp_ATOM *at,
     for (j = 0; j < 3; j++)
     {
         /*  pnt[0..2] = {0-1, 1-2, 2-0} */
-        tmp[j] = len3( diff3( at_coord[j], at_coord[( j + 1 ) % 3], pnt[j] ) );
+        tmp[j] = len3((double *)diff3( at_coord[j], at_coord[( j + 1 ) % 3], pnt[j] ) ); /* djb-rwth: cast operator added for compatibility */
         if (tmp[j] < MIN_SINE)
         {
             goto exit_function; /*  angle #i-cur_at-#j is too small */
@@ -2374,10 +2374,10 @@ int half_stereo_bond_parity( inp_ATOM *at,
     /*  replace previous pnt[p2], tmp[p2] with new values; the old values do not have any additional */
     /*  information because pnt[p0]+pnt[p1]+pnt[p2]=0 */
     /*  10-6-2003: a cross-product of one pair pnt[j], pnt[(j+1)%3] can be very small. Find the larges one */
-    tmp1 = len3( cross_prod3( pnt[0], pnt[1], temp ) );
+    tmp1 = len3((double *)cross_prod3( pnt[0], pnt[1], temp ) ); /* djb-rwth: cast operator added for compatibility */
     for (j = 1, k = 0; j < 3; j++)
     {
-        tmp2 = len3( cross_prod3( pnt[j], pnt[( j + 1 ) % 3], temp ) );
+        tmp2 = len3((double *)cross_prod3( pnt[j], pnt[( j + 1 ) % 3], temp ) ); /* djb-rwth: cast operator added for compatibility */
         if (tmp2 > tmp1)
         {
             tmp1 = tmp2;
@@ -2388,7 +2388,7 @@ int half_stereo_bond_parity( inp_ATOM *at,
     p0 = k;
     p1 = ( k + 1 ) % 3;
     p2 = ( k + 2 ) % 3;
-    tmp[p2] = len3( cross_prod3( pnt[p0], pnt[p1], pnt[p2] ) );
+    tmp[p2] = len3((double *)cross_prod3( pnt[p0], pnt[p1], pnt[p2] ) ); /* djb-rwth: cast operator added for compatibility */
     if (tmp[p2] < MIN_SINE*tmp[p0] * tmp[p1])
     {
         goto exit_function; /*  pnt[p0] is almost colinear to pnt[p1] */
@@ -2399,7 +2399,7 @@ int half_stereo_bond_parity( inp_ATOM *at,
     min_tmp = dot_prod3( at_coord[0], pnt[p2] ); /*  non-planarity measure (sine): hight of at_coord[] pyramid */
     mult3( pnt[p2], min_tmp, pnt[p0] ); /*  vector height of the pyramid, ideally 0 */
     /*  find new pnt[p0] = projection of at_coord[p0] on plane orthogonal to pnt[p2] */
-    tmp[p0] = len3( diff3( at_coord[0], pnt[p0], pnt[p0] ) );
+    tmp[p0] = len3((double *)diff3( at_coord[0], pnt[p0], pnt[p0] ) ); /* djb-rwth: cast operator added for compatibility */
     mult3( pnt[p0], 1.0 / tmp[p0], pnt[p0] );  /*  new x axis basis vector */
     cross_prod3( pnt[p2], pnt[p0], pnt[p1] ); /*  new y axis basis vector */
     /*  find at_coord in the new basis of {pnt[p0], pnt[p1], pnt[p2]} */

@@ -234,9 +234,8 @@ int CreateOrigInpDataFromMolfile( INCHI_IOSTREAM *inp_file,
                 }
 
                 /*  Copy newly read structure */
-                memcpy(orig_at_data->at + orig_at_data->num_inp_atoms,
-                    at_new,
-                    num_inp_atoms_new * sizeof(orig_at_data->at[0]));
+                if (at_new) /* djb-rwth: fixing a NULL pointer dereference */
+                    memcpy(orig_at_data->at + orig_at_data->num_inp_atoms, at_new, num_inp_atoms_new * sizeof(orig_at_data->at[0]));
                 if (orig_at_data->szCoord && szCoordNew)
                 {
                     memcpy(orig_at_data->szCoord + orig_at_data->num_inp_atoms,

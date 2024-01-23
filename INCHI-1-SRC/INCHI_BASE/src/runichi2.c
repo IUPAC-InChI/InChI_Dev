@@ -1193,9 +1193,8 @@ int InchiToOrigAtom( INCHI_IOSTREAM *inp_molfile,
                     szCoordOld = NULL;
                 }
                 /*  copy newly read structure */
-                memcpy(orig_at_data->at + orig_at_data->num_inp_atoms,
-                    at_new,
-                    num_inp_atoms_new * sizeof(orig_at_data->at[0]));
+                if (at_new) /* djb-rwth: fixing a NULL pointer dereference */
+                    memcpy(orig_at_data->at + orig_at_data->num_inp_atoms, at_new, num_inp_atoms_new * sizeof(orig_at_data->at[0]));
                 if (orig_at_data->szCoord && szCoordNew)
                 {
                     memcpy(orig_at_data->szCoord + orig_at_data->num_inp_atoms,
@@ -2367,7 +2366,7 @@ int analyze_CRU_folding(ORIG_ATOM_DATA *orig_at_data,
     */
 
     /*djb-rwth: the whole block had to be rewritten to fix NULL pointer dereference */
-    if (frag[n_frags_in_repeating_subunit] && frag[n_frags_in_repeating_subunit - 1]) /* djb-rwth: fixing a NULL pointer dereference */
+    if (frag[n_frags_in_repeating_subunit] && frag[n_frags_in_repeating_subunit - 1]) /* djb-rwth: fixing a NULL pointer dereference */ /* djb-rwth: ui_rr */
     {
         subunit_last_atom        = frag[n_frags_in_repeating_subunit - 1]->end2;
         next_subunit_first_atom  = frag[n_frags_in_repeating_subunit]->end1;

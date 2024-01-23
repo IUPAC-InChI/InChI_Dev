@@ -379,7 +379,8 @@ int OrigAtData_Duplicate( ORIG_ATOM_DATA *new_orig_atom,
                     int *lst = NULL;
                     int *old_lst = orig_atom->v3000->lists_sterel[m];
                     nn = old_lst[1] + 2;
-                    lst = new_v3000->lists_sterel[m] = (int *) inchi_calloc( nn, sizeof( int ) );
+                    if (new_v3000->lists_sterel) /* djb-rwth: fixing a NULL pointer dereference */
+                        lst = new_v3000->lists_sterel[m] = (int *) inchi_calloc( nn, sizeof( int ) );
                     if (!lst)
                     {
                         inchi_free(new_v3000); /* djb-rwth: avoiding memory leak */
@@ -3043,7 +3044,7 @@ int OAD_CollectReachableAtoms( ORIG_ATOM_DATA  *orig_at_data,
 
         for (j = 0; j < natnums; j++)
         {
-            reachable[(*n_reachable)++ ] = atnums[j];
+            reachable[(*n_reachable)++ ] = atnums[j]; /* djb-rwth: ui_rr */
         }
     }
 
