@@ -744,7 +744,8 @@ int inchi_vfprintf( FILE* f, const char* lpszFormat, va_list argList )
     }
     else
     {
-        ret = vfprintf( f, lpszFormat, argList );
+        if (lpszFormat) /* djb-rwth: fixing a NULL pointer dereference */
+            ret = vfprintf( f, lpszFormat, argList );
     }
 
     return ret;
