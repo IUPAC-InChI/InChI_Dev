@@ -426,6 +426,7 @@ int RestoreAtomConnectionsSetStereo( StrFromINChI *pStruct,
             /* fill out deleted H atom info */
             for (i = num_atoms; i < num_atoms + nNumDeletedH; i++)
             {
+                /* djb-rwth: ui_rr */
                 strcpy( at[i].elname, "H" );
                 at[i].el_number = EL_NUMBER_H;
                 at[i].orig_at_number = iAtNoOffset + i + 1;

@@ -37,9 +37,18 @@
 
 #include "mode.h"
 
-#if defined(COMPILE_ANSI_ONLY) && defined(__APPLE__)
+#if defined(COMPILE_ANSI_ONLY) && (defined(__APPLE__) || defined(__EMSCRIPTEN__))
 /*    For build under OSX, advice from Burt Leland */
 #include "ichicomp.h"    /* Needed for __isascii define */
+#endif
+
+/* djb-rwth: defining __isascii */
+#if defined(__isascii)
+#define is_ascii __isascii
+#elif defined(isascii)
+#define is_ascii isascii
+#else
+#define is_ascii(c)   ((unsigned)(c) < 0x80)
 #endif
 
 #include "util.h"
@@ -1739,7 +1748,7 @@ char* lrtrim( char *p, int* nLen )
 
     if (p && ( len = (int) strlen( p ) ))
     {
-        for (i = 0; i < len && __isascii( p[i] ) && isspace( p[i] ); i++)
+        for (i = 0; i < len && is_ascii( p[i] ) && isspace( p[i] ); i++)
         {
             ;
         }
@@ -1749,7 +1758,7 @@ char* lrtrim( char *p, int* nLen )
             (memmove)(p, p + i, ((long long)len + 1)); /* djb-rwth: now cast operator can be added */
         }
             
-        for (; 0 < len && __isascii( p[len - 1] ) && isspace( p[len - 1] ); len--)
+        for (; 0 < len && is_ascii( p[len - 1] ) && isspace( p[len - 1] ); len--)
         {
             ;
         }

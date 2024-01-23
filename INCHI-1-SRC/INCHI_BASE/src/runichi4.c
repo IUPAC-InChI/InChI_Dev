@@ -287,7 +287,7 @@ int SortAndPrintINChI( CANON_GLOBALS            *pCG,
             {
 
                 if (pINChISort[j][k1][i].pINChI[TAUT_NON] &&
-                    !pINChISort[j][k1][i].pINChI[TAUT_YES])
+                    !pINChISort[j][k1][i].pINChI[TAUT_YES]) /* djb-rwth: ui_rr */
                 {
                     /* make sure Mobile-H is always present */
                     for (k = 0; k < TAUT_NUM; k++)

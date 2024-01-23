@@ -89,7 +89,7 @@ int FixRestoredStructureStereo( struct tagCANON_GLOBALS *pCG,
     int        nPathLen, nDeltaH, nDeltaCharge, nNumVisitedAtoms;
     INChI_Stereo *pStereoInChI, *pStereo2InChI, *pStereoRevrs, *pStereo2Revrs;
 
-    pe = malloc (sizeof (*pe)); /* djb-rwth: initialisation added */
+    pe = (BNS_EDGE *) malloc (sizeof (*pe)); /* djb-rwth: initialisation added; cast operator added for compatibility */
     pe->flow = 0; /* djb-rwth: proper initialisation required to avoid garbage values */
 
     /* Stereo */

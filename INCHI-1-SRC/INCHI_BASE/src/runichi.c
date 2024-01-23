@@ -3175,7 +3175,7 @@ int mark_atoms_to_delete_or_renumber( ORIG_ATOM_DATA *orig_at_data,
             {
                 for (j = 0; j < natnums; j++)
                 {
-                    fail = IntArray_AppendIfAbsent(ed->del_atom, atnums[j]);
+                    fail = IntArray_AppendIfAbsent(ed->del_atom, atnums[j]); /* djb-rwth: ui_rr? */
                     if (fail)
                     {
                         ret = _IS_ERROR;

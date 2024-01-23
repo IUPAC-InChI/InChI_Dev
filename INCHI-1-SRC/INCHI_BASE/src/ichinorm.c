@@ -6477,7 +6477,7 @@ int OAD_Edit_Underivatize( struct tagINCHI_CLOCK *ic,
                         continue;
                     }
                     /*for ( k = 0; k < MAX_AT_DERIV && da[n].typ[k]; k ++ ) -- bug fixed 2013-11-07 DCh */
-                    for (k = 0; k < DERIV_AT_LEN && da[n].typ[k]; k++)
+                    for (k = 0; k < DERIV_AT_LEN && da[n].typ[k]; k++) /* djb-rwth: ui_rr */
                     {
                         if (da[n].typ[k] & DERIV_DUPLIC)
                         {
@@ -7093,7 +7093,7 @@ exit_function:
     {
         numUnderiv = sort_merge_underiv( pSdfValue, bOutputSdf, szUnderivList, cDerivSeparator, underivPrefix, underivPostfix ); /* djb-rwth: ignoring LLVM warning: variable used to store function return value */
         numUnderiv2 = sort_merge_underiv( pSdfValue, bOutputSdf, szUnderivList2, cDerivSeparator, underivPrefix2, underivPostfix2 ); /* djb-rwth: ignoring LLVM warning: variable used to store function return value */
-        sprintf(szbitUnderivList, "0x%0.8X", bitUnderivList);
+        sprintf(szbitUnderivList, "0x%.8X", bitUnderivList); /* djb-rwth: addressing GCC warning about 0 flag being ignored */
         numUnderiv3 = sort_merge_underiv( pSdfValue, bOutputSdf, szbitUnderivList, cDerivSeparator, underivPrefix3, underivPostfix3 ); /* djb-rwth: ignoring LLVM warning: variable used to store function return value */
     }
 #endif

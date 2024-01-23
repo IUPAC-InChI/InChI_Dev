@@ -266,7 +266,7 @@ int FillTgDiffHChgFH( TgDiffHChgFH tdhc[],
             for (i = 0; i < itg_out; i++)
             {
                 num = 0;
-                itg = tdhc[i].itg;
+                itg = tdhc[i].itg; /* djb-rwth: ui_rr? */
                 tdhc[i].i[type] = -999; /* empty */
                 while (IndList.pnEdges[j + 1] == itg)
                 {

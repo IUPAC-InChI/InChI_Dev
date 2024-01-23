@@ -2084,7 +2084,6 @@ char *szGetTag( const INCHI_TAG *Tag,
                 int             *bAlways )
 {
     int i, j, bit, num, len;
-    int stl1, stl2, dstsz;
     if (0 < nTag && nTag < 3)
     {
         /* no plain text comments: pick up the last tag */
@@ -2098,6 +2097,7 @@ char *szGetTag( const INCHI_TAG *Tag,
         if (j >= 0)
         {
 #if USE_BCF
+            int stl1, stl2, dstsz;
             stl1 = strlen(Tag[j].szXmlLabel) + 1;
             stl2 = strlen(Tag[j].szPlainLabel) + 1;
             dstsz = max_3(stl1, stl2, 5);
@@ -3994,7 +3994,7 @@ static int OutputINCHI_PolymerLayer( CANON_GLOBALS *pCG,
         for (i = 0; i < p->n; i++)
         {
             units2[i] = OAD_PolymerUnit_CreateCopy(p->units[i]);
-            if (NULL == units2[i])
+            if (NULL == units2[i]) /* djb-rwth: ui_rr */
             {
                 err = 4;
                 goto exit_function;

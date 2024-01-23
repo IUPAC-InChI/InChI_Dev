@@ -3890,8 +3890,8 @@ int CanonGraph( INCHI_CLOCK *ic,
         /* the two next lines intentionally switched */
         /* Create equitable partition in pi[k]  */
         PartitionGetFirstCell( &pi[k - 1], W, k, n );
-        v[k - 1] = CellGetMinNode( &pi[k - 1], &W[k - 1], 0, pCD1 );
-        e[k - 1] = 0;
+        v[k - 1] = CellGetMinNode( &pi[k - 1], &W[k - 1], 0, pCD1 ); /* djb-rwth: ui_rr? */
+        e[k - 1] = 0; /* djb-rwth: ui_rr? */
         if (dig || !PartitionSatisfiesLemma_2_25( &pi[k - 1], n ))
         {
             t_Lemma = k + 1;
@@ -4426,7 +4426,7 @@ L14:
     {
         index++;
     }
-    v[k - 1] = CellGetMinNode( &pi[k - 1], &W[k - 1], v[k - 1], pCD1 );
+    v[k - 1] = CellGetMinNode( &pi[k - 1], &W[k - 1], v[k - 1], pCD1 ); /* djb-rwth: ui_rr? */
 
     if (v[k - 1] == INCHI_CANON_INFINITY)
     {
