@@ -1,24 +1,25 @@
 # Change log
 ## v. 1.07-beta3 2024-01-19
 ### Changed
--  9 mathematical functions had to be rewritten in `ichister.c` and `e_0dstereo.c` to address functions' arguments issues related to arrays of various dimensions
+- 9 mathematical functions had to be rewritten in `ichister.c` and `e_0dstereo.c` to address functions' arguments issues related to arrays of various dimensions
 - 17 blocks of code in files `runichi2.c`, `inchi_dll_a2.c`, `ichiprt3.c`, `ichiread.c`, `ichirvr1.c`, `runichi.c`, `ichiparm.c` had to be rewritten to address:
     - memory leaks
     - security issues
     - buffer overruns
     - improperly written conditional statements or bit-wise operations
 - <code>[makefile/makefile32](/README.md#MAKEFILE)</code> files and `Microsoft® Visual Studio` projects/solutions have been updated and revised
+- `__isascii/isascii` macro support provided for all compilers
 
 ### Fixed (security)
 - 5 buffer overflow issues due to use of large array dimensions
-- 114 security bugs related to improper `NULL` pointer dereferencing which might cause crashes or exits
+- 129 security bugs related to improper `NULL` pointer dereferencing which might cause crashes or exits
 - 39 memory leaks
 - 530 potential applications of optional [bounds checking functions](/README.md#BCF)  
 
-Additionally, 26 potential security issues have been marked for further revision.
+Additionally, 29 potential security issues have been marked for further revision.
 
 ### Fixed
-- 2456 bugs and issues have been addressed:
+- 2480 bugs and issues have been addressed:
     - type conversions and mismatches
     - removing redundant variables and/or code
     - addressing `Clang/LLVM` warnings
