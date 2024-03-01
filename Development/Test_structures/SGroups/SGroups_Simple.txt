@@ -1,0 +1,24 @@
+SGroups Simple
+AnyPol
+Abbreviations
+AnyPol
+Component
+Copolymer
+Copolymer alt
+Copolymer blk
+Copolymer ran
+Crosslink
+Data
+Formulation
+Formulation False
+Generic
+grf
+Link
+mer
+Mixture
+Mixture with Data
+Mixture False
+Modification
+Monomer
+Multiple Group
+SRU
