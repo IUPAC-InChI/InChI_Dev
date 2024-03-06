@@ -1,0 +1,7 @@
+2-aminopropan-2-ol
+Buten-2-cis
+Buten-2-linear
+Buten-2-trans
+Buten-2-unknown-Biovia
+Buten-2-unknown-Chemaxon
+Isotopes-H-D-T-C-O
