@@ -1,0 +1,21 @@
+StereoTetrahedron_4_ligands_undefined-bromo-chloro-fluoro-iodo-methane
+  ACCLDraw03062423452D
+
+  0  0  0     0  0            999 V3000
+M  V30 BEGIN CTAB
+M  V30 COUNTS 5 4 0 0 0
+M  V30 BEGIN ATOM
+M  V30 1 F 2.6402 -2.5413 0 0 
+M  V30 2 C 3.8213 -2.5413 0 0 CFG=3 
+M  V30 3 I 3.8213 -1.3602 0 0 
+M  V30 4 Cl 3.8213 -3.7224 0 0 
+M  V30 5 Br 5.0024 -2.5413 0 0 
+M  V30 END ATOM
+M  V30 BEGIN BOND
+M  V30 1 1 1 2 
+M  V30 2 1 2 3 
+M  V30 3 1 2 4 
+M  V30 4 1 2 5 
+M  V30 END BOND
+M  V30 END CTAB
+M  END
